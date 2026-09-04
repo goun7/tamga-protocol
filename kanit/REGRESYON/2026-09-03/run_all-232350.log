@@ -1,0 +1,159 @@
+++ date -Iseconds
++ echo '# run_all — 2026-09-03T23:23:50+03:00'
+# run_all — 2026-09-03T23:23:50+03:00
++ echo '--- AT-001a: manifest doğrulama vektörleri (6/6 beklenir)'
+--- AT-001a: manifest doğrulama vektörleri (6/6 beklenir)
++ python3 tamga_validator.py validate tests/vectors/tc-a1
++ grep -q '"ok": *true'
++ kontrol 1 'tc-a1 ACCEPT'
++ '[' 1 = 1 ']'
++ PASS=1
++ say PASS 'tc-a1 ACCEPT'
++ echo '  [PASS] tc-a1 ACCEPT'
+  [PASS] tc-a1 ACCEPT
++ for tc in tc-a2 tc-a3 tc-a4 tc-a5 tc-a6
++ python3 tamga_validator.py validate tests/vectors/tc-a2
++ grep -q '"ok": *false'
++ kontrol 1 'tc-a2 RED'
++ '[' 1 = 1 ']'
++ PASS=2
++ say PASS 'tc-a2 RED'
++ echo '  [PASS] tc-a2 RED'
+  [PASS] tc-a2 RED
++ for tc in tc-a2 tc-a3 tc-a4 tc-a5 tc-a6
++ grep -q '"ok": *false'
++ python3 tamga_validator.py validate tests/vectors/tc-a3
++ kontrol 1 'tc-a3 RED'
++ '[' 1 = 1 ']'
++ PASS=3
++ say PASS 'tc-a3 RED'
++ echo '  [PASS] tc-a3 RED'
+  [PASS] tc-a3 RED
++ for tc in tc-a2 tc-a3 tc-a4 tc-a5 tc-a6
++ python3 tamga_validator.py validate tests/vectors/tc-a4
++ grep -q '"ok": *false'
++ kontrol 1 'tc-a4 RED'
++ '[' 1 = 1 ']'
++ PASS=4
++ say PASS 'tc-a4 RED'
++ echo '  [PASS] tc-a4 RED'
+  [PASS] tc-a4 RED
++ for tc in tc-a2 tc-a3 tc-a4 tc-a5 tc-a6
++ python3 tamga_validator.py validate tests/vectors/tc-a5
++ grep -q '"ok": *false'
++ kontrol 1 'tc-a5 RED'
++ '[' 1 = 1 ']'
++ PASS=5
++ say PASS 'tc-a5 RED'
++ echo '  [PASS] tc-a5 RED'
+  [PASS] tc-a5 RED
++ for tc in tc-a2 tc-a3 tc-a4 tc-a5 tc-a6
++ grep -q '"ok": *false'
++ python3 tamga_validator.py validate tests/vectors/tc-a6
++ kontrol 1 'tc-a6 RED'
++ '[' 1 = 1 ']'
++ PASS=6
++ say PASS 'tc-a6 RED'
++ echo '  [PASS] tc-a6 RED'
+  [PASS] tc-a6 RED
++ echo '--- sandbox kuruluyor (tek kullanımlık node)'
+--- sandbox kuruluyor (tek kullanımlık node)
++ rm -rf tests/simnet/.sandbox
++ mkdir -p tests/simnet/.sandbox/pkg
++ cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm tests/simnet/.sandbox/pkg/
+++ python3 -c 'import sys,json;print(json.load(sys.stdin)["seed_hex"])'
+++ python3 tamga_runner.py keygen
++ SEED=e4aa5a8dea52826ccca6c711e05de9973980be2878909c720bc6ba46dc4c0810
++ printf %s e4aa5a8dea52826ccca6c711e05de9973980be2878909c720bc6ba46dc4c0810
++ grep -q '"seq": 1'
++ python3 tamga_runner.py grant tests/simnet/.sandbox/pkg 0.01 takim-hibe
++ kontrol 0 'grant seq-1 zincire girdi'
++ '[' 0 = 1 ']'
++ FAIL=1
++ say FAIL 'grant seq-1 zincire girdi'
++ echo '  [FAIL] grant seq-1 zincire girdi'
+  [FAIL] grant seq-1 zincire girdi
++ python3 tamga_runner.py run tests/simnet/.sandbox/pkg --seed e4aa5a8dea52826ccca6c711e05de9973980be2878909c720bc6ba46dc4c0810 --note takim-notu
++ grep -q '"ok": *true'
++ kontrol 0 'koşum ok'
++ '[' 0 = 1 ']'
++ FAIL=2
++ say FAIL 'koşum ok'
++ echo '  [FAIL] koşum ok'
+  [FAIL] koşum ok
++ python3 tamga_runner.py ledger-verify tests/simnet/.sandbox/pkg
++ grep -q '"ok": *true'
++ kontrol 0 'zincir ucuca doğru'
++ '[' 0 = 1 ']'
++ FAIL=3
++ say FAIL 'zincir ucuca doğru'
++ echo '  [FAIL] zincir ucuca doğru'
+  [FAIL] zincir ucuca doğru
++ echo '--- F21: truncate → import RED (reason 14)'
+--- F21: truncate → import RED (reason 14)
++ python3 tamga_runner.py export tests/simnet/.sandbox/pkg -o tests/simnet/.sandbox/snap.tsg --seed e4aa5a8dea52826ccca6c711e05de9973980be2878909c720bc6ba46dc4c0810
++ python3 - tests/simnet/.sandbox/pkg/ledger.jsonl
++ python3 tamga_runner.py import tests/simnet/.sandbox/snap.tsg tests/simnet/.sandbox/pkg
++ grep -q 'reason_code": 14'
++ kontrol 0 'truncate sonrası import reason-14 RED'
++ '[' 0 = 1 ']'
++ FAIL=4
++ say FAIL 'truncate sonrası import reason-14 RED'
++ echo '  [FAIL] truncate sonrası import reason-14 RED'
+  [FAIL] truncate sonrası import reason-14 RED
++ echo '--- merkle: state kurcala → taze pkg'\''ye import RED (reason 17)'
+--- merkle: state kurcala → taze pkg'ye import RED (reason 17)
++ python3 - tests/simnet/.sandbox
++ python3 tamga_runner.py export tests/simnet/.sandbox/pkg -o tests/simnet/.sandbox/snap2.tsg --seed e4aa5a8dea52826ccca6c711e05de9973980be2878909c720bc6ba46dc4c0810
++ mkdir -p tests/simnet/.sandbox/pkg2
++ cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm tests/simnet/.sandbox/pkg2/
++ python3 tamga_runner.py import tests/simnet/.sandbox/snap2.tsg tests/simnet/.sandbox/pkg2
++ grep -q 'reason_code": 17'
++ kontrol 0 'merkle kurcalama reason-17 RED'
++ '[' 0 = 1 ']'
++ FAIL=5
++ say FAIL 'merkle kurcalama reason-17 RED'
++ echo '  [FAIL] merkle kurcalama reason-17 RED'
+  [FAIL] merkle kurcalama reason-17 RED
++ echo '--- göç: taze node'\''a taşınma + gömülü zincir (F24 kapanışı)'
+--- göç: taze node'a taşınma + gömülü zincir (F24 kapanışı)
++ python3 tamga_runner.py run tests/simnet/.sandbox/pkg --seed e4aa5a8dea52826ccca6c711e05de9973980be2878909c720bc6ba46dc4c0810
++ python3 tamga_runner.py export tests/simnet/.sandbox/pkg -o tests/simnet/.sandbox/snap3.tsg --seed e4aa5a8dea52826ccca6c711e05de9973980be2878909c720bc6ba46dc4c0810
++ mkdir -p tests/simnet/.sandbox/pkg3
++ cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm tests/simnet/.sandbox/pkg3/
++ python3 tamga_runner.py import tests/simnet/.sandbox/snap3.tsg tests/simnet/.sandbox/pkg3
++ grep -q '"ok": *true'
++ kontrol 0 'göç ACCEPT'
++ '[' 0 = 1 ']'
++ FAIL=6
++ say FAIL 'göç ACCEPT'
++ echo '  [FAIL] göç ACCEPT'
+  [FAIL] göç ACCEPT
++ python3 tamga_runner.py ledger-verify tests/simnet/.sandbox/pkg3
++ grep -q '"ok": *true'
++ kontrol 0 'gömülü zincir hedefte doğrulandı (F24)'
++ '[' 0 = 1 ']'
++ FAIL=7
++ say FAIL 'gömülü zincir hedefte doğrulandı (F24)'
++ echo '  [FAIL] gömülü zincir hedefte doğrulandı (F24)'
+  [FAIL] gömülü zincir hedefte doğrulandı (F24)
++ echo '--- AT-001d özü: snapshot/keystore düz-metin taraması'
+--- AT-001d özü: snapshot/keystore düz-metin taraması
++ LEAK=0
++ grep -q takim-notu tests/simnet/.sandbox/snap3.tsg
++ python3 - tests/simnet/.sandbox
++ '[' 0 -eq 0 ']'
++ '[' 0 = 0 ']'
++ kontrol 0 'snapshot gövdesinde 0 düz-metin sızıntı'
++ '[' 0 = 1 ']'
++ FAIL=8
++ say FAIL 'snapshot gövdesinde 0 düz-metin sızıntı'
++ echo '  [FAIL] snapshot gövdesinde 0 düz-metin sızıntı'
+  [FAIL] snapshot gövdesinde 0 düz-metin sızıntı
++ '[' 0 = 1 ']'
++ rm -rf tests/simnet/.sandbox
++ echo ''
+
++ echo 'SONUÇ: 6 PASS, 8 FAIL — log: kanit/REGRESYON/2026-09-03/run_all-232350.log'
+SONUÇ: 6 PASS, 8 FAIL — log: kanit/REGRESYON/2026-09-03/run_all-232350.log
++ '[' 8 = 0 ']'

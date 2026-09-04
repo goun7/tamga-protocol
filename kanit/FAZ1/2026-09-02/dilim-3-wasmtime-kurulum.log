@@ -1,0 +1,16 @@
+# Dilim-3 ön-adım: wasmtime kurulumu (tekrar: SHA256SUMS asset'i bu sürümde yok)
+# bütünlük çıpası: GitHub API asset digest (TLS) — dürüst not, kanıt kültürü
+
+--- beklenen digest (GitHub API):
+sha256:4c2e31b68ad99e0a519f225a261fda099eb15f056d4a24fdb3c2a46517bde1df
+--- indirme (2026-09-02T21:09:50+03:00):
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0
+  0      0   0      0   0      0      0      0                              0100 10.97M 100 10.97M   0      0 18.42M      0                              0100 10.97M 100 10.97M   0      0 18.42M      0                              0100 10.97M 100 10.97M   0      0 18.42M      0                              0
+curl rc=0, boyut: 11512724 bayt
+--- sha256 doğrulama:
+hesap: sha256:4c2e31b68ad99e0a519f225a261fda099eb15f056d4a24fdb3c2a46517bde1df
+DOĞRULANDI ✔
+--- açma + kurulum:
+wasmtime 48.0.1 (7bac2c277 2026-08-24)

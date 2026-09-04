@@ -1,0 +1,87 @@
+# AT-001 c/d özü regresyonu — Dilim-6/8 değişiklikleri sonrası (2026-09-03)
+
+--- [AT-001c özü] c30 (31s döngü) wall-ölçümü hâlâ doğru mu:
+pkg-c30 vektörü yok — tests/agent-src'ten yeniden imza gerekir
+tc-a1
+tc-a2
+tc-a3
+tc-a4
+tc-a5
+tc-a6
+{"ok": false, "wall_ms": 0, "\u015fart_wall_ge_30s": false, "fee_sim": null}
+
+--- [AT-001d özü] diskte düz-metin taraması (seed/not sızıntısı):
+  0/3 düz-metin sızıntı ✔ (hafıza içerikleri yalnız şifreli gövdede)
+--- keyless export denemesi RED:
+/usr/lib/python3.14/getpass.py:99: GetPassWarning: Can not control echo on the terminal.
+  passwd = fallback_getpass(prompt, stream)
+Warning: Password input may be echoed.
+keystore parolası: Traceback (most recent call last):
+  File "/usr/lib/python3.14/getpass.py", line 73, in unix_getpass
+    old = termios.tcgetattr(fd)     # a copy to save
+termios.error: (25, 'Inappropriate ioctl for device')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/gokun/Masaüstü/Projeler/01-KökProtocol/tamga_runner.py", line 498, in <module>
+    sys.exit(cmds[sys.argv[1]](sys.argv[2:]))
+             ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/gokun/Masaüstü/Projeler/01-KökProtocol/tamga_runner.py", line 371, in cmd_export
+    ks_ct = xenc(seed, b"", ks_nonce, kdf(passphrase(), salt))
+                                          ~~~~~~~~~~^^
+  File "/home/gokun/Masaüstü/Projeler/01-KökProtocol/tamga_runner.py", line 38, in passphrase
+    p = os.environ.get("TAMGA_KS_PASSPHRASE") or getpass.getpass("keystore parolası: ")
+                                                 ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/getpass.py", line 99, in unix_getpass
+    passwd = fallback_getpass(prompt, stream)
+  File "/usr/lib/python3.14/getpass.py", line 143, in fallback_getpass
+    return _raw_input(prompt, stream, echo_char=echo_char)
+  File "/usr/lib/python3.14/getpass.py", line 183, in _raw_input
+    raise EOFError
+EOFError
+
+--- [AT-001c özü v2] c30 wasm bulundu (tests/agent-src/target/.../release/c30.wasm), paket kurup koşuyorum:
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+KeyError: 'runtime'
+Traceback (most recent call last):
+  File "/home/gokun/Masaüstü/Projeler/01-KökProtocol/tamga_validator.py", line 162, in <module>
+    {"keygen": cmd_keygen, "sign": cmd_sign, "validate": cmd_validate}[sys.argv[1]](sys.argv[2:])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/gokun/Masaüstü/Projeler/01-KökProtocol/tamga_validator.py", line 25, in cmd_sign
+    m = json.loads(pathlib.Path(mp).read_text(encoding="utf-8"))
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IsADirectoryError: [Errno 21] Is a directory: 'tests/simnet/node-C/pkg-c30'
+--- c30 koşumu (wall ≥ 30000ms şartı):
+{"ok": false, "wall_ms": 0, "sart_wall_ge_30s": false, "fee_sim": null}
+
+--- [AT-001c özü v3] pkg-c30 doğru manifest ile (runtime.limits.cpu_ms_per_run=60000):
+pkg-c30 hazir: tamga-c30-sayaci, cpu_ms_per_run=60000
+Traceback (most recent call last):
+  File "/home/gokun/Masaüstü/Projeler/01-KökProtocol/tamga_validator.py", line 162, in <module>
+    {"keygen": cmd_keygen, "sign": cmd_sign, "validate": cmd_validate}[sys.argv[1]](sys.argv[2:])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/gokun/Masaüstü/Projeler/01-KökProtocol/tamga_validator.py", line 25, in cmd_sign
+    m = json.loads(pathlib.Path(mp).read_text(encoding="utf-8"))
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IsADirectoryError: [Errno 21] Is a directory: 'tests/simnet/node-C/pkg-c30'
+--- c30 koşumu (şart: ok=true VE wall_ms ≥ 30000):
+{"ok": false, "wall_ms": 0, "sart_wall_ge_30s": false, "fee_sim": null}
+
+--- [AT-001c özü v4] sign doğru argüman sırasıyla (manifest, wasm, key):
+signed: tests/simnet/node-C/pkg-c30/tamga.json
+--- c30 koşumu (şart: ok=true VE wall_ms ≥ 30000):
+{"ok": true, "wall_ms": 31491, "sart_wall_ge_30s": true, "fee_sim": 0.000352943}

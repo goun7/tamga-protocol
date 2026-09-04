@@ -1,0 +1,19 @@
+# Audit-2 regresyon koşusu — 2026-09-02T21:05:46+03:00
+
+## F6 rollback negatifi: node-B sessions=3'te, snapshot (sessions=2) yeniden import → reason 8 beklenir
+{"ok": false, "op": "import", "reason_code": 8, "reason": "snapshot_replay_rollback"}
+
+## AT-001a regresyonu (E-4 owner fix sonrası validator etkilenmez — 6/6 beklenir)
+tc-a1: ACCEPT manifest_ok
+tc-a2: RED code_hash_mismatch
+tc-a3: RED unknown_field: (root).admin_backdoor
+tc-a4: RED unknown_capability: bilinmeyen yetenek: 'root'
+tc-a5: RED signature_invalid
+tc-a6: RED unsupported_spec_version
+
+## İzin denetimi (F4/F5/0600 hijyeni)
+600 tests/simnet/node-B/pkg/state.json
+600 tests/simnet/node-B/pkg/ledger.jsonl
+600 tests/simnet/snapshot2.tsg
+644 tests/keys/saldirgan/seed.hex
+F5 kalinti kapatildi

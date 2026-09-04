@@ -1,0 +1,13 @@
+# AT-001d — Host-Körlük (at-rest) — 2026-09-02T21:45:57+03:00
+## snapshot içinde 4 düz-metin işaret araması (hepsi 0 olmalı):
+  isaret 'soru-1': 0 eslesme
+  isaret 'soru-2': 0 eslesme
+  isaret 'AT001b-not': 0 eslesme
+  isaret 'agent-std-cikti-kaniti': 0 eslesme
+## anahtarsız/yanlış anahtarla açma denemesi:
+/usr/lib/python3.14/getpass.py:99: GetPassWarning: Can not control echo on the terminal.
+  passwd = fallback_getpass(prompt, stream)
+Warning: Password input may be echoed.
+keystore parolası: {"ok": false, "op": "import", "reason_code": 4, "reason": "keystore_unlock_failed"}
+{"ok": false, "op": "import", "reason_code": 4, "reason": "keystore_unlock_failed"}
+AT-001d: PASS — duz-metin sizintisi yok + anahtarsiz acma RED

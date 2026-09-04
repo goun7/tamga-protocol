@@ -1,0 +1,23 @@
+# run_all — 2026-09-03T23:28:14+03:00
+--- AT-001a: manifest doğrulama vektörleri (1 ACCEPT + 5 RED beklenir)
+  [PASS] tc-a1 ACCEPT
+  [PASS] tc-a2 RED
+  [PASS] tc-a3 RED
+  [PASS] tc-a4 RED
+  [PASS] tc-a5 RED
+  [PASS] tc-a6 RED
+--- sandbox kuruluyor (tek kullanımlık node)
+  [PASS] grant seq-1 zincire girdi
+  [PASS] koşum ok
+  [PASS] zincir ucuca doğru
+--- F21: truncate → import RED (reason 14)
+  [FAIL] truncate sonrası import reason-14 RED
+--- merkle: state kurcala → taze pkg'ye import RED (reason 17)
+  [FAIL] merkle kurcalama reason-17 RED
+--- göç: taze node'a taşınma + gömülü zincir (F24 kapanışı)
+  [PASS] göç ACCEPT
+  [PASS] gömülü zincir hedefte doğrulandı (F24)
+--- AT-001d özü: snapshot gövdesi şifreli (düz-metin taraması)
+  [PASS] snapshot gövdesinde 0 düz-metin sızıntı
+
+SONUÇ: 12 PASS, 2 FAIL — log: kanit/REGRESYON/2026-09-03/run_all-232814.log

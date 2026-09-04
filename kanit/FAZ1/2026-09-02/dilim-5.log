@@ -1,0 +1,26 @@
+# Faz 1 Dilim-5 — ledger hash-zinciri kanıt kaydı (RFC-003 D4/D7 taslak gerçeklemesi)
+# tarih: 2026-09-02T22:39:54+03:00
+
+--- grant (runner alt-komutu, zincirli):
+{"ok": true, "op": "grant", "seq": 1, "h": "5f070b79caa180412288176c5d6c310205f45b58d02d0d603a3c22a560c35155", "amount": 0.01, "note": "zincire eklendi (RFC-003 D5 taslak)"}
+--- run (charge zincire eklenir):
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "a61f8ea46b184dd8f46cc46ce809a367b62c2eaf9ddb7717ffabfc998df86b27", "session": 1, "nodes": 3, "engine": "wasmtime-v48.0.1", "wall_ms": 166, "cpu_saat": 4.386e-06, "ram_gb_sn": 0.003545509, "io_mb": 4.9e-05, "fee_sim": 1.831e-06, "stdout_sha256": "c06fc1df75a83f3667f18246691751ebae1c421a53c4dcea2ce202ddb0230215", "stdout_file": "tests/simnet/node-A/pkg/session-1.stdout", "note_id": "m3"}
+--- ikinci grant:
+{"ok": true, "op": "grant", "seq": 3, "h": "7b11c70aba72d080f96613379e3572a9768f7e4597fb700594f2d2679152d400", "amount": 0.02, "note": "zincire eklendi (RFC-003 D5 taslak)"}
+--- ledger özeti:
+{"ok": true, "op": "ledger", "pkg": "pkg", "charges": 1, "grants": 2, "fees_sim": 1.831e-06, "balance_sim": 0.029998169}
+--- ledger-verify (temiz zincir → ok):
+{"ok": true, "op": "ledger-verify", "lines": 3, "head": "7b11c70aba72d080f96613379e3572a9768f7e4597fb700594f2d2679152d400", "note": "zincir ucuca dogru (RFC-003 D7 taslak)"}
+
+--- F18 negatif: negatif amount → RED:
+{"ok": false, "op": "grant", "reason_code": 14, "reason": "ledger_broken: amount (0,1e6] dışında"}
+--- F19: kurcalama testi (kopya üzerinde):
+satır-1 amount 0.01 -> 999.0 (kopyada)
+{"ok": false, "op": "ledger-verify", "reason_code": 14, "broken_at": 1, "reason": "ledger_broken"}
+--- AT-001a regresyonu:
+  tc-a1: ACCEPT manifest_ok
+  tc-a2: RED code_hash_mismatch
+  tc-a3: RED unknown_field: (root).admin_backdoor
+  tc-a4: RED unknown_capability: bilinmeyen yetenek: 'root'
+  tc-a5: RED signature_invalid
+  tc-a6: RED unsupported_spec_version

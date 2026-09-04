@@ -1,0 +1,27 @@
+# Tamga Runner — Faz 1 Dilim-1 ön-kanıt kaydı (v3: scrypt maxmem + tek keygen)
+# tarih: 2026-09-02T20:31:59+03:00
+# not: AT-001b FORMAL koşusu WASM entegrasyonundan SONRA yapılır; bu kayıt Dilim-1 omurgasının (D1-D5) kanıtıdır.
+# not: simnet anahtarıdır, gerçek değer taşımaz; RFC-003 öncesi hibe kayıtları simnet-manuel'dir.
+
+--- [node-A] keygen (D3: diske yazmaz) — TEK çağrı, seed bu çıktıdan alınır
+{"ok": true, "op": "keygen", "agent_id": "1a257b86b3f57b078a11232bb6caf168445c8d23a3fe88a891e66b5773cfdb6e", "seed_hex": "7db9265fa3c78fabb91163cbca23cf3ad64b4928e37e78c76c69077d11ae1537", "note": "D3: seed diske yazılmadı; güvenli saklayın"}
+--- [node-A] run --seed *** (AT-001c ön-halka: ölçüm+ücret)
+{"ok": true, "op": "run", "pkg": "pkg", "agent_id": "1a257b86b3f57b078a11232bb6caf168445c8d23a3fe88a891e66b5773cfdb6e", "session": 1, "cpu_ms": 86, "fee_sim": 0.000106484}
+--- [node-A] export -o snapshot.tsg (AT-001b: tek şifreli dosya)
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/snapshot.tsg", "sha256": "3b3edd5fb84b433e57b94db2e0c8280db83a3dc29c2d1a86ee07616f1c7f8199", "bytes": 799, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+--- [node-A] ledger
+{"ok": true, "op": "ledger", "pkg": "pkg", "charges": 1, "grants": 1, "fees_sim": 0.000106484, "balance_sim": 0.009893516}
+
+--- [taşıma] snapshot.tsg node-B'ye kopyalandı
+--- [node-B] import (D4: RFC-001 yeniden doğrulama + keystore açma)
+{"ok": true, "op": "import", "pkg": "pkg", "agent_id": "1a257b86b3f57b078a11232bb6caf168445c8d23a3fe88a891e66b5773cfdb6e", "resumed_session": 1, "note": "AT-001e: kimlik keystore'dan, hafıza gövdeden restore"}
+--- [node-B] run --seed *** (AT-001e: aynı agent_id, oturum sürüyor)
+{"ok": true, "op": "run", "pkg": "pkg", "agent_id": "1a257b86b3f57b078a11232bb6caf168445c8d23a3fe88a891e66b5773cfdb6e", "session": 2, "cpu_ms": 89, "fee_sim": 0.000109152}
+--- [node-B] ledger
+{"ok": true, "op": "ledger", "pkg": "pkg", "charges": 1, "grants": 1, "fees_sim": 0.000109152, "balance_sim": 0.009890848}
+
+--- [AT-001d ön-grep] gövde işareti 'muhrudur' snapshot'ta aranıyor (0 beklenir)
+eşleşme: 0 (beklenen: 0) — host-körlük at-rest
+--- [AT-001d ön-] yanlış parola → reason_code 4 beklenir
+{"ok": false, "op": "import", "reason_code": 4, "reason": "keystore_unlock_failed"}
+(RED alındı — beklenen)

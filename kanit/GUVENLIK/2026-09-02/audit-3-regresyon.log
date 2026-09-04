@@ -1,0 +1,15 @@
+# Audit-3 regresyon koşusu — 2026-09-02T21:31:23+03:00
+--- F16 sonrası koşum (env={} ile):
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "1a257b86b3f57b078a11232bb6caf168445c8d23a3fe88a891e66b5773cfdb6e", "session": 4, "nodes": 5, "engine": "wasmtime-v48.0.1", "cpu_ms": 39, "io_mb": 4.9e-05, "fee_sim": 3.9049e-05, "stdout_sha256": "c06fc1df75a83f3667f18246691751ebae1c421a53c4dcea2ce202ddb0230215", "stdout_file": "tests/simnet/node-A/pkg/session-4.stdout", "note_id": "m5"}
+--- reason 13 negatif (core-modül/placeholder):
+{"ok": false, "op": "run", "reason_code": 13, "reason": "not_component: wasi-0.3/component bekleniyor"}
+--- AT-001a regresyonu:
+tc-a1: ACCEPT manifest_ok
+tc-a2: RED code_hash_mismatch
+tc-a3: RED unknown_field: (root).admin_backdoor
+tc-a4: RED unknown_capability: bilinmeyen yetenek: 'root'
+tc-a5: RED signature_invalid
+tc-a6: RED unsupported_spec_version
+--- izin hijyeni:
+600 tests/simnet/node-A/pkg/session-3.stdout
+600 tests/simnet/node-A/pkg/state.json

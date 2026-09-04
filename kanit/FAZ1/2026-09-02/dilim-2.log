@@ -1,0 +1,26 @@
+# Faz 1 Dilim-2 — bağlam grafiği kanıt kaydı (v2: E-4 owner fix sonrası)
+# tarih: 2026-09-02T21:05:17+03:00
+# kapsam: memory yazımı/araması, taşıma-sürekliği, F6/F12/F13 negatifleri
+# v1 koşusundaki başarısızlık: F8 kapısı export'un dizin-adı sahipliğini yakaladı -> E-4 ile düzeltildi
+
+--- [node-A] run --note (hafıza yazımı #1)
+{"ok": true, "op": "run", "pkg": "pkg", "agent_id": "e9d4f1af77055e5964384ea99878c835b97b7e2420cef12398174393d2510441", "session": 1, "nodes": 3, "cpu_ms": 43, "fee_sim": 6.3531e-05, "note_id": "m3"}
+--- [node-A] run --note --link (hafıza yazımı #2 + edge)
+{"ok": true, "op": "run", "pkg": "pkg", "agent_id": "e9d4f1af77055e5964384ea99878c835b97b7e2420cef12398174393d2510441", "session": 2, "nodes": 4, "cpu_ms": 43, "fee_sim": 6.3371e-05, "note_id": "m4"}
+--- [node-A] memory --search musteri
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m3", "kind": "note", "text": "AT2-marker: musteri-tercihi-dusuk-gecikme", "ts": "2026-09-02T21:05:17+0300"}], "edges": []}
+--- [node-A] export (header pkg_name artık manifest'ten)
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/snapshot2.tsg", "sha256": "838892f83affdf0618d9b2f1099b7b8975ebb75556312064827808c94e2f0cca", "bytes": 1156, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+
+--- [node-B] import (hafıza sayısı dahil)
+{"ok": true, "op": "import", "pkg": "pkg", "agent_id": "e9d4f1af77055e5964384ea99878c835b97b7e2420cef12398174393d2510441", "resumed_session": 2, "memory_nodes": 4, "note": "AT-001e: kimlik keystore'dan, hafıza gövdeden restore"}
+--- [node-B] memory --search AT2-marker (taşıma-sürekliği kanıtı)
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m3", "kind": "note", "text": "AT2-marker: musteri-tercihi-dusuk-gecikme", "ts": "2026-09-02T21:05:17+0300"}], "edges": []}
+--- [node-B] run (oturum 2, hafıza üzerinde devam)
+{"ok": true, "op": "run", "pkg": "pkg", "agent_id": "e9d4f1af77055e5964384ea99878c835b97b7e2420cef12398174393d2510441", "session": 3, "nodes": 4, "cpu_ms": 45, "fee_sim": 6.568e-05}
+
+--- [F12 negatif] 70000-baytlık not → reason 10 beklenir:
+{"ok": false, "op": "run", "reason_code": 10, "reason": "memory_limit: note > 65536B"}
+
+--- [AT-001d ön-grep] not işareti snapshot'ta aranıyor (0 beklenir):
+eşleşme: 0 (beklenen: 0)

@@ -1,0 +1,11 @@
+# AT-001e — Kimlik ve Hafıza Sürekliliği — 2026-09-02T21:45:04+03:00
+## taşıma ÖNCESI 3 bilgi sorgusu (ajan kendi belleğinden):
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m3", "kind": "note", "text": "soru-1: kurulus-yili 2026", "ts": "2026-09-02T21:45:03+0300"}], "edges": []}
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m4", "kind": "note", "text": "soru-2: kurulus-yeri izmir", "ts": "2026-09-02T21:45:04+0300"}], "edges": []}
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m5", "kind": "note", "text": "soru-3: muhur-orhun", "ts": "2026-09-02T21:45:04+0300"}], "edges": []}
+
+# AT-001e (devam) — taşıma SONRASI 3 bilgi sorgusu:
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m3", "kind": "note", "text": "soru-1: kurulus-yili 2026", "ts": "2026-09-02T21:45:03+0300"}], "edges": []}
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m4", "kind": "note", "text": "soru-2: kurulus-yeri izmir", "ts": "2026-09-02T21:45:04+0300"}], "edges": []}
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m5", "kind": "note", "text": "soru-3: muhur-orhun", "ts": "2026-09-02T21:45:04+0300"}], "edges": []}
+AT-001e: PASS — 3/3 bilgi tasima sonrasi da dogru

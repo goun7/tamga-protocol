@@ -1,0 +1,16 @@
+# AT-001b — Şifreli Snapshot Export/Import — 2026-09-02T21:45:05+03:00
+## export (tek şifreli dosya + hash):
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/snapshot-at.tsg", "sha256": "ac89aa6ea62e40a73532cb203b12aad6c5652c21a93f5ec6d82b5890150a63a9", "bytes": 1323, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+## dosya node-B'ye taşındı (operatör kabuğu):
+## import (RFC-001 yeniden doğrulama + keystore açma):
+{"ok": true, "op": "import", "pkg": "pkg", "agent_id": "f6dd3031cd038ee318f06598be14eb6472ceadcde181fdf5b24ebb3e6a6b3167", "resumed_session": 4, "memory_nodes": 6, "note": "AT-001e: kimlik keystore'dan, hafıza gövdeden restore"}
+## node-B'de kaldığı yerden koşum:
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "f6dd3031cd038ee318f06598be14eb6472ceadcde181fdf5b24ebb3e6a6b3167", "session": 5, "nodes": 6, "engine": "wasmtime-v48.0.1", "cpu_saat": 3.675e-06, "ram_gb_sn": 0.00142099, "io_mb": 4.9e-05, "fee_sim": 7.67e-07, "stdout_sha256": "c06fc1df75a83f3667f18246691751ebae1c421a53c4dcea2ce202ddb0230215", "stdout_file": "tests/simnet/node-B/pkg/session-5.stdout"}
+AT-001b: PASS — agent_id ayni (f6dd3031cd038ee3...)
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+
+## (not: ilk rapor satırı py hata verdi, veri aynı koşudan; onarılmış rapor satırları)
+AT-001b: PASS — agent_id ayni f6dd3031cd038ee3 id-ayni
+AT-001b: PASS — oturum devam etti: session 1 -> 5

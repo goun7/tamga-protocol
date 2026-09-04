@@ -1,0 +1,22 @@
+# Audit-1 regresyon koşusu — 2026-09-02T20:56:30+03:00
+
+## 1) AT-001a regresyonu (validator kapakları sonrası) — 6/6 beklenir
+tc-a1: ACCEPT manifest_ok
+tc-a2: RED code_hash_mismatch
+tc-a3: RED unknown_field: (root).admin_backdoor
+tc-a4: RED unknown_capability: bilinmeyen yetenek: 'root'
+tc-a5: RED signature_invalid
+tc-a6: RED unsupported_spec_version
+
+## 2) Yeni negatifler (Audit-1 kapakları)
+--- F1 oversized (70000000 bayt) → reason 7 beklenir:
+{"ok": false, "op": "import", "reason_code": 7, "reason": "snapshot_too_large"}
+--- F2 bozuk header → reason 2 beklenir (traceback YOK):
+{"ok": false, "op": "import", "reason_code": 2, "reason": "snapshot_header_invalid: Unterminated string starting at: line 1 column 2 (char 1)"}
+--- F3 bozuk seed → reason 6 beklenir:
+{"ok": false, "op": "run", "reason_code": 6, "reason": "seed_invalid"}
+--- F7 boş parola → reason 4 beklenir:
+{"ok": false, "op": "export", "reason_code": 4, "reason": "keystore_unlock_failed"}
+
+## 3) Yetim dosya temizliği
+temiz ✔

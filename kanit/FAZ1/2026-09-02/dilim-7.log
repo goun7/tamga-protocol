@@ -1,0 +1,61 @@
+# Faz 1 Dilim-7 — çoklu-ajan simnet: iki bağımsız kimlik, çapraz-transfer, kimlik kilidi
+# tarih: 2026-09-03T23:07:07+03:00
+
+--- İki bağımsız ajan kimliği (ajanciha + ajankurba) ve paketleri hazırlanıyor:
+  ajan-ciha  agent_id: 02f77b5565607c590d9e1068...
+  ajan-kurba agent_id: 30ef228809362fe0d0852ec0...
+  kimlikler farklı ✔
+
+--- AT-001b özü: kimlik tutarlılığı 3 koşum:
+  koşum 2: kimlik aynı (02f77b556560...)
+  koşum 3: kimlik aynı (02f77b556560...)
+  koşum 4: kimlik aynı (02f77b556560...)
+--- node-C ledger-verify:
+{"ok": true, "op": "ledger-verify", "lines": 4, "head": "8608ad7adf3faf4757a9929efbe747c58d994eaf0dc8802c2283873b330be606", "note": "zincir ucuca dogru (RFC-003 D7 taslak)"}
+
+--- [Kimlik kilidi] C'nin snapshot'ı K'ye import edilmeye çalışılıyor → reason 9 beklenir:
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/snapC.tsg", "sha256": "1207d1c6e7fa8e27d440ecb257db2d8b316fe06e7f771de9890773472748c1a2", "bytes": 1495, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+{"ok": false, "op": "import", "reason_code": 14, "reason": "ledger_broken: snapshot ledger_tip yerel zincirde yok (truncate/replace?)"}
+--- AT-001e özü: aynı kimlik yeni node'a taşınıyor → ACCEPT beklenir:
+{"ok": true, "op": "import", "pkg": "pkg", "agent_id": "02f77b5565607c590d9e1068d3f89f3b2b70ebd06a53508fb8940890ffda637c", "resumed_session": 4, "memory_nodes": 6, "note": "AT-001e: kimlik keystore'dan, hafıza gövdeden restore"}
+--- node-D arama kanıtı (hafıza taşındı):
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 4, "nodes": [{"id": "s1", "kind": "session_marker", "text": "oturum 1 basladi", "ts": "2026-09-03T23:07:08+0300"}, {"id": "s2", "kind": "session_marker", "text": "oturum 2 basladi", "ts": "2026-09-03T23:07:08+0300"}, {"id": "s3", "kind": "session_marker", "text": "oturum 3 basladi", "ts": "2026-09-03T23:07:09+0300"}, {"id": "s4", "kind": "session_marker", "text": "oturum 4 basladi", "ts": "2026-09-03T23:07:09+0300"}], "edges": []}
+--- node-D ledger-verify (zincir kesintisiz):
+{"ok": false, "op": "ledger-verify", "reason_code": 14, "reason": "ledger_broken: dosya yok"}
+--- AT-001a regresyonu:
+  tc-a1: ACCEPT manifest_ok
+  tc-a2: RED code_hash_mismatch
+  tc-a3: RED unknown_field: (root).admin_backdoor
+  tc-a4: RED unknown_capability: bilinmeyen yetenek: 'root'
+  tc-a5: RED signature_invalid
+  tc-a6: RED unsupported_spec_version
+
+--- [ERRATA - dürüstlük kaydı] ---
+1) "reason 9 beklenir" tahminim YANLIŞTI: çapraz-import reddi reason 9 (agent_identity_mismatch) ile değil,
+   reason 14 (snapshot ledger_tip hedef node'un yerel zincirinde yok) ile gerçekleşti. Mekanizma: snapshot kendi
+   kimliğini keystore ile taşır (kimlik kontrolü geçer), ama hedef pkg dizisi BAŞKA bir zincire bağlıdır —
+   ledger_tip bağlaması bunu reddeder. Tahminden güçlü: pkg dizisi zincirine hectenmiş oluyor. Beklenti satırı
+   düzeltilmeden bırakıldı; fark bu errata ile belgelendi.
+2) F24 (yeni bulgu): göçte ledger seyahat etmiyor — node-D import ACCEPT ama ledger.jsonl yok
+   ("ledger_broken: dosya yok"). Taşınabilirlik değişmezi (D3) için gerçek tasarım eksiği. Dilim-8'de
+   düzeltilecek: snapshot gövdesine gömülü zincir (ledger_records) + import'ta taze node'a kurulum.
+
+=== DİLİM-8: F24 kapanışı — zincir snapshot'la seyahat eder ===
+--- node-C'ye 1 koşum daha + export:
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "02f77b5565607c590d9e1068d3f89f3b2b70ebd06a53508fb8940890ffda637c", "session": 5, "nodes": 7, "engine": "wasmtime-v48.0.1", "wall_ms": 266, "cpu_saat": 7.444e-06, "ram_gb_sn": 0.005762535, "io_mb": 4.9e-05, "fee_sim": 2.945e-06, "stdout_sha256": "c06fc1df75a83f3667f18246691751ebae1c421a53c4dcea2ce202ddb0230215", "stdout_file": "tests/simnet/node-C/pkg/session-5.stdout"}
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/snapC3.tsg", "sha256": "e1fa0fab0d43f4cbfda79413bf55a693313f6e81efc6c33011fe13361051a4a2", "bytes": 3976, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+--- TAZE node-E'ye göç (D3 değişmezi):
+{"ok": true, "op": "import", "pkg": "pkg", "agent_id": "02f77b5565607c590d9e1068d3f89f3b2b70ebd06a53508fb8940890ffda637c", "resumed_session": 5, "memory_nodes": 7, "note": "AT-001e: kimlik keystore'dan, hafıza gövdeden restore"}
+--- node-E ledger-verify (gömülü zincir kuruldu mu?):
+{"ok": true, "op": "ledger-verify", "lines": 5, "head": "22ea5da5a425271001ad4f914513b3f993bf720a49be2b6f2a2e1f5399221c26", "note": "zincir ucuca dogru (RFC-003 D7 taslak)"}
+--- node-E ledger özeti (bakiye seyahat etti mi?):
+{"ok": true, "op": "ledger", "pkg": "pkg", "charges": 5, "grants": 0, "fees_sim": 7.076e-06, "balance_sim": -7.076e-06}
+--- çapraz-import hâlâ RED mi (K'ye C snapshot'ı):
+{"ok": false, "op": "import", "reason_code": 14, "reason": "ledger_broken: snapshot ledger_tip yerel zincirde yok (truncate/replace?)"}
+--- AT-001a regresyonu:
+  tc-a1: ACCEPT manifest_ok
+  tc-a2: RED code_hash_mismatch
+  tc-a3: RED unknown_field: (root).admin_backdoor
+  tc-a4: RED unknown_capability: bilinmeyen yetenek: 'root'
+  tc-a5: RED signature_invalid
+  tc-a6: RED unsupported_spec_version

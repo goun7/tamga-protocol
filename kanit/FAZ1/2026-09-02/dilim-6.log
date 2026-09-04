@@ -1,0 +1,59 @@
+# Faz 1 Dilim-6 — state v1 + MERGEN köprüsü kanıtı (v3: F22 dedup dahil)
+# tarih: 2026-09-03T08:47:04+03:00
+
+{"ok": true, "op": "grant", "seq": 1, "h": "72eae11d6d3273c3303841059fd2a2dd82421bef8d69b8382daff4c67ed8f69b", "amount": 0.01, "note": "zincire eklendi (RFC-003 D5 taslak)"}
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "635bc189b70bce1a842455d7a6c3d99d58f7b9a9bba1f1bb8fd46d7e051c3a82", "session": 1, "nodes": 4, "engine": "wasmtime-v48.0.1", "wall_ms": 33, "cpu_saat": 2.517e-06, "ram_gb_sn": 0.000713768, "io_mb": 4.9e-05, "fee_sim": 4.11e-07, "stdout_sha256": "c06fc1df75a83f3667f18246691751ebae1c421a53c4dcea2ce202ddb0230215", "stdout_file": "tests/simnet/node-A/pkg/session-1.stdout", "note_id": "m3"}
+--- supersedes negatifi (reason 17):
+{"ok": false, "op": "run", "reason_code": 17, "reason": "state_invalid: supersedes hedefi yok: m999"}
+{"ok": true, "op": "memory-export", "file": "tests/simnet/mem-export.json", "nodes": 4, "edges": 0, "sha256": "365467942e08b87fa9db2fb5c9fa486acdba4a051e708498d407d1b38ace3e58"}
+dis ders hazir
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/snapshot6.tsg", "sha256": "9059c5680d707379546d021dbcb8867fef1d85485133c5c0ad8f93cb91b63e7f", "bytes": 1277, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+{"ok": true, "op": "import", "pkg": "pkg", "agent_id": "635bc189b70bce1a842455d7a6c3d99d58f7b9a9bba1f1bb8fd46d7e051c3a82", "resumed_session": 1, "memory_nodes": 4, "note": "AT-001e: kimlik keystore'dan, hafıza gövdeden restore"}
+--- MERGEN köprüsü (1. import — added:1 beklenir):
+{"ok": true, "op": "memory-import", "added": 1, "skipped": 4, "nodes": 5, "note": "ADD-only birleştirme (RFC-004 D2/D7 taslak)"}
+--- MERGEN köprüsü (2. import — F22: added:0 skipped:7 beklenir):
+{"ok": true, "op": "memory-import", "added": 0, "skipped": 5, "nodes": 5, "note": "ADD-only birleştirme (RFC-004 D2/D7 taslak)"}
+--- arama kanıtı:
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m4", "kind": "fact", "text": "MERGEN-dersi: scrypt maxmem 64MB gerekli (kanit dilim-1)", "valid_from": "2026-09-02", "ts": "2026-09-03T08:47:05+0300"}], "edges": []}
+
+--- [F21] koşum → export → son charge SİL → snapshot geri yükleme RED:
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/snapshot6b.tsg", "sha256": "481e0ad453b118ddcf03e90a7431512c325d39581f23d013fa26eb286e13ba48", "bytes": 1539, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+python3: can't open file '/tmp/trunc.py': [Errno 2] No such file or directory
+
+--- [F21 devam] truncate sonrası ledger-verify:
+{"ok": true, "op": "ledger-verify", "lines": 1, "head": "1b17d7428c8dcb0e318a47241413865144f6291885c2d7ff4537e8405d0a606c", "note": "zincir ucuca dogru (RFC-003 D7 taslak)"}
+kırık(truncated) zincirli node-B'ye snapshot geri yükleme → reason 14 beklenir:
+{"ok": false, "op": "import", "reason_code": 1, "reason": "snapshot_bad_magic: [Errno 2] No such file or directory: 'tests/simnet/node-B/snapshot6b.tsg'"}
+--- [merkle] state'te not kurcala → import RED (reason 17):
+state'te bir not kurcalandi (merkle bozulur)
+{"ok": true, "op": "import", "pkg": "pkg-t", "agent_id": "635bc189b70bce1a842455d7a6c3d99d58f7b9a9bba1f1bb8fd46d7e051c3a82", "resumed_session": 2, "memory_nodes": 6, "note": "AT-001e: kimlik keystore'dan, hafıza gövdeden restore"}
+--- AT-001a regresyonu:
+  tc-a1: ACCEPT manifest_ok
+  tc-a2: RED code_hash_mismatch
+  tc-a3: RED unknown_field: (root).admin_backdoor
+  tc-a4: RED unknown_capability: bilinmeyen yetenek: 'root'
+  tc-a5: RED signature_invalid
+  tc-a6: RED unsupported_spec_version
+
+--- [F21 v2] koşum → export → son charge TRUNCATE → import RED (reason 14 beklenir):
+  File "/home/gokun/Masaüstü/Projeler/01-KökProtocol/tests/simnet/f21_truncate.py", line 18
+    lp.write_text("
+                  ^
+SyntaxError: unterminated string literal (detected at line 18)
+
+--- [F21 v3] koşum → export → son charge TRUNCATE → import (reason 14 beklenir):
+run: {"ok": true, "session": 3}
+export: {"ok": true, "sha": "28ea36da6b3bd25d"}
+truncate: son charge silindi, kalan 1 satir
+F21 import: {"ok": false, "op": "import", "reason_code": 14, "reason": "ledger_broken: snapshot ledger_tip yerel zincirde yok (truncate/replace?)"}
+--- [MERKLE v2] state kurcala → export → taze pkg'ye import (reason 17 beklenir):
+state'te not kurcalandi
+export(yapildi): {"ok": true, "op": "export", "pkg": "pkg", "file": "tests/si
+MERKLE import: {'ok': False, 'op': 'import', 'reason_code': 17, 'reason': 'state_invalid: graph_merkle uyuşmuyor'}
+--- AT-001a regresyonu (dilim-6 sonrası):
+  tc-a1: ACCEPT manifest_ok
+  tc-a2: RED code_hash_mismatch
+  tc-a3: RED unknown_field: (root).admin_backdoor
+  tc-a4: RED unknown_capability: bilinmeyen yetenek: 'root'
+  tc-a5: RED signature_invalid
+  tc-a6: RED unsupported_spec_version

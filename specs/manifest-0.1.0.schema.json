@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tamga://rfc-001/manifest-0.1.0",
+  "title": "Tamga Ajan Paket Manifesti",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spec_version",
+    "package",
+    "runtime",
+    "memory",
+    "capabilities",
+    "signature"
+  ],
+  "properties": {
+    "spec_version": {
+      "const": "0.1.0"
+    },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "code"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{2,31}$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+        },
+        "code": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "wasm_sha256",
+            "hash_algo",
+            "target"
+          ],
+          "properties": {
+            "wasm_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "hash_algo": {
+              "const": "sha256"
+            },
+            "target": {
+              "const": "wasi-0.3/component"
+            }
+          }
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_proof_level",
+        "limits"
+      ],
+      "properties": {
+        "min_proof_level": {
+          "enum": [
+            "P0",
+            "P1",
+            "P2"
+          ]
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "memory_mb",
+            "cpu_ms_per_run",
+            "io_mb_per_run"
+          ],
+          "properties": {
+            "memory_mb": {
+              "type": "integer",
+              "minimum": 16,
+              "maximum": 4096
+            },
+            "cpu_ms_per_run": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60000
+            },
+            "io_mb_per_run": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1024
+            }
+          }
+        }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_format",
+        "crypto_suite"
+      ],
+      "properties": {
+        "snapshot_format": {
+          "const": "tamga-snapshot/1"
+        },
+        "crypto_suite": {
+          "const": "XChaCha20-Poly1305"
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 5,
+      "items": {
+        "enum": [
+          "fs",
+          "net",
+          "clock",
+          "env",
+          "random"
+        ]
+      }
+    },
+    "payment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemes"
+      ],
+      "properties": {
+        "schemes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "const": "tamga-sim/1"
+          }
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algo",
+        "key",
+        "sig"
+      ],
+      "properties": {
+        "algo": {
+          "const": "ed25519"
+        },
+        "key": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sig": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{128}$"
+        }
+      }
+    }
+  }
+}

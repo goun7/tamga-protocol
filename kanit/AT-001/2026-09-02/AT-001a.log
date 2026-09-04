@@ -1,0 +1,25 @@
+# AT-001a kanit kaydi
+# tarih: 2026-09-02T20:17:46+03:00
+# arac: tamga_validator.py | sema: RFC-001 v0.1-FINAL (specs/manifest-0.1.0.schema.json)
+# not: agent.wasm 64-bayt yer tutucu — AT-001a manifest seviyesidir; WASI 0.3 component sniffing kosum-kontroludur (RFC-001 §5-5)
+
+--- tc-a1: python3 tamga_validator.py validate tests/vectors/tc-a1
+ACCEPT manifest_ok
+--- tc-a2: python3 tamga_validator.py validate tests/vectors/tc-a2
+RED code_hash_mismatch
+--- tc-a3: python3 tamga_validator.py validate tests/vectors/tc-a3
+RED unknown_field: (root).admin_backdoor
+--- tc-a4: python3 tamga_validator.py validate tests/vectors/tc-a4
+RED unknown_capability: bilinmeyen yetenek: 'root'
+--- tc-a5: python3 tamga_validator.py validate tests/vectors/tc-a5
+ACCEPT manifest_ok
+--- tc-a6: python3 tamga_validator.py validate tests/vectors/tc-a6
+RED unsupported_spec_version
+
+# ===============================================================
+# DÜZELTME (2026-09-02T20:19:16): TC-a5 yeniden tanımlandı.
+# Eski vektör 'yanlış imzalayan anahtar' idi; manifest seviyesinde güven
+# çapası yokken bu senaryo ACCEPT verir (beklenen-dışı). Spec boşluğu →
+# RFC-001 Errata + açık soru #4. Yeni vektör: bozulmuş imza alanı.
+--- tc-a5 (düzeltme): python3 tamga_validator.py validate tests/vectors/tc-a5
+RED signature_invalid

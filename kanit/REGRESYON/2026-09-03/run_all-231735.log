@@ -1,0 +1,26 @@
+# run_all — 2026-09-03T23:17:35+03:00
+--- AT-001a: manifest doğrulama vektörleri (6/6 beklenir)
+  [PASS] tc-a1 ACCEPT
+  [PASS] tc-a1 ACCEPT
+  [PASS] tc-a2 RED
+  [PASS] tc-a2 RED
+  [PASS] tc-a3 RED
+  [PASS] tc-a3 RED
+  [PASS] tc-a4 RED
+  [PASS] tc-a4 RED
+  [PASS] tc-a5 RED
+  [PASS] tc-a5 RED
+  [PASS] tc-a6 RED
+  [PASS] tc-a6 RED
+--- Dilim-5/6: ledger zinciri + bütünlük bağları (node-C üzerinde)
+  [FAIL] node-C zincir ucuca doğru
+  [FAIL] node-C zincir ucuca doğru
+  [FAIL] F21 truncate → reason 14 RED
+  [FAIL] F21 truncate → reason 14 RED
+  [PASS] merkle kurcalama → reason 17 RED
+  [PASS] merkle kurcalama → reason 17 RED
+--- AT-001d özü: diskte düz-metin taraması
+  [FAIL] 0 düz-metin sızıntı (hafıza şifreli)
+  [FAIL] 0 düz-metin sızıntı (hafıza şifreli)
+
+SONUÇ: 7 PASS, 3 FAIL — log: kanit/REGRESYON/2026-09-03/run_all-231735.log

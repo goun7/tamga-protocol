@@ -1,0 +1,7 @@
+# AT-001c (tekrar) — duvar-saati kıyasmı düzeltmesi — 2026-09-02T21:49:11+03:00
+## dürüst not: rusage CPU, wasmtime saat-okuma yield'leri nedeniyle wall'ın ~2/3'ü ölçer; koşum süresi wall_ms ile doğrulanır
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "1a257b86b3f57b078a11232bb6caf168445c8d23a3fe88a891e66b5773cfdb6e", "session": 2, "nodes": 2, "engine": "wasmtime-v48.0.1", "wall_ms": 31081, "cpu_saat": 0.006119096, "ram_gb_sn": 0.644635761, "io_mb": 3.8e-05, "fee_sim": 0.000334594, "stdout_sha256": "ce2e47a1d8baef7c3bb25390346b6985ee22878164315f908f02828b63c33eb5", "stdout_file": "tests/simnet/node-B/pkg-c30/session-2.stdout"}
+sayaclar: cpu_saat=0.006119096 ram_gb_sn=0.644635761 io_mb=3.8e-05 wall_ms=31081
+kosum suresi (wall): 31.1 sn (>=30 sn: PASS)
+formul sapmasi: 0.000022 (%5: PASS)
+AT-001c: PASS

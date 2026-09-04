@@ -1,0 +1,35 @@
+# Faz 1 Dilim-3 — gerçek WASI 0.3 koşumu kanıt kaydı
+# tarih: 2026-09-02T21:29:10+03:00
+# motor: wasmtime v48.0.1 (digest-doğrulamalı, bkz. dilim-3-wasmtime-kurulum.log)
+
+--- [node-A] run (GERÇEK komponent koşumu, session stdout kanıtı)
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "7780bb844bc75e878361a0e71218b684059b7c99af6dcf1688d5321d9787a8eb", "session": 1, "nodes": 3, "engine": "wasmtime-v48.0.1", "cpu_ms": 66, "io_mb": 4.9e-05, "fee_sim": 6.6049e-05, "stdout_sha256": "c06fc1df75a83f3667f18246691751ebae1c421a53c4dcea2ce202ddb0230215", "stdout_file": "tests/simnet/node-A/pkg/session-1.stdout", "note_id": "m3"}
+--- [node-A] session-1.stdout içeriği (ajnın kendi çıktısı):
+AT3-marker: agent-std-cikti-kaniti
+oturum: basladi
+--- [node-A] run #2
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "7780bb844bc75e878361a0e71218b684059b7c99af6dcf1688d5321d9787a8eb", "session": 2, "nodes": 3, "engine": "wasmtime-v48.0.1", "cpu_ms": 43, "io_mb": 4.9e-05, "fee_sim": 4.3049e-05, "stdout_sha256": "c06fc1df75a83f3667f18246691751ebae1c421a53c4dcea2ce202ddb0230215", "stdout_file": "tests/simnet/node-A/pkg/session-2.stdout"}
+--- [node-A] export
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/snapshot3.tsg", "sha256": "814979e006805567320432db83926f69bb1b1442105ff3df45c388f2e8066e41", "bytes": 1027, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+
+--- [node-B] import
+{"ok": true, "op": "import", "pkg": "pkg", "agent_id": "7780bb844bc75e878361a0e71218b684059b7c99af6dcf1688d5321d9787a8eb", "resumed_session": 2, "memory_nodes": 3, "note": "AT-001e: kimlik keystore'dan, hafıza gövdeden restore"}
+--- [node-B] memory --search AT3-marker (hafıza taşıma-sürekliği)
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m3", "kind": "note", "text": "AT3-marker: wasm-kosumu-gercek", "ts": "2026-09-02T21:29:10+0300"}], "edges": []}
+--- [node-B] run (session 3, aynı agent_id ile WASM koşumu)
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "7780bb844bc75e878361a0e71218b684059b7c99af6dcf1688d5321d9787a8eb", "session": 3, "nodes": 3, "engine": "wasmtime-v48.0.1", "cpu_ms": 40, "io_mb": 4.9e-05, "fee_sim": 4.0049e-05, "stdout_sha256": "c06fc1df75a83f3667f18246691751ebae1c421a53c4dcea2ce202ddb0230215", "stdout_file": "tests/simnet/node-B/pkg/session-3.stdout"}
+--- [node-B] ledger
+{"ok": true, "op": "ledger", "pkg": "pkg", "charges": 1, "grants": 0, "fees_sim": 4.0049e-05, "balance_sim": -4.0049e-05}
+
+--- [AT-001d ön-grep] not işareti snapshot'ta (0 beklenir):
+eşleşme: 0
+--- [AT-001d ön-grep] ajan çıktısı state'te düz metin mi? (0 beklenir):
+eşleşme: 0
+
+--- [D4 negatif] placeholder (core modül) paketi → reason 13 beklenir:
+tc-a1
+tc-a2
+tc-a3
+tc-a4
+tc-a5
+tc-a6

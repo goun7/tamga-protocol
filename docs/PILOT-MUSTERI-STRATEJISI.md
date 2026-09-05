@@ -29,7 +29,7 @@ Demo şart. Söz değil, 30 saniyelik terminal kaydı: ajan çalışır → maki
 
 | Aşama | Ne yapılır | Çıkış kriteri |
 |---|---|---|
-| A. Görünürlük | Repo + demo (Görev 3 paketi) yayında; build-in-public logları; ERC-8004/x402 ekosistemine "equivalence doc" paylaşımı | haftada ≥1 organik yıldız/iletişim |
+| A. Özel-demo (REV: K12 — repo en-sonda) | Kapalı-repo özel-demo turu: 30-sn demo kaydı + KURUM-PAKETI tek-sayfa ile doğrudan 5-10 hedef-ekibe ulaşım; equivalence-doc birebir paylaşım | ≥2 design-partner sohbeti |
 | B. İlk temas | ERC-8004 tartışma-komüniteleri + ajan-framework Discord'ları; "adaptör yazdık, sizinkini de yazarız" teklifi | 5-10 gerçek sohbet |
 | C. Design-partner | 2-3 seçilmiş ekibe **ücretsiz pilot**: MERGEN-aktarıcı tarzı göç yolunu BİZ yazıyoruz; karşılığında geri-bildirim + referans | pilot başlangıcı |
 | D. Ücretliye geçiş | pilot dönüşü: self-host ücretsiz kalır; barındırma/destek/SLA ücretlenir | 1 ücretli dönüşüm |
@@ -59,7 +59,7 @@ kanıtını pazarlar.** Faz 3'ün "itibar sorgusu" tam buna service eder.
 
 ## 5. İlk 30 gün listesi (söz değil, yapılacaklar)
 
-1. GitHub paketi yayına (Görev 3) + Apache-2.0
+1. Özel-demo paketi (KURUM-PAKETI + 30-sn demo kaydı) — repo-açılışı EN SONA (K12)
 2. 30 sn demo kaydı (asciinema/GIF): öl→taşı→diril→makbuz-doğrula
 3. ERC-8004 Ethereum-Magicians + x402 topluluğuna equivalence-doc paylaşımı
 4. MERGEN-aktarıcı gibi **ikinci adaptör** (herhangi popüler hafıza-export JSON'u) —

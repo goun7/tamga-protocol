@@ -19,3 +19,8 @@ findings.md
 progress.md
 .planning/
 ACIMASIZ-DEGERLENDIRME*.draft.md
+
+# MERGEN gerçek kişisel verisi asla repoya girmez (yalnız sentetik fixture girer)
+mergen*.db
+!tests/simnet/mergen-sentetik.db
+cikti-mergen.json

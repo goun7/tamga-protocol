@@ -4,6 +4,18 @@
 > the Phase-3 trigger (external demand signal) fires. Source: ERC-8004 draft as of
 > 2026-09; the ERC may change before Final — wobbly points are marked.
 
+Ecosystem scan (accessed 2026-09-05):
+- ERC-8004 is still **Draft** (created 2025-08-13); the registration-file schema in
+  this mapping matches the draft's `type: ...#registration-v1` structure, including
+  the optional `x402Support` flag.
+- x402 is now a Linux Foundation project (x402 Foundation, operational launch
+  announced 2026); its public dashboard reports 75.41M transactions, $24.24M volume,
+  94.06K buyers and 22K sellers over the last 30 days.
+- Sources: <https://eips.ethereum.org/EIPS/eip-8004> · <https://x402.org>
+- Memory frameworks the AT-005 importer targets (PyPI, accessed 2026-09-05):
+  mem0ai 2.0.20 · letta 0.16.8 · zep-cloud 3.28.0 — the importer is format-based
+  (not version-pinned) and is regression-tested against these export shapes.
+
 ## 1. How the two protocols differ
 
 | | ERC-8004 | Tamga |
@@ -24,7 +36,7 @@ ERC-8004 Validation hooks (stake-backed re-execution, TEE oracles).
 | `name` | manifest `package.name` | pattern-compatible |
 | `description` | one-line primitive summary | — |
 | `services[]` | none in v0; A2A/MCP endpoints in Phase 3 | empty array is valid |
-| `x402Support` | `false` (v0) → `true` after the Phase-3 x402 decision | x402: 165M+ tx, honest note: possibly ~half test traffic |
+| `x402Support` | `false` (v0) → `true` after the Phase-3 x402 decision | x402 ecosystem momentum (dashboard, 2026-09-05): 75.4M tx / $24.2M volume / 94K buyers in the last 30 days — network-level, not Tamga's |
 | `active` | snapshot exists + ledger-verify ok | "active" = verifiable chain endpoint |
 | `supportedTrust` | `crypto-economic` (node-cosign) · `tee-attestation` (Phase 3) · `reputation` (ERC-8004) | v0 supports L0 only → declares nothing (honesty) |
 | `agentRegistry` | none (v0 is not on-chain) | Phase 3: `eip155:{chainId}:{registry}` + tokenId |

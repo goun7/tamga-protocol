@@ -63,3 +63,19 @@ yeniden-koşum, TEE oracle) doğrulanabilir kanıt besler.
   Draft olduğu için burada sürüm kilidi tutulmaz — bilinçli karar).
 - **OQ-8:** wall-faturalama gerilimi (yukarıda) — medyan-of-N mi, düşük-yük pencere mi,
   yoksa faturalama tabanı gözden geçirmesi mi? RFC-003 kurucu onayıyla bağlantılı.
+
+## 5. Tazelik Teyidi (2026-09-05, canlı çekim — kurucu değerlendirme görüşmesi öncesi)
+
+- eips.ethereum.org/EIPS/eip-8004 bugün **hâlâ DRAFT** (doğrudan çekim; citation 2025).
+  OQ-7 varsayımı geçerliliğini koruyor.
+- Taslakta bizim tablodan sonra eklenen yeni unsurlar (additive — eşleme tablosunu
+  BOZMAZ): (i) **`agentWallet` rezerve metadata** + `setAgentWallet` EIP-712/1271
+  akışı (ajan ödeme adresi — Faz 3 x402 bağlantısı için önemli); (ii) **endpoint
+  domain verification** (`.well-known/agent-registration.json`); (iii) **OASF**
+  endpoint tipi; (iv) **`getMetadata`/`setMetadata` generic key-value** → bizim
+  §2'deki "önerilen ek alan" `tamgaProofLevel`/`tamgaLedgerHead` artık ŞEMA-UZANTISI
+  DEĞİL, taslağın kendi on-chain metadata mekanizmasıyla yazılabilir (OQ-7 notu
+  lehte güncellendi: uzantı-tartışması ihtiyacı azaldı); (v) EIP-7702 gas-sponsorship
+  önerisi (feedback için kayıt-olmayan istemci — reputation ağı tasarımına not).
+- Sonuç: Faz 3 tetikleyicisi gelirse eşleme çalışması taslakla HİZALANMIŞ durumda;
+  tek oynak nokta hâlâ Draft→Final geçişi.

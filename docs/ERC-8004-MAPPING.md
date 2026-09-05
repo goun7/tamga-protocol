@@ -11,7 +11,9 @@ Ecosystem scan (accessed 2026-09-05):
 - x402 is now a Linux Foundation project (x402 Foundation, operational launch
   announced 2026); its public dashboard reports 75.41M transactions, $24.24M volume,
   94.06K buyers and 22K sellers over the last 30 days.
-- Sources: <https://eips.ethereum.org/EIPS/eip-8004> · <https://x402.org>
+- Sources: <https://eips.ethereum.org/EIPS/eip-8004> · <https://x402.org> ·
+  wasmtime v48.0.1 confirmed as the upstream latest release (GitHub API, 2026-09-05) —
+  the RFC-002 pin is current, not stale
 - Memory frameworks the AT-005 importer targets (PyPI, accessed 2026-09-05):
   mem0ai 2.0.20 · letta 0.16.8 · zep-cloud 3.28.0 — the importer is format-based
   (not version-pinned) and is regression-tested against these export shapes.

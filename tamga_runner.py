@@ -109,6 +109,22 @@ def _tip_in_chain(lp, tip):
                 return False
     return False
 
+def _records_head(recs):
+    """Audit-7: gömülü kayıt listesi için _ledger_head eşdeğeri.
+    D4 zero-trust: import, zinciri kurmadan ÖNCE içsel bütünlüğünü doğrular."""
+    prev_h, n = "0" * 64, 0
+    try:
+        for rec in recs:
+            n += 1
+            no_h = {k: v for k, v in rec.items() if k != "h"}
+            exp = hashlib.sha256((rec.get("prev", "") + jcs(no_h)).encode("utf-8")).hexdigest()
+            if rec.get("prev") != prev_h or rec.get("h") != exp or rec.get("seq") != n:
+                return None, f"kırık@{n}"
+            prev_h = rec["h"]
+    except Exception:
+        return None, f"kırık@{n}"
+    return prev_h, "ok"
+
 # --- Dilim-5: ledger hash-zinciri (RFC-003 D4 taslak kararı; MERGEN ÖZ/MÜHÜR dersi) ---
 def jcs(d):
     return json.dumps(d, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
@@ -462,6 +478,12 @@ def cmd_import(a):
     # Dilim-8 / F24: gövdedeki zincir hedef node'a kurulur
     recs = parsed.get("ledger_records")
     if recs is not None:
+        # Audit-7 (D4 zero-trust takviyesi): gömülü zincir KURULMADAN ÖNCE içsel
+        # bütünlüğü doğrulanır — bozuk zincir artık hedefe yazılmaz, import RED.
+        _, why_emb = _records_head(recs)
+        if why_emb != "ok":
+            return out(False, op="import", reason_code=14,
+                       reason="ledger_broken: gömülü zincir " + why_emb)
         head2, why2 = _ledger_head(lp)
         if head2 is None and why2 in ("yok",):
             body2 = {k: v for k, v in parsed.items() if k != "ledger_records"}

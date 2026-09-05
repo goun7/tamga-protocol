@@ -88,3 +88,22 @@ Kanıt: kanit/FAZ1/2026-09-02/dilim-7.log (errata dahil)
 | — | Kimlik tutarlılığı 4 koşum: agent_id sabit (`02f77b55…`) | — | KANIT ✔ |
 | — | AT-001a regresyonu 6/6 (dilim-7/8 sonrası) | — | KANIT ✔ |
 | — | Dürüstlük notu: dilim-7'de "reason 9 beklenir" tahmini yanlış çıktı (reason 14 ile reddedildi) — errata log'da | — | ŞEFFAFLIK ✔ |
+
+## Audit-7 — 2026-09-05 (Dilim-9: gömülü-zincir saldırı yüzeyi, otonom tur)
+
+Kapsam: Dilim-8'in yeni yüzeyi (snapshot gövdesindeki `ledger_records` + tip bağlama)
+adversary-simülasyonu ile prolandı. Yöntem: `tests/audit7_embedded_chain.py` —
+runner'ın kendi kripto primitifleriyle (simnet parolası + seed) gövde çözülür,
+mutate edilir, yeniden şifrelenir. Dürüst sınır: bu "seed'i bilen güçlü düşman"dır;
+seed'siz host düşmanı üst sınır ölçümünden zayıftır. Kanıt: kanit/GUVENLIK/2026-09-05/audit-7.log.
+
+| # | Bulgu | Şiddet | Durum |
+|---|---|---|---|
+| F25 | **Güçlü düşman (seed-sahibi) taze node'a kendi-tutarlı sahte tarih kurabiliyor:** zinciri baştan yeniden hash'leyip (A1b) gömülü `ledger_records`'ı değiştirmek import + ledger-verify'ı geçiyor. Mevcut panzehirler: D4 append-only (zincirli hedefte `ledger_tip` bağlaması RED — A2 kanıtlı) + seed'in gizliliği (düşmanın seed'i olmalı). Kalıcı çözüm: **node-cosign** (her kaydın hash'ine node'un imzası girer) → RFC-003 kapsamı | **Orta** (simnet'te düşük; ağda Yüksek) | **AÇIK (belgeli)** — v1 kapsamı: RFC-003 node-cosign maddesi; provenance kuralı: gömülü zincir tek-y Origins=node-A, çapraz doğrulama v1 |
+| — | A1a zayıf splice (hash eski kalır): import, zinciri KURMADAN ÖNCE içsel bütünlüğü doğrulamıyordu; bozuk zincir hedefe yazılıyor, yakalama sonraki ledger-verify'a sarkıyordu — D4 zero-trust'a aykırı | — | **KAPANDI (Audit-7, aynı gün)** — `_records_head()` ile gömülü zincir kuruluş-öncesi doğrulanıyor; bozuk gövde → import RED (reason 14, "gömülü zincir kırık@N"). Kanıt: A1a import ok=False reason=14 |
+| — | A2 tip-swap (uydurma `ledger_tip`): zincirli hedefte RED (reason 14) — tip bağlaması saldırıya dayanıklı; taze hedefte erteleme (F23'ün kapsamı) | — | KANIT ✔ (mevcut mekanizma teyit edildi) |
+| — | A3 merkle-fold (seed-sahibi tutarlı state üretimi): import ACCEPT — beklenen üst-sınır; merkle'in amacı seed'siz host kurcalaması (F24 öncesi dilim-6 kanıtı) | — | BELGELENDİ (sınır, açık değil) |
+
+**Düzeltme kodu (aynı gün, kanıtlı):** `tamga_runner.py::_records_head()` + import
+kuruluş-öncesi doğrulama — pozitif akış (grant→export→import→verify) ve AT-001f
+vektörleri (4/4) bozulmadığı ayrıca koşularla teyit edildi (bkz. audit-7.log son bloğu).

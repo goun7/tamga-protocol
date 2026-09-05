@@ -153,6 +153,8 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [RELEASE.md](RELEASE.md) | v0.1.0-alpha release notes: highlights, verification, honest limits |
 | [docs/RFC-001-manifest.md](docs/RFC-001-manifest.md) | Package manifest schema contract (v0.1-FINAL, frozen, English translation) |
 | [docs/RFC-002-runner.md](docs/RFC-002-runner.md) | Runner API + snapshot transport contract (v0.1-FINAL, frozen, English translation) |
+| [docs/RFC-003-ledger.md](docs/RFC-003-ledger.md) | Ledger record contract (DRAFT v0.1, English translation) |
+| [docs/RFC-004-context-graph.md](docs/RFC-004-context-graph.md) | ADD-only context-graph contract (DRAFT v0.1, English translation) |
 | [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md) | Agent developer guide (mental model → first run → migration) |
 | [docs/TESTS.md](docs/TESTS.md) | Test families + how to run + CI |
 | [docs/AUDIT-GATE.md](docs/AUDIT-GATE.md) | The 8-step gate every change passes |

@@ -105,6 +105,8 @@ python3 tamga_runner.py import snapshot.tsg <new-pkg>
 
 ### tamga-memory/1 import format (--import-json)
 
+The node/edge schema is normative in [RFC-004](RFC-004-context-graph.md).
+
 ```json
 {
   "format": "tamga-memory/1",

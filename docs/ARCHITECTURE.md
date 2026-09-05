@@ -43,6 +43,26 @@ Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spe
 - **Metering:** wall_ms, cpu-seconds, RAM·seconds, IO-MB per run → recorded in the
   `charge` record.
 
+## 3b. Embedding Tamga in your product (integration surface)
+
+The runner is a standalone CLI, designed to be driven as a subprocess (the
+boundary is the one-line-JSON receipt on stdout — RFC-002 §3):
+
+1. **Identity:** derive the agent seed from the user passphrase with `keygen`
+   (printed once — D3 forbids persisting it; hold it in your process memory or
+   your own secret store) or mint an operator key with `keygen-node` (0600 file).
+2. **Package:** give the agent a directory with `tamga.json` (RFC-001) +
+   `agent.wasm`; validate with `tamga_validator.py validate`, sign with
+   `tamga_validator.py sign`.
+3. **Run:** `tamga_runner.py run <pkg> --seed <hex>` per work unit — the receipt
+   (`ok`, `op`, `fee_sim`, `stdout_sha256`, `reason_code` on RED) is your
+   integration contract; the hash-chained ledger lives inside `<pkg>/ledger.jsonl`.
+4. **Move:** `export` seals memory+ledger into one snapshot; `import`
+   deep-verifies before installing. Verify any package state with `ledger-verify`.
+5. **What NOT to do:** do not parse human-readable stderr (json only), do not
+   share one `<pkg>` between two agent identities (reason 18), do not write your
+   own chain-format writer (the format is frozen — RFC-003).
+
 ## 4. Work receipts and proof
 
 - Every run appends a `charge` with metering evidence and `stdout_sha256`.

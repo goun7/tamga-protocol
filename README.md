@@ -89,6 +89,15 @@ Full technical details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 Open findings are tracked in an internal audit ledger (10 adversarial rounds;
 attack simulations). Disclosure process: [SECURITY.md](SECURITY.md).
 
+## 30-second demo
+
+![demo](docs/assets/demo.gif)
+
+The animated walkthrough: mint identity → do input-bound work on node1 → the
+node "dies" → the agent revives on node2 with its memory intact → the receipt
+ledger verifies. Play it yourself in one command: `bash tools/demo.sh`, or watch
+the raw session: [docs/assets/demo.cast](docs/assets/demo.cast).
+
 ## Quick start
 
 ```bash

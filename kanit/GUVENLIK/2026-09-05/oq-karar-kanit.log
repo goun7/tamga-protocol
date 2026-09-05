@@ -1,0 +1,6 @@
+# OQ kararları kod-kanıtı — 2026-09-05T09:59:27+03:00 (kurucu kararları 2026-09-05 uygulandı)
+OQ-1/2/4: karar kaydı (kod etkisi yok — OQ-1 opt-in zaten mevcut davranış, OQ-2 basit-dosya mevcut --node-trust, OQ-4 ayrı-alan Faz 3)
+OQ-3: iptal listesi (--node-revoked): iptalsiz L1 ACCEPT · iptalli L1 RED 14 node_id_iptal_edildi@1 — YUKARIDA canlı çıktı
+OQ-8: ortanca-faturalama FEE_MEDIAN_N=5: ham ücretler gürültülü, faturalanan sabit, max/min=1.111 (önceki kanıt: 172× ham oynama) — YUKARIDA canlı çıktı
+Audit-10: bozuk --node-key artık RED 6 (sessiz-imzasız-kayıt istismarı kapandı)
+Regresyon: AT-003=0 AT-001f=0 run_all=0

@@ -20,6 +20,7 @@ MAGIC = b"TSG1"
 SAFE_SNAP_MAX = 64 * 1024 * 1024          # Audit-1 F1
 MAX_NOTE_BYTES = 65536                    # Audit-2 F12
 MAX_NODES = 10000                         # Audit-2 F13
+FEE_MEDIAN_N = 5                          # OQ-8: pilot ortanca-pencere (kurucu kararı 2026-09-05)
 # Dilim-4 (E-6): RFC-002 formülüne birebir — ucret = cpu_saat*fiyat + ram_gb_sn*fiyat + io*fiyat
 SIM_PRICE = {"cpu_saati": 0.002, "ram_gb_sn": 0.0005, "io_mb": 0.001}   # TODO: RFC-003 pinler
 WASMTIME = str(pathlib.Path(__file__).resolve().parent / "tools" / "bin" / "wasmtime")
@@ -157,11 +158,20 @@ def jcs(d):
 def _node_key_from(a):
     """DESIGN-node-cosign (F25): '--node-key <hex>' opsiyonel node imza anahtarı.
     Node anahtarı ajan seed'inden AYRIDIR (operatör anahtarı); ajan seed'i gibi
-    komut satırından geçmesi E-2 kapsamındadır (simnet kabulü)."""
+    komut satırından geçmesi E-2 kapsamındadır (simnet kabulü).
+    Audit-10: BAYRAK VAR ama değer okunamıyorsa None dönmez — sessiz-imzasız-kayıt
+    istismarını kapatmak için çağıran RED üretir (flag_given=True, key=None)."""
     try:
-        return bytes.fromhex(a[a.index("--node-key") + 1])
-    except (ValueError, IndexError):
+        idx = a.index("--node-key")
+    except ValueError:
         return None
+    try:
+        key = bytes.fromhex(a[idx + 1])
+    except (ValueError, IndexError):
+        key = None
+    if key is None or len(key) != 32:
+        raise ValueError("node_key_invalid: --node-key 64-hex (32 bayt) olmalı")
+    return key
 
 def _ledger_append(lp, rec, node_key=None):
     """Kaydı seq+prev+h alanlarıyla zincire ekler; yazılan satırı döner.
@@ -233,9 +243,13 @@ def cmd_grant(a):
     note = a[2] if len(a) > 2 else ""
     mf = pkg / "tamga.json"
     name = json.loads(mf.read_text(encoding="utf-8"))["package"]["name"] if mf.exists() else pkg.name
+    try:
+        nk = _node_key_from(a)
+    except ValueError as e:
+        return out(False, op="grant", reason_code=6, reason=str(e))  # Audit-10: sessiz-imzasız yok
     rec = _ledger_append(pkg / "ledger.jsonl",
                          {"op": "grant", "pkg": name, "amount": amount, "note": note},
-                         node_key=_node_key_from(a))
+                         node_key=nk)
     return out(True, op="grant", seq=rec["seq"], h=rec["h"], amount=amount,
                node_id=rec.get("node_id") if "node_id" in rec else None,
                note="zincire eklendi (RFC-003 D5 taslak)")
@@ -255,7 +269,10 @@ def cmd_run(a):
         return out(False, op="run", reason_code=6, reason="seed_invalid: " + str(e))
     except Exception:
         return out(False, op="run", reason_code=6, reason="seed_invalid")
-    node_key = _node_key_from(a)                            # node-cosign (opt-in)
+    try:
+        node_key = _node_key_from(a)                        # node-cosign (opt-in)
+    except ValueError as e:
+        return out(False, op="run", reason_code=6, reason=str(e))  # Audit-10
     rc, msg = tv.validate(pkg)
     if rc != 0: return out(False, op="run", reason_code=3, reason="manifest_reject: " + msg)
     manifest = json.loads((pkg / "tamga.json").read_text(encoding="utf-8"))
@@ -352,13 +369,32 @@ def cmd_run(a):
     io_mb = round(io_bytes / (1 << 20), 6)
     cpu_saat = round(cpu_s / 3600, 9)
     ram_gb_sn = round((ram_mb / 1024) * (dt_ms / 1000), 9)
+    # OQ-8 (2026-09-05 kurucu kararı): piLOT faturalama = son N işin ORTANCASI
+    # (N=FEE_MEDIAN_N). D1'in wall-gürültüsü (OQ-8 bulgusu: aynı iş ~172× oynayabilir)
+    # müşteri faturasına yansımaz; adil pencere ortancası. Kalıcı kural pilot verisiyle
+    # kesinleşir (kayda alındı: ERC-8004-ESLEME §6 + OQ kayıtları).
     fee = round(cpu_saat * SIM_PRICE["cpu_saati"] + ram_gb_sn * SIM_PRICE["ram_gb_sn"]
-                + io_mb * SIM_PRICE["io_mb"], 9)
+                + io_mb * SIM_PRICE["io_mb"], 9)   # ham (birebir) ücret — şeffaflık için kayda geçer
+    recent = []
+    if lp.exists():
+        try:
+            recent = [r.get("fee_sim", 0) for r in
+                      (json.loads(l) for l in lp.read_text(encoding="utf-8").splitlines() if l.strip())
+                      if r.get("op") == "charge"]
+        except Exception:
+            recent = []
+    recent = recent[-(FEE_MEDIAN_N - 1):]
+    fees_for_median = sorted(recent + [fee])
+    _mid = len(fees_for_median) // 2
+    median_fee = (fees_for_median[_mid] if len(fees_for_median) % 2
+                  else (fees_for_median[_mid - 1] + fees_for_median[_mid]) / 2)
     charge = _ledger_append(lp, {"op": "charge", "pkg": manifest["package"]["name"],
                         "session": st["sessions"], "engine": "wasmtime-v48.0.1",
                         "cpu_saat": cpu_saat, "ram_gb_sn": ram_gb_sn, "io_mb": io_mb,
-                        "wall_ms": dt_ms, "stdout_sha256": hashlib.sha256(art.read_bytes()).hexdigest(),
-                        "fee_sim": fee}, node_key=node_key)   # Dilim-5 + node-cosign (opt-in)
+                        "wall_ms": dt_ms, "fee_birebir": fee,
+                        "stdout_sha256": hashlib.sha256(art.read_bytes()).hexdigest(),
+                        "fee_sim": round(median_fee, 9)},
+                        node_key=node_key)   # Dilim-5 + node-cosign (opt-in) + OQ-8 medyan
     st["format"] = "tamga-state/1"
     st["ledger_tip"] = charge["h"]                            # Dilim-6: F21 panzehiri
     st["graph_merkle"] = _graph_merkle(mem)
@@ -612,10 +648,25 @@ def cmd_import(a):
         pol, trust = _cosign_policy(a)
         if pol == "L1":
             # node-cosign L1: her kayıt node_sig'li ve node_id güvencili listede olmalı
+            # OQ-3 (2026-09-05 kurucu kararı): iptal listesi — devreden çıkarılan node'un
+            # İMZALARI DA GEÇERSİZ (sadece listeden düşmek yetmez; anahtar-calıntısı
+            # senaryosu kapanır). İptal dosyası: JSON dizi [node_id, ...].
+            revoked = []
+            rf = SB_NODE_REVOKED if False else None
+            import json as _json
+            try:
+                idx = a.index("--node-revoked") if "--node-revoked" in a else -1
+                if idx >= 0 and idx + 1 < len(a):
+                    revoked = _json.loads(pathlib.Path(a[idx + 1]).read_text(encoding="utf-8"))
+            except Exception:
+                return out(False, op="import", reason_code=2,
+                           reason="snapshot_header_invalid: --node-revoked dosyası okunamadı")
             bad = None
             for rec in recs:
                 if "node_sig" not in rec:
                     bad = f"node_sig_eksik@{rec.get('seq')}"; break
+                if revoked and rec.get("node_id") in revoked:
+                    bad = f"node_id_iptal_edildi@{rec.get('seq')}"; break
                 if not trust or rec.get("node_id") not in trust:
                     bad = f"node_id_güvenilmeyen@{rec.get('seq')}"; break
             if bad:

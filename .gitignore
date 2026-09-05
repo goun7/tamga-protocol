@@ -13,3 +13,9 @@ tests/simnet/.sandbox/
 tests/simnet/.dbg*/
 *.stdout
 .DS_Store
+docs/aegis/
+task_plan.md
+findings.md
+progress.md
+.planning/
+ACIMASIZ-DEGERLENDIRME*.draft.md

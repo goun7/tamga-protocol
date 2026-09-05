@@ -24,6 +24,9 @@ bekle_red() {  # bekle_red <exit> <ad> — grep-deseni BULMALI (RED kanıtı ç�
     if python3 tamga_validator.py validate "tests/vectors/$tc" | grep -q '^RED'; then kontrol 0 "$tc RED"; else kontrol 1 "$tc RED"; fi
   done
 
+  echo "--- AT-001f: import negatif vektörleri (reason 7/9/8) — ayrıntı: kanit/AT-001/$(date +%F)/AT-001f-vektorler.log"
+  bash tests/negative_snapshots.sh > /dev/null 2>&1; kontrol $? "tc-s7/s9/s8 negatif vektörleri (3 RED beklentisi)"
+
   echo "--- sandbox kuruluyor (tek kullanımlık node)"
   rm -rf "$SB"; mkdir -p "$SB/pkg"
   cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$SB/pkg/"

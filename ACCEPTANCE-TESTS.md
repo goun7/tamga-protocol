@@ -39,6 +39,19 @@ Ajan paketi: minimal bağlam grafiği (≥3 düğüm) + manifest + WASM kodu.
 - **Then:** ID_A aynı; ajan kendi belleğine dayanarak taşıma öncesi sorulan 3 bilgiyi taşıma sonrası da doğru yanıtlar.
 - **Kanıt:** iki oturumun yanıt logları yan yana.
 
+### AT-001f — Snapshot-Import Negatif Vektörleri (2026-09-05, Dilim-9)
+- **Kapsam:** E-3'te kayıtlı reason_code'ların (7/8/9) beklenmedik-KABUL kapanışı —
+  *kaydı yapılmış reddin testi yoksa o kod iddia değildir.*
+- **tc-s7 (reason 7):** SAFE_SNAP_MAX (64MiB, Audit-1 F1) aşan snapshot import'ta RED.
+- **tc-s9 (reason 9):** header `agent_id` alanı geçerli-biçimli ama sahte kimlikle
+  değiştirilir; keystore gerçek seed'i çözümler, pubkey≠header → RED (kimlik taklidi
+  yalnız header düzeyinde mümkün değil).
+- **tc-s8 (reason 8):** hedef node'un `sessions` sayacı snapshot'tan ileriye çekilir;
+  aynı snapshot'ın yeniden import'u rollback sayılır → RED (replay/geri-sarma engeli).
+- **Kanıt:** `bash tests/negative_snapshots.sh` → `kanit/AT-001/<tarih>/AT-001f-vektorler.log`
+  (4 kontrol: 3 RED beklentisi + s8 önkoşulu ACCEPT). Takıma entegre: run_all.sh
+  AT-001f bölümü (tek toplu kontrol, 15 kontrol toplam).
+
 ## Kabul Kriterleri
 
 | Test | Kırmızı şartı | Geçme şartı |
@@ -48,6 +61,15 @@ Ajan paketi: minimal bağlam grafiği (≥3 düğüm) + manifest + WASM kodu.
 | 001c | — | sayaçlar ±%5 doğrulukla ölçülür |
 | 001d | — | hiçbir düz-metin sızıntısı yok |
 | 001e | — | 3/3 bilgi doğru |
+| 001f | negatif vektörler KODDAN ÖNCE yazılır | 7/8/9 reddetme davranışı doğru |
+
+## Tek-Komut Takım (2026-09-05 gerçeklemesi)
+
+`tests/run_all.sh` — 15 kontrol, idempotent sandbox, POSIX çıkış-semantiği,
+PIPESTATUS boru-koruma. Bölümler: AT-001a (6 vektör) · AT-001f (3 negatif vektör,
+toplu) · grant/koşum/zincir-ucu · F21 truncate (14) · merkle kurcalama (17) ·
+göç+gömülü zincir (F24 kapanışı) · AT-001d özü (düz-metin taraması) ·
+RUN_SLOW=1: c30 wall-ölçümü (AT-001c özü). Kanıt: kanit/REGRESYON/.
 
 ## Kanıt Kayıt Formatı
 

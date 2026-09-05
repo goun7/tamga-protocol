@@ -55,7 +55,7 @@ Common fields: `op, seq, prev, h, ts`. `seq` starts at 1 and increments by +1 (a
 
 ## 7. Implementation-Conformance Note (2026-09-05, Slice-9 — not a freeze)
 
-No normative divergence from the DRAFT; the implementation follows this RFC, and two naming/errata-class differences are tied to the errata:
+No normative divergence was found while this document was in DRAFT; the implementation follows this RFC, and the two naming/errata-class differences are tied to the RFC-002 §9 errata (the naming correction was folded in at freeze).
 
 | RFC-003 provision | Implementation | Note |
 |---|---|---|

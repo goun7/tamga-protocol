@@ -286,3 +286,87 @@ fabrication ile AÇILMAZ). Tur-3'ün yeni bulguları (B1-B20) puan DÜŞÜRMEZ �
 süreç kendi kendini düzeltti ve bulgular şeffaf kayıtlı — ama K2'nin "en son kod en
 son denetimin kapsamında" ölçütü artık daha sıkı yorumlanıyor: her dilimden sonra
 bütün-ağaç taze-göz turu yapılacak (bundan sonraki varsayılan).
+
+---
+
+# Tur-4 — Dış-Gerçeklik Denetimi (2026-09-05, "son nokta" kurucu-talebi: sert/acımasız/gerçekçi)
+
+> Yöntem değişikliği: Tur-1..3 aynı yazar-modelin kendi ölçütleriyle kendini notlandırmasıydı
+> (döngüsel-doğrulama riski — bu tur kendi kendini eleştirir). Bu tur cetvel DIŞARIDAN:
+> "gerçek müşteri, gerçek rakip, gerçek investör" gözüyle. Her eleştiri doğrulanmış olguya bağlı.
+
+## A. Ürün-gerçekliği — 55/100
+
+1. **Ajan girdi almıyor.** `cmd_run`'da `--input`/stdin yolu yok (doğrulandı): protokolün
+   kanıtladığı "iş" sabit-program çıktısıdır. Hiçbir müşteri-işi koşulmadı; 900-ders göç
+   DEPOLAMA kanıtıdır, YETENEK kanıtı değil. "Taşınabilir ajan" — hangi ajan? Oyuncak-wasm.
+2. **Determinizm-iddiası 4 koşum × oyuncak-wasm.** Gerçek ajan-işi LLM çağrısı = non-
+   deterministik + ağ-bağımlı. "Yeniden-koşulabilir iş" hangi iş-sınıflarını kapsar
+   sorusunun WRITTEN cevabı yok — tezin en kritik deliği. LLM-işleri için "kanıt=koşum-
+   kaydı+atif" ayrımı tasarlanmamış.
+3. **Default-deny vs gerçek-ajan çelişkisi.** Gerçek ajan AĞ ister (LLM-API). Sandbox
+   ağ-yasak; yetenek-manifesti "clock+random" — gerçek ajan burada açlıktan ölür.
+   Ürün-uydurmazlığı yazılı ve çözülmemiş.
+4. **Ölçek-yalanı.** Hafıza tek state.json — her yazım TÜM dosyanın yeniden-yazımı +
+   lineer arama (kod-doğrulanmış). 900-ders geçer; 100k'da mimari çöker. 64MiB tavan
+   ile state-etek-yakan.
+5. **Performans-mutlaklığı yok.** Tüm bench yük-40 makinede; "overhead < X%" beyanı
+   hâlâ yapılmadı; run_all 16/16 iki gündür yük-penceresi bekliyor (E-9c abartıya döndü).
+
+## B. Ekonomi — 45/100
+
+6. **Sayılar kostüm-giymiş varsayımlar.** $0.15/iş çapası x402'nin LLM-token ödemelerinden;
+   "doğrulanabilir-işe ödeme istenilirliği" HİÇ gösterilmedi — pazara hiç çıkılmadı.
+7. **Bölüşüm (70/10/15/5) havadan.** Doğrulayıcı-katmanının maliyet-modeli YOK: replay
+   pahalıdır; %10 yetmezse? Staking/slashing modellenmedi.
+8. **I4 kapısı hem zırh hem itiraf:** λ<2000'de node-ekonomisi çöküyor — talep-eğrisi
+   tamamen hipotetik. Sim-değişmezleri iç-tutarlılığı test eder, TALEBi doğrulamaz.
+9. **Hizmet-geliri hedefi ($30-60k) sıfır-pipeline ile yazıldı.** Tek demo, tek temas yok.
+   Strateji-dokümanı üretimi müşteri-temasının İKAMESİ haline geldi: son 3 tur 6 doküman,
+   0 ürün-kabiliyeti.
+
+## C. Rekabet-pozisyonu — 60/100
+
+10. **"Bütününü yapan yok" hükmü dar-taramalı.** arXiv tarandı; GitHub/market taranmadı:
+    LangGraph checkpointer + şifreli-DB + x402 = inandırıcı DIY-stack; Mem0 export-API'leri;
+    TEE-altyapıları (Phala vb.) taranmadı. "Moat"una karşı yazılmış tek satır cevap yok.
+
+## D. Süreç ve egemenlik — 50/100
+
+11. **Döngüsel-doğrulama:** aynı model kod yazar, test yazar, kendini denetler, "99/100"
+    verir. Tur-1..3'ün skoru bu yüzden lab-içi; dış-cetvel aşağıda.
+12. **TEK-DİSK RİSKİ (en-ölümcül, en-kolay-telafi):** `git remote` BOŞ (doğrulandı) —
+    /mnt/hdd ölürse Tamga ölür. **Taşıma-protokolü yazan projenin kendi repo'su
+    taşınabilir-değil.** İroni değil, kusur.
+13. **CI yok:** "16/16" badge'i arkasında otomasyon yok; süit sadece bu makinede koştu.
+14. **Zaman-çizelgesi kurgu:** Faz 3 (ay 6-18, gerçek-ödeme) $0-gelir + tek-kişi +
+    tek-disk gerçekliğiyle. Kill-kriterler dürüst; takvim inandırıcı değil.
+
+## Skor (dış-gerçeklik cetveli)
+
+| Eksen | Tur-1..3 (lab) | Tur-4 (dış) |
+|---|---|---|
+| Kripto-çekirdek sertliği | 99 | 88 — kendini-kanıtlamış ama dış-göz yok |
+| Ürün-gerçekliği | 95 | **55** |
+| Ekonomi | 90 | **45** |
+| Rekabet-pozisyonu | — | **60** |
+| Süreç/egemenlik | 99 | **50** |
+| **GENEL** | 99/100 | **~60/100** |
+
+"99" bizi neyin beklediğini gizlemişti; "60" yol-haritasıdır. İkisi de doğru — farklı
+sorumların cevabı: lab-içi disiplin 99, dış-gerçeklik 60.
+
+## Telafi-listesi (öncelik-sıralı; her biri bir sonraki turun işi)
+
+1. **Dış-yedek (ACİL, bugün):** private git remote + push (K12'yle çelişmez: süreklilik
+   ≠ açılış). Tek-disk kusuru pazarlık-konusu bile değildir.
+2. **Ajan girdi-kabiliyeti (Dilim-11):** `--input` dosyası → wasm stdin; hash'i makbuza
+   bağlanır — "gerçek-iş" kapısı. En-kritik ürün-eksiği.
+3. **Determinizm-sınırı beyanı (RFC'ye dürüst bölüm):** hangi iş-sınıfları replay'lenebilir;
+   LLM-işleri için kanıt-kontratı (koşum-log + çıktı-atif) — tez-deliği kapatır.
+4. **Default-deny yetenek-modeli v1:** kısıtlı-ağ yeteneği (alan-adı beyanlı egress?)
+   — gerçek-ajan çelişkisini tasarım-düzeyinde aç.
+5. **İlk özel-demo + hizmet-paketi şablonu:** talep-kanıtını dokümandan dünyaya taşı.
+6. **CI:** GitHub Actions (koşum-suz hızlı takım + wasmtime artifact) — badge gerçeğe bassın.
+7. **Rekabet-taraması v2:** GitHub/market; LangGraph-checkpointer karşılaştırma-tablosu;
+   "moat-cevabı" KURUM-PAKETI'ne eklenir.

@@ -108,7 +108,7 @@ python3 tamga_runner.py memory <pkg> --import-json d.json   # MERGEN → Tamga k
 ```bash
 bash tools/demo.sh   # doğdu → girdili-iş yaptı → öldü → taşındı → dirildi → makbuz doğrulandı
 ```
-Kayıt için: `asciinema rec -c "bash tools/demo.sh" demo.cast` — çıktısı [docs/DEMO-SENARYO.md]'deki beklenen-akışla birebir.
+Kayıtlı oturum: [docs/assets/demo.cast](docs/assets/demo.cast) (asciinema ile oynat) — beklenen-akış: [docs/DEMO-SENARYO.md](docs/DEMO-SENARYO.md).
 
 ## MERGEN'den geliyorsanız
 

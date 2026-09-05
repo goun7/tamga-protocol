@@ -53,3 +53,4 @@
 | 2026-09-05 | VALIDASYON/2026-09-05/schema-crossvalidation.log | ✅ 34/34 | RFC-001 şema çapraz-doğrulaması: jsonschema 2020-12 vs stdlib validator — 6 vektör + 28 mutasyon, karar-düzeyi birebir UYUM |
 | 2026-09-05 | REGRESYON/2026-09-05/run_all-040827.log | ✅ 15/15 | hızlı tur YEŞİL — son kod değişikliği (fbf678f: ledger-verify boş-zincir) sonrası taze tam tur, load ~21, 5.8 sn |
 | 2026-09-05 | REGRESYON/2026-09-05/run_all-040841.log | ✅ 16/16 | RUN_SLOW=1 tam tur YEŞİL — c30 wall_ms=31022 ≥ 30000 (AT-001c özü), load ~22 |
+| 2026-09-05 | AT-002/2026-09-05/oq5-determinizm-onolcum.log | ⚠️→✅ | OQ-5 ön-ölçüm: 4/4 koşum stdout_sha256 birebir aynı (1 koşum load-spike reason-11 — dürüst kayıt); EK BULGU: wall-faturalama yük-gürültüsü ~172× oynama (OQ-8, RFC-003 D1 gerilimi) |

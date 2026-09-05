@@ -37,8 +37,16 @@ yeniden-koşum, TEE oracle) doğrulanabilir kanıt besler.
 ## 3. Yön-2: Tamga'nın ERC-8004 Validation kancalarına verdiği kanıt
 
 - **stake'li yeniden-koşum:** aynı `agent.wasm` + limits → aynı `stdout_sha256`
-  deterministikse (WASI determinizmi; wasn't measured v0'da — açık soru OQ-5),
-  doğrulayıcı koşumu charge kaydındaki ölçüm kanıtlarıyla çaprazlar.
+  deterministikse, doğrulayıcı koşumu charge kaydındaki ölçüm kanıtlarıyla çaprazlar.
+  **Ön-ölçüm (2026-09-05, kanit/AT-002/2026-09-05/oq5-determinizm-onolcum.log):**
+  aynı wasm+girdi 4/4 başarılı koşumda stdout_sha256 birebir aynı (c06fc1df…; 1 koşum
+  load-spike'tan reason-11 — E-9c'nin canlı örneği). Determinizm güçlü sinyal; tam
+  ölçüm (farklı girdiler) AT-002.
+- **OQ-8 (yeni, ön-ölçümden doğdu): wall-faturalama gerilimi.** Aynı işin ücreti
+  koşum-zamanı yüküne göre ~172× oynayabilir (quickstart wall_ms=2022 @load~24 vs
+  ön-ölçüm 7..9ms @load~21). RFC-003 D1 (wall tabanı) ağır-yük host'ta kullanıcıyı
+  gürültüyle faturalandırır. Faz 2 önerisi: medyan-of-N pencere faturalama ya da
+  düşük-yük doğrulama penceresi; ücret-adaleti maddesi node-cosign tasarımına bağlı.
 - **TEE oracle:** node-cosign `attestation` alanı (DESIGN-node-cosign.md OQ-4).
 - **Reputation:** charge geçmişi (hash-zincirli) itibar sinyalinin doğrulanabilir
   alt-tabanıdır — kayıt sahteleme ancak F25'ün kapsadığı seed-sahibi düşmanla mümkün;
@@ -47,9 +55,11 @@ yeniden-koşum, TEE oracle) doğrulanabilir kanıt besler.
 
 ## 4. Açık sorular (Faz 3'e)
 
-- **OQ-5:** WASI koşum determinizmi ölçülecek mi? (Aynı wasm+girdi → aynı stdout_sha256?
-  wasmtime pin'i bunu büyük ölçüde garanti eder; kanıt AT-002 adayı.)
+- **OQ-5:** WASI koşum determinizmi — ön-ölçüm güçlü sinyal verdi (üstte); tam ölçüm
+  (farklı girdi setleri, sınır durumları) AT-002 ailesinde.
 - **OQ-6:** agentURI hangi saklamayı işaret eder (IPFS/Arweave/HTTPS)? Değişmezlik vs
   güncellenebilirlik gerilimi — snapshot per-oturum değişir; kayıt dosyası sabit kalmalı.
 - **OQ-7:** ERC-8004 Final geçerse alan değişimleri bu tabloya errata işlenir (o tarihe dek
   Draft olduğu için burada sürüm kilidi tutulmaz — bilinçli karar).
+- **OQ-8:** wall-faturalama gerilimi (yukarıda) — medyan-of-N mi, düşük-yük pencere mi,
+  yoksa faturalama tabanı gözden geçirmesi mi? RFC-003 kurucu onayıyla bağlantılı.

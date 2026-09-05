@@ -25,6 +25,9 @@ bekle_red() { kontrol "$@"; }  # RED-kanıt grepleri (grep -q'ya bağlı) için 
   echo "--- AT-001f: import negatif vektörleri (reason 7/9/8) — ayrıntı: kanit/AT-001/$(date +%F)/AT-001f-vektorler.log"
   bash tests/negative_snapshots.sh > /dev/null 2>&1; kontrol $? "tc-s7/s9/s8 negatif vektörleri (3 RED beklentisi)"
 
+  echo "--- AT-003: node-cosign negatif vektörleri (F25 çözümü) — ayrıntı: kanit/AT-003/$(date +%F)/AT-003-cosign.log"
+  bash tests/negative_cosign.sh > /dev/null 2>&1; kontrol $? "tc-n1..n6 node-cosign vektörleri (L1/L0 politikası)"
+
   echo "--- sandbox kuruluyor (tek kullanımlık node)"
   rm -rf "$SB"; mkdir -p "$SB/pkg"
   cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$SB/pkg/"

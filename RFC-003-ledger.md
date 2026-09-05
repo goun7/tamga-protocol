@@ -63,3 +63,21 @@ TASLAK'tan normatif sapma yok; gerçekleme bu RFC'yi izliyor, iki adsal/erdamsal
 | — (RFC'de yok) | gömülü `ledger_records` kuruluş-öncesi doğrulanır | normatif kaynak: RFC-002 E-10a |
 
 Kural: bu not RFC'yi değiştirmez; farklar RFC-002 §9 errata'larında normatiftir. Kurucu onayı anında "adsal düzeltme" ve Açık Soru 4 ana metne alınır, sonra RFC donar.
+
+## 8. v0.2 Revizyon Adayı — D8: node-cosign (2026-09-05, Audit-8; KURUCU ONAYI BEKLİYOR)
+
+Audit-7 F25'ün (gömülü zincir taze node'da ajan-iddiasıdır) kalıcı çözümü önceden
+gerçeklendi (L0 default, davranış değişmedi; L1 opt-in pilot hazır):
+
+- **D8:** Her kayıt opsiyonel `node_id` (64-hex, node operatör anahtarının verify-key'i)
+  + `node_sig` (ed25519 imza, girdi = kaydın `h`'si) taşıyabilir. `node_id` **hash-girdisi
+  içindedir** (zincir node kimliğini bağlar); `node_sig` hash-girdisi DIŞINDADIR (h'yi
+  imzalar; kurcalama imza kontrolünde yakalanır). İki katman birbirini kapatır.
+- **Politika merdiveni:** L0 (bugünkü davranış — node_sig'siz zincir meşru; node_sig'li
+  kayıtta imza yine doğrulanır) / L1 (import'ta her kayıt node_sig'li VE node_id güvencili
+  listede olmalı; aksi RED reason 14) / L2 (Faz 3: ERC-8004 itibar bağlaması).
+- **Node anahtarı:** operatör kimliği; 0600 dosyada durabilir (D3 yalnız ajan seed'ini
+  diske yasaklar). `keygen-node <dir>` ayrı komuttur.
+- **Kanıt:** AT-003 6/6 (tests/negative_cosign.sh) + Audit-8 (A1 güçlü düşman L1 RED /
+  L0 bilinen-kalıntı; A2 imza-katmanı RED; A3 kısmi-cosign RED) — kanit/GUVENLIK/2026-09-05/.
+- **Kurucuya sorular:** OQ-1 (L1 pilot'ta default mu?) — specs/DESIGN-node-cosign.md §6.

@@ -107,3 +107,21 @@ seed'siz host düşmanı üst sınır ölçümünden zayıftır. Kanıt: kanit/G
 **Düzeltme kodu (aynı gün, kanıtlı):** `tamga_runner.py::_records_head()` + import
 kuruluş-öncesi doğrulama — pozitif akış (grant→export→import→verify) ve AT-001f
 vektörleri (4/4) bozulmadığı ayrıca koşularla teyit edildi (bkz. audit-7.log son bloğu).
+
+## Audit-8 — 2026-09-05 (F25 çözümü: node-cosign L1 pilot gerçeklemesi)
+
+Yöntem: tests/audit8_node_cosign.py (runner'ın kendi primitifleriyle adversarial craft)
++ AT-003 negatif vektörler (tests/negative_cosign.sh, 6/6). Kanıt: kanit/GUVENLIK/2026-09-05/audit-8.log.
+
+| # | Bulgu/Saldırı | Sonuç |
+|---|---|---|
+| — | A1 güçlü düşman (kendi node anahtarıyla tam zincir sahteciliği) | **L0: ACCEPT (bilinen kalıntı — politika kararı OQ-1'de)** · **L1: RED (node_id_güvenilmeyen)** — F25 L1'de kapandı |
+| — | A2 dürüst node_id + saldırgan imzası | RED (node_sig_geçersiz@1) — iki katman: node_id hash'te bağlı, imza node_id'ye tabi |
+| — | A3 kısmi-cosign (node_sig düşürülmüş zincir) | L1 RED (node_sig_eksik) — kademeli düşürme ile politika aşılamaz |
+| — | tc-n2/n3 (node_sig/node_id kurcalama) | RED (AT-003) |
+| — | tc-n6 (L0 geriye-uyum) | ACCEPT — mevcut zincirler etkilenmez |
+
+**F25 durum güncellemesi:** AÇIK → **MEKANİZMA HAZIR + KANITLI (L1 pilot)**; kalan tek
+açık uç politika kararıdır (L1 pilot'ta default mu — OQ-1, kurucu onayı: RFC-003 §8 D8).
+**Tasarım dersi:** zincir-hash formatı değişmedi (D4 bozulmadı); node_id hash-girdisinde,
+node_sig imza-katmanında — iki katman birbirinin atlatmasını kapatıyor.

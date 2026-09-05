@@ -1,0 +1,9 @@
+# Audit-8 node-cosign saldırıları — 2026-09-05T04:44:08+0300
+A1 tam-zincir sahteciliği (saldırgan node anahtarı):
+  L0: ok=True — bilinen kalıntı: politika kararı OQ-1'de (simnet kabulü)
+  L1: ok=False reason=14 ledger_broken: cosign-L1 node_id_güvenilmeyen@1
+A1 SONUÇ: L1 kapattı (beklendi)
+A2 dürüst-node_id + sahte-imza: ok=False reason=14 ledger_broken: gömülü zincir node_sig_geçersiz@1
+A2 SONUÇ: iki katman imza-katmanını yakaladı (beklendi)
+A3 kısmi/hiç cosign düşürülmüş zincir L1'de: ok=False reason=14 ledger_broken: cosign-L1 node_sig_eksik@1
+A3 SONUÇ: L1 node_sig_eksik RED (beklendi)

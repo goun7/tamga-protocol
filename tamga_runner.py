@@ -13,7 +13,7 @@ ram ücreti gerçek ölçüm olmadan alınmaz (bkz. cmd_run).
 import sys, os, json, hashlib, pathlib, time, getpass, subprocess, resource
 from nacl.bindings import (crypto_aead_xchacha20poly1305_ietf_encrypt as xenc,
                            crypto_aead_xchacha20poly1305_ietf_decrypt as xdec)
-from nacl.signing import SigningKey
+from nacl.signing import SigningKey, VerifyKey
 import tamga_validator as tv
 
 MAGIC = b"TSG1"
@@ -78,7 +78,8 @@ def _graph_merkle(mem):
     return hashlib.sha256(jcs({"nodes": nh, "edges": eh}).encode("utf-8")).hexdigest()
 
 def _ledger_head(lp):
-    """Zinciri akış halinde doğrulayıp uc (son h) döner; kırık/yok → (None, neden)."""
+    """Zinciri akış halinde doğrulayıp uc (son h) döner; kırık/yok → (None, neden).
+    node-cosign: node_sig hash-girdisi dışında; varsa imzası ayrıca doğrulanır."""
     if not lp.exists(): return None, "yok"
     prev_h, n = "0" * 64, 0
     with open(lp, "r", encoding="utf-8") as f:
@@ -88,10 +89,12 @@ def _ledger_head(lp):
             n += 1
             try:
                 rec = json.loads(line)
-                no_h = {k: v for k, v in rec.items() if k != "h"}
+                no_h = {k: v for k, v in rec.items() if k != "h" and k != "node_sig"}
                 exp = hashlib.sha256((rec.get("prev", "") + jcs(no_h)).encode("utf-8")).hexdigest()
                 if rec.get("prev") != prev_h or rec.get("h") != exp or rec.get("seq") != n:
                     return None, f"kırık@{n}"
+                if "node_sig" in rec and not _node_sig_ok(rec):
+                    return None, f"node_sig_geçersiz@{n}"
                 prev_h = rec["h"]
             except Exception:
                 return None, f"kırık@{n}"
@@ -111,26 +114,51 @@ def _tip_in_chain(lp, tip):
 
 def _records_head(recs):
     """Audit-7: gömülü kayıt listesi için _ledger_head eşdeğeri.
-    D4 zero-trust: import, zinciri kurmadan ÖNCE içsel bütünlüğünü doğrular."""
+    D4 zero-trust: import, zinciri kurmadan ÖNCE içsel bütünlüğünü doğrular.
+    node-cosign: node_sig hash-girdisine girMEZ (h, node_sig'siz gövdeyi kapsar;
+    imzanın kendisi ayrıca doğrulanır — _node_sig_ok)."""
     prev_h, n = "0" * 64, 0
     try:
         for rec in recs:
             n += 1
-            no_h = {k: v for k, v in rec.items() if k != "h"}
+            no_h = {k: v for k, v in rec.items() if k != "h" and k != "node_sig"}
             exp = hashlib.sha256((rec.get("prev", "") + jcs(no_h)).encode("utf-8")).hexdigest()
             if rec.get("prev") != prev_h or rec.get("h") != exp or rec.get("seq") != n:
                 return None, f"kırık@{n}"
+            if "node_sig" in rec and not _node_sig_ok(rec):
+                return None, f"node_sig_geçersiz@{n}"
             prev_h = rec["h"]
     except Exception:
         return None, f"kırık@{n}"
     return prev_h, "ok"
 
+def _node_sig_ok(rec):
+    """node-cosign bütünlük katmanı: node_sig, node_id anahtarıyla h'yi imzalamış mı?
+    (güven listesi politikası ayrıdır: _cosign_policy_ok — L1.)"""
+    try:
+        VerifyKey(bytes.fromhex(rec["node_id"])).verify(
+            rec["h"].encode(), bytes.fromhex(rec["node_sig"]))
+        return True
+    except Exception:
+        return False
+
 # --- Dilim-5: ledger hash-zinciri (RFC-003 D4 taslak kararı; MERGEN ÖZ/MÜHÜR dersi) ---
 def jcs(d):
     return json.dumps(d, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
 
-def _ledger_append(lp, rec):
-    """Kaydı seq+prev+h alanlarıyla zincire ekler; yazılan satırı döner."""
+def _node_key_from(a):
+    """DESIGN-node-cosign (F25): '--node-key <hex>' opsiyonel node imza anahtarı.
+    Node anahtarı ajan seed'inden AYRIDIR (operatör anahtarı); ajan seed'i gibi
+    komut satırından geçmesi E-2 kapsamındadır (simnet kabulü)."""
+    try:
+        return bytes.fromhex(a[a.index("--node-key") + 1])
+    except (ValueError, IndexError):
+        return None
+
+def _ledger_append(lp, rec, node_key=None):
+    """Kaydı seq+prev+h alanlarıyla zincire ekler; yazılan satırı döner.
+    node_key verilirse node-cosign L1: node_id + node_sig(=ed25519(h)) eklenir
+    (DESIGN-node-cosign.md; RFC-003 Açık Soru 4'ün ön-gerçeklemesi)."""
     lines = lp.read_text(encoding="utf-8").splitlines() if lp.exists() else []
     last = None
     for l in reversed(lines):
@@ -140,7 +168,11 @@ def _ledger_append(lp, rec):
     rec["seq"] = len([l for l in lines if l.strip()]) + 1
     rec["prev"] = prev
     rec["ts"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+    if node_key:
+        rec["node_id"] = SigningKey(node_key).verify_key.encode().hex()   # h'den ÖNCE: zincir node kimliğini bağlar
     h = hashlib.sha256((prev + jcs(rec)).encode("utf-8")).hexdigest()
+    if node_key:
+        rec["node_sig"] = SigningKey(node_key).sign(h.encode()).signature.hex()  # h'yi imzalar; hash-girdisi DIŞI
     rec["h"] = h
     with open(lp, "a") as f:
         f.write(jcs(rec) + "\n")
@@ -164,9 +196,11 @@ def cmd_ledger_verify(a):
             n += 1
             try:
                 rec = json.loads(line)
-                no_h = {k: v for k, v in rec.items() if k != "h"}
+                no_h = {k: v for k, v in rec.items() if k != "h" and k != "node_sig"}
                 exp = hashlib.sha256((rec.get("prev", "") + jcs(no_h)).encode("utf-8")).hexdigest()
                 if rec.get("prev") != prev_h or rec.get("h") != exp or rec.get("seq") != n:
+                    broken = rec.get("seq", n); break
+                if "node_sig" in rec and not _node_sig_ok(rec):
                     broken = rec.get("seq", n); break
                 prev_h = rec["h"]
             except Exception:
@@ -191,8 +225,10 @@ def cmd_grant(a):
     mf = pkg / "tamga.json"
     name = json.loads(mf.read_text(encoding="utf-8"))["package"]["name"] if mf.exists() else pkg.name
     rec = _ledger_append(pkg / "ledger.jsonl",
-                         {"op": "grant", "pkg": name, "amount": amount, "note": note})
+                         {"op": "grant", "pkg": name, "amount": amount, "note": note},
+                         node_key=_node_key_from(a))
     return out(True, op="grant", seq=rec["seq"], h=rec["h"], amount=amount,
+               node_id=rec.get("node_id") if "node_id" in rec else None,
                note="zincire eklendi (RFC-003 D5 taslak)")
 
 def cmd_keygen(a):
@@ -207,6 +243,7 @@ def cmd_run(a):
         seed = _seed_from(a)
     except Exception:
         return out(False, op="run", reason_code=6, reason="seed_invalid")
+    node_key = _node_key_from(a)                            # node-cosign (opt-in)
     rc, msg = tv.validate(pkg)
     if rc != 0: return out(False, op="run", reason_code=3, reason="manifest_reject: " + msg)
     manifest = json.loads((pkg / "tamga.json").read_text(encoding="utf-8"))
@@ -290,7 +327,7 @@ def cmd_run(a):
                         "session": st["sessions"], "engine": "wasmtime-v48.0.1",
                         "cpu_saat": cpu_saat, "ram_gb_sn": ram_gb_sn, "io_mb": io_mb,
                         "wall_ms": dt_ms, "stdout_sha256": hashlib.sha256(art.read_bytes()).hexdigest(),
-                        "fee_sim": fee})   # Dilim-5: zincire eklenir (RFC-003 D4 taslak)
+                        "fee_sim": fee}, node_key=node_key)   # Dilim-5 + node-cosign (opt-in)
     st["format"] = "tamga-state/1"
     st["ledger_tip"] = charge["h"]                            # Dilim-6: F21 panzehiri
     st["graph_merkle"] = _graph_merkle(mem)
@@ -421,6 +458,31 @@ def _check_header(header):
         if k not in b: return False
     return isinstance(b["salt"], str) and isinstance(b["nonce"], str) and isinstance(b["ct"], str)
 
+def cmd_keygen_node(a):
+    """node-cosign (DESIGN-node-cosign.md): operatör node anahtarı — 0600 diske
+    yazılır (ajan seed'inin aksine; D3 yalnız ajan seed'ini diske yasaklar).
+    Kullanım: keygen-node <dir>"""
+    out_d = pathlib.Path(a[0]); out_d.mkdir(parents=True, exist_ok=True)
+    sk = SigningKey.generate()
+    (out_d / "node_seed.hex").write_text(sk.encode().hex()); (out_d / "node_seed.hex").chmod(0o600)
+    (out_d / "node_pub.hex").write_text(sk.verify_key.encode().hex())
+    return out(True, op="keygen-node", dir=str(out_d), node_id=sk.verify_key.encode().hex(),
+               note="node anahtarı 0600 yazıldı (operatör kimliği; D3 ajan seed'ine özgüdür)")
+
+def _cosign_policy(a):
+    """import politikası: --cosign-policy L0|L1 (default L0) + --node-trust <file>
+    (L1 için zorunlu; JSON dizi: güvenilen node_id hex listesi)."""
+    pol = "L0"
+    if "--cosign-policy" in a: pol = a[a.index("--cosign-policy") + 1]
+    if pol not in ("L0", "L1"): pol = "L0"
+    trust = None
+    if "--node-trust" in a:
+        try:
+            trust = set(json.loads(pathlib.Path(a[a.index("--node-trust") + 1]).read_text(encoding="utf-8")))
+        except Exception:
+            trust = None
+    return pol, trust
+
 def cmd_import(a):
     if len(a) < 2: return out(False, op="import", reason_code=2, reason="snapshot_header_invalid: argüman")
     snap = pathlib.Path(a[0]); pkg = pathlib.Path(a[1])
@@ -487,6 +549,18 @@ def cmd_import(a):
         if why_emb != "ok":
             return out(False, op="import", reason_code=14,
                        reason="ledger_broken: gömülü zincir " + why_emb)
+        pol, trust = _cosign_policy(a)
+        if pol == "L1":
+            # node-cosign L1: her kayıt node_sig'li ve node_id güvencili listede olmalı
+            bad = None
+            for rec in recs:
+                if "node_sig" not in rec:
+                    bad = f"node_sig_eksik@{rec.get('seq')}"; break
+                if not trust or rec.get("node_id") not in trust:
+                    bad = f"node_id_güvenilmeyen@{rec.get('seq')}"; break
+            if bad:
+                return out(False, op="import", reason_code=14,
+                           reason="ledger_broken: cosign-L1 " + bad)
         head2, why2 = _ledger_head(lp)
         if head2 is None and why2 in ("yok",):
             body2 = {k: v for k, v in parsed.items() if k != "ledger_records"}
@@ -519,5 +593,6 @@ def cmd_ledger(a):
 if __name__ == "__main__":
     cmds = {"keygen": cmd_keygen, "run": cmd_run, "export": cmd_export,
             "import": cmd_import, "ledger": cmd_ledger, "memory": cmd_memory,
-            "grant": cmd_grant, "ledger-verify": cmd_ledger_verify}
+            "grant": cmd_grant, "ledger-verify": cmd_ledger_verify,
+            "keygen-node": cmd_keygen_node}
     sys.exit(cmds[sys.argv[1]](sys.argv[2:]))

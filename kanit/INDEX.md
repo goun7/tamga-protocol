@@ -54,3 +54,5 @@
 | 2026-09-05 | REGRESYON/2026-09-05/run_all-040827.log | ✅ 15/15 | hızlı tur YEŞİL — son kod değişikliği (fbf678f: ledger-verify boş-zincir) sonrası taze tam tur, load ~21, 5.8 sn |
 | 2026-09-05 | REGRESYON/2026-09-05/run_all-040841.log | ✅ 16/16 | RUN_SLOW=1 tam tur YEŞİL — c30 wall_ms=31022 ≥ 30000 (AT-001c özü), load ~22 |
 | 2026-09-05 | AT-002/2026-09-05/oq5-determinizm-onolcum.log | ⚠️→✅ | OQ-5 ön-ölçüm: 4/4 koşum stdout_sha256 birebir aynı (1 koşum load-spike reason-11 — dürüst kayıt); EK BULGU: wall-faturalama yük-gürültüsü ~172× oynama (OQ-8, RFC-003 D1 gerilimi) |
+| 2026-09-05 | AT-003/2026-09-05/AT-003-cosign.log | ✅ 6/6 | node-cosign vektörleri: L1+güvencili ACCEPT · bozuk node_sig RED · node_id takası RED · L1'de node_sig'siz RED · L1 yabancı node RED · L0 geriye-uyum ACCEPT |
+| 2026-09-05 | GUVENLIK/2026-09-05/audit-8.log | ✅ | Audit-8: A1 güçlü düşman L1 RED (F25 mekanizma kapanışı; L0 kalıntı OQ-1'de) · A2 imza-katmanı RED · A3 kısmi-cosign RED |

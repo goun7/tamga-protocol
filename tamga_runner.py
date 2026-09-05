@@ -95,28 +95,42 @@ def _graph_merkle(mem):
     eh = [hashlib.sha256(jcs(e).encode("utf-8")).hexdigest() for e in mem.get("edges", [])]
     return hashlib.sha256(jcs({"nodes": nh, "edges": eh}).encode("utf-8")).hexdigest()
 
-def _ledger_head(lp):
-    """Stream-verify the chain and return the tip (last h); broken/absent → (None, reason).
-    node-cosign: node_sig is outside the hash input; its signature is verified separately."""
-    if not lp.exists(): return None, "yok"
-    prev_h, n = "0" * 64, 0
+def _ledger_lines(lp):
+    """Stream ledger.jsonl as parsed records (F19: no full-file loading)."""
     with open(lp, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line: continue
-            n += 1
             try:
-                rec = json.loads(line)
-                no_h = {k: v for k, v in rec.items() if k != "h" and k != "node_sig"}
-                exp = hashlib.sha256((rec.get("prev", "") + jcs(no_h)).encode("utf-8")).hexdigest()
-                if rec.get("prev") != prev_h or rec.get("h") != exp or rec.get("seq") != n:
-                    return None, f"broken@{n}"
-                if "node_sig" in rec and not _node_sig_ok(rec):
-                    return None, f"node_sig_invalid@{n}"
-                prev_h = rec["h"]
+                yield json.loads(line)
             except Exception:
+                yield {}          # sentinel: _verify_chain's prev/seq check flags it broken
+
+def _verify_chain(recs):
+    """Single chain-verification core (RFC-003 D5/D7/D8) — one implementation, three callers
+    (_ledger_head, _records_head, cmd_ledger_verify). Hash rule: node_sig is OUTSIDE the
+    hash input; its signature is verified separately (_node_sig_ok).
+    Returns (tip, "ok") or (None, "broken@<n>" / "node_sig_invalid@<n>")."""
+    prev_h, n = "0" * 64, 0
+    try:
+        for rec in recs:
+            n += 1
+            no_h = {k: v for k, v in rec.items() if k != "h" and k != "node_sig"}
+            exp = hashlib.sha256((rec.get("prev", "") + jcs(no_h)).encode("utf-8")).hexdigest()
+            if rec.get("prev") != prev_h or rec.get("h") != exp or rec.get("seq") != n:
                 return None, f"broken@{n}"
+            if "node_sig" in rec and not _node_sig_ok(rec):
+                return None, f"node_sig_invalid@{n}"
+            prev_h = rec["h"]
+    except Exception:
+        return None, f"broken@{n}"
     return prev_h, "ok"
+
+def _ledger_head(lp):
+    """Stream-verify the chain and return the tip (last h); broken/absent → (None, reason).
+    node-cosign: node_sig is outside the hash input; its signature is verified separately."""
+    if not lp.exists(): return None, "yok"
+    return _verify_chain(_ledger_lines(lp))
 
 def _tip_in_chain(lp, tip):
     """F21 countermeasure: is the tip hash a member of the chain (streaming)?"""
@@ -132,23 +146,8 @@ def _tip_in_chain(lp, tip):
 
 def _records_head(recs):
     """Audit-7: _ledger_head equivalent for the embedded record list.
-    D4 zero-trust: import verifies internal integrity BEFORE installing the chain.
-    node-cosign: node_sig is NOT in the hash input (h covers the body without node_sig;
-    the signature itself is verified separately — _node_sig_ok)."""
-    prev_h, n = "0" * 64, 0
-    try:
-        for rec in recs:
-            n += 1
-            no_h = {k: v for k, v in rec.items() if k != "h" and k != "node_sig"}
-            exp = hashlib.sha256((rec.get("prev", "") + jcs(no_h)).encode("utf-8")).hexdigest()
-            if rec.get("prev") != prev_h or rec.get("h") != exp or rec.get("seq") != n:
-                return None, f"broken@{n}"
-            if "node_sig" in rec and not _node_sig_ok(rec):
-                return None, f"node_sig_invalid@{n}"
-            prev_h = rec["h"]
-    except Exception:
-        return None, f"broken@{n}"
-    return prev_h, "ok"
+    D4 zero-trust: import verifies internal integrity BEFORE installing the chain."""
+    return _verify_chain(recs)
 
 def _node_sig_ok(rec):
     """node-cosign integrity layer: did node_sig sign h with node_id's key?
@@ -216,27 +215,13 @@ def cmd_ledger_verify(a):
         # is a legitimate pre-genesis state; the genesis tip is valid (D7 ok=true-correct).
         return out(True, op="ledger-verify", lines=0, head="0" * 64,
                    note="empty chain: no records yet (genesis tip is valid)")
-    prev_h, n, broken = "0" * 64, 0, None
-    with open(lp, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line: continue
-            n += 1
-            try:
-                rec = json.loads(line)
-                no_h = {k: v for k, v in rec.items() if k != "h" and k != "node_sig"}
-                exp = hashlib.sha256((rec.get("prev", "") + jcs(no_h)).encode("utf-8")).hexdigest()
-                if rec.get("prev") != prev_h or rec.get("h") != exp or rec.get("seq") != n:
-                    broken = rec.get("seq", n); break
-                if "node_sig" in rec and not _node_sig_ok(rec):
-                    broken = rec.get("seq", n); break
-                prev_h = rec["h"]
-            except Exception:
-                broken = n; break
-    if broken is not None:
-        return out(False, op="ledger-verify", reason_code=14, broken_at=broken,
+    tip, why = _verify_chain(_ledger_lines(lp))
+    if why != "ok":
+        broken_at = int(why.split("@")[1]) if "@" in why else 0
+        return out(False, op="ledger-verify", reason_code=14, broken_at=broken_at,
                    reason="ledger_broken")
-    return out(True, op="ledger-verify", lines=n, head=prev_h,
+    lines = sum(1 for line in open(lp, "r", encoding="utf-8") if line.strip())
+    return out(True, op="ledger-verify", lines=lines, head=tip,
                note="chain tip verified (RFC-003 D7 draft)")
 
 def cmd_grant(a):
@@ -245,10 +230,10 @@ def cmd_grant(a):
     try:
         amount = round(float(a[1]), 9)
     except Exception:
-        return out(False, op="grant", reason_code=14, reason="ledger_broken: amount is not a number")
-    if not (0 < amount <= 1e6):                          # Audit-4 F18
-        return out(False, op="grant", reason_code=14,
-                   reason="ledger_broken: amount outside (0,1e6]")
+        return out(False, op="grant", reason_code=1, reason="parse_error: amount is not a number")
+    if not (0 < amount <= 1e6):                          # Audit-4 F18 (policy bound, not chain break)
+        return out(False, op="grant", reason_code=1,
+                   reason="parse_error: amount outside (0,1e6]")
     note = a[2] if len(a) > 2 else ""
     mf = pkg / "tamga.json"
     name = json.loads(mf.read_text(encoding="utf-8"))["package"]["name"] if mf.exists() else pkg.name
@@ -357,7 +342,7 @@ def cmd_run(a):
     ru1 = resource.getrusage(resource.RUSAGE_CHILDREN)
     cpu_s = max(0.001, (ru1.ru_utime + ru1.ru_stime) - (ru0.ru_utime + ru0.ru_stime))
     ram_mb = max(0.0, ru1.ru_maxrss / 1024)   # honest note: maxrss is a MAX across children; simnet spawns a single child
-    if isinstance(stdin_src, object) and stdin_src is not subprocess.DEVNULL:
+    if stdin_src is not subprocess.DEVNULL:
         try: stdin_src.close()
         except Exception: pass
         pathlib.Path(_tf_name).unlink(missing_ok=True)      # D11 input copy: deleted after the run (privacy)
@@ -535,14 +520,22 @@ def cmd_memory(a):
 def cmd_export(a):
     pkg = pathlib.Path(a[0])
     try:
-        dst = pathlib.Path(a[a.index("-o") + 1]); seed = _seed_from(a)
+        dst = pathlib.Path(a[a.index("-o") + 1])
+    except Exception:
+        return out(False, op="export", reason_code=1,
+                   reason="parse_error: export requires -o <file> --seed <hex>")
+    try:
+        seed = _seed_from(a)
     except ValueError as e:
         return out(False, op="export", reason_code=6, reason="seed_invalid: " + str(e))
     except Exception:
         return out(False, op="export", reason_code=6, reason="seed_invalid")
     if not (pkg / "tamga.json").exists():
         # Audit-9 B11: traceback proven in quickstart.log — a JSON contract is required
-        return out(False, op="export", reason_code=3, reason="manifest_reject: tamga.json yok")
+        return out(False, op="export", reason_code=3, reason="manifest_reject: tamga.json not found")
+    rc_m, msg_m = tv.validate(pkg)                       # B11+ (Tur-7): export deep-validates
+    if rc_m != 0:
+        return out(False, op="export", reason_code=3, reason="manifest_reject: " + msg_m)
     try:
         agent_id = SigningKey(seed).verify_key.encode().hex()
         _, sp, lp_x = _pkg(pkg)
@@ -706,12 +699,10 @@ def cmd_import(a):
             # node are ALSO invalid (dropping it from the list is not enough; closes the
             # key-theft scenario). Revocation file: JSON array [node_id, ...].
             revoked = []
-            rf = SB_NODE_REVOKED if False else None
-            import json as _json
             try:
                 idx = a.index("--node-revoked") if "--node-revoked" in a else -1
                 if idx >= 0 and idx + 1 < len(a):
-                    revoked = _json.loads(pathlib.Path(a[idx + 1]).read_text(encoding="utf-8"))
+                    revoked = json.loads(pathlib.Path(a[idx + 1]).read_text(encoding="utf-8"))
             except Exception:
                 return out(False, op="import", reason_code=2,
                            reason="snapshot_header_invalid: --node-revoked file unreadable")

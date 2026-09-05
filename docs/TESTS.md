@@ -14,6 +14,12 @@ bash tests/run_all.sh     # 18/18 controls, ~10 s on a laptop; CI runs it on eve
 - `tests/bench_runner_overhead.py` — runner-side overhead medians (evidence-only,
   no pass/fail).
 - `tools/check_links.py` — markdown relative-target integrity (0 broken).
+
+Local-only adversarial tools (not CI-hosted: they depend on gitignored simnet node
+fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip rollback
+attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
+runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
+the c30 cross-host control (19/19).
 ## Control families
 
 | Family | What it proves |

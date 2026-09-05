@@ -98,6 +98,10 @@ Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spe
 | 17 | state_invalid (merkle mismatch) |
 | 18 | agent_ownership_mismatch |
 
+Codes 5, 15 and 16 are reserved (validator-tier schema failures and policy-level
+rejections planned for later phases) and are not emitted by the v0.1 runner; the
+frozen RFC-002 additionally mentions 5 = `proof_level_unavailable`, not implemented
+in v0.1. The table above lists exactly the codes the runner can emit (code-extracted).
 ## 8. Overhead (measured)
 
 Runner-side overhead per operation (excluding the wasmtime run edge), medians from

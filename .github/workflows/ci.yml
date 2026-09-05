@@ -28,14 +28,8 @@ jobs:
       - name: Dependencies (PyNaCl + jsonschema)
         run: pip install -r requirements.txt
 
-      - name: wasmtime v48.0.1 (RFC-002 digest-pinned release)
-        run: |
-          mkdir -p tools/bin
-          curl -sSL -o /tmp/wt.tar.xz \
-            https://github.com/bytecodealliance/wasmtime/releases/download/v48.0.1/wasmtime-v48.0.1-x86_64-linux.tar.xz
-          tar -xJf /tmp/wt.tar.xz -C /tmp
-          cp /tmp/wasmtime-v48.0.1-x86_64-linux/wasmtime tools/bin/wasmtime
-          tools/bin/wasmtime --version
+      - name: wasmtime v48.0.1 (RFC-002 digest-pinned release, via tests/setup.sh)
+        run: bash tests/setup.sh
 
       - name: Acceptance suite (run_all)
         run: bash tests/run_all.sh
@@ -53,6 +47,14 @@ jobs:
         run: |
           python3 tests/sim/tokenomics_sim.py
           python3 tests/sim/economy_sim.py
+
+      - name: Adversarial audits — embedded chain + node-cosign (simnet, no wasmtime)
+        run: |
+          python3 tests/audit7_embedded_chain.py
+          python3 tests/audit8_node_cosign.py
+
+      - name: Runner overhead benchmark (loaded-host baseline, evidence only)
+        run: python3 tests/bench_runner_overhead.py
 
       - name: Documentation link integrity
         run: python3 tools/check_links.py

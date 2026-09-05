@@ -1,7 +1,7 @@
 # Tamga Protocol — Technical Architecture (v0, simnet)
 
 > Audience: engineers evaluating or building on Tamga. Every "proven" below refers to
-> a runnable control in `tests/run_all.sh` (17 controls, CI-green) unless noted.
+> a runnable control in `tests/run_all.sh` (18 controls, CI-green) unless noted.
 > Deep design documents (RFC-001…005, full audit report) are canonical in Turkish;
 > this page summarizes the public surface.
 
@@ -103,14 +103,17 @@ Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spe
 Runner-side overhead per operation (excluding the wasmtime run edge), medians from
 two independent measurement rounds on a loaded host: keygen 103 ms, grant 102 ms,
 ledger-verify 121 ms, memory-search 107 ms, memory-import 161 ms, export (scrypt
-dominates) 253 ms, import with deep verification 490 ms. Between-operation ratios
+dominates) 253 ms, import with deep verification 490 ms (the frozen RFC-002 E-11 baseline of
+  421 ms was recorded earlier under different host load; the two agree on ratios,
+  not absolute values). Between-operation ratios
 are stable across rounds; absolute values are host-load dependent — a quiet-host
 repetition and a formal "overhead < X% of run wall time" statement are Phase-2
 exit criteria.
 
 ## 9. Honest security envelope
 
-- **At rest:** proven (0 plaintext leaks in disk scans; keys sealed with scrypt).
+- **At rest:** proven (the suite greps the encrypted snapshot body for
+  plaintext: 0 hits; keys sealed with scrypt).
 - **In use:** NOT proven — seed lives in host RAM during a run; TEE pilot is Phase 3.
 - **Snapshot ≤ 64 MiB:** safe envelope; chunking is catalogued but unimplemented.
 - **Multi-node ledger merge:** open problem (conflicting `seq` spaces) — the real work

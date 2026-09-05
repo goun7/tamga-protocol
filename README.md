@@ -78,11 +78,13 @@ Full technical details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - **Scale:** snapshot ≤ 64 MiB (safe envelope); multi-node ledger merging is an open question
 - **Determinism scope is class-defined:** deterministic wasm jobs are replay-proven;
   LLM-class jobs use a different evidence contract (see ARCHITECTURE §Determinism)
-- **Language surface:** core code comments, suite output and docs are English; a few
-  synthetic fixture texts (sample memory contents, the example agent's proof-line
-  narrative inside compiled .wasm artifacts) remain Turkish — cosmetic, not contract
+- **Language surface:** core code comments, suite output and docs are English. Preserved
+  Turkish by contract or design: the frozen v0.1 JSON field names (`cpu_saat`,
+  `ram_gb_sn`, `fee_birebir` — renamed only by a versioned RFC), the example agent's
+  proof-line narrative inside compiled .wasm artifacts, and synthetic fixture texts
+  (sample memory/session contents)
 
-Open findings are tracked as an audit ledger (10 rounds, 25+ findings, adversarial
+Open findings are tracked in an internal audit ledger (10 adversarial rounds;
 attack simulations). Disclosure process: [SECURITY.md](SECURITY.md).
 
 ## Quick start
@@ -90,6 +92,7 @@ attack simulations). Disclosure process: [SECURITY.md](SECURITY.md).
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 pip install -r requirements.txt
+bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
 bash tests/run_all.sh          # 18/18 controls — ~10 s
 
 # your first agent:
@@ -144,8 +147,8 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | Doc | Content |
 |---|---|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical architecture: formats, chain, cosign, reason codes, limits |
-| [docs/RFC-001-manifest.md](docs/RFC-001-manifest.md) | Package manifest schema contract (v0.1-FINAL, frozen) | English |
-| [docs/RFC-002-runner.md](docs/RFC-002-runner.md) | Runner API + snapshot transport contract (v0.1-FINAL, frozen) | English |
+| [docs/RFC-001-manifest.md](docs/RFC-001-manifest.md) | Package manifest schema contract (v0.1-FINAL, frozen, English translation) |
+| [docs/RFC-002-runner.md](docs/RFC-002-runner.md) | Runner API + snapshot transport contract (v0.1-FINAL, frozen, English translation) |
 | [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md) | Agent developer guide (mental model → first run → migration) |
 | [docs/TESTS.md](docs/TESTS.md) | Test families + how to run + CI |
 | [docs/AUDIT-GATE.md](docs/AUDIT-GATE.md) | The 8-step gate every change passes |

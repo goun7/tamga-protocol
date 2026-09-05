@@ -5,7 +5,7 @@ fix, re-run, repeat:
 
 1. `python3 -m py_compile` — every touched `.py`
 2. `bash tests/run_all.sh` → 17/17
-3. Negative vectors: AT-001f (4/4) + AT-003 (6/6) — expected-RED fixtures stay red
+3. Negative vectors: AT-001f (3 expected-RED + 1 precondition control) + AT-003 (6/6) — expected-RED fixtures stay red
 4. Schema cross-validation: 34/34
 5. New code → at least one negative vector (unexpected-ACCEPT test)
 6. Evidence log: hashed run logs with numbers only; no unnecessary content

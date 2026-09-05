@@ -35,7 +35,7 @@ def cmd_sign(args):
 def validate(pkg: pathlib.Path):
     # Audit-1 F11: source limits (before reading)
     mf = pkg / "tamga.json"
-    if not mf.exists(): return 1, "RED parse_error: tamga.json yok"
+    if not mf.exists(): return 1, "RED parse_error: tamga.json not found"
     if mf.stat().st_size > 262144: return 1, "RED resource_limit: tamga.json > 256KB"
     wf = pkg / "agent.wasm"
     if wf.exists() and wf.stat().st_size > 64 * 1024 * 1024: return 1, "RED resource_limit: agent.wasm > 64MB"
@@ -51,7 +51,7 @@ def validate(pkg: pathlib.Path):
     for k in m:
         if k not in TOP: bad(f"(root).{k}", "unknown field (D3: strict rejection)")
     for k in ("spec_version", "package", "runtime", "memory", "capabilities", "signature"):
-        if k not in m: bad(k, "zorunlu alan eksik")
+        if k not in m: bad(k, "required field missing")
     if m.get("spec_version") != "0.1.0": bad("spec_version", "const ihlali (0.1.0)")
 
     p = m.get("package")
@@ -59,7 +59,7 @@ def validate(pkg: pathlib.Path):
         for k in p:
             if k not in {"name", "version", "code"}: bad(f"package.{k}", "bilinmeyen alan")
         for k in ("name", "version", "code"):
-            if k not in p: bad(f"package.{k}", "zorunlu alan eksik")
+            if k not in p: bad(f"package.{k}", "required field missing")
         if isinstance(p.get("name"), str) and not re.fullmatch(r"[a-z0-9][a-z0-9-]{2,31}", p["name"]):
             bad("package.name", "pattern ihlali")
         if isinstance(p.get("version"), str) and not re.fullmatch(r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)", p["version"]):
@@ -72,7 +72,7 @@ def validate(pkg: pathlib.Path):
                 bad("package.code.wasm_sha256", "must be 64-hex")
             if "hash_algo" in c and c["hash_algo"] != "sha256": bad("package.code.hash_algo", "const ihlali")
             if "target" in c and c["target"] != "wasi-0.3/component": bad("package.code.target", "const ihlali (D6)")
-        elif "code" in p: bad("package.code", "nesne bekleniyordu")
+        elif "code" in p: bad("package.code", "expected an object")
     elif "package" in m: bad("package", "nesne bekleniyordu")
 
     r = m.get("runtime")
@@ -161,4 +161,17 @@ def cmd_validate(args):
     print(msg); sys.exit(rc)
 
 if __name__ == "__main__":
+    USAGE = """tamga_validator.py — Tamga Protocol manifest/keystore validator
+
+commands:
+  keygen                          generate an agent seed (same primitive as the runner)
+  sign <tamga.json> <agent.wasm> <seed.hex>
+                                  bind the package: stamps code_hash + agent_id, signs the manifest
+  validate <pkg-dir>              full RFC-001 manifest validation (schema + pins + policy)
+
+RED output carries reason_code 1-18 (see docs/ARCHITECTURE.md §7).
+"""
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):
+        print(USAGE)
+        sys.exit(0 if len(sys.argv) >= 2 else 1)
     {"keygen": cmd_keygen, "sign": cmd_sign, "validate": cmd_validate}[sys.argv[1]](sys.argv[2:])

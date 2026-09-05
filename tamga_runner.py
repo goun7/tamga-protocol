@@ -288,7 +288,7 @@ def cmd_run(a):
     limits = manifest["runtime"]["limits"]
     wb = (pkg / "agent.wasm").read_bytes()
     if wb[:4] != b"\x00asm" or len(wb) < 8 or wb[4] != 0x0D:      # RFC-001 §5-5: component sniff
-        return out(False, op="run", reason_code=13, reason="not_component: wasi-0.3/component bekleniyor")
+        return out(False, op="run", reason_code=13, reason="not_component: expected a WASI 0.3 component")
     if not pathlib.Path(WASMTIME).exists():
         return out(False, op="run", reason_code=12, reason="agent_run_failed: wasmtime yok: " + WASMTIME)
     # --- real run: process-isolated wasmtime; D4: no fs preopens, no network ---
@@ -764,9 +764,34 @@ def cmd_ledger(a):
                grants=len([r for r in recs if r["op"] == "grant"]), fees_sim=round(fees, 9),
                balance_sim=round(grants - fees, 9))
 
+USAGE = """tamga_runner.py — Tamga Protocol agent runner (RFC-002)
+
+commands:
+  keygen                          generate an ed25519 agent seed (printed once, never stored)
+  keygen-node                     generate a node keystore + node identity
+  grant <pkg> <amount> <label>    record a grant in the package ledger
+  run <pkg> --seed <hex> [--input f] [--require-proof] [--note s]
+                                  execute the agent (wasmtime), charge fee, append ledger
+  export <pkg> -o <file> --seed <hex>
+                                  seal a snapshot (memory + embedded chain) for migration
+  import <file> <pkg> [--cosign-policy L0|L1] [--node-trust f]
+                                  import a snapshot (deep verification)
+  ledger <pkg>                    print the ledger
+  ledger-verify <pkg>             recompute and verify the hash chain
+  memory <pkg> <sub> ...          memory operations (add/list/search/export)
+
+setup: bash tests/setup.sh installs the pinned wasmtime engine.
+exit codes: 0 ok · 1 usage · 2 precondition · RED receipts carry reason_code 1-18.
+"""
 if __name__ == "__main__":
     cmds = {"keygen": cmd_keygen, "run": cmd_run, "export": cmd_export,
             "import": cmd_import, "ledger": cmd_ledger, "memory": cmd_memory,
             "grant": cmd_grant, "ledger-verify": cmd_ledger_verify,
             "keygen-node": cmd_keygen_node}
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):
+        print(USAGE)
+        sys.exit(0 if len(sys.argv) >= 2 else 1)  # bare invocation = usage error
+    if sys.argv[1] not in cmds:
+        print(f"unknown command: {sys.argv[1]}\n\n{USAGE}")
+        sys.exit(1)
     sys.exit(cmds[sys.argv[1]](sys.argv[2:]))

@@ -21,7 +21,7 @@ portability invariant — it is why a receiving node can verify what it is about
 ```bash
 python3 --version      # proven on 3.14; 3.11+ expected
 pip install pynacl     # the only runtime dependency
-# runner engine: wasmtime v48.0.1 (pinned, tools/bin/wasmtime)
+# runner engine: wasmtime v48.0.1 (pinned) — install with: bash tests/setup.sh
 # agent target:  WASI 0.3 / component  (Rust: wasm32-wasip2)
 ```
 

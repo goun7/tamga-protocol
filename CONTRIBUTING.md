@@ -4,7 +4,7 @@ Thanks for your interest in Tamga Protocol. The rules are short and strict:
 
 ## 1. Every change = tests + evidence
 
-A pull request must pass the [audit gate](docs/AUDIT-GATE.md): 17/17 controls, negative
+A pull request must pass the [audit gate](docs/AUDIT-GATE.md): 18/18 controls, negative
 fixtures stay red, and any new behavior ships with at least one adversarial test.
 "We tested it manually" is not evidence — the suite is one command and ~6 seconds.
 

@@ -55,7 +55,8 @@ Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Rehber: [docs/AGENT-G
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 pip install -r requirements.txt
-bash tests/run_all.sh    # 17/17 kontrol — ~6 sn
+bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
+bash tests/run_all.sh    # 18/18 kontrol — ~10 sn
 ```
 Komut-seti ve ilk-ajan akışı: [README.md#quick-start](README.md#quick-start) ve
 [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).

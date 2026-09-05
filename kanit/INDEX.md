@@ -105,3 +105,14 @@ yeni satırlar hem eksik dosyaları kapsar hem yönü netleştirir.*
 | Tarih | Dosya | Sonuç | Özet |
 |---|---|---|---|
 | 2026-09-05 | README-CALISMA/2026-09-05/quickstart.log | ✅ TUR-3 | 12 komut uçtan-uca ok (TUR-1/TUR-2 hataları log'da dürüstçe durur: ledger-verify boş-zincir UX + import önkoşulu — ikisi de fbf678f'te çözüldü) |
+
+### Tur-3 Final Doğrulama Turu (05:25-05:26, beklentiler-önce listesiyle)
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-052529.log | ✅ 16/16 | Audit-9 işlenmiş ağaçta TAZE tam tur (8 maddelik beklenti-listesi koşudan ÖNCE yazıldı) |
+| 2026-09-05 | AT-003/2026-09-05/AT-003-cosign.log (ek) | ✅ 6/6 | final turda yeniden koşuldu |
+| 2026-09-05 | AT-001/2026-09-05/AT-001f-vektorler.log (ek) | ✅ 4/4 | final turda yeniden koşuldu |
+| 2026-09-05 | VALIDASYON/2026-09-05/schema-crossvalidation.log (ek) | ✅ 34/34 | final turda yeniden koşuldu |
+| 2026-09-05 | GUVENLIK/2026-09-05/audit-8.log (ek) | ✅ 3/3 | A1/A2/A3 'beklendi' · exit 0 (B20 düzeltmesi sonrası) |
+| 2026-09-05 | (izin-kanıtı) | ✅ | taze koşumda state.json / ledger.jsonl / session-1.stdout = 600 (atomik B6 doğrulandı) |

@@ -56,3 +56,52 @@
 | 2026-09-05 | AT-002/2026-09-05/oq5-determinizm-onolcum.log | ⚠️→✅ | OQ-5 ön-ölçüm: 4/4 koşum stdout_sha256 birebir aynı (1 koşum load-spike reason-11 — dürüst kayıt); EK BULGU: wall-faturalama yük-gürültüsü ~172× oynama (OQ-8, RFC-003 D1 gerilimi) |
 | 2026-09-05 | AT-003/2026-09-05/AT-003-cosign.log | ✅ 6/6 | node-cosign vektörleri: L1+güvencili ACCEPT · bozuk node_sig RED · node_id takası RED · L1'de node_sig'siz RED · L1 yabancı node RED · L0 geriye-uyum ACCEPT |
 | 2026-09-05 | GUVENLIK/2026-09-05/audit-8.log | ✅ | Audit-8: A1 güçlü düşman L1 RED (F25 mekanizma kapanışı; L0 kalıntı OQ-1'de) · A2 imza-katmanı RED · A3 kısmi-cosign RED |
+
+## 2026-09-05 Ekleri ve Yeniden Yapılandırma (add-only düzeltme turu)
+
+*Audit-9 B10/B17 bulgusu üzerine: yukarıda "Ekleme Protokolü"nden SONRA asılı kalan
+6 satır (53-58) yukarıdaki bölümlere AİTtir (VALIDASYON→kendi bölümü, REGRESYON→REGRESYON,
+AT-002/AT-003→AT bölümleri, audit-8→GUVENLIK). Add-only gereği taşınmadılar; aşağıdaki
+yeni satırlar hem eksik dosyaları kapsar hem yönü netleştirir.*
+
+### VALIDASYON — Şema Çapraz-Doğrulaması
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-05 | VALIDASYON/2026-09-05/schema-crossvalidation.log | ✅ 34/34 | RFC-001 şema çapraz-doğrulaması: jsonschema 2020-12 vs stdlib — 6 vektör + 28 mutasyon, karar-düzeyi birebir UYUM (yukarıdaki asılı satırın resmi yerİ BURASI) |
+
+### AT-002 / AT-003
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-05 | AT-002/2026-09-05/oq5-determinizm-onolcum.log | ⚠️→✅ | OQ-5 ön-ölçüm: 4/4 koşum stdout_sha256 birebir aynı (1 koşum load-spike reason-11 — dürüst kayıt); EK BULGU: wall-faturalama yük-gürültüsü ~172× (OQ-8, RFC-003 D1 gerilimi) |
+| 2026-09-05 | AT-003/2026-09-05/AT-003-cosign.log | ✅ 6/6 | node-cosign vektörleri: L1+güvencili ACCEPT · bozuk node_sig RED · node_id takası RED · L1'de node_sig'siz RED · L1 yabancı node RED · L0 geriye-uyum ACCEPT |
+
+### GUVENLIK — Audit-8 (ek satır)
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-05 | GUVENLIK/2026-09-05/audit-8.log | ✅ | Audit-8: A1 güçlü düşman L1 RED (F25 mekanizma kapanışı; L0 kalıntı OQ-1'de) · A2 imza-katmanı RED · A3 kısmi-cosign RED |
+
+### REGRESYON — eksik satırlar (B10) + 09-03 şeridi düzeltmesi (B17)
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-041138.log | ❌ 13/16 | Dilim-10 öncesi tur: 3 FAIL tek kökten (host load 31-41 → E-9c wall-clock; kod regresyonu değil) |
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-042200.log | ✅ 16/16 | AT-003 dahil ilk yeşil tam tur (load-gated koşum, load ~21-22) |
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-044441.log | ✅ 16/16 | Dilim-10 commit (52b5591) doğrulama turu |
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-044731.log | ✅ 16/16 | 16-kontrol takım RESMİ yeşil turu (AT-003 bölümü takıma işlendi) |
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-051522.log | ✅ 16/16 | Audit-9 kod düzeltmeleri (B3-B7, B11, B15, B16, B19, B20) sonrası taze yeşil tur |
+| 2026-09-05 | INDEX.md:42 (B17 düzeltmesi) | ✅ düzeltme | 2026-09-03 şeridi "→ 14/14" yazar; referans verilen SON log (run_all-232935) gerçekte **15/15** (14 hızlı + c30 yavaş kontrol). Doğrusu: "14 hızlı → 15/15 (c30 dahil)". Satır add-only gereği korunur; bu satır bağlayıcı düzeltmedir |
+
+### BENCH — Performans Ölçümleri (yeni bölüm)
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-05 | BENCH/2026-09-05/runner-overhead.json | ✅ | E-4 op-overhead taban çizgisi v2 (Audit-9 B2 düzeltmesi: import fixture bench'ten ÖNCE kuruldu — v1'deki 72ms erken-RED artefaktıydı); medyan: grant=217ms · ledger-verify(5)=195ms · search=200ms · export=356ms · **import=421ms** |
+
+### README — Çalışma Kanıtı (yeni bölüm)
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-05 | README-CALISMA/2026-09-05/quickstart.log | ✅ TUR-3 | 12 komut uçtan-uca ok (TUR-1/TUR-2 hataları log'da dürüstçe durur: ledger-verify boş-zincir UX + import önkoşulu — ikisi de fbf678f'te çözüldü) |

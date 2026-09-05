@@ -64,7 +64,7 @@ def main():
            "sonuclar": rows}
     text = json.dumps(out, ensure_ascii=False, indent=2)
     print(text)
-    logf = ROOT / "kanit/BENCH" / time.strftime("%F") / "runner-overhead.json"
+    logf = ROOT / os.environ.get("TAMGA_EVIDENCE_DIR", ".evidence") / "BENCH" / time.strftime("%F") / "runner-overhead.json"
     logf.parent.mkdir(parents=True, exist_ok=True)
     logf.write_text(text + "\n", encoding="utf-8")
     shutil.rmtree(SB, ignore_errors=True)

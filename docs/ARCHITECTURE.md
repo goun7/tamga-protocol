@@ -23,7 +23,7 @@ A node that receives a snapshot must already hold the matching `tamga.json` +
 
 | Artifact | Format | Notes |
 |---|---|---|
-| Manifest | `tamga.json`, schema `specs/manifest-0.1.0.schema.json` (RFC-001 v0.1-FINAL) | `spec_version` pinned `"0.1.0"`; signature over JCS with `sig` emptied |
+| Manifest | `tamga.json`, schema `specs/manifest-0.1.0.schema.json` — contract: [docs/RFC-001-manifest.md](RFC-001-manifest.md) (v0.1-FINAL) | `spec_version` pinned `"0.1.0"`; signature over JCS with `sig` emptied |
 | Ledger | `tamga-sim/1` JSONL | each record: `seq` (1-based) + `prev` + `h = sha256(prev \| jcs(record))` |
 | Snapshot | `tamga-snapshot/1` binary envelope | header (plaintext metadata incl. `agent_id`, `pkg_name`) + encrypted body |
 
@@ -98,7 +98,17 @@ Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spe
 | 17 | state_invalid (merkle mismatch) |
 | 18 | agent_ownership_mismatch |
 
-## 8. Honest security envelope
+## 8. Overhead (measured)
+
+Runner-side overhead per operation (excluding the wasmtime run edge), medians from
+two independent measurement rounds on a loaded host: keygen 103 ms, grant 102 ms,
+ledger-verify 121 ms, memory-search 107 ms, memory-import 161 ms, export (scrypt
+dominates) 253 ms, import with deep verification 490 ms. Between-operation ratios
+are stable across rounds; absolute values are host-load dependent — a quiet-host
+repetition and a formal "overhead < X% of run wall time" statement are Phase-2
+exit criteria.
+
+## 9. Honest security envelope
 
 - **At rest:** proven (0 plaintext leaks in disk scans; keys sealed with scrypt).
 - **In use:** NOT proven — seed lives in host RAM during a run; TEE pilot is Phase 3.
@@ -109,7 +119,7 @@ Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spe
   manifest, forged identity, rolled-back sessions, truncated chain, spliced chain) plus
   cosign and snapshot negatives; all expected-RED results are CI-asserted.
 
-## 9. Repository layout
+## 10. Repository layout
 
 ```
 tamga_runner.py      run/export/import/ledger/memory/keygen-node CLI

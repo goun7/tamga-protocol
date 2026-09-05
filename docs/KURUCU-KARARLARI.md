@@ -54,3 +54,4 @@ Apache-2.0 ile başkaları kodu alıp değiştirebilir — bu doğrudur ve bilin
 - Metrik-panosuna "geçerli-iş oranı" satırı (K11) — Faz 2 pilot'unda veri-toplama başlar
 - ROADMAP Faz 3 iş listesine "Sim-C coin-içi koşum tanımı" (kâr-solucuğu) eklendi
 - Repo-açılış kaldırıcıları (demo, ERC-8004 katkısı) yeniden-sıralandı: en-iyileme-sonrası
+| K14 | Repo-açılış (K12'yi TERSİNE ÇEVİRİR) | **HALKAYA-AÇIK repo, 2026-09-05, kurucu emriyle** — "Bilgisayarımdaki git'i kullanarak public repo oluştur" | K12 (en-sona sakla) kurucu emriyle aşıldı; gerekçe: kanıt-kültürü şeffaflığı + telafi-1 (tek-disk riski) aynı hamleyle kapanır; Tur-4 dürüstlük tablosu kamuya açılır — build-in-public iddiası şimdi gerçek olur |

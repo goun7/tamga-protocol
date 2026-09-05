@@ -3,7 +3,7 @@
 <img src="docs/assets/banner.svg" width="660" alt="Tamga Protocol — taşınabilir kimlik, şifreli hafıza, doğrulanabilir iş-makbuzu"/>
 
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-17%2F17%20PASS-brightgreen)](README.md#one-command-regression)
+[![Tests](https://img.shields.io/badge/acceptance%20suite-18%20controls-blue)](docs/TESTS.md)
 
 </div>
 

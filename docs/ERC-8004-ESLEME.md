@@ -79,3 +79,40 @@ yeniden-koşum, TEE oracle) doğrulanabilir kanıt besler.
   önerisi (feedback için kayıt-olmayan istemci — reputation ağı tasarımına not).
 - Sonuç: Faz 3 tetikleyicisi gelirse eşleme çalışması taslakla HİZALANMIŞ durumda;
   tek oynak nokta hâlâ Draft→Final geçişi.
+
+## 6. Sektör Genişleme Değerlendirmesi (2026-09-05, kurucu görüşmesi; görüş dosyaya alındı)
+
+**Soru:** Teknoloji sınırına ulaştık mı? Ne kadar genişletilebilir? RWA ve diğer
+sektörlere genişleme ihtimali?
+
+### Teknoloji sınırı
+
+**v0 primitifi teknik olarak olgun:** 9 denetim turu (sonuncusu bağımsız taze-göz
+ajanla), 16-kontrol takım, şema çapraz-doğrulaması. Teknolojik tavanlara yaklaşan
+yüzeyler: in-use gizlilik (TEE ister — Faz 3), wall-faturalama gürültüsü (medyan-of-N
+— kurucu kararı), ajan girdisi/determinizm kapsamı (Faz 2). **Ama asıl sınır teknoloji
+değil:** Faz 2 çıkışı dış-pilot, Faz 3 tetikleyicisi dış-talep. O sinyaller olmadan
+yeni katman yazmak spekülatif kod üretmek olur. **Niş teyidi:** taşınabilir+şifreli+
+denetlenebilir ajan-durumu kombinasyonu piyasadaki hiçbir oyuncuda yok (Mem0/Letta/Zep
+hafıza ama taşınamaz; ERC-8004 güven-çapası ama durum-taşımaz; x402 ödeme ama
+doğrulama-maz). Tazelik: ERC-8004 hâlâ Draft (bugün canlı çekildi) — bekleyen taraf
+biz değiliz, ekosistem olgunlaşıyor; taslağın setMetadata'sı bizim önerilen alanları
+karşılamaya başladı.
+
+### Genişletilebilirlik
+
+Mimari bilinçli-genişletilebilir kuruldu (kanıt: reason 18 eklendi, 16/16 kırılmadı;
+12 errata donmuş RFC'leri kırmadan işlendi). Açık mimari yük: çok-node ledger
+birleşmesi (çakışan seq) — çözülmedi, ağ fazının gerçek işi. Snapshot 64MiB üstü
+için parçalama kataloglanmadı. Her ikisi talep sinyali gelince.
+
+### Sektör eşlemesi (sıralı: bugünkü şekle yakınlık)
+
+1. **Kurumsal ajan-hizmet SLA-makbuzları** — charge kaydı ölçüm-kanıtlı; en yakın oturma.
+2. **GDPR md-20 veri-taşınabilirliği** — şifreli snapshot export hakkın teknik karşılığı.
+3. **RWA** — primitif aktarımı gerçek (node-cosign ↔ saklayıcı karşı-imzası; makbuz
+   zinciri ↔ zilyetlik kaydı; deterministik replay ↔ denetçi replikasyonu) ama
+   düzenleyici kimlik + kamu-zinciri çapası ister = kurucu-kapılarının ÖTESİNDE
+   katman + bugün referans-müşteri yok. **Karar: şimdi pivot YOK; primitif genel
+   tutuldu (zaten öyle); RWA Faz 4 sonrası yatay-genişleme defterinde.**
+4. Robotik/edge anti-fraud (deterministik replay) — ikincil, izleme listesi.

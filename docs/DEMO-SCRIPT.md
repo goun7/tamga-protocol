@@ -1,7 +1,7 @@
 # 30-Second Demo — Expected Flow
 
 > Script: `tools/demo.sh` · Record: `asciinema rec -c "bash tools/demo.sh" demo.cast`
-> (A recorded session ships at [docs/assets/demo.cast](docs/assets/demo.cast).)
+> (A recorded session ships at [docs/assets/demo.cast](assets/demo.cast).)
 > Hashes/IDs change every run — the *shape* below is the invariant.
 
 ## Expected flow (verified 2026-09-05)

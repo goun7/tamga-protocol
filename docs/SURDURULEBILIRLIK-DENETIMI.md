@@ -65,3 +65,27 @@ Sıra bozulursa proje 2021-kalıbına düşer (karar-defteri K1'de elenmişti).
 - [ ] İlk ücretli design-partner (talep-kanıtı) — ölümcül boşluk; şablon hazır, temas KURUCU kuyruğunda
 - [ ] Gerçek-ağ ölçümleri (geçerli-iş oranı, Gini, node-P(cover)) — Faz 3
 - [ ] Token: eşik-teyidi + hukuk-görüşü — Faz 4
+
+## 6. Tur-5 — "Sırayla bütün maddeler" kapanış-teyidi (2026-09-05 12:50, kurucu emri sonrası)
+
+Kurucu emriyle ("Bilgisayarımdaki git'i kullanarak public repo oluştur... sırayla bütün
+maddeleri gerçekleştirelim") telafi-listesi:
+
+| # | Madde | Durum |
+|---|---|---|
+| 1 | Dış-yedek | ✅ repo halka-açık + uzak (K14; tek-disk riski kapandı) |
+| 2 | Ajan girdi-kabiliyeti | ✅ Dilim-11: --input + input_sha256 + require-proof; 17/17 lokal+CI |
+| 3 | Determinizm-sınırı beyanı | ✅ sınıf-tanımlı kontrat (A kanıtlı / B tasarım / C faz-3) |
+| 4 | Yetenek-modeli v1 | ✅ RFC-005 TASLAK (beyanlı-egress; kod Faz-2 ortası — kurucu onayına bağlı) |
+| 5 | Özel-demo + hizmet-şablonu | ✅ demo.sh canlı + asciinema kaydı + HIZMET-PAKETI-GOC şablonu |
+| 6 | CI | ✅ canlı; her push'ta 17 kontrol GitHub'da koşar (E-9c emekli) |
+| 7 | Rekabet-taraması v2 | ✅ LangGraph tablosu + moat-cevabı (dürüst kabul dahil) |
+
+**Skor-tazelemesi (dış-gerçeklik cetveli, Tur-4 ~60/100 → Tur-5):**
+ürün-gerçekliği 55→**72** (girdi-kabiliyeti + canlı-demo + uydurmazlık-tasarımı),
+süreç/egemenlik 50→**82** (uzak-yedek+CI+release+gizlilik-fix), rekabet 60→**68**
+(moat-cevabı kaynaklı), ekonomi 45→**48** (yalnız modelcilik; talep hâlâ yok — DURÜST).
+**Genel: ~60 → ~68/100.** Gerçek sıçrama talep-kanıtında: ilk design-partner (hâlâ 0).
+
+**Yeni-risk beyanı (dürüstlük):** kamuya-açık repo, her-hamlemize-dış-göz demektir —
+hata-yapma maliyeti arttı; Tur-6 eleştirisi artık "kendimizden" değil dünyadan gelecek.

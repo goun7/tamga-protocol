@@ -11,9 +11,7 @@ SB="tests/simnet/.sandbox"
 PASS=0; FAIL=0
 say() { echo "  [$1] $2"; }
 kontrol() { if [ "$1" = "0" ]; then PASS=$((PASS+1)); say PASS "$2"; else FAIL=$((FAIL+1)); say FAIL "$2"; fi; }
-bekle_red() {  # bekle_red <exit> <ad> — grep-deseni BULMALI (RED kanıtı çıktıda olmalı) → exit 0 = PASS
-  if [ "$1" = "0" ]; then PASS=$((PASS+1)); say PASS "$2"; else FAIL=$((FAIL+1)); say FAIL "$2"; fi
-}
+bekle_red() { kontrol "$@"; }  # RED-kanıt grepleri (grep -q'ya bağlı) için anlamsal ad; tek uygulama (Tur-2 temizliği)
 
 {
   echo "# run_all — $(date -Iseconds)"

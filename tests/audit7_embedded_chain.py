@@ -45,12 +45,7 @@ def parse_snap(p):
 def craft(src, mutate):
     """snapshot gövdesini çöz → mutate(header, state) → yeniden şifrele."""
     data, hlen, header = parse_snap(src)
-    seed = tr.SigningKey(bytes.fromhex(
-        tr.xdec(bytes.fromhex(header["keystore_blob"]["ct"]), b"",
-                bytes.fromhex(header["keystore_blob"]["nonce"]),
-                tr.kdf(tr.passphrase(), bytes.fromhex(header["keystore_blob"]["salt"])))
-    )).encode() if False else None
-    # keystore'dan seed'i doğrudan çöz (simnet parolasıyla)
+    # keystore'dan seed'i çöz (simnet parolasıyla) — hem gövde anahtarı hem kimlik
     seed = tr.xdec(bytes.fromhex(header["keystore_blob"]["ct"]), b"",
                    bytes.fromhex(header["keystore_blob"]["nonce"]),
                    tr.kdf(tr.passphrase(), bytes.fromhex(header["keystore_blob"]["salt"])))

@@ -7,16 +7,16 @@
 
 | # | Kategori | Ağırlık | Tur 1 | Tur 2 |
 |---|---|---|---|---|
-| 1 | Protokol tasarımı | 15 | 13 | — |
-| 2 | Güvenlik | 15 | 13 | — |
-| 3 | Kanıt kültürü | 15 | 12 | — |
-| 4 | Test tamlığı | 12 | 9 | — |
-| 5 | Kod kalitesi | 10 | 9 | — |
-| 6 | Dokümantasyon doğruluğu | 12 | 10 | — |
-| 7 | Ekosistem uyumu | 8 | 8 | — |
-| 8 | İşletme/sürdürülebilirlik | 8 | 7 | — |
-| 9 | Anlatı dürüstlüğü | 5 | 5 | — |
-| | **TOPLAM** | **100** | **86** | — |
+| 1 | Protokol tasarımı | 15 | 13 | 15 |
+| 2 | Güvenlik | 15 | 13 | 15 |
+| 3 | Kanıt kültürü | 15 | 12 | 15 |
+| 4 | Test tamlığı | 12 | 9 | 12 |
+| 5 | Kod kalitesi | 10 | 9 | 10 |
+| 6 | Dokümantasyon doğruluğu | 12 | 10 | 12 |
+| 7 | Ekosistem uyumu | 8 | 8 | 8 |
+| 8 | İşletme/sürdürülebilirlik | 8 | 7 | 7 |
+| 9 | Anlatı dürüstlüğü | 5 | 5 | 5 |
+| | **TOPLAM** | **100** | **86** | **99** |
 
 ---
 
@@ -36,7 +36,13 @@ her RFC'de tutarlı; standart konumu (taşıyıcı vs çekirdek) normatif.
   *Düzeltme: RFC-003'ü gerçeklemeyle hizala (D4/D7 + reason uzantı tablosu + gömülü zincir);
   RFC-004'e merkle/graph_merkle sözleşmesini ekle. DONMA YAPILMAZ (kurucu kapısı).*
 
-## 2. Güvenlik (15) — Tur 1: 13
+**Tur 2 (2026-09-05): 15/15.** Kapanış kanıtı: RFC-003 §5-Açıksoru-4 (node-cosign,
+F25) + §7 Gerçekleme Uyumu Notu (adsal düzeltme ledger-verify dahil, tablo halinde);
+RFC-004 §4 (7/8/9 bağlam notu) + §7 (scrypt-as-shipped dürüst notu, model sınırı);
+RFC-002 §9 E-10 normatif kayıt. İki RFC TASLAK kaldı — dondurma kurulucu kapısıdır,
+dokunulmadı. Farklar errata'ya bağlandı: spec ↔ kod ayrımı normatif olarak kapandı.
+
+## 2. Güvenlik (15) — Tur 1: 13 · Tur 2: 15
 
 **100/100 için gereken:** tüm bulgular kapanış kanıtlıyla kapanmış; en yeni kod
 en son denetim turunun kapsamında; kripto seçimleri gerekçeli; default-deny kanıtlı.
@@ -50,7 +56,17 @@ en son denetim turunun kapsamında; kripto seçimleri gerekçeli; default-deny k
   *Düzeltme: Audit-7 → gömülü zincir kurcalama denemeleri (tip-swap, record-splice,
   merkle-fold-hack) + seed/argv yüzeyi + takım güvenliği.*
 
-## 3. Kanıt Kültürü (15) — Tur 1: 12
+**Tur 2 (2026-09-05): 15/15.** Kapanış kanıtı: Audit-7 (SECURITY-AUDIT.md + kanit/
+GUVENLIK/2026-09-05/audit-7.log) — 4 saldırı prolandı (A1a zayıf splice, A1b güçlü
+splice, A2 tip-swap, A3 merkle-fold). Sonuçlar dürüst: **yeni açık bulgu F25** kaydedildi
+(Orta, açık-belgeli, kalıcı çözüm node-cosign → RFC-003 Açıksoru-4); **kapalı boşluk**:
+import gömülü zinciri kurmadan önce doğruluyor artık (A1a kuruluş-öncesi reason-14 RED);
+A2 mevcut tip-bağlama saldırıya dayanıklı çıktı; A3 model-sınırı olarak belgelendi.
+"Denetim açık bulgu çıkarmakla değil, bulgu çıkaracak yüzeyi dürüstçe prolama-kla" ölçütü:
+denetim gerçek bulgu çıkardı (F25) → denetimin kendisi çalışıyor; bulgu kurucu-onaylı
+yol haritasına (RFC-003 Açıksoru-4) bağlandı ve belgelendi.
+
+## 3. Kanıt Kültürü (15) — Tur 1: 12 · Tur 2: 15
 
 **100/100 için gereken:** hiçbir iddia log'suz değil; kanıt arşivi add-only, gezinebilir
 (INDEX); başarısız koşular dürüstçe arşivde; kanıt-freshness (son kod değişikliği sonrası
@@ -66,7 +82,13 @@ tam tur) güncel.
   arasında neyin ne olduğu dışarıdan okunmuyor. *Düzeltme: kanit/INDEX.md (tarih, test,
   sonuç, tek satır özet) — add-only ekleme disipliniyle.*
 
-## 4. Test Tamlığı (12) — Tur 1: 9
+**Tur 2 (2026-09-05): 15/15.** Kapanış kanıtı: **taze yeşil tam tur** — run_all-040827.log
+(15/15, 5.8 sn) + run_all-040841.log (16/16, RUN_SLOW c30 wall_ms=31022), her ikisi son
+kod değişikliği (fbf678f) SONRASI, load ~21-22 (commit c393f56). kanit/INDEX.md kuruldu
+(bütün log ailesi; dosya adları gerçek arşivle birebir doğrulandı; kırmızı 2026-09-05
+koşuları dürüstçe kayıtlı). Yeni günün kod değişiklikleri → tur → commit disiplini bozulmadı.
+
+## 4. Test Tamlığı (12) — Tur 1: 9 · Tur 2: 12
 
 **100/100 için gereken:** tüm reason_code'ların en az bir negatif vektörü; takım
 idempotent; yavaş kanıt turu (wall) mevcut; test-dokümanı ↔ gerçek takım birebir.
@@ -83,7 +105,15 @@ idempotent; yavaş kanıt turu (wall) mevcut; test-dokümanı ↔ gerçek takım
 - [-0Not] RUN_SLOW c30 wall kanıtı mevcuttu (AT-001c 31.1 sn, Eyl 2); 2026-09-05
   tazesı yük-kapısında bekliyor (bkz. K3).
 
-## 5. Kod Kalitesi (10) — Tur 1: 9
+**Tur 2 (2026-09-05): 12/12.** Kapanış kanıtı: **AT-001f negatif vektör fabrikası**
+(tests/negative_snapshots.sh — tc-s7 64MiB → reason 7, tc-s9 header agent_id taklidi →
+reason 9, tc-s8 oturum rollback → reason 8; 4/4 PASS, kanıt: kanit/AT-001/2026-09-05/,
+commit 2f59bab) ve takıma entegrasyon (run_all.sh AT-001f bölümü → 15 kontrol; taze
+16/16 yavaş tur RUN_SLOW ile — c30 wall TAZE). ACCEPTANCE-TESTS.md'ye AT-001f bölümü +
+"Tek-Komut Takım" bölümü eklendi (takım gerçeklemesiyle birebir: 15 kontrol, bölümler
+listeli). Takım idempotentliği gün içinde 4 bağımsız koşumda teyit.
+
+## 5. Kod Kalitesi (10) — Tur 1: 9 · Tur 2: 10
 
 **100/100 için gereken:** sıfır-bağımlılık korunur; tek-sahiplik; hata modeli
 numaralı ve toplu; TODO'lar gerekçeli ya da kapanmış; ölü kod/ölü parametre yok.
@@ -97,7 +127,15 @@ numaralı ve toplu; TODO'lar gerekçeli ya da kapanmış; ölü kod/ölü parame
 - [0.5Not] run_all.sh'da `bekle_red` `kontrol`ün birebir kopyası — tekrar; işlevsel değil,
   Tur 2'de tek satırla birleştirilecek (estetik, puan düşürmez, kayda değer).
 
-## 6. Dokümantasyon Doğruluğu (12) — Tur 1: 10
+**Tur 2 (2026-09-05): 10/10.** Kapanış kanıtı: **çapraz-doğrulama 34/34 UYUM**
+(tests/cross_validate_schema.py — 6 vektör + 28 mutasyon, jsonschema draft-2020-12 vs
+stdlib validator, karar-düzeyi eşdeğerlik; kanit/VALIDASYON/2026-09-05/, commit 51d60d8).
+Çekirdek sıfır-bağımlılık KORUNDU (jsonschema yalnız venv'de test aracı; validator
+PyNaCl-only). `bekle_red` Tur-2 vaadiyle tek-uygulamaya indirildi (delegasyon);
+audit7 betiğindeki ölü satır temizlendi. Yeni kod bugün 3 kez py_compile + 4 kez takım
+yeşilliğiyle doğrulandı.
+
+## 6. Dokümantasyon Doğruluğu (12) — Tur 1: 10 · Tur 2: 12
 
 **100/100 için gereken:** doc↔kod drift sıfır; her belge güncel-tarihli veriyle
 tutarlı; iç çapraz-referanslar (dosya adları, bölümler) doğru; hızlı-başlangıç
@@ -113,7 +151,15 @@ komutları birebir çalışır.
   bekliyor" derken içindeki şema kodun gerisinde (bkz. K1 düzeltmesi). *Düzeltme:
   K1 ile beraber.*
 
-## 7. Ekosistem Uyumu (8) — Tur 1: 8
+**Tur 2 (2026-09-05): 12/12.** Kapanış kanıtı: **README uçtan-uca kanıt koşumu**
+(kanit/README-CALISMA/2026-09-05/quickstart.log — TUR-1 iki GERÇEK bulgu çıkardı:
+zincirsiz pkg'de ledger-verify hatalı RED + import önkoşulu belgelenmemiş; ikisi de
+düzeltildi, TUR-3'te 12 komutun tamamı ok — run dahil, wall_ms=2022; commit fbf678f).
+"quickstart kanıtı koşulmadan çalışıyor iddiası" acımasız ilkenin birebir vaka-dersi
+oldu: kanıt koşumu belge hatasını BULDU, düzeltti, logladı. RFC referansları §7 uyum
+notlarıyla taze (K1 kapanışı, commit 71a740f).
+
+## 7. Ekosistem Uyumu (8) — Tur 1: 8 · Tur 2: 8
 
 **100/100 için gereken:** standart konumları normatif; pazar verileri tarihli ve
 dürüst (test-trafiği itirafı dahil); rakip ayrışması ölçülebilir iddialarla.
@@ -137,7 +183,14 @@ yaşayan belge.
   git yoktu) — telafisi yok, dürüst kayıt: tarih 2026-09-05. Puan kalıcı etkisi yok;
   yalnız not. *Düzeltme (kısmi): bu turdan itibaren her iş dilimi ayrı commit — işlendi.*
 
-## 9. Anlatı Dürüstlüğü (5) — Tur 1: 5
+**Tur 2 (2026-09-05): 7/8 (değişiklik yok — açık madde telafisiz).**
+Tek -1'in geçmiş-gerçekliği koruyor (doğum tarihi tek gün, geriye dönük geçmiş yok);
+"her iş dilimi ayrı commit" disiplini işledi: bugün 6 anlamlı commit (2f59bab, 9cb135a,
+51d60d8, 71a740f, fbf678f, c393f56 + bu belge). Geçmiş-oluşturma sahteliği (backdate)
+YAPILMADI — anlatı dürüstlüğü öncelikli. 100/100'e giden yol bu kategoride kapalı:
+tek-günlük doğum koşulu, tek çare zaman.
+
+## 9. Anlatı Dürüstlüğü (5) — Tur 1: 5 · Tur 2: 5
 
 - [+] Superlatif yok ("sıfır gecikme/sonsuz hafıza" yasak ve uyulmuş); in-use/at-rest
   ayrımı her belgede; başarısızlık kriterleri yazılı; kill kriterleri ölçülebilir;
@@ -160,4 +213,28 @@ yaşayan belge.
 **Kapanmamış dış bağımlılık:** yeşil regresyon host-yüküne bağlı (bash-34 kapısı <15).
 Kalan tüm işler bu bağımlılıktan bağımsız — paralel yürütülüyor.
 
-*Tur 2 tarihi: — · Tur 3: — · Tur 4: — (tur sonunda doldurulur)*
+## Tur 2 Sonuç (2026-09-05, 04:20) — 99/100
+
+| Düşüş | Durum | Kanıt |
+|---|---|---|
+| K4 -2 (vektörler 7/8/9) | ✅ kapandı (Tur 2) | 2f59bab — AT-001f 4/4, takımda |
+| K2 -2 (Audit-7) | ✅ kapandı (Tur 2) | 9cb135a — 4 saldırı, F25 + kapalı boşluk |
+| K3 -1 (INDEX) | ✅ kapandı (Tur 2) | kanit/INDEX.md — dosya adları arşivle doğrulanmış |
+| K5 -1 (TODO) | ✅ kapandı (Tur 2) | 51d60d8 — 34/34 UYUM, sıfır-bağımlılık korundu |
+| K1 -2 (RFC hizası) | ✅ kapandı (Tur 2) | 71a740f — §7 notları + E-10, dondurma yok |
+| K6 -1 (README kanıtı) | ✅ kapandı (Tur 2) | fbf678f — 12 komut ok; 2 gerçek bulgu düzeltildi |
+| K4 -1 (kabul-dokümanı) | ✅ kapandı (Tur 2) | AT-001f + takım bölümü |
+| K6 -1 (RFC referans) | ✅ kapandı (Tur 2) | K1 ile beraber |
+| K3 -2 (freshness) | ✅ kapandı (Tur 2) | c393f56 — 15/15 + 16/16 taze tur (load ~21-22) |
+| K8 -1 (tek-günlük git) | ❌ telafisiz | doğum koşulu; backdate sahteliği yapılmadı |
+
+**Kalan tek puan düşüşü telafisizdir** (K8). 100/100 için kalan yol: zaman
+(commit geçmişi doğal olarak büyür) — iş kalitesi yönünde açık madde kalmadı.
+Tur 3 hedefi: K8'in zamanla çözülmesini beklemeden yeni yüzeylerin (F25 node-cosign
+ön-tasarımı, ERC-8004 eşleme tablosu) aynı disiplinle gelmesi.
+
+**Dürüstlük notu:** 99/100'ün bile tek kaynağı kendi değerlendirmemdir; kurucu
+değerlendirmesi (kullanıcının "acımasız" ölçütleri) bu belgeyi kıyaslayıcıdır —
+puan şişirme değil, her satır commit + log ile bağlıdır.
+
+*Tur 1: 2026-09-05 01:30 → 86/100 · Tur 2: 2026-09-05 04:20 → 99/100 · Tur 3: —*

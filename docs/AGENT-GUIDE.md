@@ -103,6 +103,22 @@ python3 tamga_runner.py import snapshot.tsg <new-pkg>
 
 ## 8. Memory bridge
 
+### tamga-memory/1 import format (--import-json)
+
+```json
+{
+  "format": "tamga-memory/1",
+  "nodes": [
+    {"id": "m1", "kind": "note", "text": "anything", "ts": "2026-09-05T12:00:00Z"}
+  ],
+  "edges": []
+}
+```
+`edges` entries are `{"src": "m1", "dst": "m2", "kind": "rel"}`. IDs are replaced by
+deterministic `x<sha256[:12]>` hashes on import — re-importing the same file adds
+nothing (0 added, N skipped). To build this file from foreign exports, use
+`tools/memory_import.py` (mem0/Letta/Zep/JSONL/generic) — see README.
+
 ```bash
 python3 tamga_runner.py memory <pkg> --import-json lessons.json   # ADD-only merge
 python3 tamga_runner.py memory <pkg> --search "keyword"

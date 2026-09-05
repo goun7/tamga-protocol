@@ -169,7 +169,8 @@ commands:
                                   bind the package: stamps code_hash + agent_id, signs the manifest
   validate <pkg-dir>              full RFC-001 manifest validation (schema + pins + policy)
 
-RED output carries reason_code 1-18 (see docs/ARCHITECTURE.md §7).
+validate() exits non-zero on RED and prints the failure reason as plain text
+(the runner, not the validator, emits machine-readable reason_code receipts).
 """
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):
         print(USAGE)

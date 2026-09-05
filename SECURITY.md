@@ -3,8 +3,13 @@
 ## Threat model in one paragraph
 
 Tamga protects an agent's identity and history against the operator of the machine
-it runs on, under two assumptions spelled out in the docs: the user passphrase is
-never stored on the host, and the host does not persist plaintext state. Data at
+it runs on, under one assumption spelled out in the docs: the user passphrase is
+never stored on the host. Scope notes: only the AGENT seed derived from that
+passphrase is guaranteed to never rest on disk; operator/node keys written by
+`keygen-node` and the validator's keygen are 0600 plaintext files by design, and
+the node-side memory file (`state.json`) intentionally keeps memory TEXT in
+plaintext at rest — confidentiality of memory at rest comes from snapshot
+encryption, not from the state file. Data at
 rest is sealed with scrypt + XChaCha20-Poly1305; history is a hash-chained ledger
 (optionally counter-signed by a separate node key under L1 policy). What Tamga
 explicitly does NOT defend against: an adversary who knows the user passphrase

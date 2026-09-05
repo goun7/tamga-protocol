@@ -6,7 +6,11 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 WASMTIME_VERSION="v48.0.1"
-SHA256=""   # RFC-002 pins the release digest; update together with the RFC when bumping
+# sha256 of the release tarball, pinned like the RFC-002 engine digest (E-5);
+# update together with the RFC when bumping. Cross-arch digests: add per-ART keys.
+declare -A SHA256=(
+  ["wasmtime-v48.0.1-x86_64-linux.tar.xz"]="4c2e31b68ad99e0a519f225a261fda099eb15f056d4a24fdb3c2a46517bde1df"
+)
 
 mkdir -p tools/bin
 if [[ -x tools/bin/wasmtime ]]; then
@@ -24,6 +28,11 @@ esac
 
 echo "downloading wasmtime ${WASMTIME_VERSION} (${ART})..."
 curl -sSL -o /tmp/wt.tar.xz "https://github.com/bytecodealliance/wasmtime/releases/download/${WASMTIME_VERSION}/${ART}"
+if [[ -n "${SHA256[$ART]:-}" ]]; then
+  echo "${SHA256[$ART]}  /tmp/wt.tar.xz" | sha256sum -c - || { echo "digest mismatch: refusing to install" >&2; exit 1; }
+else
+  echo "WARNING: no pinned digest for ${ART} on this platform — skipping verification" >&2
+fi
 tar -xJf /tmp/wt.tar.xz -C /tmp
 cp "/tmp/wasmtime-${WASMTIME_VERSION}-$(echo "$ART" | sed -E 's/.*-(x86_64|aarch64)-(linux|macos).*/\1-\2/')/wasmtime" tools/bin/wasmtime
 chmod +x tools/bin/wasmtime

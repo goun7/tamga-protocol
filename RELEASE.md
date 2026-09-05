@@ -34,7 +34,7 @@ runner, validator and acceptance suite.
 
 - 18-control acceptance suite, CI-green on every push; slow suite (RUN_SLOW=1)
   adds the c30 cross-host control → 19/19.
-- Negative families: AT-003 node-cosign 6/6, AT-001f snapshot attacks 4/4.
+- Negative families: AT-003 node-cosign 6/6, AT-001f snapshot attacks 3 expected-RED + 1 precondition control.
 - Adversarial audits exit 0; cross-validation 34/34; markdown link integrity 0 broken.
 
 ## Honest limits (read before using)
@@ -50,6 +50,6 @@ runner, validator and acceptance suite.
 ## Known gaps / next
 
 - reason 5/15/16 reserved, not emitted in v0.1 (RFC-planned layers).
-- Node revocation list (OQ-3) is designed; the trust-file surface ships, the
-  revocation UX is next.
+- Node revocation: the `--node-revoked <file>` flag ships (JSON array of node_ids;
+  their signatures are rejected under L1 even if still trusted); management UX is next.
 - Pilot/partnership tracks are founder-gated and intentionally not started.

@@ -8,7 +8,7 @@
 
 | Step | What happens | Expected output |
 |---|---|---|
-| 1 | `keygen` | agent identity minted; seed goes to stdout only, never to disk |
+| 1 | `keygen` | agent identity minted; the run-seed stays in the shell only (the demo's throwaway sign-key is written inside its sandbox dir) |
 | 2 | `run --input job.json --require-proof` | `run ok: True \| fee: ~1e-4..1e-3` |
 | 3 | `export` | `snapshot: ~2.2KB \| plaintext body scan: 0` |
 | 4 | `import` on a different node directory | `import ok: True \| agent: <id16>… \| memory nodes: 4 \| resumed session: 1` |

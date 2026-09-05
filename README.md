@@ -42,8 +42,10 @@ python3 tamga_runner.py ledger-verify new-pkg/   # ok: true
 
 ## Core guarantees
 
-- 🔐 **At-rest privacy, proven** — the seed never touches disk in plaintext
-  (XChaCha20-Poly1305 + scrypt); a disk scan shows **0 plaintext leaks**
+- 🔐 **At-rest privacy, proven for the snapshot** — the agent seed and snapshot body
+  never touch disk in plaintext (XChaCha20-Poly1305 + scrypt); the suite greps the
+  encrypted snapshot body for plaintext — **0 hits** (node-side `state.json` keeps
+  memory text in plaintext by design — confidentiality at rest is the snapshot's job)
 - ⛓️ **Tamper-evident accounting** — hash-chained ledger; truncate/splice forgery → RED
 - 🪪 **Ownership travels with the agent** — node-cosign: the node seals work-receipts
   with its own certificate; a revocation list invalidates the decommissioned node
@@ -91,11 +93,12 @@ attack simulations). Disclosure process: [SECURITY.md](SECURITY.md).
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
+python3 -m venv .venv && source .venv/bin/activate   # or: pip install --break-system-packages -r requirements.txt
 pip install -r requirements.txt
 bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
 bash tests/run_all.sh          # 18/18 controls — ~10 s
 
-# your first agent:
+# your first agent (copy the sample vector as the package — see docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice
 python3 tamga_validator.py sign  <pkg>/tamga.json <pkg>/agent.wasm tests/keys/alice/seed.hex
 python3 tamga_validator.py validate <pkg>             # until ACCEPT

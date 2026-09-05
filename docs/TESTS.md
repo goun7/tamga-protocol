@@ -33,7 +33,7 @@ the c30 cross-host control (19/19).
 | Cosign / snapshot negatives | L1 policy enforcement, revocation-list rejections |
 | Tokenomics + economy invariants | fee curve, threshold and fairness invariants hold under the deterministic simulator |
 
-Negative fixtures: manifest attacks live in `tests/vectors/tc-a2…a6` (RFC-001 §7); snapshot attacks are built in-script by `tests/negative_snapshots.sh` (AT-001f).
+Negative fixtures: manifest attacks live in `tests/vectors/tc-a2…a6` (RFC-001 §6); snapshot attacks are built in-script by `tests/negative_snapshots.sh` (AT-001f).
 a "fix" that makes them pass is itself a regression and fails the suite.
 
 ## CI

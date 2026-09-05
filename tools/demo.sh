@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 export TAMGA_KS_PASSPHRASE="simnet-2026"          # simnet constant — not a real secret
 W=tests/simnet/.demo; rm -rf "$W"; mkdir -p "$W/node1/pkg" "$W/node2/pkg"
 
-echo "# 1) Agent identity is minted (seed goes to STDOUT ONLY — never to disk)"
+echo "# 1) Agent identity is minted (run-seed stays in this shell; the demo writes its throwaway sign-key into its sandbox dir $W — deleted with it)"
 SEED=$(python3 tamga_runner.py keygen | python3 -c 'import sys,json;print(json.load(sys.stdin)["seed_hex"])')
 printf "%s" "$SEED" > "$W/demo-seed.hex"
 

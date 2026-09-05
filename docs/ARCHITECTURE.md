@@ -116,8 +116,11 @@ exit criteria.
 
 ## 9. Honest security envelope
 
-- **At rest:** proven (the suite greps the encrypted snapshot body for
-  plaintext: 0 hits; keys sealed with scrypt).
+- **At rest:** proven for the snapshot (the suite greps the encrypted snapshot body
+  for plaintext: 0 hits; keys sealed with scrypt). Honest scope note: the node-side
+  `state.json` intentionally keeps memory TEXT in plaintext — it is a working copy,
+  confidentiality at rest is the snapshot's job; operator/node keys written by
+  keygen-node are 0600 plaintext files by design.
 - **In use:** NOT proven — seed lives in host RAM during a run; TEE pilot is Phase 3.
 - **Snapshot ≤ 64 MiB:** safe envelope; chunking is catalogued but unimplemented.
 - **Multi-node ledger merge:** open problem (conflicting `seq` spaces) — the real work

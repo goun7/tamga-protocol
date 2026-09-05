@@ -294,7 +294,10 @@ def cmd_run(a):
     _tf_name = None                  # D11 input copy (deleted after the run — privacy)
     stdin_src = subprocess.DEVNULL   # F16-cont: the agent never inherits the parent stdin
     if "--input" in a:
-        ip = pathlib.Path(a[a.index("--input") + 1])
+        ii = a.index("--input")
+        if ii + 1 >= len(a):
+            return out(False, op="run", reason_code=10, reason="input_invalid: --input requires a file argument")
+        ip = pathlib.Path(a[ii + 1])
         try:
             if not ip.is_file():
                 return out(False, op="run", reason_code=10,
@@ -373,7 +376,8 @@ def cmd_run(a):
                    reason=f"runtime_limit: io > {limits['io_mb_per_run']}MB")
     os.chmod(art, 0o600)
     # --- state + memory ---
-    note = a[a.index("--note") + 1] if "--note" in a else None
+    ni = a.index("--note") if "--note" in a else -1
+    note = a[ni + 1] if ni >= 0 and ni + 1 < len(a) else (None if ni < 0 else "")
     link = a[a.index("--link") + 1] if "--link" in a else None
     if note is not None and len(note.encode("utf-8")) > MAX_NOTE_BYTES:
         return out(False, op="run", reason_code=10,
@@ -458,7 +462,10 @@ def cmd_memory(a):
     mem = _mem(st)
     # --- RFC-004 D7 — external-system JSON bridge (ADD-only import) ---
     if "--import-json" in a:
-        src = pathlib.Path(a[a.index("--import-json") + 1])
+        mi = a.index("--import-json")
+        if mi + 1 >= len(a):
+            return out(False, op="memory", reason_code=10, reason="input_invalid: --import-json requires a file argument")
+        src = pathlib.Path(a[mi + 1])
         try:
             data = json.loads(src.read_text(encoding="utf-8"))
         except Exception as e:
@@ -512,7 +519,8 @@ def cmd_memory(a):
         os.chmod(dst, 0o600)
         return out(True, op="memory-export", file=str(dst), nodes=len(mem["nodes"]),
                    edges=len(mem["edges"]), sha256=hashlib.sha256(dst.read_bytes()).hexdigest())
-    q = a[a.index("--search") + 1] if "--search" in a else None
+    qi = a.index("--search") if "--search" in a else -1
+    q = a[qi + 1] if qi >= 0 and qi + 1 < len(a) else (None if qi < 0 else "")
     nodes = [n for n in mem["nodes"] if q and q.lower() in json.dumps(n, ensure_ascii=False).lower()] if q else mem["nodes"]
     return out(True, op="memory", pkg=pkg.name, count=len(nodes), nodes=nodes,
                edges=mem["edges"] if not q else [])
@@ -761,6 +769,8 @@ commands:
   keygen                          generate an ed25519 agent seed (printed once, never stored)
   keygen-node                     generate a node keystore + node identity
   grant <pkg> <amount> <label>    record a grant in the package ledger
+                                  flags: run/grant --node-key <f>; run --supersedes <n> --link <id>;
+                                         import --cosign-policy L0|L1 --node-trust <f> --node-revoked <f>
   run <pkg> --seed <hex> [--input f] [--require-proof] [--note s]
                                   execute the agent (wasmtime), charge fee, append ledger
   export <pkg> -o <file> --seed <hex>
@@ -769,10 +779,12 @@ commands:
                                   import a snapshot (deep verification)
   ledger <pkg>                    print the ledger
   ledger-verify <pkg>             recompute and verify the hash chain
-  memory <pkg> <sub> ...          memory operations (add/list/search/export)
+  memory <pkg> [--search q] [--import-json f] [--export-json f]
+                                  memory operations on the node state (flags, not subcommands)
 
 setup: bash tests/setup.sh installs the pinned wasmtime engine.
-exit codes: 0 ok · 1 usage · 2 precondition · RED receipts carry reason_code 1-18.
+version: 0.1.0-alpha
+exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-18).
 """
 if __name__ == "__main__":
     cmds = {"keygen": cmd_keygen, "run": cmd_run, "export": cmd_export,

@@ -64,6 +64,22 @@ TASLAK'tan normatif sapma yok; gerçekleme bu RFC'yi izliyor, iki adsal/erdamsal
 
 Kural: bu not RFC'yi değiştirmez; farklar RFC-002 §9 errata'larında normatiftir. Kurucu onayı anında "adsal düzeltme" ve Açık Soru 4 ana metne alınır, sonra RFC donar.
 
+
+## 9 — D9 (Dilim-11): Girdi-bağlama ve çıktı-kanıt-satırı (2026-09-05)
+
+**charge makbuzu yeni opsiyonel alanı:** `input_sha256` = sha256(--input dosya-baytları).
+Sözleşme: alan yalnız koşumda `--input <dosya>` verildiyse vardır; yokluğu "girdisiz iş"
+anlamına gelir (eski makbuzlarla uyumlu). Sınır: girdi ≤ 1 MiB (D11) — aşımı koşum-öncesi
+RED 10 `input_invalid` (ücret/zincir yazılmadan).
+
+**Çıktı-kanıt-satırı (`--require-proof`):** ajan stdout'unun son satırı `TAMGA:<hex16>`
+biçiminde stdout'un kalan baytlarının FNV-1a-64 parmakizini verir; runner koşum-anında
+yeniden hesaplar, uyuşmazlık → RED 12 `output_proof_mismatch` (makbuz yazılmaz).
+
+**Replay-contract:** (wasm_sha256, input_sha256) → stdout_sha256 determinizmi artık
+*girdili* işler için testli (AT-004). Sınırlar: FNV kripto-değil (kanıt-satırı yardımcı;
+kurcalama-direnci ledger-hash'lerinden gelir); LLM non-deterministik işler bu sözleşme
+DIŞINDA — sınıf-tanımlı kapsam RFC-004 Faz-2 bölümünde (Tur-4 telafi-3'e bağlantı).
 ## 8. v0.2 Revizyon Adayı — D8: node-cosign (2026-09-05, Audit-8; KURUCU ONAYI BEKLİYOR)
 
 Audit-7 F25'ün (gömülü zincir taze node'da ajan-iddiasıdır) kalıcı çözümü önceden

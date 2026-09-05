@@ -115,6 +115,10 @@ python3 tamga_runner.py import snapshot.tsg <yeni-pkg>
 - Import RED kodları seni korur: 7 (64MiB üstü), 8 (oturum-rollback/replay), 9
   (kimlik taklidi), 14 (kırık gömülü zincir), 17 (merkle uyuşmaz) — hepsi negatif
   vektörle testli (AT-001f).
+- **Node operatörüysen:** gömülü zinciri node sertifikasıyla zorlamak isteyen hedefte
+  `import --cosign-policy L1 --node-trust <dosya>` kullan (node anahtarı:
+  `keygen-node <dir>`; L0 default her zinciri kabul eder — politika ayrıntısı
+  specs/DESIGN-node-cosign.md).
 
 ## 7. Geliştirici kontrol listesi (PR'dan önce)
 

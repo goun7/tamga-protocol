@@ -11,7 +11,7 @@
   </defs>
   <rect width="880" height="220" rx="16" fill="url(#bg)"/>
   <rect x="1.5" y="1.5" width="877" height="217" rx="15" fill="none" stroke="url(#accent)" stroke-width="2" opacity="0.55"/>
-  <!-- mühür motifi: zincir-bağlı damga -->
+  <!-- seal motif: chain-linked stamp -->
   <g transform="translate(74,110)" stroke="url(#accent)" fill="none" stroke-width="3" opacity="0.9">
     <circle r="30"/><circle r="20" opacity="0.6"/><circle r="9" fill="#e8a33d" stroke="none"/>
     <line x1="30" y1="0" x2="74" y2="0"/><circle cx="86" cy="0" r="12" opacity="0.55"/>

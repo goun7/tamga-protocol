@@ -52,4 +52,6 @@ runner, validator and acceptance suite.
 - reason 5/15/16 reserved, not emitted in v0.1 (RFC-planned layers).
 - Node revocation: the `--node-revoked <file>` flag ships (JSON array of node_ids;
   their signatures are rejected under L1 even if still trusted); management UX is next.
-- Pilot/partnership tracks are founder-gated and intentionally not started.
+- Pilot/partnership track is now open (docs/DESIGN-PARTNERS.md): free migration
+  for the first three partners, founder-approved 2026-09-05. Personal outreach
+  is the founder's channel.

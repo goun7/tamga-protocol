@@ -4,7 +4,7 @@
 
 *Translator's note: field names, state-format keys, and example values are reproduced verbatim from the canonical Turkish original. Evidence log references point to the local, untracked `.evidence/` run-log directory; internal documents are referred to descriptively (internal decision log). the "predecessor prototype" denotes an internal system preceding Tamga; its lessons (G13, G17, L1, L2, the contradiction scan) are recorded in internal documents (decision log).*
 
-- **Status:** DRAFT v0.1 — awaiting founder approval. Upon approval it **freezes**.
+- **Status:** **v0.1-FINAL — FROZEN (2026-09-05, founder-approved).** A change requires a new RFC + a version bump.
 - **Dependencies:** RFC-001 §9-1 (the open question: the seed/context-graph schema), RFC-002 §4 (the snapshot format), the predecessor-prototype integration notes L1, roadmap Phase 1 (the Slice-2 evidence: `.evidence/ (local, untracked)`) — the referenced documents are internal (decision log).
 - **Scope:** v0 (Phase 1). The snapshot transport format is unchanged; the **context-graph schema** in the body is pinned.
 
@@ -44,7 +44,7 @@ Related reason_codes (the normative register is in RFC-002 §9): 7=snapshot_too_
 
 ## 6. Approval Record
 
-- [ ] Founder approval (date) — at approval this RFC freezes; Status becomes v0.1-FINAL.
+- [x] Founder approval (2026-09-05) — RFC frozen; Status is v0.1-FINAL.
 
 ## 7. Implementation-Conformance Note (2026-09-05, Slice-9 — not a freeze)
 

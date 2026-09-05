@@ -131,3 +131,21 @@ Rule: every command writes **a single line of JSON to stdout**: `{"ok":true,"op"
   (import 72 ms = an early-RED artifact; it was captured after the fixture bench).
   The binding baseline is v2: `.evidence/ (local, untracked)` — import (deep verification)
   = 421 ms median (the heaviest operation); the roadmap has been updated (internal decision log).
+
+## §9 Errata — E-13 (2026-09-05, founder-approved)
+
+**E-13 — drafting-time errata correction (normative meaning restated):**
+
+1. **Reason 10 = `input_invalid`.** The frozen body's E-3 lists reason 10 as
+   `memory_limit` — a drafting-time inconsistency. The shipped runner (and the
+   public reason-code table in ARCHITECTURE.md §7) uses reason 10 for
+   `input_invalid` (oversize/malformed `--input`); memory exhaustion maps to
+   `runtime_limit`/reason 11. This correction is normative; the E-3 wording above
+   is preserved for contract fidelity and superseded by this entry.
+2. **Manifest code digest field = `wasm_sha256`.** D5's prose says `code.sha256`;
+   the normative field name — in `specs/manifest-0.1.0.schema.json` and in every
+   signed manifest — is `package.code.wasm_sha256`. D5's prose is superseded by
+   the schema.
+
+(E-13 was pre-announced by translator's notes added at translation time; the
+canonical Turkish document carries the same correction in its decision log.)

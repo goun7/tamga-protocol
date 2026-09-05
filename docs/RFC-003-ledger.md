@@ -4,7 +4,7 @@
 
 *Translator's note: code blocks, JSON keys, field names, formulas, and example values (including the example package name `tamga-ornek-ajani` and the fee-formula literals `ucret`/`fiyat`) are reproduced verbatim from the canonical Turkish original. Evidence log references point to the local, untracked `.evidence/` run-log directory; internal documents are referred to descriptively (internal decision log). the "predecessor prototype" (an internal system preceding Tamga) denotes the system whose recorded lessons this contract absorbs.*
 
-- **Status:** DRAFT v0.1 — awaiting founder approval. Upon approval it **freezes**.
+- **Status:** **v0.1-FINAL — FROZEN (2026-09-05, founder-approved).** A change requires a new RFC + a version bump.
 - **Dependencies:** RFC-002 (E-5/E-6: the run and the metering), acceptance test AT-001c, tokenomics (unit economics), roadmap Phase 1 (Slice 4) — the referenced documents are internal (decision log).
 - **Scope:** v0 (Phase 1). All amounts are `*_sim`; carrying real value is the subject of Phase 4 (a dual trigger: withdrawal + a written legal opinion).
 
@@ -51,7 +51,7 @@ Common fields: `op, seq, prev, h, ts`. `seq` starts at 1 and increments by +1 (a
 
 ## 6. Approval Record
 
-- [ ] Founder approval (date) — at approval this RFC freezes; Status becomes v0.1-FINAL.
+- [x] Founder approval (2026-09-05) — RFC frozen; Status is v0.1-FINAL. The §7 conformance note's "naming correction" (`ledger-verify`) and Open Question 4 are folded into the main text at freeze.
 
 ## 7. Implementation-Conformance Note (2026-09-05, Slice-9 — not a freeze)
 

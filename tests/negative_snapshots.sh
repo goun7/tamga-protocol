@@ -12,12 +12,12 @@ mkdir -p "$(dirname "$LOG")"
 PASS=0; FAIL=0
 say() { echo "  [$1] $2"; }
 kontrol() { if [ "$1" = "0" ]; then PASS=$((PASS+1)); say PASS "$2"; else FAIL=$((FAIL+1)); say FAIL "$2"; fi; }
-bekle_red() { if [ "$1" = "0" ]; then PASS=$((PASS+1)); say PASS "$2"; else FAIL=$((FAIL+1)); say FAIL "$2"; fi; }
+bekle_red() { kontrol "$@"; }  # RED-kanıt grepleri için anlamsal ad; tek uygulama (run_all deseni)
 
 {
   echo "# AT-001f negatif vektörler — $(date -Iseconds)"
 
-  rm -rf "$SB"; mkdir -p "$SB/pkgA" "$SB/pkgB" "$SB/pkgC"
+  rm -rf "$SB"; mkdir -p "$SB/pkgA" "$SB/pkgC"
   cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$SB/pkgA/"
   cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$SB/pkgC/"
   SEED=$(python3 tamga_runner.py keygen | python3 -c 'import sys,json;print(json.load(sys.stdin)["seed_hex"])')

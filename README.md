@@ -114,7 +114,7 @@ snapshot parolanla şifrelenir. Mem0/Letta/Zep export-adaptörleri yol haritası
 
 Her iddia bir log'la bağlı ([kanit/](kanit/)): kabul testleri, adversarial saldırı
 simülasyonları, başarısız koşular da arşivde (hata yapmayı da kaydederiz).
-Tek komutla doğrula: `bash tests/run_all.sh` → 16/16.
+Tek komutla doğrula: `bash tests/run_all.sh` → 17/17 (CI'da da koşar).
 
 ## Belgeler
 
@@ -122,7 +122,7 @@ Tek komutla doğrula: `bash tests/run_all.sh` → 16/16.
 |---|---|---|
 | [RFC-001](RFC-001-manifest.md) (şema: [specs/manifest-0.1.0.schema.json](specs/manifest-0.1.0.schema.json)) | Paket biçimi (`tamga.json`, manifest şeması) | v0.1-FINAL (donmuş) |
 | [RFC-002](RFC-002-runner.md) | Runner sözleşmesi (koşum, ölçüm, snapshot) | v0.1-FINAL (donmuş, erratalı) |
-| [RFC-003](RFC-003-ledger.md) | Ledger kaydı ve ölçüm sözleşmesi (`tamga-sim/1`) | v0.2 TASLAK — D8 node-cosign |
+| [RFC-003](RFC-003-ledger.md) | Ledger kaydı ve ölçüm sözleşmesi (`tamga-sim/1`) | v0.2 TASLAK — D8 node-cosign, D9 girdi-bağlama |
 | [RFC-004](RFC-004-context-graph.md) | Bağlam grafiği ve snapshot sözleşmesi | TASLAK — kurucu onaylı kararlar işlendi |
 | [SECURITY-AUDIT.md](SECURITY-AUDIT.md) | Audit-1…10 — 25 F-bulgu + bağımsız taze-göz turu | Yaşayan belge |
 | [AGENT-REHBERI.md](AGENT-REHBERI.md) | Ajan geliştirici rehberi (ilk 5 dakika → taşıma) | v0 |

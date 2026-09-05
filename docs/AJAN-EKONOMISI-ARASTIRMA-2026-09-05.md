@@ -70,3 +70,17 @@ Primitifimiz üçüne aynı anda hizmet ediyor — bu nadir bir pozisyon. Eksik 
 4. Settlement profili (B5) Faz 3 ödeme tasarımına referans olarak işle
 EOF
 git add docs/AGEN-EKONOMI-ARASTIRMA-2026-09-05.md 2>/dev/null || git add docs/AGEN-EKONOMI-ARASTIRMA-2026-09-05.md; ls docs/ | grep -i arast
+## 6. Dilim-11 dönümü — determinizm-sınırı beyanı (2026-09-05, Tur-4 telafi-3)
+
+**Tez-deliği kapanışı:** "yeniden-koşulabilir iş" iddiasının kapsamı artık sınıf-tanımlıdır:
+
+| İş-sınıfı | Kanıt-kontratı | Dilim-11 sonrası durum |
+|---|---|---|
+| Sınıf-A: girdili deterministik wasm-işi | (wasm_sha256, input_sha256) → stdout_sha256 birebir yeniden-koşum; replay CI-kanitlı (AT-004) | ✅ KANITLI |
+| Sınıf-B: non-deterministik iş (LLM vb.) | replay YAPILMAZ; kanıt = koşum-log'u (stdout+ölçüm hash'i) + girdi-bağlama + node-cosign mührü; "yeniden-koşum" yerine "yeni-koşum-şahitliği" | 🟡 TASARIM (RFC-003 §9 kapsam-dışı beyanı; mühür-mekanizması mevcut bileşenlerden kurulabilir) |
+| Sınıf-C: token-tüketen iş | koşum-kaydı + çıktı-atif (link'i doğrulanabilir-hesaba oturtma) | 🔴 FAZ-3 (ödeme-katmanıyla birlikte) |
+
+Hüküm: tez "her işi yeniden koştururuz" DEĞİL — "her işin kanıt-kontratı sınıfıyla
+beyan edilir" olur. Sınıf-A bugün gerçek; B/C beyanlı-yolda. ERC-8004 Validation
+tasarımına girdi: validation-topluluğu Sınıf-A için stake'li-replay önerir, B için
+log-şahitliği — ikisi de ERC-8004'ün ayrı kayıt-türlerine eşlenir.

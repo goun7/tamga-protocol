@@ -9,8 +9,13 @@ cross-validated with jsonschema (2026-09-05): 6 vectors + 28 mutations,
 Note: RFC 8785 (JCS) — this schema holds only string/integer values; sorted-compact
 serialization is JCS-equivalent. If a float field is added, jcs() must be updated.
 """
-import sys, json, hashlib, re, pathlib
+import sys, json, hashlib, os, re, pathlib
 from nacl.signing import SigningKey, VerifyKey
+
+def _secure_open(path):
+    """Audit-9 B6 parity with the runner: create the file 0600 from the start —
+    closes the post-write chmod window on plaintext key material."""
+    return os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
 
 def jcs(obj) -> bytes:
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
@@ -19,7 +24,9 @@ def cmd_keygen(args):
     out = pathlib.Path(args[0]); out.mkdir(parents=True, exist_ok=True)
     sk = SigningKey.generate()
     for name, data in (("seed.hex", sk.encode().hex()), ("pub.hex", sk.verify_key.encode().hex())):
-        f = out / name; f.write_text(data); f.chmod(0o600)   # Audit-1 F5
+        fd = _secure_open(out / name)                      # Audit-9 B6 parity: atomic 0600
+        with os.fdopen(fd, "w") as f:
+            f.write(data)                                  # Audit-1 F5
     print("keys written:", out)
 
 def cmd_sign(args):

@@ -27,7 +27,7 @@ A node that receives a snapshot must already hold the matching `tamga.json` +
 | Ledger | `tamga-sim/1` JSONL | each record: `seq` (1-based) + `prev` + `h = sha256(prev \| jcs(record))` |
 | Snapshot | `tamga-snapshot/1` binary envelope | header (plaintext metadata incl. `agent_id`, `pkg_name`) + encrypted body |
 
-Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spending).
+Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spending — planned: v0.1 emits `charge` and `grant`; the `fee` type is reserved for the spending leg).
 
 ## 3. Runtime model
 

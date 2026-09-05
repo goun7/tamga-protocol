@@ -4,6 +4,20 @@ Thanks for your interest in Tamga Protocol. The rules are short and strict:
 
 ## 1. Every change = tests + evidence
 
+## Code conventions (what reviewers check)
+
+- Every rejection returns a one-line JSON receipt with a `reason_code` from the
+  taxonomy in `docs/ARCHITECTURE.md §7` (code-extracted); argument errors are
+  `parse_error` (1), never chain-integrity codes.
+- Chain verification has exactly one implementation (`_verify_chain` in
+  `tamga_runner.py`); do not inline the hash loop elsewhere.
+- Key material is created atomically 0600 (`_secure_open` pattern); the agent
+  seed never touches disk (D3).
+- User-facing strings are English; frozen Turkish JSON field names stay until a
+  versioned RFC changes them.
+- Every behavioral change updates: the suite (a control or a negative vector),
+  `docs/TESTS.md`, and — if a documented limit moves — the honest-limits notes.
+
 A pull request must pass the [audit gate](docs/AUDIT-GATE.md): 18/18 controls, negative
 fixtures stay red, and any new behavior ships with at least one adversarial test.
 "We tested it manually" is not evidence — the suite is one command and ~10 s.

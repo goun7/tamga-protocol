@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="220" viewBox="0 0 880 220" role="img" aria-label="Tamga Protocol banner">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#101d33"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e8a33d"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+  </defs>
+  <rect width="880" height="220" rx="16" fill="url(#bg)"/>
+  <rect x="1.5" y="1.5" width="877" height="217" rx="15" fill="none" stroke="url(#accent)" stroke-width="2" opacity="0.55"/>
+  <!-- mühür motifi: zincir-bağlı damga -->
+  <g transform="translate(74,110)" stroke="url(#accent)" fill="none" stroke-width="3" opacity="0.9">
+    <circle r="30"/><circle r="20" opacity="0.6"/><circle r="9" fill="#e8a33d" stroke="none"/>
+    <line x1="30" y1="0" x2="74" y2="0"/><circle cx="86" cy="0" r="12" opacity="0.55"/>
+    <line x1="98" y1="0" x2="142" y2="0" opacity="0.55"/><circle cx="154" cy="0" r="8" opacity="0.35"/>
+  </g>
+  <text x="300" y="92" font-family="Georgia, 'Times New Roman', serif" font-size="58" font-weight="bold" fill="#f1f5f9" letter-spacing="6">TAMGA</text>
+  <text x="304" y="130" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#7dd3fc" letter-spacing="14">PROTOCOL</text>
+  <text x="302" y="176" font-family="Helvetica, Arial, sans-serif" font-size="17" fill="#94a3b8">Taşınabilir kimlik · Şifreli hafıza · Doğrulanabilir iş-makbuzu</text>
+</svg>

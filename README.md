@@ -1,11 +1,8 @@
 <div align="center">
 
-# Tamga Protocol
+<img src="docs/assets/banner.svg" width="660" alt="Tamga Protocol — taşınabilir kimlik, şifreli hafıza, doğrulanabilir iş-makbuzu"/>
 
-**Kendi kendine sahip ajanlar için taşınabilir kimlik + hafıza + muhasebe protokolü.**
-
-*Ajanın hafızası, kimliği ve iş-kanıtı şifreli bir pakette; makine ölür, ajan başka makinede kaldığı yerden devam eder.*
-
+[![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-16%2F16%20PASS-brightgreen)](#tek-komut-regresyon)
 [![Security Audits](https://img.shields.io/badge/audits-10%20turs-blue)](SECURITY-AUDIT.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
@@ -45,6 +42,24 @@ python3 tamga_runner.py ledger-verify yeni-pkg/   # ok: true
 ```
 
 ## Çekirdek güvenceler
+
+> **Mimari bir bakışta:** ajanın kimliği + hafızası + muhasebesi şifreli `snapshot.tsg`
+> ile host'tan host'a seyahat eder; iş-kanatı hash-zincirli ledger'da yaşar ve hedef
+> node'da birebir doğrulanır.
+
+```mermaid
+flowchart LR
+    subgraph N1["Node-1 (kaynak host)"]
+        AG["ajan<br/>(kimlik + şifreli hafıza)"] --> R["koşum<br/>iş-makbuzu (charge)"]
+        AG --> L["hash-zincirli ledger"]
+    end
+    R -- "snapshot.tsg (XChaCha20 şifreli)" --> I
+    L -- "ledger_tip bağlama" --> I
+    subgraph N2["Node-2 (yeni host)"]
+        I["import: kimlik + hafıza restore"] --> AG2["ajan kaldığı yerden<br/>devam eder"]
+        I --> V["ledger-verify:<br/>zincir kırıksa RED"]
+    end
+```
 
 - 🔐 **Bekleyen gizlilik kanıtlı** — seed asla diskte düz metin değil (XChaCha20-Poly1305
   + scrypt); disk taraması 0 sızıntı (AT-001d)

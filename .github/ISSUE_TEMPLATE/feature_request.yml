@@ -1,0 +1,27 @@
+name: Özellik isteği
+description: Yeni yetenek / RFC değişikliği önerisi
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Hangi problemi çözüyor?
+      validations: {required: true}
+  - type: textarea
+    id: oneri
+    attributes:
+      label: Önerilen çözüm
+      validations: {required: true}
+  - type: textarea
+    id: alternatif
+    attributes:
+      label: Elenen alternatifler
+      description: "Değişmezi bozan yaklaşımlar da yazılır (taşınabilirlik/kanıt-kültürü)"
+  - type: checkboxes
+    id: ilkeler
+    attributes:
+      label: Tasarım-ilkesi uyumu
+      options:
+        - label: Taşınabilirlik değişmezini bozmuyor
+        - label: Kanıt-kültürüne uyuyor (log'suz iddia yok)
+        - label: Sıfır-bağımlılık ilkesine saygılı (yeni bağımlılık = RFC gerekçesi)

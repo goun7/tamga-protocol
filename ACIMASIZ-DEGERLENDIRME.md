@@ -336,7 +336,7 @@ bütün-ağaç taze-göz turu yapılacak (bundan sonraki varsayılan).
 11. **Döngüsel-doğrulama:** aynı model kod yazar, test yazar, kendini denetler, "99/100"
     verir. Tur-1..3'ün skoru bu yüzden lab-içi; dış-cetvel aşağıda.
 12. **TEK-DİSK RİSKİ (en-ölümcül, en-kolay-telafi):** `git remote` BOŞ (doğrulandı) —
-    /mnt/hdd ölürse Tamga ölür. **Taşıma-protokolü yazan projenin kendi repo'su
+    tek-fiziksel-disk ölürse Tamga ölür. **Taşıma-protokolü yazan projenin kendi repo'su
     taşınabilir-değil.** İroni değil, kusur.
 13. **CI yok:** "16/16" badge'i arkasında otomasyon yok; süit sadece bu makinede koştu.
 14. **Zaman-çizelgesi kurgu:** Faz 3 (ay 6-18, gerçek-ödeme) $0-gelir + tek-kişi +

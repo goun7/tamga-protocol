@@ -1,0 +1,37 @@
+name: Hata raporu
+description: Bir kontrol RED beklerken ACCEPT döndü (veya tersi) — kanıtla birlikte bildirin
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Kanıt-kültürü kuralı: hata raporu **yeniden-üretilebilir** olmalıdır.
+        "Çalışmıyor" değil; komut + beklenen + gerçek + log.
+  - type: textarea
+    id: komut
+    attributes:
+      label: Çalıştırılan komut(lar)
+      placeholder: |
+        python3 tamga_runner.py run pkg/ --seed $SEED --note test
+      validations: {required: true}
+  - type: textarea
+    id: beklenen
+    attributes:
+      label: Beklenen davranış
+      validations: {required: true}
+  - type: textarea
+    id: gercek
+    attributes:
+      label: Gerçek davranış (JSON çıktısı dâhil)
+      placeholder: '{"ok": false, "reason_code": ..., "reason": ...}'
+      validations: {required: true}
+  - type: textarea
+    id: ortam
+    attributes:
+      label: Ortam (OS / Python / wasmtime sürümü)
+      validations: {required: true}
+  - type: textarea
+    id: kanit
+    attributes:
+      label: Kanıt-log (varsa)
+      description: İlgili kanit/ log bölümü veya kendi çıktınız

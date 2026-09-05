@@ -157,3 +157,12 @@ SONUÇ(at003): 6 PASS, 0 FAIL
   [PASS] tc-n6: L0 default legacy zincir → ACCEPT (geriye-uyum korunur)
 
 SONUÇ(at003): 6 PASS, 0 FAIL
+# AT-003 node-cosign negatif vektörler — 2026-09-05T11:33:09+03:00
+  [PASS] tc-n1: L1 + güvencili node → ACCEPT (pozitif kontrol)
+  [PASS] tc-n2: bozuk node_sig → ledger-verify RED (reason 14)
+  [PASS] tc-n3: node_id takası → zincir-hash kırığı (RED)
+  [PASS] tc-n4: L1 altında node_sig'siz zincir → RED
+  [PASS] tc-n5: L1 + güvensiz node_id → RED (node_id_güvenilmeyen)
+  [PASS] tc-n6: L0 default legacy zincir → ACCEPT (geriye-uyum korunur)
+
+SONUÇ(at003): 6 PASS, 0 FAIL

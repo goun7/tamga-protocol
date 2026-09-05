@@ -44,8 +44,8 @@ Apache-2.0 ile başkaları kodu alıp değiştirebilir — bu doğrudur ve bilin
 
 | # | Konu | Karar | Gerekçe |
 |---|---|---|---|
-| K10 | Sistemin akıllı-kontrat çerçevesi | **ERC-8004 + TOKENOMICS §3.1'i doğuran kâr-solucuğu ilkesi** her kontrat-tasarımının birim testi; coin-içi koşum-tanımlı "iş" (Simülasyon-C) Faz 3 zorunlu kalem | Nihai kriptografik çözüm akıllı-kontratlarda yaşayacak; itibar/muhasebe/gelir ayrılabilir katmanlar olmalı; menkul-kıymet kuyruğu zayıflatmamalı |
-| K11 | Sürdürülebilirlik-bütünlüğü | **"Geçerli-iş / zincir-yazımı" oranı = ağırlıklandırılmış metrik panosu kalemi** (atanmış-akış meşruiyeti: node-kârı = gerçek-kullanıcı-işi × p-adımı-üretilir-cüzdan-ortancalı-ış) | Gelir modellenmemiş ağ = ölüm; "kazanç tutarlı mı" sorusu metrik-panosunda yaşayacak |
+| K10 | Sistemin akıllı-kontrat çerçevesi | **TOKENOMICS §1-5 ponzi-testi her akıllı-kontrat-tasarımının birim şartı**; ağ-kârı yalnız gerçek-kullanıcı-işi akışından türesin; "iş" zincir-içi koşum-tanımlı olacak (Simülasyon-C, Faz 3 zorunlu kalem) | Nihai kriptografik çözüm akıllı-kontratlarda yaşayacak; itibar/muhasebe/gelir ayrılabilir katmanlar olmalı; menkul-kıymet kuyruğu zayıflatmamalı |
+| K11 | Sürdürülebilirlik-bütünlüğü | **Geçerli-iş oranı = gerçek-kullanıcı-işi ÷ toplam-iş** — metrik-panosunda yaşayacak ağ-sağlığı kalemi (test-trafiği ve öz-işi ayırır) | Gelir modellenmemiş ağ = ölüm; "kazanç tutarlı mı" sorusu metrik-panosunda yaşayacak |
 | K12 | Repo-açılış zamanlaması | **EN SONA saklandı (revizyon)** — "pilot-başlangıcı" yerine "pilot-başarısı": ekosistem-sınanmış + kâr-solucuğu birim-testli ağ-okyanusu olsun, sonra sahne | Kurucu 5 Eylül 2026 görüşmesi: "en iyilenmiş mantıkla hareket etmeliyiz, o yüzden repoyu açık yapma fikrini en sona saklıyorum" |
 | K13 | Node-kazanç tutarlılığı | **Faz 3 çıkış-kriterine eklendi:** node-gelir-dağılımı Gini ≤ 0.6 hedefi; ölçülebilir, pilot'tan itibaren toplanır | "kazançları tutarlı mı" sorusu yanıtlanabilir kriter olmadan cevaplanamaz |
 

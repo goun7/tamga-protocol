@@ -36,7 +36,7 @@ python3 tamga_runner.py memory <pkg> --import-json d.json   # MERGEN → Tamga d
 | [RFC-002](RFC-002-runner.md) | Runner sözleşmesi (koşum, ölçüm, snapshot) | v0.1-FINAL (donmuş, erratalı) |
 | [RFC-003](RFC-003-ledger.md) | Ledger kaydı ve ölçüm sözleşmesi (`tamga-sim/1`) | TASLAK — kurucu onayı bekliyor |
 | [RFC-004](RFC-004-context-graph.md) | Bağlam grafiği ve snapshot sözleşmesi | TASLAK — kurucu onayı bekliyor |
-| [SECURITY-AUDIT.md](SECURITY-AUDIT.md) | Audit-1…7 — 25 bulgu (F1…F25), kapanış kanıtlarıyla | Yaşayan belge |
+| [SECURITY-AUDIT.md](SECURITY-AUDIT.md) | Audit-1…9 — 25 F-bulgu (F1…F25) + bağımsız taze-göz turu (Audit-9: 20 bulgu, karar tablosuyla) | Yaşayan belge |
 | [AGENT-REHBERI.md](AGENT-REHBERI.md) | Ajan geliştirici rehberi (ilk 5 dakika → taşıma) | v0 (Faz 1) |
 | [ACCEPTANCE-TESTS.md](ACCEPTANCE-TESTS.md) | AT-001/003 ailesi + tek-komut takım tanımı | 16 kontrol |
 | [ROADMAP.md](ROADMAP.md) | Dikey dilim planı + çıkış ölçütleri | Yaşayan belge |

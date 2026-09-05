@@ -47,7 +47,7 @@ dokunulmadı. Farklar errata'ya bağlandı: spec ↔ kod ayrımı normatif olara
 **100/100 için gereken:** tüm bulgular kapanış kanıtlıyla kapanmış; en yeni kod
 en son denetim turunun kapsamında; kripto seçimleri gerekçeli; default-deny kanıtlı.
 
-- [+] Audit-1..6: 24 numaralı bulgu, hepsi kapanış kanıtlıyla (SECURITY-AUDIT.md);
+- [+] Audit-1..9: 24 numaralı bulgu (Audit-1..6) + Audit-7/8/9 turarı — F1..F25 + bağımsız taze-göz denetiminin 20 bulgusu (10 ORTA) karar tablosuyla işlendi (SECURITY-AUDIT.md);
   F21/F24 kapanışları; at-rest vs in-use ayrımı hiçbir belgede bulanıklaştırılmıyor;
   XChaCha20-Poly1305 + scrypt; seed asla diskte düz değil; default-deny wasmtime.
 - **[-2] Audit-7 yapılmadı:** Dilim-6/7/8'in eklediği yüzeyler (gömülü ledger + tip

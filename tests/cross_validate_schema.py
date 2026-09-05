@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""RFC-001 şema çapraz-doğrulaması (validator TODO kapanışı — Audit-1 notu).
+"""RFC-001 schema cross-validation (closes the validator TODO — Audit-1 note).
 
-Yöntem: karar-düzeyi eşdeğerlik. Her örnek (6 gerçek vektör + ~28 mutasyon) için:
-  A) jsonschema (draft 2020-12, specs/manifest-0.1.0.schema.json) — geçerli mi?
-  B) tamga_validator.py (stdlib şema bloğu) — şema-ailesi RED mi (yoksa ACCEPT /
+Method: decision-level equivalence. For each sample (6 real vectors + ~28 mutations):
+  A) jsonschema (draft 2020-12, specs/manifest-0.1.0.schema.json) — is it valid?
+  B) tamga_validator.py (stdlib schema block) — is it a schema-family RED (otherwise ACCEPT /
      hash/imza ailesi RED mi)?
-İddia: A-invalid ⇔ B-şema-RED. Sapma = iki gerçeklemeden biri RFC-001'den sapan drift.
+Claim: A-invalid ⇔ B-schema-RED. A divergence = drift: one of the two implementations deviates from RFC-001.
 
-Koşum: .venv-jsonschema/bin/python tests/cross_validate_schema.py
-Kanıt: kanit/VALIDASYON/<tarih>/schema-crossvalidation.log
+Run: .venv-jsonschema/bin/python tests/cross_validate_schema.py
+Evidence: .evidence/VALIDASYON/<date>/schema-crossvalidation.log
 """
 import copy, hashlib, json, pathlib, subprocess, sys, time
 
@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT))
 try:
     import jsonschema
 except ImportError:
-    print("HATA: jsonschema yok — .venv-jsonschema/bin/python ile koşun")
+    print("ERROR: jsonschema missing — run with .venv-jsonschema/bin/python")
     sys.exit(2)
 
 SCHEMA = json.loads((ROOT / "specs/manifest-0.1.0.schema.json").read_text(encoding="utf-8"))
@@ -33,7 +33,7 @@ def log(s):
 
 def manual_verdict(pkg: pathlib.Path):
     r = subprocess.run([sys.executable, str(ROOT / "tamga_validator.py"), "validate", str(pkg)],
-                       capture_output=True, text=True, cwd=str(ROOT))  # Audit-9 B20: cwd-bağımsız
+                       capture_output=True, text=True, cwd=str(ROOT))  # Audit-9 B20: cwd-independent
     msg = r.stdout.strip()
     schema_family = ("schema_violation" in msg or "unknown_field" in msg or
                      "unknown_capability" in msg or "unsupported_spec_version" in msg)
@@ -55,7 +55,7 @@ def check(name, manifest: dict):
     accept, msg, sch_red = manual_verdict(pkg)
     agree = (not js_valid) == sch_red
     tag = "UYUM" if agree else "!!DRIFT!!"
-    log(f"[{tag}] {name:24s} js={'geçerli' if js_valid else 'GEÇERSİZ':8s} "
+    log(f"[{tag}] {name:24s} js={'valid' if js_valid else 'INVALID':8s} "
         f"validator={'ACCEPT' if accept else msg[:58]}")
     if not js_valid:
         log(f"{'':26s} js-hata: {js_err}")
@@ -112,13 +112,13 @@ def main():
     if "payment" not in base:
         base["payment"] = {"schemes": ["tamga-sim/1"]}
 
-    log(f"# RFC-001 şema çapraz-doğrulaması — {time.strftime('%FT%T%z')}")
+    log(f"# RFC-001 schema cross-validation — {time.strftime('%FT%T%z')}")
     log(f"# jsonschema {jsonschema.__version__ if hasattr(jsonschema,'__version__') else '4.x'} · "
-        f"şema: specs/manifest-0.1.0.schema.json (draft 2020-12) · validator: tamga_validator.py")
+        f"schema: specs/manifest-0.1.0.schema.json (draft 2020-12) · validator: tamga_validator.py")
     log("")
 
     ok = 0; total = 0
-    log("## Gerçek vektörler")
+    log("## Real vectors")
     for tc in ["tc-a1", "tc-a2", "tc-a3", "tc-a4", "tc-a5", "tc-a6"]:
         total += 1
         m = json.loads((VEC / tc / "tamga.json").read_text(encoding="utf-8"))
@@ -127,12 +127,12 @@ def main():
         ok += check(tc, m)
     log("")
 
-    log("## Mutasyon matrisi (tc-a1 tabanı)")
+    log("## Mutation matrix (tc-a1 base)")
     for name, m in mutants(base):
         total += 1
         ok += check(name, m)
     log("")
-    log(f"SONUÇ: {ok}/{total} UYUM — {'çapraz-doğrulama TEMİZ' if ok == total else 'DRIFT VAR → RFC-001 sadakati düzeltilmeli'}")
+    log(f"RESULT: {ok}/{total} AGREE — {'cross-validation CLEAN' if ok == total else 'DRIFT → RFC-001 fidelity must be fixed'}")
     shutil.rmtree(SB, ignore_errors=True)
 
 

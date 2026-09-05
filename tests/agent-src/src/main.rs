@@ -1,8 +1,8 @@
-// Tamga örnek ajanı — v2 (Dilim-11): girdi OKUR, deterministik iş yapar.
-// stdin'i bitişine kadar okur, SHA-256 içerik-parmakizini çıktıya yazar.
-// Tamga-sözleşmesi: stdout'un İLK satırı "TAMGA:<cikti_sha256>" kanıt-satırıdır.
-// Rust'ta sha2 yok (sıfır-bağımlılık çekirdeği): deterministik toplama yerine
-// FNV-1a 64-bit parmakizi (std-only) + uzunluk; her ikisi de hex olarak basılır.
+// Tamga example agent — v2 (slice-11): READS input, does deterministic work.
+// Reads stdin to EOF and writes a SHA-256 content fingerprint into its output.
+// Tamga contract: the FIRST line of stdout is the "TAMGA:<output_sha256>" evidence line.
+// No sha2 crate in Rust here (zero-dependency core): instead of a deterministic sum,
+// an FNV-1a 64-bit fingerprint (std-only) + length; both printed as hex.
 use std::io::Read;
 
 fn fnv1a64(data: &[u8]) -> u64 {

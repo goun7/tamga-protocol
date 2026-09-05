@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Audit-7 — gömülü-zincir (Dilim-8/F24) saldırı simülasyonu (simnet, wasmtime'sız).
+"""Audit-7 — embedded-chain (slice-8/F24) attack simulation (simnet, no wasmtime).
 
-Kapsam: snapshot gövdesindeki `ledger_records` + `ledger_tip` yüzeyine üç saldırı:
-  A1 record-splice : charge ücreti düşürülüp yeniden şifrelenir → import + ledger-verify
+Scope: three attacks against the `ledger_records` + `ledger_tip` surface of the snapshot body:
+  A1 record-splice : a charge fee is inflated and re-encrypted → import + ledger-verify
   A2 tip-swap      : ledger_tip uydurulur → hedefi zincirli node'a ve taze node'a import
-  A3 merkle-fold   : hafıza kurcalanır ama graph_merkle tutarlı yeniden hesaplanır
+  A3 merkle-fold   : memory is tampered but graph_merkle is recomputed consistently
 
-NOT (dürüst sınır): saldırılar simnet parolası + seed ile yapılır; bu, "seed'i
-bilmesine rağmen zinciri kurcalayan" güçlü düşmandır. Gerçek tehdit modelindeki
-düşman (seed'siz host) daha zayıftır — burada mekanizmanın üst sınırı ölçülür.
+NOTE (honest limit): attacks use the simnet passphrase + seed; this is the STRONG
+adversary who tampers with the chain despite knowing the seed. The real threat-model
+adversary (a seed-less host) is weaker — this measures the mechanism's upper bound.
 Evidence: .evidence/GUVENLIK/<date>/audit-7.log
 """
 import json, os, pathlib, subprocess, sys, hashlib
@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT))
 os.chdir(ROOT)
 os.environ.setdefault("TAMGA_KS_PASSPHRASE", "simnet-2026")
 
-import tamga_runner as tr  # runner'ın kendi kripto primitifleri
+import tamga_runner as tr  # the runner's own crypto primitives
 
 SB = ROOT / "tests/simnet/.audit7"
 OUT = []
@@ -43,9 +43,9 @@ def parse_snap(p):
 
 
 def craft(src, mutate):
-    """snapshot gövdesini çöz → mutate(header, state) → yeniden şifrele."""
+    """decrypt the snapshot body → mutate(header, state) → re-encrypt."""
     data, hlen, header = parse_snap(src)
-    # keystore'dan seed'i çöz (simnet parolasıyla) — hem gövde anahtarı hem kimlik
+    # unwrap the seed from the keystore (with the simnet passphrase) — both body key and identity
     seed = tr.xdec(bytes.fromhex(header["keystore_blob"]["ct"]), b"",
                    bytes.fromhex(header["keystore_blob"]["nonce"]),
                    tr.kdf(tr.passphrase(), bytes.fromhex(header["keystore_blob"]["salt"])))
@@ -80,13 +80,13 @@ def main():
     mi = sh("memory", str(SB / "pkgA"), "--import-json", "tests/simnet/memory-dersler.json")
     base = SB / "base.tsg"
     sh("export", str(SB / "pkgA"), "-o", str(base), "--seed", seed)
-    log(f"# önkoşul: memory-import ok={json.loads(mi).get('ok') if mi.startswith('{') else mi[:80]}")
+    log(f"# precondition: memory-import ok={json.loads(mi).get('ok') if mi.startswith('{') else mi[:80]}")
 
-    # ---------- A1a: record-splice, ZAYIF düşman (hash yeniden hesaplamaz) ----------
+    # ---------- A1a: record-splice, WEAK adversary (does not recompute hashes) ----------
     def a1a(header, state):
         for rec in state.get("ledger_records", []):
             if rec.get("op") == "grant":
-                rec["amount"] = 100.0            # hibe şişirilir, h eski kalır
+                rec["amount"] = 100.0            # grant inflated, h left stale
                 break
         return header, state
     (SB / "a1a.tsg").write_bytes(craft(base, a1a))
@@ -98,13 +98,13 @@ def main():
     log(f"A1a splice (hash eski): import ok={ok1a} reason={j1a_import.get('reason_code')} {j1a_import.get('reason','')} "
         f"· hedef ledger-verify ok={j1a.get('ok')} broken_at={j1a.get('broken_at')}")
     if not ok1a and j1a_import.get("reason_code") == 14:
-        log("A1a SONUÇ: import kuruluş-öncesinde RED (beklendi — Audit-7 D4 takviyesi sonrası)")
+        log("A1a RESULT: import RED before installation (expected — after Audit-7 D4 hardening)")
     elif ok1a and j1a.get("ok") is False:
-        log("A1a SONUÇ: zincir-hash zayıf kurcalamayı sonradan yakaladı (düzeltme ÖNCESİ davranış)")
+        log("A1a RESULT: the chain hash caught the weak tampering later (pre-fix behavior)")
     else:
         log("A1a SONUÇ: BEKLENMEDİK")
 
-    # ---------- A1b: record-splice, GÜÇLÜ düşman (tüm zinciri yeniden hesaplar) ----------
+    # ---------- A1b: record-splice, STRONG adversary (recomputes the whole chain) ----------
     def a1b(header, state):
         prev = "0" * 64
         for i, rec in enumerate(state.get("ledger_records", []), start=1):
@@ -119,13 +119,13 @@ def main():
     r1b = sh("import", str(SB / "a1b.tsg"), str(fresh("pkgB2")))
     ok1b = json.loads(r1b).get("ok")
     v1b = json.loads(sh("ledger-verify", str(SB / "pkgB2")))
-    log(f"A1b splice (zincir yeniden hesaplı): import ok={ok1b} · hedef ledger-verify ok={v1b.get('ok')} bakiye={v1b.get('balance_sim')}")
+    log(f"A1b splice (chain recomputed): import ok={ok1b} · target ledger-verify ok={v1b.get('ok')} balance={v1b.get('balance_sim')}")
     if ok1b and v1b.get("ok"):
-        log("A1b SONUÇ: AÇIK BULGU F25 — seed-sahibi taze node'a kendi-tutarlı sahte tarih kurabiliyor; "
-            "mevcut panzehir: D4 append-only (zincirli hedef ezilmez) + provenance notu; "
-            "kalıcı çözüm RFC-003 kapsamında node-cosign (kaydın hash'ine node anahtarı girer)")
+        log("A1b RESULT: OPEN FINDING F25 — a seed-owner can install a self-consistent fake history on a fresh node; "
+            "current countermeasures: D4 append-only (a chained target is never clobbered) + provenance note; "
+            "the permanent fix is node-cosign under RFC-003 (the node key enters the record hash)")
     else:
-        log("A1b SONUÇ: güçlü düşman da yakalandı (F25 yok — beklenmedik derecede iyi)")
+        log("A1b RESULT: the strong adversary was caught too (no F25 — unexpectedly good)")
 
     # ---------- A2: tip-swap ----------
     fake_tip = hashlib.sha256(b"uydurulmus-tip").hexdigest()
@@ -140,11 +140,11 @@ def main():
     rc2c = json.loads(r2_chain).get("reason_code")
     log(f"A2 tip-swap: taze node ok={ok2f} (erteleme notu beklenir) · zincirli node ok={ok2c} reason={rc2c}")
     if ok2f and not ok2c and rc2c == 14:
-        log("A2 SONUÇ: tip-bağlama zincirli node üzerinde RED (beklendi); taze node erteliyor (bilinen, aşağıda)")
+        log("A2 RESULT: tip-binding RED on the chained node (expected); fresh node defers (known, below)")
     else:
         log("A2 SONUÇ: BEKLENMEDİK")
 
-    # ---------- A3: merkle-fold (tutarlı kurcalama) ----------
+    # ---------- A3: merkle-fold (consistent tampering) ----------
     def a3(header, state):
         n0 = state["memory"]["nodes"][0]
         n0["text"] = "SALDIRI-DEGISTI"
@@ -153,15 +153,15 @@ def main():
     (SB / "a3.tsg").write_bytes(craft(base, a3))
     r3 = sh("import", str(SB / "a3.tsg"), str(fresh("pkgD")))
     ok3 = json.loads(r3).get("ok")
-    log(f"A3 merkle-fold (tutarlı kurcalama): import ok={ok3}")
+    log(f"A3 merkle-fold (consistent tampering): import ok={ok3}")
     if ok3:
-        log("A3 SONUÇ: KABUL — belgeli sınır: seed sahibi tutarlı state üretebilir (düşman üst sınırı); merkle seed'siz host'a karşıdır")
+        log("A3 RESULT: ACCEPT — documented limit: a seed owner can mint consistent state (upper-bound adversary); merkle defends against seed-less hosts")
     else:
-        log("A3 SONUÇ: İDDİA — yakalandı")
+        log("A3 RESULT: CLAIM — caught")
 
     shutil.rmtree(SB, ignore_errors=True)
     log("")
-    log("# Audit-7 betik sonu — değerlendirme SECURITY-AUDIT.md'de")
+    log("# Audit-7 script end — evaluation recorded in SECURITY-AUDIT.md (canonical Turkish)")
     return 0 if "BEKLENMEDİK" not in "\n".join(OUT) and "İDDİA" not in "\n".join(OUT) else 1
 
 

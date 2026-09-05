@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 W, H = 1280, 640
 img = Image.new("RGB", (W, H), "#0b1220")
 d = ImageDraw.Draw(img)
-# zemin gradyanı (sol-üst koyu → sağ-alt hafif açık lacivert)
+# background gradient (dark top-left → lighter navy bottom-right)
 for y in range(H):
     t = y / H
     r = int(11 + 5 * t); g = int(18 + 11 * t); b = int(32 + 19 * t)
@@ -20,31 +20,31 @@ f_sub   = ImageFont.truetype(F + "NotoSans-Bold.ttf", 34)
 f_body  = ImageFont.truetype(F + "NotoSans-Regular.ttf", 27)
 f_bodyB = ImageFont.truetype(F + "NotoSans-Bold.ttf", 27)
 
-# mühür + zincir motifi (SVG'dekiyle aynı dil)
+# seal + chain motif (same visual language as the SVG)
 cx, cy = 200, 300
 d.ellipse([cx-78, cy-78, cx+78, cy+78], outline=(56, 189, 248), width=8)
 d.ellipse([cx-52, cy-52, cx+52, cy+52], outline=(56, 189, 248), width=4)
 d.ellipse([cx-22, cy-22, cx+22, cy+22], fill=(232, 163, 61))
-# zincir bağları
+# chain links
 d.line([(cx+78, cy), (cx+150, cy)], fill=(56, 189, 248), width=7)
 d.ellipse([cx+150-32, cy-32, cx+150+32, cy+32], outline=(56, 189, 248), width=5)
 d.line([(cx+182, cy), (cx+240, cy)], fill=(56, 189, 248), width=5)
 d.ellipse([cx+240-22, cy-22, cx+240+22, cy+22], outline=(56, 189, 248), width=4)
 
-# başlık + alt-başlık
+# title + subtitle
 tx = 340
 d.text((tx, 210), "TAMGA", font=f_title, fill=(241, 245, 249))
 w = d.textlength("TAMGA", font=f_title)
 d.text((tx, 345), "PROTOCOL", font=f_sub, fill=(125, 211, 252))
-# altın çizgi
+# gold rule
 d.line([(tx, 400), (tx + 330, 400)], fill=(232, 163, 61), width=4)
-# üç ayak
+# three pillars
 y = 440
 for t in ["Portable identity", "Encrypted memory", "Verifiable work receipts"]:
     d.ellipse([tx, y+9, tx+12, y+21], fill=(232, 163, 61))
     d.text((tx+26, y), t, font=f_bodyB, fill=(203, 213, 225))
     y += 44
-# durum-şeridi
+# status strip
 d.text((tx, 580), "Phase 2 · pilot · Apache-2.0 · evidence-first", font=f_body, fill=(148, 163, 184))
 img.save("docs/assets/social-preview.png", optimize=True)
 print("docs/assets/social-preview.png —", img.size)

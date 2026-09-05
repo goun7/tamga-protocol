@@ -1,4 +1,4 @@
-# Tamga Protocol — çekirdek bağımlılıkları (sıfır-bağımlılık ilkesine istisna yalnız bu ikisi)
-# RFC gerekçesi: PyNaCl =libsodium bağlayıcısı (ed25519/XChaCha20); jsonschema = RFC-001 şema-doğrulama.
+# Tamga Protocol — core dependencies (the only exceptions to the zero-dependency principle)
+# RFC rationale: PyNaCl = libsodium bindings (ed25519/XChaCha20); jsonschema = RFC-001 schema validation.
 PyNaCl>=1.5,<2
 jsonschema>=4.20,<5

@@ -103,6 +103,13 @@ python3 tamga_runner.py memory <pkg> --search <q>
 python3 tamga_runner.py memory <pkg> --import-json d.json   # MERGEN → Tamga köprüsü
 ```
 
+## 30 saniyelik canlı-demo
+
+```bash
+bash tools/demo.sh   # doğdu → girdili-iş yaptı → öldü → taşındı → dirildi → makbuz doğrulandı
+```
+Kayıt için: `asciinema rec -c "bash tools/demo.sh" demo.cast` — çıktısı [docs/DEMO-SENARYO.md]'deki beklenen-akışla birebir.
+
 ## MERGEN'den geliyorsanız
 
 Tek komutla hafızanı taşı (SQLite → şifreli snapshot; [araç](tools/mergen_batch.py),
@@ -131,6 +138,8 @@ Tek komutla doğrula: `bash tests/run_all.sh` → 17/17 (CI'da da koşar).
 | [docs/ERC-8004-ESLEME.md](docs/ERC-8004-ESLEME.md) | Standart eşleme + sektör genişleme değerlendirmesi | Tasarım notu |
 | [docs/PILOT-MUSTERI-STRATEJISI.md](docs/PILOT-MUSTERI-STRATEJISI.md) | Ajan-müşteri GTM (huni + ilk 30 gün) | Strateji |
 | [docs/KURUM-PAKETI.md](docs/KURUM-PAKETI.md) | Şirketler için tek-sayfa değer + dürüst sınırlar | Pilot |
+| [docs/HIZMET-PAKETI-GOC.md](docs/HIZMET-PAKETI-GOC.md) | Göç-paketi teklif-şablonu (fiyat/söz iskeleti) | Pilot |
+| [docs/RFC-005-yetenek-modeli-TASLAK.md](docs/RFC-005-yetenek-modeli-TASLAK.md) | Beyanlı-egress tasarımı (gerçek-ajan uydurmazlığına cevap) | TASLAK |
 | [docs/REKABET-HARITASI.md](docs/REKABET-HARITASI.md) | Komşu-proje/bitiriklik haritası (kaynaklı) | Tarama |
 | [docs/AJAN-EKONOMISI-ARASTIRMA-2026-09-05.md](docs/AJAN-EKONOMISI-ARASTIRMA-2026-09-05.md) | Ajan-ekonomisi akademik tarama (5 bulgu) | Tarama |
 | [docs/KURUCU-KARARLARI.md](docs/KURUCU-KARARLARI.md) | Alınmış kararlar + gerekçeleri | Karar defteri |

@@ -61,7 +61,7 @@ Sıra bozulursa proje 2021-kalıbına düşer (karar-defteri K1'de elenmişti).
 
 - [x] Kripto-çekirdek: 16-kontrol yeşil + 10-denetim + adversarial kanıtlar
 - [x] Ekonomi-modeli: eşik + bölüşüm + tutarlılık + kapılar (I1–I6)
-- [ ] Hizmet-paketinin satılabilir hali (şablon+fiyat+söz-örneği) — SIRADAKİ İŞ
-- [ ] İlk ücretli design-partner (talep-kanıtı) — ölümcül boşluk
+- [x] Hizmet-paketinin satılabilir hali (HIZMET-PAKETI-GOC.md: kapsam+fiyat+söz-iskeleti)
+- [ ] İlk ücretli design-partner (talep-kanıtı) — ölümcül boşluk; şablon hazır, temas KURUCU kuyruğunda
 - [ ] Gerçek-ağ ölçümleri (geçerli-iş oranı, Gini, node-P(cover)) — Faz 3
 - [ ] Token: eşik-teyidi + hukuk-görüşü — Faz 4

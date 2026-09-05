@@ -50,3 +50,22 @@
 - **Karar 1:** Token tasarımı Faz 4'e ertelendi. *Neden:* talep kanıtı olmadan token, ölü bir token'dır; hukuki risk (menkul kıymet) tetikleyici şartına bağlandı. *Elenen alternatif:* hemen token + node lisansı satışı (2021 kalıbı; gelirsiz ağ ölür ve tarafsızlık ilkesi baştan ihlal edilir).
 - **Karar 2:** Ödeme aracı olarak kendi token yerine hazır stablecoin/standart önceliği. *Neden:* velocity problemi + kullanıcı güveni.
 - **Karar 3:** Sigorta kasası tasarımı §1-5 birim testine tabidir; testten geçmeyen kasa tasarımı tabloya girmez.
+
+## 7. Görüşme Notu — Satoshi Dersi ve Otonomite Merdiveni (2026-09-05, kurucu görüşmesi)
+
+Kurucu sorusu: "Bitcoin yayımlanırken bunu düşündü mü? Token'e çevireceksek organik
+beklemek gerekmez mi? Otonom sistem mümkün mü?"
+
+- **Satoshi dersi:** organik büyüme pasif bekleme değildi — çalışan ürün + protokole
+  GÖMÜLÜ teşvik (blok ödülü) + hazır topluluk + ~2 yıl aktif çalışma; çekilme son
+  hamleydi. Tamga uygulaması: push (çalışan ürün) → §3 simülasyonu (teşvik sayısı) →
+  ERC-8004/x402 ekosistemi (hazır topluluk) → aktif katkı dönemi.
+- **Token yolu:** "önce sat, sonra ağ" kalıbı (Karar 1'de elenmişti) değil,
+  **Bitcoin kalıbı**: token ilan edilmez; kanıtlanmış iş yapan düğüm/ajan ağın
+  yerleşim birimini KAZANIR. Tetik: §3 Go/No-Go eşiği (node geliri ≥ node maliyeti).
+  O güne dek token anlatısı YOK (§4 anlatı disiplini: geliştirici anlatısı önce).
+- **Otonomite merdiveni (yeni, WHITEPAPER'a işlenecek):** (1) sahiplik — kanıtlı;
+  (2) dürüst iş (makbuz+replay+cosign) — kanıtlı; (3) cüzdan (gerçek ödeme) — Faz 3;
+  (4) pazar (ajan-ajan ekonomi) — Faz 3/4. İnsan-önemsiz hedef: insanlar başlatır,
+  kural seti (kimlik+kanıt+ücret) devamı taşır. Bilinçli teknik boşluk: v0 ajanı
+  girdi almıyor — "satılabilir iş" yeteneği Faz 2/3 kapsamıdır.

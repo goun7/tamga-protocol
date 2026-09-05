@@ -11,7 +11,7 @@ Değişmezler:
   I6: node-payı 70% ile eşik, §3.1 tam-ücret eşiğinden BÜYÜK — dürüst düzeltme
       (bölüşüm gizli maliyettir; §3.1 sayıları node-perspektifinden revize edilir)
 """
-import json, math, pathlib, random, sys, time
+import json, os, math, pathlib, random, sys, time
 
 # --- ÇAPALAR (dürüst etiketler) ---
 FEE = 0.15                     # $/doğrulanabilir-iş (varsayım; x402 bandına hizalı)
@@ -95,7 +95,7 @@ def main():
 
     text = json.dumps(out, ensure_ascii=False, indent=1)
     print(text[:1200])
-    d = pathlib.Path("kanit/TOKENOMI/2026-09-05"); d.mkdir(parents=True, exist_ok=True)
+    d = pathlib.Path(os.environ.get("TAMGA_EVIDENCE_DIR", ".evidence")) / "TOKENOMI" / time.strftime("%F"); d.mkdir(parents=True, exist_ok=True)
     (d / "ekonomi-sim.json").write_text(text, encoding="utf-8")
     with open(d / "ekonomi-sim.log", "a", encoding="utf-8") as f:
         f.write(f"# §3.2 ekonomi-sim — {out['tarih']}\n{out['esik_okuma']}\n"

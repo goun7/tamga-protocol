@@ -11,9 +11,9 @@ Değişmezler (§1 birim testleri — negatif-probe'lar script içinde):
   I2: sigorta-kasasına dahili akış yalnız gerçek-ücret kesintisi; dış-akış RED (§1-5)
   I3: cpu-tabanlı fiyatlamada eşik 'doğrulanabilir-iş' tabanından ~30× yüksektir (tez)
 
-Kanıt: kanit/TOKENOMI/2026-09-05/birim-ekonomi-sim.log (+ .json)
+Evidence: .evidence/TOKENOMI/<date>/birim-ekonomi-sim.log (+ .json)
 """
-import json, pathlib, statistics, sys, time
+import json, os, pathlib, statistics, sys, time
 
 # --- ÇAPALAR ---
 X402_TX = (0.20, 0.30)            # canlı-çekim çapa (TOKENOMICS §3; ~%50 test-trafiği dürüst-notu)
@@ -110,7 +110,7 @@ def main():
 
     text = json.dumps(out, ensure_ascii=False, indent=1)
     print(text[:1500])
-    d = pathlib.Path("kanit/TOKENOMI/2026-09-05")
+    d = pathlib.Path(os.environ.get("TAMGA_EVIDENCE_DIR", ".evidence")) / "TOKENOMI" / time.strftime("%F")
     d.mkdir(parents=True, exist_ok=True)
     (d / "birim-ekonomi-sim.json").write_text(text, encoding="utf-8")
     with open(d / "birim-ekonomi-sim.log", "a", encoding="utf-8") as f:

@@ -125,3 +125,46 @@ Yöntem: tests/audit8_node_cosign.py (runner'ın kendi primitifleriyle adversari
 açık uç politika kararıdır (L1 pilot'ta default mu — OQ-1, kurucu onayı: RFC-003 §8 D8).
 **Tasarım dersi:** zincir-hash formatı değişmedi (D4 bozulmadı); node_id hash-girdisinde,
 node_sig imza-katmanında — iki katman birbirinin atlatmasını kapatıyor.
+
+## Audit-9 — 2026-09-05 (bağımsız taze-göz denetimi: alt-agent, salt-okunur)
+
+Yöntem: Dilim-10 ağacında (HEAD 9e17d30 doğrulamalı) BAĞIMSIZ bir denetim ajanı
+(parent konuşmasından izole, salt-okunur araçlarla) doc↔kod drift + güvenlik +
+kanıt-tutarlılığı taraması yaptı: **20 bulgu — 10 ORTA, 7 DÜŞÜK, 3 NOT.** Tüm bulgular
+tek commit'te (d76fe01) işlendi; her bulgunun kararı aşağıda. Bu turun metodolojik
+önemi: bulguların çoğu Dilim-10'un DOKUNMADIĞI yüzeylerden çıktı — yani denetim
+"son dilimin denetimi" ile "bütün ağacın taze-göz denetimi"nin farklı şeyler olduğunu
+gösterdi (acımasız-ölçüt uyumlu).
+
+| # | Seviye | Bulgu | Karar |
+|---|---|---|---|
+| B1 | ORTA | README RFC-001 linki kırık dosyaya gider | ✅ DÜZELTİLDİ (gerçek dosya + şema linki) |
+| B2 | ORTA | bench import'u erken-RED yolu ölçüyordu (72ms artefakt) — ROADMAP Faz-2 ölçütü geçersiz tabanlı | ✅ DÜZELTİLDİ (fixture önce; taban v2: import=421ms; hatalı v1 git geçmişinde arşivli) |
+| B3 | ORTA | 32-bayt-dışı seed: ajan koşar, ücret yazar, SONRA traceback (JSON sözleşmesi kırılır) | ✅ DÜZELTİLDİ (RED 6, koşum yok; export yanı da) |
+| B4 | ORTA | kırık YEREL zincirde import ACCEPT — tip kontrolü atlanır, doğrulanmamış tip state'e yazılır | ✅ DÜZELTİLDİ (RED 14 "yerel zincir kırık@N") |
+| B5 | ORTA | io limiti koşum SONRASI: ajan 60 sn diski doldurabilir | ✅ DÜZELTİLDİ (RLIMIT_FSIZE preexec; E-12 kaydı) |
+| B6 | ORTA | "0600" iddiaları yazma-sonrası chmod (node_seed.hex crash-penceresi) | ✅ DÜZELTİLDİ (atomik os.open O_CREAT 0600; 7 site) |
+| B7 | ORTA | pkg↔ajan sahiplik bağı yok: başka ajanın snapshot'ı state'i ezebilir | ✅ DÜZELTİLDİ (state'e agent_id + **reason 18** iki yönde; geriye-uyum: ilk koşumda bağlanır; E-12) |
+| B8 | ORTA | RFC-003 hash formülü kendi içinde ve kodla çelişiyor (prev/jcs) | ✅ DÜZELTİLDİ (D4/§3/§7 koda sabitlendi) |
+| B9 | ORTA | hayalet reason 15/16 (kod hiç üretmiyor; 16 gerçekte reason 10) | ✅ DÜRÜST NOTLANDI (rezerv işaretlendi; kod-bilinçli-değişmedi: kurucu hizalama kararı) |
+| B10 | ORTA | INDEX yapısı bozuk + 6 dosya indekssiz (son yeşil tur dahil) | ✅ DÜZELTİLDİ (add-only: işaretçi bölümü + eksik satırlar) |
+| B11 | DÜŞÜK | export/ledger/cosign-bayrak traceback yolları (JSON sözleşmesi) | ✅ DÜZELTİLDİ (JSON RED'e çevrildi) |
+| B12 | DÜŞÜK | RFC-002 §3 CLI bayat (import 2. arg, export --seed, run snapshot) | ✅ E-12 errata |
+| B13 | DÜŞÜK | DESIGN cosign §3 döngüsel ifade ("node_sig hash'e girer") | ✅ DÜZELTİLDİ (hash DIŞINDA — kod zaten doğruydu) |
+| B14 | DÜŞÜK | L1 yerel zincire uygulanmıyor | ✅ KAPSAM NOTLANDI (gömülü-zincir scope'u belgelendi; tam-L1 Faz 2) |
+| B15 | DÜŞÜK | tc-n3 izolesiz (tc-n2 kalıntısında) | ✅ DÜZELTİLDİ (izole zincir; 6/6 yeniden kanıtlandı) |
+| B16 | DÜŞÜK | RUN_SLOW gitignored fixture'a bağlı (taze klonde kırılır) | ✅ ÖNKOŞUL KAPISI ([SKIP] + mesaj) |
+| B17 | DÜŞÜK | INDEX "14/14" iddiası log'la çelişiyor (gerçek 15/15) | ✅ ADD-ONLY DÜZELTME satırı |
+| B18 | NOT | rehber "14/17 AT-001f testli" yanlış atıf | ✅ DÜZELTİLDİ (gerçek kaynaklar yazıldı) |
+| B19 | NOT | "POSIX çıkış-semantiği" etiketi (PIPESTATUS bash'e özgü) | ✅ ETİKET DÜZELTİLDİ |
+| B20 | NOT | ölü dosya + cwd-bağımlı validator çağrısı + audit betikleri hep exit 0 | ✅ DÜZELTİLDİ (üçü de) |
+
+**Sonuç ve dürüst notlar:** (i) B9 ve B14'te KOD bilinçli değişmedi — ikisi de kurucu
+kararı gerektiren tasarım-sınırıdır (rezerv/etiket notu dürüst kayıt yöntemidir;
+sessiz "düzeltme" YAPILMADI). (ii) B2'de hatalı ölçüm sürümü silinmedi — git geçmişinde
+arşivli; kanıt-kültürü hata yapmayı da kaydeder. (iii) Denetim ajanının "temiz" listesi
+de kayıttadır: komut örnekleri birebir, kontrol sayıları gerçek, AT-001f vektör mantığı
+hedef yolları gerçekten tetikliyor, kanıt dürüstlüğü (OQ-5 öz-düzeltmesi, kırmızı arşiv)
+örnek niteliğinde, belgeli sınırlar yeniden sayılmadı. **F-serisi güncelleme: F25
+"L1 pilot ile mekanizma-kapalı (politika OQ-1'de)"; bulgu sayısı 25 kalır (B1-B20 F-serisi
+dışı bağımsız-denetim numaralandırmasıdır).**

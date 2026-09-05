@@ -1,0 +1,5 @@
+# MERGEN gerçek-şema aktarımı kanıtı — 2026-09-05T10:25:44+03:00
+kaynak: mergen_memory/projects/arkhon.db (536 memories) — SALT-OKUNUR (hash öncesi=sonrası: d1b547ffae0ee65a79fd1e12b1456a998a49abf561c5b65688fb4ded3cb3058f)
+çıktı: /tmp/mergen-arkhon-tamga.json (repo DIŞI; sha256 60418cd20c9af0fcea9f7d62566d82731d9f265570b31d283ea2bf127ea3d550)
+zincir: import(536 ders, 0 çakışma beklenir) → şifreli export → boş node taşıma → hedefte arama PASS
+gizlilik: logda İÇERİK yok, yalnız sayı+hash; gerçek veri repo'ya girmiyor (gitignore: mergen*.db, cikti-mergen.json)

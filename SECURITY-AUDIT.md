@@ -168,3 +168,19 @@ hedef yolları gerçekten tetikliyor, kanıt dürüstlüğü (OQ-5 öz-düzeltme
 örnek niteliğinde, belgeli sınırlar yeniden sayılmadı. **F-serisi güncelleme: F25
 "L1 pilot ile mekanizma-kapalı (politika OQ-1'de)"; bulgu sayısı 25 kalır (B1-B20 F-serisi
 dışı bağımsız-denetim numaralandırmasıdır).**
+
+## Audit-10 — 2026-09-05 (Faz-2 L2: MERGEN gerçek-şema aktarımı + aktarıcı güvenliği)
+
+Yöntem: gerçek MERGEN DB'si (arkhon.db, 536 memories) SALT-OKUNUR okuma; kanıt-log
+yalnız sayı+hash (içerik repo'ya girmiyor). Kanıt: kanit/ADAPTER/2026-09-05/.
+
+| # | Kontrol | Sonuç |
+|---|---|---|
+| — | kaynak-DB hash öncesi=sonrası | salt-okunur garantili ✓ |
+| — | SQL identifier enjeksiyonu (generic mode) | regex doğrulama + PRAGMA query_only eklendi (sertleştirildi) |
+| — | id-uzayı çakışması (MERGEN m1.. ↔ Tamga probe m1..5) | 900000-offset ad-uzayı; 536/536 import, 0 kayıp ✓ |
+| — | relations → edges eşlemesi | 3639/3639 ✓ |
+| — | repo gizlilik taraması (düz-metin) | gerçek-veri izi YOK ✓ |
+| — | şifreli snapshot ↔ taşıma ↔ hedefte arama | uçtan-uca PASS ✓ |
+| — | --node-key bayrağı bozuk değer | sessiz-imzasız yerine RED 6 (sertleştirildi; a083eee ile) |
+| — | tam regresyon | 16/16 + 6/6 + 4/4 + 34/34 ✓ |

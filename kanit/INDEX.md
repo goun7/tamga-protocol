@@ -51,3 +51,5 @@
 2. Bu indekse tarih-dosya-sonuç-özet satırı eklenir.
 3. Satır silinmez/düzenlenmez; düzeltme yeni satırla yapılır.
 | 2026-09-05 | VALIDASYON/2026-09-05/schema-crossvalidation.log | ✅ 34/34 | RFC-001 şema çapraz-doğrulaması: jsonschema 2020-12 vs stdlib validator — 6 vektör + 28 mutasyon, karar-düzeyi birebir UYUM |
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-040827.log | ✅ 15/15 | hızlı tur YEŞİL — son kod değişikliği (fbf678f: ledger-verify boş-zincir) sonrası taze tam tur, load ~21, 5.8 sn |
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-040841.log | ✅ 16/16 | RUN_SLOW=1 tam tur YEŞİL — c30 wall_ms=31022 ≥ 30000 (AT-001c özü), load ~22 |

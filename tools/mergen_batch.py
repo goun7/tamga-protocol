@@ -29,8 +29,8 @@ def sh(*args, env=None, loud=False):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--projects-dir", default="/mnt/hdd/projects/MERGEN/mergen_tools/mergen_memory/projects")
-    ap.add_argument("--vault", default="/mnt/hdd/projects/algoat/tamga-vault")
+    ap.add_argument("--projects-dir", required=True, help="MERGEN project-DB dizini")
+    ap.add_argument("--vault", required=True, help="şifreli snapshot vault dizini (0700 olacaktır)")
     ap.add_argument("--only", default="", help="virgüllü ad-filtresi (isteğe bağlı)")
     ap.add_argument("--dry-run", action="store_true", help="yalnız sayım, snapshot yazma")
     a = ap.parse_args()

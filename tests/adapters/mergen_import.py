@@ -9,8 +9,8 @@ Kullanım:
   python3 tests/adapters/mergen_import.py <mergen.db> --out cikti.json [--mode generic]
   python3 tests/adapters/mergen_import.py <mergen.db> --out cikti.json [--mode mergen]
 
---mode mergen (v2, 2026-09-05): MERGEN v1.6.1 GERÇEK şeması (canlı okumayla doğrulandı:
-/mnt/hdd/projects/MERGEN/mergen_tools/mergen_memory/projects/*.db):
+--mode mergen (v2, 2026-09-05): MERGEN v1.6.1 GERÇEK şeması (canlı okumayla
+projeler-dizinindeki *.db üzerinde doğrulandı):
     memories(id, timestamp, problem, solution, tier, is_deprecated, superseded_by_id...)
     relations(source_id, target_id, relation_type)
 Eşleme: ders = problem+solution → kind:fact (superseded olanlar kind:archived);

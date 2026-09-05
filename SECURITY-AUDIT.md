@@ -171,7 +171,7 @@ dışı bağımsız-denetim numaralandırmasıdır).**
 
 ## Audit-10 — 2026-09-05 (Faz-2 L2: MERGEN gerçek-şema aktarımı + aktarıcı güvenliği)
 
-Yöntem: gerçek MERGEN DB'si (arkhon.db, 536 memories) SALT-OKUNUR okuma; kanıt-log
+Yöntem: gerçek MERGEN DB'si (kurucu-projesi; ad gizlilik-önceliğiyle kırpıldı; 536 memories) SALT-OKUNUR okuma; kanıt-log
 yalnız sayı+hash (içerik repo'ya girmiyor). Kanıt: kanit/ADAPTER/2026-09-05/.
 
 | # | Kontrol | Sonuç |

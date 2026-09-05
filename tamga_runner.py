@@ -306,6 +306,7 @@ def cmd_run(a):
     sess_no = st0.get("sessions", 0) + 1
     # Dilim-11: --input <dosya> — girdi hash'i makbuza bağlanır (replay-contract'ın girdi yarısı)
     inp_sha = None
+    _tf_name = None                  # D11 girdi-kopyası (koşum-sonu silinir — gizlilik)
     stdin_src = subprocess.DEVNULL   # F16-devamı: ajan ana stdin'i asla inherit etmez
     if "--input" in a:
         ip = pathlib.Path(a[a.index("--input") + 1])
@@ -323,6 +324,7 @@ def cmd_run(a):
         tf = tempfile.NamedTemporaryFile(delete=False)
         tf.write(inp_bytes); tf.close()
         stdin_src = open(tf.name, "rb")
+        _tf_name = tf.name
         inp_sha = _h.sha256(inp_bytes).hexdigest()
     art = pkg / f"session-{sess_no}.stdout"
     ru0 = resource.getrusage(resource.RUSAGE_CHILDREN)   # child CPU ölçüm başlangıcı
@@ -347,6 +349,8 @@ def cmd_run(a):
                 os.chmod(art, 0o600)
     except subprocess.TimeoutExpired:
         art.unlink(missing_ok=True)
+        if _tf_name:
+            pathlib.Path(_tf_name).unlink(missing_ok=True)   # D11: girdi-kopyası; koşum-sonu silme
         return out(False, op="run", reason_code=11,
                    reason=f"runtime_limit: cpu_ms_per_run={limits['cpu_ms_per_run']}")
     dt_ms = max(1, int((time.monotonic() - t0) * 1000))
@@ -356,6 +360,7 @@ def cmd_run(a):
     if isinstance(stdin_src, object) and stdin_src is not subprocess.DEVNULL:
         try: stdin_src.close()
         except Exception: pass
+        pathlib.Path(_tf_name).unlink(missing_ok=True)      # D11 girdi-kopyası: koşum-sonu silme (gizlilik)
     if proc.returncode != 0:
         tail = art.read_text(encoding="utf-8", errors="replace")[-200:].replace("\n", " ") if art.exists() else ""
         art.unlink(missing_ok=True)

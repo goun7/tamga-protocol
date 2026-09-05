@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   test:
-    name: Kabul-testi takımı (16 kontrol)
+    name: Kabul-testi takımı (17 kontrol)
     runs-on: ubuntu-latest
     env:
       # simnet fixture parolası — kamuya açık test-sabitidir, gerçek sır değildir

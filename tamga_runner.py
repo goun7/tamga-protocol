@@ -19,6 +19,15 @@ import tamga_validator as tv
 MAGIC = b"TSG1"
 SAFE_SNAP_MAX = 64 * 1024 * 1024          # Audit-1 F1
 MAX_NOTE_BYTES = 65536                    # Audit-2 F12
+MAX_INPUT_BYTES = 1 << 20                 # Dilim-11: girdi ≤ 1MiB (hash'i makbuza bağlanır)
+
+def _fnv1a64(b):
+    """FNV-1a 64-bit — tests/agent-src/src/main.rs ile birebir aynı (Dilim-11)."""
+    h = 0xcbf29ce484222325
+    for x in b:
+        h ^= x
+        h = (h * 0x100000001b3) & 0xFFFFFFFFFFFFFFFF
+    return h
 MAX_NODES = 10000                         # Audit-2 F13
 FEE_MEDIAN_N = 5                          # OQ-8: pilot ortanca-pencere (kurucu kararı 2026-09-05)
 # Dilim-4 (E-6): RFC-002 formülüne birebir — ucret = cpu_saat*fiyat + ram_gb_sn*fiyat + io*fiyat
@@ -295,6 +304,26 @@ def cmd_run(a):
                    reason=f"agent_ownership_mismatch: state {owner[:16]}… ajanının; "
                           f"verilen seed {agent_id[:16]}… üretiyor (R7): taşıma için export/import kullanın")
     sess_no = st0.get("sessions", 0) + 1
+    # Dilim-11: --input <dosya> — girdi hash'i makbuza bağlanır (replay-contract'ın girdi yarısı)
+    inp_sha = None
+    stdin_src = subprocess.DEVNULL   # F16-devamı: ajan ana stdin'i asla inherit etmez
+    if "--input" in a:
+        ip = pathlib.Path(a[a.index("--input") + 1])
+        try:
+            if not ip.is_file():
+                return out(False, op="run", reason_code=10,
+                           reason=f"input_invalid: dosya yok: {ip}")
+            if ip.stat().st_size > MAX_INPUT_BYTES:
+                return out(False, op="run", reason_code=10,
+                           reason=f"input_invalid: > {MAX_INPUT_BYTES}B (D11 sınırı)")
+            inp_bytes = ip.read_bytes()
+        except OSError as e:
+            return out(False, op="run", reason_code=10, reason=f"input_invalid: {e}")
+        import tempfile, hashlib as _h
+        tf = tempfile.NamedTemporaryFile(delete=False)
+        tf.write(inp_bytes); tf.close()
+        stdin_src = open(tf.name, "rb")
+        inp_sha = _h.sha256(inp_bytes).hexdigest()
     art = pkg / f"session-{sess_no}.stdout"
     ru0 = resource.getrusage(resource.RUSAGE_CHILDREN)   # child CPU ölçüm başlangıcı
     t0 = time.monotonic()
@@ -307,6 +336,7 @@ def cmd_run(a):
         try:
             with os.fdopen(fd, "wb") as af:
                 proc = subprocess.run([WASMTIME, "run", str(pkg / "agent.wasm")],
+                                      stdin=stdin_src,
                                       stdout=af, stderr=subprocess.STDOUT,
                                       timeout=limits["cpu_ms_per_run"] / 1000,
                                       env={},   # Audit-3 F16: host env motor sürecine sızmaz
@@ -323,11 +353,29 @@ def cmd_run(a):
     ru1 = resource.getrusage(resource.RUSAGE_CHILDREN)
     cpu_s = max(0.001, (ru1.ru_utime + ru1.ru_stime) - (ru0.ru_utime + ru0.ru_stime))
     ram_mb = max(0.0, ru1.ru_maxrss / 1024)   # dürüst not: maxrss çocuklar arası MAX'tır; simnet'te tek child baskındır
+    if isinstance(stdin_src, object) and stdin_src is not subprocess.DEVNULL:
+        try: stdin_src.close()
+        except Exception: pass
     if proc.returncode != 0:
         tail = art.read_text(encoding="utf-8", errors="replace")[-200:].replace("\n", " ") if art.exists() else ""
         art.unlink(missing_ok=True)
         return out(False, op="run", reason_code=12,
                    reason=f"agent_run_failed: rc={proc.returncode}: {tail}")
+    # Dilim-11: --require-proof — ajan stdout'un SON satırında "TAMGA:<fnv1a64>" kanıtı
+    # verir; runner kalan baytların parmakizini yeniden hesaplar, uyuşmazsa RED 12.
+    if "--require-proof" in a:
+        raw = art.read_bytes()
+        try:
+            head, tag = raw.rsplit(b"TAMGA:", 1)
+            tag = tag.rstrip(b"\n")
+            if len(tag) != 16 or any(c not in b"0123456789abcdef" for c in tag):
+                raise ValueError
+            if _fnv1a64(head) != int(tag, 16):
+                raise ValueError
+        except ValueError:
+            art.unlink(missing_ok=True)
+            return out(False, op="run", reason_code=12,
+                       reason="output_proof_mismatch: TAMGA satırı başlıktaki baytlara uymuyor")
     io_bytes = art.stat().st_size
     if io_bytes > limits["io_mb_per_run"] * (1 << 20):
         art.unlink(missing_ok=True)
@@ -393,6 +441,7 @@ def cmd_run(a):
                         "cpu_saat": cpu_saat, "ram_gb_sn": ram_gb_sn, "io_mb": io_mb,
                         "wall_ms": dt_ms, "fee_birebir": fee,
                         "stdout_sha256": hashlib.sha256(art.read_bytes()).hexdigest(),
+                        **({"input_sha256": inp_sha} if inp_sha else {}),
                         "fee_sim": round(median_fee, 9)},
                         node_key=node_key)   # Dilim-5 + node-cosign (opt-in) + OQ-8 medyan
     st["format"] = "tamga-state/1"

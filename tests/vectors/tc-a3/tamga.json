@@ -4,7 +4,7 @@
     "name": "tamga-ornek-ajani",
     "version": "0.1.0",
     "code": {
-      "wasm_sha256": "1ce61ad0fe7b08698a2c3567b99f26ddb3c0812a01edadb5941294bfcfc7d671",
+      "wasm_sha256": "6129007a280fcee3845532d38e4be3ecf9fddb03809c35a335e0b1b9c2b142a5",
       "hash_algo": "sha256",
       "target": "wasi-0.3/component"
     }
@@ -32,8 +32,8 @@
   },
   "signature": {
     "algo": "ed25519",
-    "key": "3673ffa5a3924ff80698dea8957266400a32e35e9b8fb89a144d8ff59801819c",
-    "sig": "76adbf42d92bdee72eae3ca1fcc256d456fef7ba8c59cd8723cba86daee37fcc4c49ff79bdf243b5c5daf2caeb6ed3a57dd58def697dd402f974a535ca2c8a05"
+    "key": "8f6e44601df69d0c4908bd1134e41c5e3304749c6cdd84593fb26512e9fb6ceb",
+    "sig": "06660f1c6ac91fee8444404d80e650443fb774ea00327141cada00f169cefca0bba3299055860250e198d575830161505a06567f4c9e3e533fed2e7ed9053400"
   },
   "admin_backdoor": true
 }

@@ -36,6 +36,21 @@ bekle_red() { kontrol "$@"; }  # RED-kanıt grepleri (grep -q'ya bağlı) için 
 
   python3 tamga_runner.py grant "$SB/pkg" 0.01 "takim-hibe" | grep -q '"seq": 1'; kontrol $? "grant seq-1 zincire girdi"
   python3 tamga_runner.py run "$SB/pkg" --seed "$SEED" --note "takim-notu" | grep -q '"ok": true'; kontrol $? "koşum ok"
+
+  echo "--- Dilim-11: girdi-bağlama (D11) — input_sha256 makbuzda + deterministik replay"
+  printf '{"islem":"d11","v":1}' > "$SB/pkg/in.json"
+  python3 tamga_runner.py run "$SB/pkg" --seed "$SEED" --input "$SB/pkg/in.json" --require-proof --note d11a > /dev/null
+  python3 tamga_runner.py run "$SB/pkg" --seed "$SEED" --input "$SB/pkg/in.json" --require-proof --note d11b > /dev/null
+  python3 - "$SB/pkg/ledger.jsonl" <<'PY'
+import sys, json, hashlib
+ch = [json.loads(l) for l in open(sys.argv[1]) if l.strip() and json.loads(l).get("op") == "charge"]
+bek = hashlib.sha256(open(sys.argv[1].rsplit("/", 1)[0] + "/in.json", "rb").read()).hexdigest()
+girdili = [r for r in ch if r.get("input_sha256")]
+assert len(girdili) >= 2, "girdili makbuz yok"
+assert all(r["input_sha256"] == bek for r in girdili), "input_sha256 uyuşmaz"
+assert girdili[-1]["stdout_sha256"] == girdili[-2]["stdout_sha256"], "replay kırıldı"
+PY
+  kontrol $? "D11: girdi-hash makbuzda + aynı-girdi→aynı-çıktı"
   python3 tamga_runner.py ledger-verify "$SB/pkg" | grep -q '"ok": true'; kontrol $? "zincir ucuca doğru"
 
   echo "--- F21: truncate → import RED (reason 14)"

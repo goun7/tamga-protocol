@@ -3,7 +3,7 @@
 <img src="docs/assets/banner.svg" width="660" alt="Tamga Protocol — taşınabilir kimlik, şifreli hafıza, doğrulanabilir iş-makbuzu"/>
 
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-16%2F16%20PASS-brightgreen)](#tek-komut-regresyon)
+[![Tests](https://img.shields.io/badge/tests-17%2F17%20PASS-brightgreen)](#tek-komut-regresyon)
 [![Security Audits](https://img.shields.io/badge/audits-10%20turs-blue)](SECURITY-AUDIT.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Faz%202%20--%20pilot-orange)](ROADMAP.md)
@@ -67,8 +67,9 @@ flowchart LR
   RED (Audit-4/7/8 adversarial kanıtlarıyla)
 - 🪪 **Kimlik sahiplenilir** — node-cosign L1: sunucular iş-kayıtlarına kendi sertifikasını
   basar; iptal listesi devreden-çıkanı da geçersiz kılar
-- 🔁 **Determinizm zemini** — aynı wasm+girdi → birebir aynı çıktı-parmakizi
-  (stake'li yeniden-koşum doğrulamasının ön-şartı)
+- 🔁 **Determinizm zemini** — aynı wasm+girdi → birebir aynı çıktı-parmakizi;
+  **Dilim-11:** girdili iş kanıtı (`--input` → `input_sha256` makbuzda; aynı girdi
+  × N koşum → aynı çıktı, CI-kanıtlı) — stake'li yeniden-koşumun ön-şartı
 - 🚫 **Bağlantısız & default-deny** — koşum motoru ağ-yok, fs-yok, env-yok; wasmtime v48,
   ratifiye WASI 0.3.0
 
@@ -85,7 +86,7 @@ Açık bulgular [SECURITY-AUDIT.md](SECURITY-AUDIT.md)'de yaşar: **10 denetim t
 
 ```bash
 git clone <repo> && cd tamga-protocol
-bash tests/run_all.sh          # 16/16 kontrol — ~6 sn
+bash tests/run_all.sh          # 17/17 kontrol — ~6 sn
 
 # ilk ajanın:
 python3 tamga_validator.py keygen tests/keys/alici
@@ -93,6 +94,7 @@ python3 tamga_validator.py sign  <pkg>/tamga.json <pkg>/agent.wasm tests/keys/al
 python3 tamga_runner.py keygen                              # ajan kimliği (yalnız stdout)
 export TAMGA_KS_PASSPHRASE="..."
 python3 tamga_runner.py run    <pkg> --seed <hex> --note "not"
+python3 tamga_runner.py run    <pkg> --seed <hex> --input is.json --require-proof  # girdili iş: input_sha256 makbuza bağlanır
 python3 tamga_runner.py export <pkg> -o snapshot.tsg --seed <hex>
 # import için hedef pkg önceden kurulmalı: tamga.json + agent.wasm (kod ayrı seyahat eder)
 python3 tamga_runner.py import snapshot.tsg <yeni-pkg>
@@ -124,7 +126,7 @@ Tek komutla doğrula: `bash tests/run_all.sh` → 16/16.
 | [RFC-004](RFC-004-context-graph.md) | Bağlam grafiği ve snapshot sözleşmesi | TASLAK — kurucu onaylı kararlar işlendi |
 | [SECURITY-AUDIT.md](SECURITY-AUDIT.md) | Audit-1…10 — 25 F-bulgu + bağımsız taze-göz turu | Yaşayan belge |
 | [AGENT-REHBERI.md](AGENT-REHBERI.md) | Ajan geliştirici rehberi (ilk 5 dakika → taşıma) | v0 |
-| [ACCEPTANCE-TESTS.md](ACCEPTANCE-TESTS.md) | AT-001/003 ailesi + tek-komut takım tanımı | 16 kontrol |
+| [ACCEPTANCE-TESTS.md](ACCEPTANCE-TESTS.md) | AT-001/003/004 ailesi + tek-komut takım tanımı | 17 kontrol |
 | [ROADMAP.md](ROADMAP.md) | Aşama-kapılı plan + çıkış ölçütleri | Yaşayan belge |
 | [docs/ERC-8004-ESLEME.md](docs/ERC-8004-ESLEME.md) | Standart eşleme + sektör genişleme değerlendirmesi | Tasarım notu |
 | [docs/PILOT-MUSTERI-STRATEJISI.md](docs/PILOT-MUSTERI-STRATEJISI.md) | Ajan-müşteri GTM (huni + ilk 30 gün) | Strateji |

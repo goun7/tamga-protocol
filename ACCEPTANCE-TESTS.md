@@ -50,7 +50,7 @@ Ajan paketi: minimal bağlam grafiği (≥3 düğüm) + manifest + WASM kodu.
   aynı snapshot'ın yeniden import'u rollback sayılır → RED (replay/geri-sarma engeli).
 - **Kanıt:** `bash tests/negative_snapshots.sh` → `kanit/AT-001/<tarih>/AT-001f-vektorler.log`
   (4 kontrol: 3 RED beklentisi + s8 önkoşulu ACCEPT). Takıma entegre: run_all.sh
-  AT-001f bölümü (tek toplu kontrol, 16 kontrol toplam).
+  AT-001f bölümü (tek toplu kontrol, 17 kontrol toplam).
 
 ### AT-003 — Node-Cosign Vektörleri (2026-09-05, Dilim-10)
 - **Kapsam:** F25 çözümünün (gömülü zincir node-sertifikasyonu) reddetme davranışı —
@@ -65,7 +65,7 @@ Ajan paketi: minimal bağlam grafiği (≥3 düğüm) + manifest + WASM kodu.
 - **Kanıt:** `bash tests/negative_cosign.sh` → `kanit/AT-003/<tarih>/AT-003-cosign.log`
   (6/6) + Audit-8 adversarial (kanit/GUVENLIK/2026-09-05/audit-8.log: A1 güçlü düşman
   L1 RED / L0 bilinen-kalıntı OQ-1'de; A2 imza-katmanı RED; A3 kısmi-cosign RED).
-  Takıma entegre: run_all.sh AT-003 bölümü (16 kontrol).
+  Takıma entegre: run_all.sh AT-003 bölümü (17 kontrol).
 
 ## Kabul Kriterleri
 
@@ -81,7 +81,7 @@ Ajan paketi: minimal bağlam grafiği (≥3 düğüm) + manifest + WASM kodu.
 
 ## Tek-Komut Takım (2026-09-05 gerçeklemesi)
 
-`tests/run_all.sh` — 16 kontrol, idempotent sandbox, POSIX çıkış-semantiği,
+`tests/run_all.sh` — 17 kontrol, idempotent sandbox, POSIX çıkış-semantiği,
 PIPESTATUS boru-koruma. Bölümler: AT-001a (6 vektör) · AT-001f (3 negatif vektör,
 toplu) · grant/koşum/zincir-ucu · F21 truncate (14) · merkle kurcalama (17) ·
 göç+gömülü zincir (F24 kapanışı) · AT-001d özü (düz-metin taraması) ·
@@ -90,3 +90,20 @@ RUN_SLOW=1: c30 wall-ölçümü (AT-001c özü). Kanıt: kanit/REGRESYON/.
 ## Kanıt Kayıt Formatı
 
 `kanit/AT-001/<tarih>/<test-id>.log` — timestamp + komut + çıktı. Faz kapısı (ROADMAP Faz 1) bu dosyaların varlığına bakar.
+
+
+## AT-004 — Girdi-bağlama (Dilim-11, 2026-09-05)
+
+**Amaç:** ajan-işine girdi girebilsin; girdi makbuza kriptografik bağlansın (Tur-4 telafi-2).
+
+| # | Kontrol | Kanıt |
+|---|---|---|
+| 1 | `--input is.json --require-proof` → makbuzda `input_sha256` = sha256(kaynak-dosya) | run_all D11 bölümü |
+| 2 | Aynı girdi ×2 koşum → birebir aynı `stdout_sha256` (deterministik replay) | run_all D11 bölümü |
+| 3 | Farklı girdi → farklı `stdout_sha256` (ayırt-edicilik) | e2e batarya kanit/ |
+| 4 | `--input > 1MiB` → RED reason-10 `input_invalid` (koşum/ücret yazılmadan) | e2e batarya |
+| 5 | `--require-proof` + bozuk `TAMGA:` satırı → RED 12 `output_proof_mismatch` | runner D11; FNV çift-gerçekleme (rust↔python) uyumlu |
+
+**Sözleşme (RFC-003 D9):** ajan stdout'un son satırı `TAMGA:<fnv1a64(stdout[:-len])]`; runner
+koşum-anında doğrular. `input_sha256` yalnız `--input` verildiğinde makbuza girer.
+**Ajan tarafı:** `tests/agent-src/src/main.rs` (stdin okur; FNV-1a 64 parmakizi).

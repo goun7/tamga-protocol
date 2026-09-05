@@ -6,6 +6,23 @@
 set -u
 cd "$(dirname "$0")/.."
 export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
+# usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+  cat <<'USG'
+tests/run_all.sh — Tamga Protocol acceptance suite (18 controls; 19 with RUN_SLOW=1)
+
+usage: bash tests/run_all.sh            # fast suite (~10 s)
+       RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
+       bash tests/run_all.sh --help     # this text
+
+env:
+  TAMGA_KS_PASSPHRASE   keystore passphrase (public simnet constant: simnet-2026)
+  TAMGA_EVIDENCE_DIR    evidence output dir (default .evidence)
+
+prerequisites: bash tests/setup.sh (pinned wasmtime), pip install -r requirements.txt
+USG
+  exit 0
+fi
 LOG="${TAMGA_EVIDENCE_DIR:-.evidence}/REGRESYON/$(date +%F)/run_all-$(date +%H%M%S).log"
 mkdir -p "$(dirname "$LOG")"
 SB="tests/simnet/.sandbox"

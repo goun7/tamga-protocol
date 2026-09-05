@@ -116,3 +116,5 @@ yeni satırlar hem eksik dosyaları kapsar hem yönü netleştirir.*
 | 2026-09-05 | VALIDASYON/2026-09-05/schema-crossvalidation.log (ek) | ✅ 34/34 | final turda yeniden koşuldu |
 | 2026-09-05 | GUVENLIK/2026-09-05/audit-8.log (ek) | ✅ 3/3 | A1/A2/A3 'beklendi' · exit 0 (B20 düzeltmesi sonrası) |
 | 2026-09-05 | (izin-kanıtı) | ✅ | taze koşumda state.json / ledger.jsonl / session-1.stdout = 600 (atomik B6 doğrulandı) |
+
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-104246.log | ❌ 13/16 | host load 39-44 (batch-aktarım + paralel oturumlar): koşum wall-limit reason-11 (3 FAIL tek kökten — E-9c; kod regresyonu DEĞİL: AT-003/negatif-vektörler/crossval yeşildi, aynı saatte 095918'de 16/16) |

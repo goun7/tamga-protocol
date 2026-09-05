@@ -3,3 +3,13 @@ kaynak: mergen_memory/projects/arkhon.db (536 memories) — SALT-OKUNUR (hash ö
 çıktı: /tmp/mergen-arkhon-tamga.json (repo DIŞI; sha256 60418cd20c9af0fcea9f7d62566d82731d9f265570b31d283ea2bf127ea3d550)
 zincir: import(536 ders, 0 çakışma beklenir) → şifreli export → boş node taşıma → hedefte arama PASS
 gizlilik: logda İÇERİK yok, yalnız sayı+hash; gerçek veri repo'ya girmiyor (gitignore: mergen*.db, cikti-mergen.json)
+
+## Toplu aktarım v3 (tools/mergen_batch.py, 2026-09-05 10:42)
+
+- 24/24 project-DB → OK, 0 FAIL, 0 SKIP; toplam **900 ders + 7214 kenar**
+- vault: /mnt/hdd/projects/algoat/tamga-vault (0700; ANAHTAR 0600 token_urlsafe)
+- ara-JSON'lar /dev/shm (tmpfs=RAM) — düz-metin diske İNMEDİ; WORK sonunda silindi
+- her snapshot: ledger-verify ok + boş-node import doğrulaması (loud mode: sessiz-fail yok)
+- gizlilik: özette proje-adları 4-harf kırpık; logda İÇERİK yok (yalnız sayı)
+- araç-sertleştirmesi: runner çağrı adı hatası + sessiz-fail → loud RuntimeError (kanıt: yukarıdaki 3 düzeltme turu)
+- eşzamanlı regresyon 13/16 — host load 39-44 (reason-11 tek kök; E-9c kaydı INDEX'te; kod-yeşil 095918 aynı gün)

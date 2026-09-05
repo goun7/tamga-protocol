@@ -1,0 +1,30 @@
+# run_all — 2026-09-05T10:42:46+03:00
+--- AT-001a: manifest doğrulama vektörleri (1 ACCEPT + 5 RED beklenir)
+  [PASS] tc-a1 ACCEPT
+  [PASS] tc-a2 RED
+  [PASS] tc-a3 RED
+  [PASS] tc-a4 RED
+  [PASS] tc-a5 RED
+  [PASS] tc-a6 RED
+--- AT-001f: import negatif vektörleri (reason 7/9/8) — ayrıntı: kanit/AT-001/2026-09-05/AT-001f-vektorler.log
+  [PASS] tc-s7/s9/s8 negatif vektörleri (3 RED beklentisi)
+--- AT-003: node-cosign negatif vektörleri (F25 çözümü) — ayrıntı: kanit/AT-003/2026-09-05/AT-003-cosign.log
+  [PASS] tc-n1..n6 node-cosign vektörleri (L1/L0 politikası)
+--- sandbox kuruluyor (tek kullanımlık node)
+  [PASS] grant seq-1 zincire girdi
+  [FAIL] koşum ok
+  [PASS] zincir ucuca doğru
+--- F21: truncate → import RED (reason 14)
+  [FAIL] truncate sonrası import reason-14 RED
+--- merkle: state kurcala → taze pkg'ye import RED (reason 17)
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+KeyError: 'memory'
+  [FAIL] merkle kurcalama reason-17 RED
+--- göç: taze node'a taşınma + gömülü zincir (F24 kapanışı)
+  [PASS] göç ACCEPT
+  [PASS] gömülü zincir hedefte doğrulandı (F24)
+--- AT-001d özü: snapshot gövdesi şifreli (düz-metin taraması)
+  [PASS] snapshot gövdesinde 0 düz-metin sızıntı
+
+SONUÇ: 13 PASS, 3 FAIL — log: kanit/REGRESYON/2026-09-05/run_all-104246.log

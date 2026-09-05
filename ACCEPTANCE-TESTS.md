@@ -52,6 +52,21 @@ Ajan paketi: minimal bağlam grafiği (≥3 düğüm) + manifest + WASM kodu.
   (4 kontrol: 3 RED beklentisi + s8 önkoşulu ACCEPT). Takıma entegre: run_all.sh
   AT-001f bölümü (tek toplu kontrol, 16 kontrol toplam).
 
+### AT-003 — Node-Cosign Vektörleri (2026-09-05, Dilim-10)
+- **Kapsam:** F25 çözümünün (gömülü zincir node-sertifikasyonu) reddetme davranışı —
+  iki katman: `node_id` zincir-hash'inin İÇİNDE (kimlik bağlanır), `node_sig` h'yi imzalar
+  (hash-girdisi dışında — kurcalama imza kontrolünde yakalanır).
+- **tc-n1 (pozitif):** L1 + güvencili node → import ACCEPT.
+- **tc-n2:** bozuk `node_sig` → ledger-verify RED (14).
+- **tc-n3:** `node_id` takası → zincir-hash kırığı (RED; kimlik hash'te bağlı).
+- **tc-n4:** node_sig'siz zincir + L1 → RED (node_sig_eksik) — kademeli düşürme kapalı.
+- **tc-n5:** L1 + yabancı node listesi → RED (node_id_güvenilmeyen) — F25'ün L1 kapanışı.
+- **tc-n6:** node_sig'siz zincir + L0 → ACCEPT (geriye-uyum; default davranış değişmedi).
+- **Kanıt:** `bash tests/negative_cosign.sh` → `kanit/AT-003/<tarih>/AT-003-cosign.log`
+  (6/6) + Audit-8 adversarial (kanit/GUVENLIK/2026-09-05/audit-8.log: A1 güçlü düşman
+  L1 RED / L0 bilinen-kalıntı OQ-1'de; A2 imza-katmanı RED; A3 kısmi-cosign RED).
+  Takıma entegre: run_all.sh AT-003 bölümü (16 kontrol).
+
 ## Kabul Kriterleri
 
 | Test | Kırmızı şartı | Geçme şartı |
@@ -62,6 +77,7 @@ Ajan paketi: minimal bağlam grafiği (≥3 düğüm) + manifest + WASM kodu.
 | 001d | — | hiçbir düz-metin sızıntısı yok |
 | 001e | — | 3/3 bilgi doğru |
 | 001f | negatif vektörler KODDAN ÖNCE yazılır | 7/8/9 reddetme davranışı doğru |
+| 003 | cosign vektörleri çözümle BİRLİKTE yazılır | L1 reddetme + L0 geriye-uyum doğru |
 
 ## Tek-Komut Takım (2026-09-05 gerçeklemesi)
 

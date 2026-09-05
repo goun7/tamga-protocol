@@ -1,0 +1,215 @@
+{
+ "tarih": "2026-09-05T14:18:56+0300",
+ "capalar": {
+  "fee": 0.15,
+  "split": {
+   "node": 0.7,
+   "dogrulayici": 0.1,
+   "protokol": 0.15,
+   "sigorta": 0.05
+  },
+  "not": "bantlar VARSAYIM; dağılımlar Poisson (deterministik tohum=42)"
+ },
+ "tablo": {
+  "λ=20|$30": {
+   "p10": 1.57,
+   "p50": 2.1,
+   "p90": 2.73,
+   "maliyet": 30.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 25.0,
+   "kapı": "KAPALI"
+  },
+  "λ=20|$90": {
+   "p10": 1.57,
+   "p50": 2.1,
+   "p90": 2.73,
+   "maliyet": 90.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 25.0,
+   "kapı": "KAPALI"
+  },
+  "λ=20|$150": {
+   "p10": 1.47,
+   "p50": 2.1,
+   "p90": 2.73,
+   "maliyet": 150.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 25.0,
+   "kapı": "KAPALI"
+  },
+  "λ=50|$30": {
+   "p10": 4.41,
+   "p50": 5.25,
+   "p90": 6.19,
+   "maliyet": 30.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 63.0,
+   "kapı": "KAPALI"
+  },
+  "λ=50|$90": {
+   "p10": 4.3,
+   "p50": 5.25,
+   "p90": 6.19,
+   "maliyet": 90.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 63.0,
+   "kapı": "KAPALI"
+  },
+  "λ=50|$150": {
+   "p10": 4.2,
+   "p50": 5.25,
+   "p90": 6.09,
+   "maliyet": 150.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 63.0,
+   "kapı": "KAPALI"
+  },
+  "λ=170|$30": {
+   "p10": 15.96,
+   "p50": 17.95,
+   "p90": 19.63,
+   "maliyet": 30.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 215.0,
+   "kapı": "KAPALI"
+  },
+  "λ=170|$90": {
+   "p10": 15.96,
+   "p50": 17.75,
+   "p90": 19.53,
+   "maliyet": 90.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 213.0,
+   "kapı": "KAPALI"
+  },
+  "λ=170|$150": {
+   "p10": 16.06,
+   "p50": 17.85,
+   "p90": 19.63,
+   "maliyet": 150.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 214.0,
+   "kapı": "KAPALI"
+  },
+  "λ=500|$30": {
+   "p10": 49.35,
+   "p50": 52.39,
+   "p90": 55.54,
+   "maliyet": 30.0,
+   "karilama_olasiligi": 1.0,
+   "yillik_p50": 629.0,
+   "kapı": "ACIK"
+  },
+  "λ=500|$90": {
+   "p10": 49.77,
+   "p50": 52.6,
+   "p90": 55.34,
+   "maliyet": 90.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 631.0,
+   "kapı": "KAPALI"
+  },
+  "λ=500|$150": {
+   "p10": 49.66,
+   "p50": 52.6,
+   "p90": 55.34,
+   "maliyet": 150.0,
+   "karilama_olasiligi": 0.0,
+   "yillik_p50": 631.0,
+   "kapı": "KAPALI"
+  },
+  "λ=2000|$30": {
+   "p10": 204.01,
+   "p50": 209.47,
+   "p90": 215.25,
+   "maliyet": 30.0,
+   "karilama_olasiligi": 1.0,
+   "yillik_p50": 2514.0,
+   "kapı": "ACIK"
+  },
+  "λ=2000|$90": {
+   "p10": 204.44,
+   "p50": 210.31,
+   "p90": 215.78,
+   "maliyet": 90.0,
+   "karilama_olasiligi": 1.0,
+   "yillik_p50": 2524.0,
+   "kapı": "ACIK"
+  },
+  "λ=2000|$150": {
+   "p10": 203.7,
+   "p50": 209.37,
+   "p90": 215.46,
+   "maliyet": 150.0,
+   "karilama_olasiligi": 1.0,
+   "yillik_p50": 2512.0,
+   "kapı": "ACIK"
+  }
+ },
+ "esik_node_perspektifi": {
+  "$30/ay": 286,
+  "$90/ay": 858,
+  "$150/ay": 1429
+ },
+ "esik_okuma": "§3.1 tam-ücret eşiği (170–852) node-payı sonrası 286–1429 iş/ay'a revize — bölüşüm gizli-maliyet; dürüst sayı budur",
+ "protokol_geliri": {
+  "D=5000": {
+   "aylik_$": 112,
+   "karsilanan": "yok"
+  },
+  "D=50000": {
+   "aylik_$": 1125,
+   "karsilanan": "yok"
+  },
+  "D=500000": {
+   "aylik_$": 11250,
+   "karsilanan": [
+    "1-kişi"
+   ]
+  },
+  "D=5000000": {
+   "aylik_$": 112500,
+   "karsilanan": [
+    "1-kişi",
+    "3-kişi",
+    "6-kişi"
+   ]
+  }
+ },
+ "protokol_okuma": "protokol-payı ile 1 kişilik takım için ~222k gerçek-iş/ay gerekli — ERKEN GELİR bu değildir; erken gelir HİZMET geliri (aşağıda)",
+ "erken_gelir_hizmet": {
+  "goc_paketi": {
+   "birim_$": [
+    2000,
+    5000
+   ],
+   "not": "hafıza-göçü projesi (adaptör+bavaş)",
+   "hedef_ilk_yil": 6
+  },
+  "destek_aboneligi": {
+   "aylik_$": [
+    500,
+    2000
+   ],
+   "not": "pilot-firma kanıt/SLA desteği",
+   "hedef_ilk_yil": 4
+  },
+  "node_isletim": {
+   "aylik_$": [
+    300,
+    900
+   ],
+   "not": "kendi-node'umuzu yönetilen-servis olarak",
+   "hedef_ilk_yil": 3
+  },
+  "toplam_hedef_$": "ilk-12 ay: ~30–60k hizmet-geliri (ödemeye/Faz 3'e hazırlık bütçesi)"
+ },
+ "invariant_probes": {
+  "I2_kasa": true,
+  "I4_kapı": true,
+  "I5_bölüşüm": true,
+  "I6_düzeltme": true
+ },
+ "result": "VALID"
+}

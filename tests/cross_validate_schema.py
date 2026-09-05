@@ -54,7 +54,7 @@ def check(name, manifest: dict):
         js_err = f"{list(ex.absolute_path)}: {ex.message[:70]}"
     accept, msg, sch_red = manual_verdict(pkg)
     agree = (not js_valid) == sch_red
-    tag = "UYUM" if agree else "!!DRIFT!!"
+    tag = "AGREE" if agree else "!!DRIFT!!"
     log(f"[{tag}] {name:24s} js={'valid' if js_valid else 'INVALID':8s} "
         f"validator={'ACCEPT' if accept else msg[:58]}")
     if not js_valid:
@@ -149,4 +149,4 @@ if __name__ == "__main__":
     print(text)
     with open(logf, "a", encoding="utf-8") as f:
         f.write(text)
-    sys.exit(0 if "TEMİZ" in text.splitlines()[-1] else 1)
+    sys.exit(0 if "CLEAN" in text.splitlines()[-1] else 1)  # English since i18n: match the printed verdict

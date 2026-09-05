@@ -106,7 +106,7 @@ def main():
     probe_sim = simulate(6, 0.05, 0.50, price_mode="cpu", job_cpu_s=60, price=0.05, cost=150.0)
     probes["I3_tez"] = all(r["cover"] < 1 for r in probe_sim["rows"])
     out["invariant_probes"] = probes
-    out["sonuc"] = "GECERLI" if all(probes.values()) else "HATA"
+    out["result"] = "VALID" if all(probes.values()) else "ERROR"
 
     text = json.dumps(out, ensure_ascii=False, indent=1)
     print(text[:1500])
@@ -115,11 +115,11 @@ def main():
     (d / "birim-ekonomi-sim.json").write_text(text, encoding="utf-8")
     with open(d / "birim-ekonomi-sim.log", "a", encoding="utf-8") as f:
         f.write(f"# TOKENOMICS §3 sim — {out['tarih']}\n{out['esik_okuma']}\n"
-                f"probe'lar: {out['invariant_probes']}\nsonuç: {out['sonuc']}\n"
+                f"probes: {out['invariant_probes']}\nresult: {out['result']}\n"
                 f"breakeven: taban={out['senaryolar']['taban']['breakeven_ay']} "
                 f"hedef={out['senaryolar']['hedef']['breakeven_ay']} "
                 f"cokus={out['senaryolar']['cokus']['breakeven_ay']}\n")
-    sys.exit(0 if out["sonuc"] == "GECERLI" else 1)
+    sys.exit(0 if out["result"] == "VALID" else 1)
 
 if __name__ == "__main__":
     main()

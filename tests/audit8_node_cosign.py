@@ -138,7 +138,7 @@ def main():
     r3 = json.loads(sh("import", str(forged3), str(fresh("pkgA3")),
                        "--cosign-policy", "L1", "--node-trust", str(trust)))
     log(f"A3 partially/fully cosign-dropped chain under L1: ok={r3.get('ok')} reason={r3.get('reason_code')} {r3.get('reason','')}")
-    log(f"A3 SONUÇ: {'L1 node_sig_eksik RED (beklendi)' if r3.get('ok') is False and 'node_sig_eksik' in str(r3.get('reason')) else 'BEKLENMEDİK'}")
+    log(f"A3 SONUÇ: {'L1 node_sig_missing RED (expected)' if r3.get('ok') is False and 'node_sig_eksik' in str(r3.get('reason')) else 'UNEXPECTED'}")
 
     shutil.rmtree(SB, ignore_errors=True)
     return 0 if "BEKLENMEDİK" not in "\n".join(OUT) and "İDDİA" not in "\n".join(OUT) else 1

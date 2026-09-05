@@ -42,7 +42,7 @@ hb = json.dumps(h, ensure_ascii=False, sort_keys=True).encode()
 dst.write_bytes(data[:4] + len(hb).to_bytes(4, "big") + hb + data[8+hlen:])
 PY
   python3 tamga_runner.py import "$SB/fake-id.tsg" "$SB/pkgA" | grep -q '"reason_code": 9'
-  bekle_red $? "tc-s9: header agent_id taklidi → reason-9 RED (keystore gerçek, kimlik uyumsuz)"
+  bekle_red $? "tc-s9: header agent_id forgery → reason-9 RED (real keystore, mismatched identity)"
 
   # --- tc-s8: replay/rollback → import RED (reason 8) ---
   # hedef node'un oturum sayacı snapshot'tan İLERİDEyse geri-sarma reddedilir:
@@ -58,7 +58,7 @@ PY
 
   rm -rf "$SB"
   echo ""
-  echo "SONUÇ(at001f): $PASS PASS, $FAIL FAIL"
+  echo "RESULT(at001f): $PASS PASS, $FAIL FAIL"
   [ "$FAIL" = "0" ]
 } 2>&1 | tee -a "$LOG"
 exit ${PIPESTATUS[0]}

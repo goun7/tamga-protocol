@@ -1,0 +1,432 @@
+{
+ "tarih": "2026-09-05T14:18:56+0300",
+ "capalar": {
+  "x402_tx_usd": [
+   0.2,
+   0.3
+  ],
+  "not": "fiyat bantları VARSAYIM; eşik-çözümü yapısal"
+ },
+ "senaryolar": {
+  "taban": {
+   "breakeven_ay": 19,
+   "son": {
+    "ay": 19,
+    "is": 602,
+    "fee": 0.151,
+    "gelir": 90.85,
+    "maliyet": 90.0,
+    "cover": 1.009,
+    "burn": 0.1,
+    "kasa": 57.64
+   },
+   "rows": [
+    {
+     "ay": 1,
+     "is": 250,
+     "fee": 0.151,
+     "gelir": 37.75,
+     "maliyet": 90.0,
+     "cover": 0.419,
+     "burn": 0.0,
+     "kasa": 1.89
+    },
+    {
+     "ay": 2,
+     "is": 262,
+     "fee": 0.151,
+     "gelir": 39.64,
+     "maliyet": 90.0,
+     "cover": 0.44,
+     "burn": 0.0,
+     "kasa": 3.87
+    },
+    {
+     "ay": 3,
+     "is": 276,
+     "fee": 0.151,
+     "gelir": 41.62,
+     "maliyet": 90.0,
+     "cover": 0.462,
+     "burn": 0.0,
+     "kasa": 5.95
+    },
+    {
+     "ay": 4,
+     "is": 289,
+     "fee": 0.151,
+     "gelir": 43.7,
+     "maliyet": 90.0,
+     "cover": 0.486,
+     "burn": 0.0,
+     "kasa": 8.14
+    },
+    {
+     "ay": 5,
+     "is": 304,
+     "fee": 0.151,
+     "gelir": 45.89,
+     "maliyet": 90.0,
+     "cover": 0.51,
+     "burn": 0.0,
+     "kasa": 10.43
+    },
+    {
+     "ay": 6,
+     "is": 319,
+     "fee": 0.151,
+     "gelir": 48.18,
+     "maliyet": 90.0,
+     "cover": 0.535,
+     "burn": 0.0,
+     "kasa": 12.84
+    },
+    {
+     "ay": 7,
+     "is": 335,
+     "fee": 0.151,
+     "gelir": 50.59,
+     "maliyet": 90.0,
+     "cover": 0.562,
+     "burn": 0.0,
+     "kasa": 15.37
+    },
+    {
+     "ay": 8,
+     "is": 352,
+     "fee": 0.151,
+     "gelir": 53.12,
+     "maliyet": 90.0,
+     "cover": 0.59,
+     "burn": 0.0,
+     "kasa": 18.02
+    },
+    {
+     "ay": 9,
+     "is": 369,
+     "fee": 0.151,
+     "gelir": 55.77,
+     "maliyet": 90.0,
+     "cover": 0.62,
+     "burn": 0.0,
+     "kasa": 20.81
+    },
+    {
+     "ay": 10,
+     "is": 388,
+     "fee": 0.151,
+     "gelir": 58.56,
+     "maliyet": 90.0,
+     "cover": 0.651,
+     "burn": 0.0,
+     "kasa": 23.74
+    },
+    {
+     "ay": 11,
+     "is": 407,
+     "fee": 0.151,
+     "gelir": 61.49,
+     "maliyet": 90.0,
+     "cover": 0.683,
+     "burn": 0.0,
+     "kasa": 26.82
+    },
+    {
+     "ay": 12,
+     "is": 428,
+     "fee": 0.151,
+     "gelir": 64.57,
+     "maliyet": 90.0,
+     "cover": 0.717,
+     "burn": 0.0,
+     "kasa": 30.04
+    },
+    {
+     "ay": 13,
+     "is": 449,
+     "fee": 0.151,
+     "gelir": 67.79,
+     "maliyet": 90.0,
+     "cover": 0.753,
+     "burn": 0.0,
+     "kasa": 33.43
+    },
+    {
+     "ay": 14,
+     "is": 471,
+     "fee": 0.151,
+     "gelir": 71.18,
+     "maliyet": 90.0,
+     "cover": 0.791,
+     "burn": 0.0,
+     "kasa": 36.99
+    },
+    {
+     "ay": 15,
+     "is": 495,
+     "fee": 0.151,
+     "gelir": 74.74,
+     "maliyet": 90.0,
+     "cover": 0.83,
+     "burn": 0.0,
+     "kasa": 40.73
+    },
+    {
+     "ay": 16,
+     "is": 520,
+     "fee": 0.151,
+     "gelir": 78.48,
+     "maliyet": 90.0,
+     "cover": 0.872,
+     "burn": 0.0,
+     "kasa": 44.65
+    },
+    {
+     "ay": 17,
+     "is": 546,
+     "fee": 0.151,
+     "gelir": 82.4,
+     "maliyet": 90.0,
+     "cover": 0.916,
+     "burn": 0.0,
+     "kasa": 48.77
+    },
+    {
+     "ay": 18,
+     "is": 573,
+     "fee": 0.151,
+     "gelir": 86.52,
+     "maliyet": 90.0,
+     "cover": 0.961,
+     "burn": 0.0,
+     "kasa": 53.1
+    },
+    {
+     "ay": 19,
+     "is": 602,
+     "fee": 0.151,
+     "gelir": 90.85,
+     "maliyet": 90.0,
+     "cover": 1.009,
+     "burn": 0.1,
+     "kasa": 57.64
+    }
+   ]
+  },
+  "hedef": {
+   "breakeven_ay": 4,
+   "son": {
+    "ay": 4,
+    "is": 608,
+    "fee": 0.151,
+    "gelir": 91.86,
+    "maliyet": 90.0,
+    "cover": 1.021,
+    "burn": 0.1,
+    "kasa": 15.08
+   },
+   "rows": [
+    {
+     "ay": 1,
+     "is": 400,
+     "fee": 0.151,
+     "gelir": 60.4,
+     "maliyet": 90.0,
+     "cover": 0.671,
+     "burn": 0.0,
+     "kasa": 3.02
+    },
+    {
+     "ay": 2,
+     "is": 460,
+     "fee": 0.151,
+     "gelir": 69.46,
+     "maliyet": 90.0,
+     "cover": 0.772,
+     "burn": 0.0,
+     "kasa": 6.49
+    },
+    {
+     "ay": 3,
+     "is": 529,
+     "fee": 0.151,
+     "gelir": 79.88,
+     "maliyet": 90.0,
+     "cover": 0.888,
+     "burn": 0.0,
+     "kasa": 10.49
+    },
+    {
+     "ay": 4,
+     "is": 608,
+     "fee": 0.151,
+     "gelir": 91.86,
+     "maliyet": 90.0,
+     "cover": 1.021,
+     "burn": 0.1,
+     "kasa": 15.08
+    }
+   ]
+  },
+  "cokus": {
+   "breakeven_ay": null,
+   "son": {
+    "ay": 12,
+    "is": 5,
+    "fee": 0.151,
+    "gelir": 0.75,
+    "maliyet": 90.0,
+    "cover": 0.008,
+    "burn": 0.0,
+    "kasa": 6.2
+   },
+   "rows": [
+    {
+     "ay": 1,
+     "is": 250,
+     "fee": 0.151,
+     "gelir": 37.75,
+     "maliyet": 90.0,
+     "cover": 0.419,
+     "burn": 0.0,
+     "kasa": 1.89
+    },
+    {
+     "ay": 2,
+     "is": 175,
+     "fee": 0.151,
+     "gelir": 26.43,
+     "maliyet": 90.0,
+     "cover": 0.294,
+     "burn": 0.0,
+     "kasa": 3.21
+    },
+    {
+     "ay": 3,
+     "is": 122,
+     "fee": 0.151,
+     "gelir": 18.5,
+     "maliyet": 90.0,
+     "cover": 0.206,
+     "burn": 0.0,
+     "kasa": 4.13
+    },
+    {
+     "ay": 4,
+     "is": 86,
+     "fee": 0.151,
+     "gelir": 12.95,
+     "maliyet": 90.0,
+     "cover": 0.144,
+     "burn": 0.0,
+     "kasa": 4.78
+    },
+    {
+     "ay": 5,
+     "is": 60,
+     "fee": 0.151,
+     "gelir": 9.06,
+     "maliyet": 90.0,
+     "cover": 0.101,
+     "burn": 0.0,
+     "kasa": 5.23
+    },
+    {
+     "ay": 6,
+     "is": 42,
+     "fee": 0.151,
+     "gelir": 6.34,
+     "maliyet": 90.0,
+     "cover": 0.07,
+     "burn": 0.0,
+     "kasa": 5.55
+    },
+    {
+     "ay": 7,
+     "is": 29,
+     "fee": 0.151,
+     "gelir": 4.44,
+     "maliyet": 90.0,
+     "cover": 0.049,
+     "burn": 0.0,
+     "kasa": 5.77
+    },
+    {
+     "ay": 8,
+     "is": 21,
+     "fee": 0.151,
+     "gelir": 3.11,
+     "maliyet": 90.0,
+     "cover": 0.035,
+     "burn": 0.0,
+     "kasa": 5.93
+    },
+    {
+     "ay": 9,
+     "is": 14,
+     "fee": 0.151,
+     "gelir": 2.18,
+     "maliyet": 90.0,
+     "cover": 0.024,
+     "burn": 0.0,
+     "kasa": 6.04
+    },
+    {
+     "ay": 10,
+     "is": 10,
+     "fee": 0.151,
+     "gelir": 1.52,
+     "maliyet": 90.0,
+     "cover": 0.017,
+     "burn": 0.0,
+     "kasa": 6.11
+    },
+    {
+     "ay": 11,
+     "is": 7,
+     "fee": 0.151,
+     "gelir": 1.07,
+     "maliyet": 90.0,
+     "cover": 0.012,
+     "burn": 0.0,
+     "kasa": 6.17
+    },
+    {
+     "ay": 12,
+     "is": 5,
+     "fee": 0.151,
+     "gelir": 0.75,
+     "maliyet": 90.0,
+     "cover": 0.008,
+     "burn": 0.0,
+     "kasa": 6.2
+    }
+   ]
+  }
+ },
+ "esik_U_is_ay": {
+  "cpu|30$|30s": 8571,
+  "cpu|30$|60s": 5000,
+  "cpu|30$|120s": 2727,
+  "cpu|30$|300s": 1154,
+  "cpu|150$|30s": 42857,
+  "cpu|150$|60s": 25000,
+  "cpu|150$|120s": 13636,
+  "cpu|150$|300s": 5769,
+  "job|30$|30s": 170,
+  "job|30$|60s": 170,
+  "job|30$|120s": 170,
+  "job|30$|300s": 170,
+  "job|150$|30s": 852,
+  "job|150$|60s": 852,
+  "job|150$|120s": 852,
+  "job|150$|300s": 852
+ },
+ "esik_okuma": "cpu-bazlı eşik bandı 1154–42857 iş/ay; doğrulanabilir-iş bandı 170–852 iş/ay; I3 tez teyidi: fiyat tabanı değişimi eşiği ~1.4× aşağı çeker",
+ "invariant_probes": {
+  "I1_burn": true,
+  "I2_kasa": true,
+  "I3_tez": true
+ },
+ "result": "VALID"
+}

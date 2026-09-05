@@ -1,0 +1,4 @@
+# §3.2 ekonomi-sim — 2026-09-05T14:18:56+0300
+§3.1 tam-ücret eşiği (170–852) node-payı sonrası 286–1429 iş/ay'a revize — bölüşüm gizli-maliyet; dürüst sayı budur
+probes: {'I2_kasa': True, 'I4_kapı': True, 'I5_bölüşüm': True, 'I6_düzeltme': True}
+result: VALID

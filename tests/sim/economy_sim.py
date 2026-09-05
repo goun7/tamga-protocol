@@ -91,7 +91,7 @@ def main():
     pr["I5_bölüşüm"] = abs(sum(SPLIT.values()) - 1.0) < 1e-9
     pr["I6_düzeltme"] = all(th[int(c)] >= math.ceil(c / FEE) for c in COSTS)
     out["invariant_probes"] = pr
-    out["sonuc"] = "GECERLI" if all(pr.values()) else "HATA"
+    out["result"] = "VALID" if all(pr.values()) else "ERROR"
 
     text = json.dumps(out, ensure_ascii=False, indent=1)
     print(text[:1200])
@@ -99,8 +99,8 @@ def main():
     (d / "ekonomi-sim.json").write_text(text, encoding="utf-8")
     with open(d / "ekonomi-sim.log", "a", encoding="utf-8") as f:
         f.write(f"# §3.2 ekonomi-sim — {out['tarih']}\n{out['esik_okuma']}\n"
-                f"probelar: {pr}\nsonuç: {out['sonuc']}\n")
-    sys.exit(0 if out["sonuc"] == "GECERLI" else 1)
+                f"probes: {pr}\nresult: {out['result']}\n")
+    sys.exit(0 if out["result"] == "VALID" else 1)
 
 if __name__ == "__main__":
     main()

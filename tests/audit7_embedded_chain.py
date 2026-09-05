@@ -3,7 +3,7 @@
 
 Scope: three attacks against the `ledger_records` + `ledger_tip` surface of the snapshot body:
   A1 record-splice : a charge fee is inflated and re-encrypted → import + ledger-verify
-  A2 tip-swap      : ledger_tip uydurulur → hedefi zincirli node'a ve taze node'a import
+  A2 tip-swap      : a fabricated ledger_tip → imported into a chained node and a fresh node
   A3 merkle-fold   : memory is tampered but graph_merkle is recomputed consistently
 
 NOTE (honest limit): attacks use the simnet passphrase + seed; this is the STRONG
@@ -102,7 +102,7 @@ def main():
     elif ok1a and j1a.get("ok") is False:
         log("A1a RESULT: the chain hash caught the weak tampering later (pre-fix behavior)")
     else:
-        log("A1a SONUÇ: BEKLENMEDİK")
+        log("A1a RESULT: UNEXPECTED")
 
     # ---------- A1b: record-splice, STRONG adversary (recomputes the whole chain) ----------
     def a1b(header, state):
@@ -133,16 +133,16 @@ def main():
         state["ledger_tip"] = fake_tip
         return header, state
     (SB / "a2.tsg").write_bytes(craft(base, a2))
-    r2_fresh = sh("import", str(SB / "a2.tsg"), str(fresh("pkgC")))          # taze node
+    r2_fresh = sh("import", str(SB / "a2.tsg"), str(fresh("pkgC")))          # fresh node
     r2_chain = sh("import", str(SB / "a2.tsg"), str(SB / "pkgA"))            # zincirli node
     ok2f = json.loads(r2_fresh).get("ok")
     ok2c = json.loads(r2_chain).get("ok")
     rc2c = json.loads(r2_chain).get("reason_code")
-    log(f"A2 tip-swap: taze node ok={ok2f} (erteleme notu beklenir) · zincirli node ok={ok2c} reason={rc2c}")
+    log(f"A2 tip-swap: fresh node ok={ok2f} (deferral note expected) · chained node ok={ok2c} reason={rc2c}")
     if ok2f and not ok2c and rc2c == 14:
         log("A2 RESULT: tip-binding RED on the chained node (expected); fresh node defers (known, below)")
     else:
-        log("A2 SONUÇ: BEKLENMEDİK")
+        log("A2 RESULT: UNEXPECTED")
 
     # ---------- A3: merkle-fold (consistent tampering) ----------
     def a3(header, state):

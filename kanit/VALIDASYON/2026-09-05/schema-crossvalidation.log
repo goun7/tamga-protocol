@@ -1,0 +1,292 @@
+# RFC-001 schema cross-validation — 2026-09-05T14:14:54+0300
+# jsonschema 4.26.0 · schema: specs/manifest-0.1.0.schema.json (draft 2020-12) · validator: tamga_validator.py
+
+## Real vectors
+[UYUM] tc-a1                    js=valid    validator=ACCEPT
+[UYUM] tc-a2                    js=valid    validator=RED code_hash_mismatch
+[UYUM] tc-a3                    js=INVALID  validator=RED schema_violation: (root).admin_backdoor: unknown field
+                           js-hata: []: Additional properties are not allowed ('admin_backdoor' was unexpected
+[UYUM] tc-a4                    js=INVALID  validator=RED unknown_capability: bilinmeyen yetenek: 'root'
+                           js-hata: ['capabilities', 2]: 'root' is not one of ['fs', 'net', 'clock', 'env', 'random']
+[UYUM] tc-a5                    js=valid    validator=RED code_hash_mismatch
+[UYUM] tc-a6                    js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: ['spec_version']: '0.1.0' was expected
+
+## Mutation matrix (tc-a1 base)
+[UYUM] m01-spec-yok             js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: []: 'spec_version' is a required property
+[UYUM] m02-spec-0.2.0           js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: ['spec_version']: '0.1.0' was expected
+[UYUM] m03-bilinmeyen-kok       js=INVALID  validator=RED schema_violation: (root).hack: unknown field (D3: stri
+                           js-hata: []: Additional properties are not allowed ('hack' was unexpected)
+[UYUM] m04-package-yok          js=INVALID  validator=RED schema_violation: package: zorunlu alan eksik
+                           js-hata: []: 'package' is a required property
+[UYUM] m05-ad-buyuk             js=INVALID  validator=RED schema_violation: package.name: pattern ihlali
+                           js-hata: ['package', 'name']: 'BadName' does not match '^[a-z0-9][a-z0-9-]{2,31}$'
+[UYUM] m06-ad-kisa              js=INVALID  validator=RED schema_violation: package.name: pattern ihlali
+                           js-hata: ['package', 'name']: 'ab' does not match '^[a-z0-9][a-z0-9-]{2,31}$'
+[UYUM] m07-semver-kotu          js=INVALID  validator=RED schema_violation: package.version: invalid semver
+                           js-hata: ['package', 'version']: '1.0' does not match '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$'
+[UYUM] m08-code-yok             js=INVALID  validator=RED schema_violation: package.code: zorunlu alan eksik
+                           js-hata: ['package']: 'code' is a required property
+[UYUM] m09-hash-hex-degil       js=INVALID  validator=RED schema_violation: package.code.wasm_sha256: must be 64
+                           js-hata: ['package', 'code', 'wasm_sha256']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' doe
+[UYUM] m10-hash-algo            js=INVALID  validator=RED schema_violation: package.code.hash_algo: const ihlali
+                           js-hata: ['package', 'code', 'hash_algo']: 'sha256' was expected
+[UYUM] m11-target-0.2           js=INVALID  validator=RED schema_violation: package.code.target: const ihlali (D
+                           js-hata: ['package', 'code', 'target']: 'wasi-0.3/component' was expected
+[UYUM] m12-proof-P9             js=INVALID  validator=RED schema_violation: runtime.min_proof_level: enum ihlali
+                           js-hata: ['runtime', 'min_proof_level']: 'P9' is not one of ['P0', 'P1', 'P2']
+[UYUM] m13-limit-buyuk          js=INVALID  validator=RED schema_violation: runtime.limits.memory_mb: out of ran
+                           js-hata: ['runtime', 'limits', 'memory_mb']: 8192 is greater than the maximum of 4096
+[UYUM] m14-limit-bool           js=INVALID  validator=RED schema_violation: runtime.limits.cpu_ms_per_run: must 
+                           js-hata: ['runtime', 'limits', 'cpu_ms_per_run']: True is not of type 'integer'
+[UYUM] m15-limit-str            js=INVALID  validator=RED schema_violation: runtime.limits.io_mb_per_run: must b
+                           js-hata: ['runtime', 'limits', 'io_mb_per_run']: '5' is not of type 'integer'
+[UYUM] m16-limit-eksik          js=INVALID  validator=RED schema_violation: runtime.limits.io_mb_per_run: zorunl
+                           js-hata: ['runtime', 'limits']: 'io_mb_per_run' is a required property
+[UYUM] m17-limit-bilinmeyen     js=INVALID  validator=RED unknown_field: runtime.limits.gpu
+                           js-hata: ['runtime', 'limits']: Additional properties are not allowed ('gpu' was unexpected)
+[UYUM] m18-snap-2               js=INVALID  validator=RED schema_violation: memory.snapshot_format: const ihlali
+                           js-hata: ['memory', 'snapshot_format']: 'tamga-snapshot/1' was expected
+[UYUM] m19-crypto-aes           js=INVALID  validator=RED schema_violation: memory.crypto_suite: const ihlali
+                           js-hata: ['memory', 'crypto_suite']: 'XChaCha20-Poly1305' was expected
+[UYUM] m20-cap-dup              js=INVALID  validator=RED unknown_capability: uniqueItems ihlali
+                           js-hata: ['capabilities']: ['clock', 'clock'] has non-unique elements
+[UYUM] m21-cap-cok              js=INVALID  validator=RED unknown_capability: maxItems 5 ihlali
+                           js-hata: ['capabilities']: ['fs', 'net', 'clock', 'env', 'random', 'teleport'] is too long
+[UYUM] m22-cap-dizi-degil       js=INVALID  validator=RED unknown_capability: dizi bekleniyordu
+                           js-hata: ['capabilities']: 'clock' is not of type 'array'
+[UYUM] m23-scheme-bos           js=INVALID  validator=RED schema_violation: payment.schemes: minItems 1 ihlali
+                           js-hata: ['payment', 'schemes']: [] should be non-empty
+[UYUM] m24-scheme-yabanci       js=INVALID  validator=RED schema_violation: payment.schemes: const ihlali: 'tamg
+                           js-hata: ['payment', 'schemes', 0]: 'tamga-sim/1' was expected
+[UYUM] m25-sig-algo             js=INVALID  validator=RED schema_violation: signature.algo: const ihlali
+                           js-hata: ['signature', 'algo']: 'ed25519' was expected
+[UYUM] m26-sig-key-hex          js=INVALID  validator=RED schema_violation: signature.key: must be 64-hex
+                           js-hata: ['signature', 'key']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' doe
+[UYUM] m27-sig-sig-hex          js=INVALID  validator=RED schema_violation: signature.sig: must be 128-hex
+                           js-hata: ['signature', 'sig']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+[UYUM] m28-sig-yok              js=INVALID  validator=RED schema_violation: signature: zorunlu alan eksik
+                           js-hata: []: 'signature' is a required property
+
+RESULT: 34/34 AGREE — cross-validation CLEAN
+# RFC-001 schema cross-validation — 2026-09-05T14:15:04+0300
+# jsonschema 4.26.0 · schema: specs/manifest-0.1.0.schema.json (draft 2020-12) · validator: tamga_validator.py
+
+## Real vectors
+[UYUM] tc-a1                    js=valid    validator=ACCEPT
+[UYUM] tc-a2                    js=valid    validator=RED code_hash_mismatch
+[UYUM] tc-a3                    js=INVALID  validator=RED schema_violation: (root).admin_backdoor: unknown field
+                           js-hata: []: Additional properties are not allowed ('admin_backdoor' was unexpected
+[UYUM] tc-a4                    js=INVALID  validator=RED unknown_capability: bilinmeyen yetenek: 'root'
+                           js-hata: ['capabilities', 2]: 'root' is not one of ['fs', 'net', 'clock', 'env', 'random']
+[UYUM] tc-a5                    js=valid    validator=RED code_hash_mismatch
+[UYUM] tc-a6                    js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: ['spec_version']: '0.1.0' was expected
+
+## Mutation matrix (tc-a1 base)
+[UYUM] m01-spec-yok             js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: []: 'spec_version' is a required property
+[UYUM] m02-spec-0.2.0           js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: ['spec_version']: '0.1.0' was expected
+[UYUM] m03-bilinmeyen-kok       js=INVALID  validator=RED schema_violation: (root).hack: unknown field (D3: stri
+                           js-hata: []: Additional properties are not allowed ('hack' was unexpected)
+[UYUM] m04-package-yok          js=INVALID  validator=RED schema_violation: package: zorunlu alan eksik
+                           js-hata: []: 'package' is a required property
+[UYUM] m05-ad-buyuk             js=INVALID  validator=RED schema_violation: package.name: pattern ihlali
+                           js-hata: ['package', 'name']: 'BadName' does not match '^[a-z0-9][a-z0-9-]{2,31}$'
+[UYUM] m06-ad-kisa              js=INVALID  validator=RED schema_violation: package.name: pattern ihlali
+                           js-hata: ['package', 'name']: 'ab' does not match '^[a-z0-9][a-z0-9-]{2,31}$'
+[UYUM] m07-semver-kotu          js=INVALID  validator=RED schema_violation: package.version: invalid semver
+                           js-hata: ['package', 'version']: '1.0' does not match '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$'
+[UYUM] m08-code-yok             js=INVALID  validator=RED schema_violation: package.code: zorunlu alan eksik
+                           js-hata: ['package']: 'code' is a required property
+[UYUM] m09-hash-hex-degil       js=INVALID  validator=RED schema_violation: package.code.wasm_sha256: must be 64
+                           js-hata: ['package', 'code', 'wasm_sha256']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' doe
+[UYUM] m10-hash-algo            js=INVALID  validator=RED schema_violation: package.code.hash_algo: const ihlali
+                           js-hata: ['package', 'code', 'hash_algo']: 'sha256' was expected
+[UYUM] m11-target-0.2           js=INVALID  validator=RED schema_violation: package.code.target: const ihlali (D
+                           js-hata: ['package', 'code', 'target']: 'wasi-0.3/component' was expected
+[UYUM] m12-proof-P9             js=INVALID  validator=RED schema_violation: runtime.min_proof_level: enum ihlali
+                           js-hata: ['runtime', 'min_proof_level']: 'P9' is not one of ['P0', 'P1', 'P2']
+[UYUM] m13-limit-buyuk          js=INVALID  validator=RED schema_violation: runtime.limits.memory_mb: out of ran
+                           js-hata: ['runtime', 'limits', 'memory_mb']: 8192 is greater than the maximum of 4096
+[UYUM] m14-limit-bool           js=INVALID  validator=RED schema_violation: runtime.limits.cpu_ms_per_run: must 
+                           js-hata: ['runtime', 'limits', 'cpu_ms_per_run']: True is not of type 'integer'
+[UYUM] m15-limit-str            js=INVALID  validator=RED schema_violation: runtime.limits.io_mb_per_run: must b
+                           js-hata: ['runtime', 'limits', 'io_mb_per_run']: '5' is not of type 'integer'
+[UYUM] m16-limit-eksik          js=INVALID  validator=RED schema_violation: runtime.limits.io_mb_per_run: zorunl
+                           js-hata: ['runtime', 'limits']: 'io_mb_per_run' is a required property
+[UYUM] m17-limit-bilinmeyen     js=INVALID  validator=RED unknown_field: runtime.limits.gpu
+                           js-hata: ['runtime', 'limits']: Additional properties are not allowed ('gpu' was unexpected)
+[UYUM] m18-snap-2               js=INVALID  validator=RED schema_violation: memory.snapshot_format: const ihlali
+                           js-hata: ['memory', 'snapshot_format']: 'tamga-snapshot/1' was expected
+[UYUM] m19-crypto-aes           js=INVALID  validator=RED schema_violation: memory.crypto_suite: const ihlali
+                           js-hata: ['memory', 'crypto_suite']: 'XChaCha20-Poly1305' was expected
+[UYUM] m20-cap-dup              js=INVALID  validator=RED unknown_capability: uniqueItems ihlali
+                           js-hata: ['capabilities']: ['clock', 'clock'] has non-unique elements
+[UYUM] m21-cap-cok              js=INVALID  validator=RED unknown_capability: maxItems 5 ihlali
+                           js-hata: ['capabilities']: ['fs', 'net', 'clock', 'env', 'random', 'teleport'] is too long
+[UYUM] m22-cap-dizi-degil       js=INVALID  validator=RED unknown_capability: dizi bekleniyordu
+                           js-hata: ['capabilities']: 'clock' is not of type 'array'
+[UYUM] m23-scheme-bos           js=INVALID  validator=RED schema_violation: payment.schemes: minItems 1 ihlali
+                           js-hata: ['payment', 'schemes']: [] should be non-empty
+[UYUM] m24-scheme-yabanci       js=INVALID  validator=RED schema_violation: payment.schemes: const ihlali: 'tamg
+                           js-hata: ['payment', 'schemes', 0]: 'tamga-sim/1' was expected
+[UYUM] m25-sig-algo             js=INVALID  validator=RED schema_violation: signature.algo: const ihlali
+                           js-hata: ['signature', 'algo']: 'ed25519' was expected
+[UYUM] m26-sig-key-hex          js=INVALID  validator=RED schema_violation: signature.key: must be 64-hex
+                           js-hata: ['signature', 'key']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' doe
+[UYUM] m27-sig-sig-hex          js=INVALID  validator=RED schema_violation: signature.sig: must be 128-hex
+                           js-hata: ['signature', 'sig']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+[UYUM] m28-sig-yok              js=INVALID  validator=RED schema_violation: signature: zorunlu alan eksik
+                           js-hata: []: 'signature' is a required property
+
+RESULT: 34/34 AGREE — cross-validation CLEAN
+# RFC-001 schema cross-validation — 2026-09-05T14:16:04+0300
+# jsonschema 4.26.0 · schema: specs/manifest-0.1.0.schema.json (draft 2020-12) · validator: tamga_validator.py
+
+## Real vectors
+[AGREE] tc-a1                    js=valid    validator=ACCEPT
+[AGREE] tc-a2                    js=valid    validator=RED code_hash_mismatch
+[AGREE] tc-a3                    js=INVALID  validator=RED schema_violation: (root).admin_backdoor: unknown field
+                           js-hata: []: Additional properties are not allowed ('admin_backdoor' was unexpected
+[AGREE] tc-a4                    js=INVALID  validator=RED unknown_capability: bilinmeyen yetenek: 'root'
+                           js-hata: ['capabilities', 2]: 'root' is not one of ['fs', 'net', 'clock', 'env', 'random']
+[AGREE] tc-a5                    js=valid    validator=RED code_hash_mismatch
+[AGREE] tc-a6                    js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: ['spec_version']: '0.1.0' was expected
+
+## Mutation matrix (tc-a1 base)
+[AGREE] m01-spec-yok             js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: []: 'spec_version' is a required property
+[AGREE] m02-spec-0.2.0           js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: ['spec_version']: '0.1.0' was expected
+[AGREE] m03-bilinmeyen-kok       js=INVALID  validator=RED schema_violation: (root).hack: unknown field (D3: stri
+                           js-hata: []: Additional properties are not allowed ('hack' was unexpected)
+[AGREE] m04-package-yok          js=INVALID  validator=RED schema_violation: package: zorunlu alan eksik
+                           js-hata: []: 'package' is a required property
+[AGREE] m05-ad-buyuk             js=INVALID  validator=RED schema_violation: package.name: pattern ihlali
+                           js-hata: ['package', 'name']: 'BadName' does not match '^[a-z0-9][a-z0-9-]{2,31}$'
+[AGREE] m06-ad-kisa              js=INVALID  validator=RED schema_violation: package.name: pattern ihlali
+                           js-hata: ['package', 'name']: 'ab' does not match '^[a-z0-9][a-z0-9-]{2,31}$'
+[AGREE] m07-semver-kotu          js=INVALID  validator=RED schema_violation: package.version: invalid semver
+                           js-hata: ['package', 'version']: '1.0' does not match '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$'
+[AGREE] m08-code-yok             js=INVALID  validator=RED schema_violation: package.code: zorunlu alan eksik
+                           js-hata: ['package']: 'code' is a required property
+[AGREE] m09-hash-hex-degil       js=INVALID  validator=RED schema_violation: package.code.wasm_sha256: must be 64
+                           js-hata: ['package', 'code', 'wasm_sha256']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' doe
+[AGREE] m10-hash-algo            js=INVALID  validator=RED schema_violation: package.code.hash_algo: const ihlali
+                           js-hata: ['package', 'code', 'hash_algo']: 'sha256' was expected
+[AGREE] m11-target-0.2           js=INVALID  validator=RED schema_violation: package.code.target: const ihlali (D
+                           js-hata: ['package', 'code', 'target']: 'wasi-0.3/component' was expected
+[AGREE] m12-proof-P9             js=INVALID  validator=RED schema_violation: runtime.min_proof_level: enum ihlali
+                           js-hata: ['runtime', 'min_proof_level']: 'P9' is not one of ['P0', 'P1', 'P2']
+[AGREE] m13-limit-buyuk          js=INVALID  validator=RED schema_violation: runtime.limits.memory_mb: out of ran
+                           js-hata: ['runtime', 'limits', 'memory_mb']: 8192 is greater than the maximum of 4096
+[AGREE] m14-limit-bool           js=INVALID  validator=RED schema_violation: runtime.limits.cpu_ms_per_run: must 
+                           js-hata: ['runtime', 'limits', 'cpu_ms_per_run']: True is not of type 'integer'
+[AGREE] m15-limit-str            js=INVALID  validator=RED schema_violation: runtime.limits.io_mb_per_run: must b
+                           js-hata: ['runtime', 'limits', 'io_mb_per_run']: '5' is not of type 'integer'
+[AGREE] m16-limit-eksik          js=INVALID  validator=RED schema_violation: runtime.limits.io_mb_per_run: zorunl
+                           js-hata: ['runtime', 'limits']: 'io_mb_per_run' is a required property
+[AGREE] m17-limit-bilinmeyen     js=INVALID  validator=RED unknown_field: runtime.limits.gpu
+                           js-hata: ['runtime', 'limits']: Additional properties are not allowed ('gpu' was unexpected)
+[AGREE] m18-snap-2               js=INVALID  validator=RED schema_violation: memory.snapshot_format: const ihlali
+                           js-hata: ['memory', 'snapshot_format']: 'tamga-snapshot/1' was expected
+[AGREE] m19-crypto-aes           js=INVALID  validator=RED schema_violation: memory.crypto_suite: const ihlali
+                           js-hata: ['memory', 'crypto_suite']: 'XChaCha20-Poly1305' was expected
+[AGREE] m20-cap-dup              js=INVALID  validator=RED unknown_capability: uniqueItems ihlali
+                           js-hata: ['capabilities']: ['clock', 'clock'] has non-unique elements
+[AGREE] m21-cap-cok              js=INVALID  validator=RED unknown_capability: maxItems 5 ihlali
+                           js-hata: ['capabilities']: ['fs', 'net', 'clock', 'env', 'random', 'teleport'] is too long
+[AGREE] m22-cap-dizi-degil       js=INVALID  validator=RED unknown_capability: dizi bekleniyordu
+                           js-hata: ['capabilities']: 'clock' is not of type 'array'
+[AGREE] m23-scheme-bos           js=INVALID  validator=RED schema_violation: payment.schemes: minItems 1 ihlali
+                           js-hata: ['payment', 'schemes']: [] should be non-empty
+[AGREE] m24-scheme-yabanci       js=INVALID  validator=RED schema_violation: payment.schemes: const ihlali: 'tamg
+                           js-hata: ['payment', 'schemes', 0]: 'tamga-sim/1' was expected
+[AGREE] m25-sig-algo             js=INVALID  validator=RED schema_violation: signature.algo: const ihlali
+                           js-hata: ['signature', 'algo']: 'ed25519' was expected
+[AGREE] m26-sig-key-hex          js=INVALID  validator=RED schema_violation: signature.key: must be 64-hex
+                           js-hata: ['signature', 'key']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' doe
+[AGREE] m27-sig-sig-hex          js=INVALID  validator=RED schema_violation: signature.sig: must be 128-hex
+                           js-hata: ['signature', 'sig']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+[AGREE] m28-sig-yok              js=INVALID  validator=RED schema_violation: signature: zorunlu alan eksik
+                           js-hata: []: 'signature' is a required property
+
+RESULT: 34/34 AGREE — cross-validation CLEAN
+# RFC-001 schema cross-validation — 2026-09-05T14:17:31+0300
+# jsonschema 4.26.0 · schema: specs/manifest-0.1.0.schema.json (draft 2020-12) · validator: tamga_validator.py
+
+## Real vectors
+[AGREE] tc-a1                    js=valid    validator=ACCEPT
+[AGREE] tc-a2                    js=valid    validator=RED code_hash_mismatch
+[AGREE] tc-a3                    js=INVALID  validator=RED schema_violation: (root).admin_backdoor: unknown field
+                           js-hata: []: Additional properties are not allowed ('admin_backdoor' was unexpected
+[AGREE] tc-a4                    js=INVALID  validator=RED unknown_capability: bilinmeyen yetenek: 'root'
+                           js-hata: ['capabilities', 2]: 'root' is not one of ['fs', 'net', 'clock', 'env', 'random']
+[AGREE] tc-a5                    js=valid    validator=RED code_hash_mismatch
+[AGREE] tc-a6                    js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: ['spec_version']: '0.1.0' was expected
+
+## Mutation matrix (tc-a1 base)
+[AGREE] m01-spec-yok             js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: []: 'spec_version' is a required property
+[AGREE] m02-spec-0.2.0           js=INVALID  validator=RED unsupported_spec_version
+                           js-hata: ['spec_version']: '0.1.0' was expected
+[AGREE] m03-bilinmeyen-kok       js=INVALID  validator=RED schema_violation: (root).hack: unknown field (D3: stri
+                           js-hata: []: Additional properties are not allowed ('hack' was unexpected)
+[AGREE] m04-package-yok          js=INVALID  validator=RED schema_violation: package: zorunlu alan eksik
+                           js-hata: []: 'package' is a required property
+[AGREE] m05-ad-buyuk             js=INVALID  validator=RED schema_violation: package.name: pattern ihlali
+                           js-hata: ['package', 'name']: 'BadName' does not match '^[a-z0-9][a-z0-9-]{2,31}$'
+[AGREE] m06-ad-kisa              js=INVALID  validator=RED schema_violation: package.name: pattern ihlali
+                           js-hata: ['package', 'name']: 'ab' does not match '^[a-z0-9][a-z0-9-]{2,31}$'
+[AGREE] m07-semver-kotu          js=INVALID  validator=RED schema_violation: package.version: invalid semver
+                           js-hata: ['package', 'version']: '1.0' does not match '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$'
+[AGREE] m08-code-yok             js=INVALID  validator=RED schema_violation: package.code: zorunlu alan eksik
+                           js-hata: ['package']: 'code' is a required property
+[AGREE] m09-hash-hex-degil       js=INVALID  validator=RED schema_violation: package.code.wasm_sha256: must be 64
+                           js-hata: ['package', 'code', 'wasm_sha256']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' doe
+[AGREE] m10-hash-algo            js=INVALID  validator=RED schema_violation: package.code.hash_algo: const ihlali
+                           js-hata: ['package', 'code', 'hash_algo']: 'sha256' was expected
+[AGREE] m11-target-0.2           js=INVALID  validator=RED schema_violation: package.code.target: const ihlali (D
+                           js-hata: ['package', 'code', 'target']: 'wasi-0.3/component' was expected
+[AGREE] m12-proof-P9             js=INVALID  validator=RED schema_violation: runtime.min_proof_level: enum ihlali
+                           js-hata: ['runtime', 'min_proof_level']: 'P9' is not one of ['P0', 'P1', 'P2']
+[AGREE] m13-limit-buyuk          js=INVALID  validator=RED schema_violation: runtime.limits.memory_mb: out of ran
+                           js-hata: ['runtime', 'limits', 'memory_mb']: 8192 is greater than the maximum of 4096
+[AGREE] m14-limit-bool           js=INVALID  validator=RED schema_violation: runtime.limits.cpu_ms_per_run: must 
+                           js-hata: ['runtime', 'limits', 'cpu_ms_per_run']: True is not of type 'integer'
+[AGREE] m15-limit-str            js=INVALID  validator=RED schema_violation: runtime.limits.io_mb_per_run: must b
+                           js-hata: ['runtime', 'limits', 'io_mb_per_run']: '5' is not of type 'integer'
+[AGREE] m16-limit-eksik          js=INVALID  validator=RED schema_violation: runtime.limits.io_mb_per_run: zorunl
+                           js-hata: ['runtime', 'limits']: 'io_mb_per_run' is a required property
+[AGREE] m17-limit-bilinmeyen     js=INVALID  validator=RED unknown_field: runtime.limits.gpu
+                           js-hata: ['runtime', 'limits']: Additional properties are not allowed ('gpu' was unexpected)
+[AGREE] m18-snap-2               js=INVALID  validator=RED schema_violation: memory.snapshot_format: const ihlali
+                           js-hata: ['memory', 'snapshot_format']: 'tamga-snapshot/1' was expected
+[AGREE] m19-crypto-aes           js=INVALID  validator=RED schema_violation: memory.crypto_suite: const ihlali
+                           js-hata: ['memory', 'crypto_suite']: 'XChaCha20-Poly1305' was expected
+[AGREE] m20-cap-dup              js=INVALID  validator=RED unknown_capability: uniqueItems ihlali
+                           js-hata: ['capabilities']: ['clock', 'clock'] has non-unique elements
+[AGREE] m21-cap-cok              js=INVALID  validator=RED unknown_capability: maxItems 5 ihlali
+                           js-hata: ['capabilities']: ['fs', 'net', 'clock', 'env', 'random', 'teleport'] is too long
+[AGREE] m22-cap-dizi-degil       js=INVALID  validator=RED unknown_capability: dizi bekleniyordu
+                           js-hata: ['capabilities']: 'clock' is not of type 'array'
+[AGREE] m23-scheme-bos           js=INVALID  validator=RED schema_violation: payment.schemes: minItems 1 ihlali
+                           js-hata: ['payment', 'schemes']: [] should be non-empty
+[AGREE] m24-scheme-yabanci       js=INVALID  validator=RED schema_violation: payment.schemes: const ihlali: 'tamg
+                           js-hata: ['payment', 'schemes', 0]: 'tamga-sim/1' was expected
+[AGREE] m25-sig-algo             js=INVALID  validator=RED schema_violation: signature.algo: const ihlali
+                           js-hata: ['signature', 'algo']: 'ed25519' was expected
+[AGREE] m26-sig-key-hex          js=INVALID  validator=RED schema_violation: signature.key: must be 64-hex
+                           js-hata: ['signature', 'key']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz' doe
+[AGREE] m27-sig-sig-hex          js=INVALID  validator=RED schema_violation: signature.sig: must be 128-hex
+                           js-hata: ['signature', 'sig']: 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+[AGREE] m28-sig-yok              js=INVALID  validator=RED schema_violation: signature: zorunlu alan eksik
+                           js-hata: []: 'signature' is a required property
+
+RESULT: 34/34 AGREE — cross-validation CLEAN

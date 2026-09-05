@@ -145,3 +145,17 @@ SONUÇ(at001f): 4 PASS, 0 FAIL
   [PASS] tc-s8: oturum 5 > snapshot 0 → reason-8 RED (rollback engeli)
 
 SONUÇ(at001f): 4 PASS, 0 FAIL
+# AT-001f negatif vektörler — 2026-09-05T10:50:10+03:00
+  [PASS] tc-s7: 65MiB snapshot → reason-7 RED
+  [PASS] tc-s9: header agent_id taklidi → reason-9 RED (keystore gerçek, kimlik uyumsuz)
+  [PASS] tc-s8 önkoşul: base import ACCEPT (pkgC)
+  [PASS] tc-s8: oturum 5 > snapshot 0 → reason-8 RED (rollback engeli)
+
+SONUÇ(at001f): 4 PASS, 0 FAIL
+# AT-001f negatif vektörler — 2026-09-05T11:19:09+03:00
+  [PASS] tc-s7: 65MiB snapshot → reason-7 RED
+  [PASS] tc-s9: header agent_id taklidi → reason-9 RED (keystore gerçek, kimlik uyumsuz)
+  [PASS] tc-s8 önkoşul: base import ACCEPT (pkgC)
+  [PASS] tc-s8: oturum 5 > snapshot 0 → reason-8 RED (rollback engeli)
+
+SONUÇ(at001f): 4 PASS, 0 FAIL

@@ -113,6 +113,9 @@ Tek komutla doğrula: `bash tests/run_all.sh` → 16/16.
 | [ROADMAP.md](ROADMAP.md) | Aşama-kapılı plan + çıkış ölçütleri | Yaşayan belge |
 | [docs/ERC-8004-ESLEME.md](docs/ERC-8004-ESLEME.md) | Standart eşleme + sektör genişleme değerlendirmesi | Tasarım notu |
 | [docs/PILOT-MUSTERI-STRATEJISI.md](docs/PILOT-MUSTERI-STRATEJISI.md) | Ajan-müşteri GTM (huni + ilk 30 gün) | Strateji |
+| [docs/KURUM-PAKETI.md](docs/KURUM-PAKETI.md) | Şirketler için tek-sayfa değer + dürüst sınırlar | Pilot |
+| [docs/REKABET-HARITASI.md](docs/REKABET-HARITASI.md) | Komşu-proje/bitiriklik haritası (kaynaklı) | Tarama |
+| [docs/AJAN-EKONOMISI-ARASTIRMA-2026-09-05.md](docs/AJAN-EKONOMISI-ARASTIRMA-2026-09-05.md) | Ajan-ekonomisi akademik tarama (5 bulgu) | Tarama |
 | [docs/KURUCU-KARARLARI.md](docs/KURUCU-KARARLARI.md) | Alınmış kararlar + gerekçeleri | Karar defteri |
 | [kanit/](kanit/) | Tüm koşu kanıtları (log'lar) | Eklenir, silinmez |
 

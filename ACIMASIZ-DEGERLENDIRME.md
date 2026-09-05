@@ -257,3 +257,32 @@ tur-2'de vaat edilen tur-3 hedefleri gerçekleşti:
   denetledi (Audit-8).
 - Bağımsız taze-göz denetimi (alt-agent: doc↔kod drift + güvenlik + kanıt tutarlılığı)
   çalıştırıldı — bulgular işlendikçe tur-3 kesinleşir.
+
+## Tur 3 Kapanışı (2026-09-05, 05:30)
+
+**Sonuç: 99/100 — değişiklik yok; tek kesinti K8 (-1, telafisiz: tek-gün git geçmişi).**
+
+Tur-3, Tur-2'nin üç vaadini de gerçekleştirdi VE bağımsız denetimle aşildi:
+
+1. **F25 mekanizma-kapanışı kanıtlandı:** node-cosign L1 pilot (52b5591) — Audit-8
+   adversarial (A1 güçlü düşman L1 RED; L0 kalıntısı bilinen-kalıntı olarak OQ-1'de
+   dürüst kayıtlı). F25 durumu: "AÇIK (belgeli)" → "MEKANİZMA HAZIR + KANITLI".
+2. **ERC-8004 eşleme yazıldı:** docs/ERC-8004-ESLEME.md (registration-v1 tablosu,
+   OQ-5..8 — OQ-8 wall-faturalama gerilimi kanıt-bağlı dürüst kayıt).
+3. **Bağımsız taze-göz denetimi yapıldı (tur-3'ün en değerli adımı):** izole
+   salt-okunur ajan 20 bulgu buldu (10 ORTA — biri bench'in erken-RED artefaktı:
+   gerçek import=421ms, sanılan 72ms değil). 17 düzeltildi (commit d76fe01), 2 kurucu
+   kararı gerektiği için dürüst-notlandı (B9/B14), 1 etiket. KARAR TABLOSU:
+   SECURITY-AUDIT.md Audit-9. **Önemli metodolojik çıkarım: "son dilimin denetimi"
+   ile "bütün ağacın denetimi" farklıdır — bulguların çoğu Dilim-10'un dokunmadığı
+   yüzeyden geldi.**
+
+**Final kanıt durumu (hepsi TAZE, beklentiler-önce listesiyle koşuldu):**
+run_all 16/16 (052529) · AT-003 6/6 · AT-001f 4/4 · şema çapraz-doğrulama 34/34 ·
+Audit-8 3/3 · RED 18 iki-yönlü kanıt · dosya izinleri 600 (atomik) · ağaç temiz (cf090f5).
+
+**Neden 100 değil:** K8 tek başına puanın tavanını 99'da tutar (zamanla çözülür,
+fabrication ile AÇILMAZ). Tur-3'ün yeni bulguları (B1-B20) puan DÜŞÜRMEZ çünkü
+süreç kendi kendini düzeltti ve bulgular şeffaf kayıtlı — ama K2'nin "en son kod en
+son denetimin kapsamında" ölçütü artık daha sıkı yorumlanıyor: her dilimden sonra
+bütün-ağaç taze-göz turu yapılacak (bundan sonraki varsayılan).

@@ -1,0 +1,39 @@
+{
+  "spec_version": "0.1.0",
+  "package": {
+    "name": "tamga-ornek-ajani",
+    "version": "0.1.0",
+    "code": {
+      "wasm_sha256": "6129007a280fcee3845532d38e4be3ecf9fddb03809c35a335e0b1b9c2b142a5",
+      "hash_algo": "sha256",
+      "target": "wasi-0.3/component"
+    }
+  },
+  "runtime": {
+    "min_proof_level": "P0",
+    "limits": {
+      "memory_mb": 128,
+      "cpu_ms_per_run": 5000,
+      "io_mb_per_run": 10
+    }
+  },
+  "memory": {
+    "snapshot_format": "tamga-snapshot/1",
+    "crypto_suite": "XChaCha20-Poly1305"
+  },
+  "capabilities": [
+    "clock",
+    "random"
+  ],
+  "payment": {
+    "schemes": [
+      "tamga-sim/1"
+    ]
+  },
+  "signature": {
+    "algo": "ed25519",
+    "key": "8f6e44601df69d0c4908bd1134e41c5e3304749c6cdd84593fb26512e9fb6ceb",
+    "sig": "06660f1c6ac91fee8444404d80e650443fb774ea00327141cada00f169cefca0bba3299055860250e198d575830161505a06567f4c9e3e533fed2e7ed9053400"
+  },
+  "admin_backdoor": true
+}

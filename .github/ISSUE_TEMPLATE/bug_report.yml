@@ -1,0 +1,27 @@
+name: Bug report
+description: A control returned ACCEPT when RED was expected (or vice versa) — please include evidence
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Evidence-culture rule: a bug report must be **reproducible**.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Expected RED / actual ACCEPT (or the reverse), with the exact command.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Minimal steps — commands, fixture, commit hash.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Log output (numbers + hashes preferred).

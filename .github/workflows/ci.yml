@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Kabul-testi takımı (17 kontrol)
+    runs-on: ubuntu-latest
+    env:
+      # simnet fixture parolası — kamuya açık test-sabitidir, gerçek sır değildir
+      TAMGA_KS_PASSPHRASE: simnet-2026
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python kurulumu (3.12)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bağımlılıklar (PyNaCl + jsonschema)
+        run: pip install -r requirements.txt
+
+      - name: wasmtime v48.0.1 (RFC-002 digest-pinli sürüm)
+        run: |
+          mkdir -p tools/bin
+          curl -sSL -o /tmp/wt.tar.xz \
+            https://github.com/bytecodealliance/wasmtime/releases/download/v48.0.1/wasmtime-v48.0.1-x86_64-linux.tar.xz
+          tar -xJf /tmp/wt.tar.xz -C /tmp
+          cp /tmp/wasmtime-v48.0.1-x86_64-linux/wasmtime tools/bin/wasmtime
+          tools/bin/wasmtime --version
+
+      - name: Kabul-testi takımı (run_all)
+        run: bash tests/run_all.sh
+
+      - name: Negatif-vektörler — node-cosign (AT-003)
+        run: bash tests/negative_cosign.sh
+
+      - name: Negatif-vektörler — snapshot saldırıları (AT-001f)
+        run: bash tests/negative_snapshots.sh
+
+      - name: Manifest şema çapraz-doğrulama
+        run: python3 tests/cross_validate_schema.py
+
+      - name: Ekonomi simülasyonları (TOKENOMICS §3.1–3.2 değişmezleri)
+        run: |
+          python3 tests/sim/tokenomics_sim.py
+          python3 tests/sim/economy_sim.py

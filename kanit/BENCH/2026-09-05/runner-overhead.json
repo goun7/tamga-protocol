@@ -1,0 +1,60 @@
+{
+  "tarih": "2026-09-05T04:17:03+0300",
+  "loadavg": [
+    "26.32",
+    "27.04",
+    "28.01"
+  ],
+  "not": "koşum-kenarı (wasmtime) hariç; scrypt n=2^15 baskın emdiridir; load ortamı paralel oturumlarla meşgul — mutlak değer değil, op-arası ORAN anlamlıdır (Faz 2 çıkış-ölçütü taban çizgisi)",
+  "sonuclar": [
+    {
+      "op": "keygen(ed25519)",
+      "n": 50,
+      "medyan_ms": 192.42,
+      "ortalama_ms": 204.92,
+      "p95_ms": 297.69
+    },
+    {
+      "op": "grant+zincir-ekleme",
+      "n": 50,
+      "medyan_ms": 151.7,
+      "ortalama_ms": 177.5,
+      "p95_ms": 299.96
+    },
+    {
+      "op": "ledger-verify(5-kayıt)",
+      "n": 50,
+      "medyan_ms": 72.52,
+      "ortalama_ms": 80.19,
+      "p95_ms": 123.69
+    },
+    {
+      "op": "memory-import+ADD-only",
+      "n": 30,
+      "medyan_ms": 138.46,
+      "ortalama_ms": 164.95,
+      "p95_ms": 333.28
+    },
+    {
+      "op": "memory-search",
+      "n": 50,
+      "medyan_ms": 69.56,
+      "ortalama_ms": 73.93,
+      "p95_ms": 99.78
+    },
+    {
+      "op": "export(scrypt+XChaCha)",
+      "n": 20,
+      "medyan_ms": 181.74,
+      "ortalama_ms": 186.12,
+      "p95_ms": 229.21
+    },
+    {
+      "op": "import(derin-doğrulama)",
+      "n": 20,
+      "medyan_ms": 72.1,
+      "ortalama_ms": 78.5,
+      "p95_ms": 85.58
+    }
+  ]
+}

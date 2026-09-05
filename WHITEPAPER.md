@@ -81,6 +81,8 @@ Primitif hiçbir ekonomik varsayım taşımaz: ödeme standartlar üstünde (x40
 
 **Katman konumu (normatif):** x402 (ödeme taşıması) ve ERC-8004 (kimlik/keşif kaydı) **taşıyıcı standartlardır, çekirdek değildir**; her biri soyutlanmış, değiştirilebilir bir adaptör katmanında yaşar. Tamga'nın fark katmanı — koşum kanıtı, host-kör taşınabilir hafıza, kendi-anahtarlı ajan yaşamı — bugün hiçbir standardın iddia alanı değildir. Standart bağımlılığı sürüm pinlendiği sürece değil, katmanlar karışmadığı sürece risktir.
 
+**Pazar kanıtı (2026-09, tarihli):** x402 Nisan 2026'da 165M+ işlem / ~69k aktif ajan / ~$50M hacime ulaştı; aynı kaynak hacmin kabaca yarısının test trafiği olabileceğini not eder — kategori gerçek, büyüme eğrisi doğrusal değil (RZLT x402 Explainer, Tem 2026; Chainalysis "100M agentic payments on Base", Q1 2026). ERC-8004 (Trustless Agents: Identity/Reputation/Validation kayıtları) 2026-09 itibarıyla Draft aşamasında (EIP-8004); ödeme bu standardın kapsamı dışında ve x402 ile örneklenir. Tamga'nın iddia alanı (kanıtlı koşum + host-kör taşınabilir hafıza + kendi-anahtarlı ajan) her iki standardın da dışında kalır — bu belge 2026-09 pazar verisiyle yazıldığında iddia güncelliğini korur.
+
 ## 9. Sınırlar ve Bilinmeyenler
 
 - in-use koruma maliyeti ve TEE ölçeklenebilirliği (ölçüm gerekir)
@@ -94,4 +96,6 @@ v0 (Runner + Bağlam Grafiği + Muhasebe; kabul testi AT-001) → v1 (açık nod
 
 ## Referanslar
 
-Nakamoto, "Bitcoin: A Peer-to-Peer Electronic Cash System" (2008) · x402 ödeme standardı · Wasmtime · AWS Nitro Enclaves / AMD SEV-SNP · Local-first software (Kleppmann) · Mem0/Letta/Zep (host-bağımlı hafıza çağdaşları)
+Nakamoto, "Bitcoin: A Peer-to-Peer Electronic Cash System" (2008) · x402: The Payment Protocol for Agentic Commerce (x402.org whitepaper, Haz 2026) · RZLT, "Agentic Payments in 2026: The x402 Explainer" (Tem 2026) · Chainalysis, "Inside x402: 100M Agentic Payments on Base" (2026) · EIP-8004: Trustless Agents (Draft, eips.ethereum.org/EIPS/eip-8004; erişim 2026-09-05) · WASI 0.3.0 (ratifiye; wasi.dev/releases) · Wasmtime v48.0.1 (bytecodealliance, 2026-08-24) · AWS Nitro Enclaves / AMD SEV-SNP · Local-first software (Kleppmann) · Mem0/Letta/Zep (host-bağımlı hafıza çağdaşları; Mem0: 51k+ ★, $24M — preuve.ai, 2026)
+
+*Belge güncellemesi: 2026-09-05 — §8 pazar kanıtı + referanslar Eylül 2026 verileriyle tazelendi (otonom geliştirme turu, goal-f7f9582e).*

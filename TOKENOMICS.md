@@ -25,7 +25,9 @@
 
 **Değişkenler:** CPU-saat fiyat tavanı (AWS/Akash kıyası), node işletme maliyeti (elektrik+donanım amortismanı), ücret oranı, dinamik burn oranı, ajan talep büyümesi, node arz esnekliği.
 
-**Senaryolar:** taban (düşük talep), taban-çarpan (hedef), çöküş (talep çöker + arz yapışkan).
+**Pazar çapası (2026-09, tarihli):** x402 gerçek dünya ortalama işlemi **$0.20–0.30** (sub-cent mikro-ödeme bantta yaşanıyor; Nisan 2026: 165M+ işlem / ~$50M kümülatif). Dürüst değişken: **hacmin kabaca yarısı test trafiği olabilir** — simülasyonun "taban" senaryosu gerçek-ticaret payının yarıya inmesi durumunu modellemeli (RZLT x402 Explainer, Tem 2026; Chainalysis Q1 2026).
+
+**Senaryolar:** taban (düşük talep + test-trafiği deflasyonu), taban-çarpan (hedef), çöküş (talep çöker + arz yapışkan).
 
 **Çıkış sorusu — v1 Go/No-Go metriği:** hangi kullanım seviyesinde tipik bir node'un ücret geliri işletme maliyetini karşılar? Bu eşik, TOKENOMICS'i hayalden gerçeğe ayıran tek sayıdır.
 

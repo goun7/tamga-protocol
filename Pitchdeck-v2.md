@@ -20,7 +20,7 @@ Hedefimiz, agentic ekonomide henüz tam var olmayan bir sorunu önceden çözmek
 - Bir ajanın hafızası (bağlam grafiği) çalıştığı makineye hapsolmuştur; ajan "taşınmaz".
 - Makine-başına CPU kullanımı için makine-native, mikro ölçekli ödeme yolu yoktur.
 
-**Yarın büyüyecek olan:** Ajanlar ajanlarla işlem yaptıkça bu üçlü (güven, taşınabilir hafıza, makine ödemesi) niş değil, altyapı zorunluluğu olur. Tamga, bu üçlüyü **tek pakette** çözmeyi hedefler.
+**Yarın büyüyecek olan:** Ajanlar ajanlarla işlem yaptıkça bu üçlü (güven, taşınabilir hafıza, makine ödemesi) niş değil, altyapı zorunluluğu olur. Bu artık hipotez değil, ölçülmüş eğri: **x402 Nisan 2026 itibarıyla 165M+ işlem, ~69.000 aktif ajan, ~$50M kümülatif hacim** (dürüst not: hacmin kabaca yarısı test trafiği olabilir — gerçek ticaret payı ölçülmeden büyüme ilan edilmez). Tamga, bu üçlüyü **tek pakette** çözmeyi hedefler.
 
 ## 3. Ürün: Üç Aşamalı Yol
 
@@ -28,8 +28,8 @@ Hedefimiz, agentic ekonomide henüz tam var olmayan bir sorunu önceden çözmek
 
 Tek binary node:
 
-- **Runner:** WASM ajan paketlerini koşturur (Wasmtime tabanlı), süreç + WASM sandbox izolasyonu.
-- **Bağlam Grafiği:** Gömülü SQLite + vektör arama; ajan durumu taşınabilir, şifreli snapshot olarak export/import edilir.
+- **Runner:** WASM ajan paketlerini koşturur (wasmtime v48.0.1, digest-pinli), süreç + WASM sandbox izolasyonu; **WASI 0.3.0 ratifiye spesifikasyon üstünde** (Wasmtime 46+ default).
+- **Bağlam Grafiği:** gömülü JSON bağlam grafiği (sıfır-bağımlılık çekirdek: stdlib + PyNaCl); ADD-only düğüm modeli, merkle-bağlı state, şifreli taşınabilir snapshot. SQLite+vektör arama katmanı ölçülmüş ihtiyaç fazında (RFC ile) eklenir — v0'ın bugünkü gerçeklemesi JSON-graftır.
 - **Muhasebe:** Yerel simüle ledger — CPU-saat / RAM / I/O sayaçları, makine-başına ücretlendirme.
 - **Kilit demo (tek seans, kanıt niteliğinde):** Bir ajan, şifreli hafızasıyla birlikte A makinesinden B makinesine taşınır; B üzerinde koşarken kullandığı kaynak için simüle ödeme yapar; host, ajanın **şifreli snapshot'ına erişemez** (at-rest). Kullanım-sırası bellek koruması TEE ister ve v1'in konusudur.
 
@@ -38,7 +38,8 @@ Ne kanıtlıyor: **"taşınabilir ajan + taşınabilir hafıza + kullandıkça-�
 ### v1 — Ağ (~6-18 ay)
 
 - Açık **Tier-2 node'lar**: standart donanımda Docker/WASM runner + bağlam ağı.
-- **Ödeme:** hazır standart üstünden (x402 veya hazır bir L1'in state channel'ı) — **kendi zincirimiz yok.**
+- **Ödeme:** hazır standart üstünden (x402 veya hazır bir L1'in state channel'ı) — **kendi zincirimiz yok.** (2026-09 durumu: x402 hakimiyeti kanıtlandı — 165M+ işlem; karar 0 açık soru değil, prototip ölçümüyle doğrulanacak şekil sorusudur.)
+- **Keşif/İtibar:** ERC-8004 (Trustless Agents — Identity/Reputation/Validation kayıtları) hâlâ Draft (2026-09-05); ROADMAP'teki "ERC-8004 ile uyumlu tasarlanır" hattı geçerli — kayıt-dosyası `registration-v1` şemasına (`x402Support` + `supportedTrust` alanları) Tamga ajan manifest'i eşlenebilir tutulur.
 - **TEE:** bulut enclave'leri (AWS Nitro / Azure SEV-SNP) — kurucu ekibin kendi donanımı gerekmez.
 - **Tier-1 fast-path (eBPF/DPDK):** yalnız v0/v1 ölçümleri gecikme darboğazını kanıtlarsa, ayrı uzman işbirliğiyle. Kanıt yoksa ertelenir.
 
@@ -54,8 +55,8 @@ Ne kanıtlıyor: **"taşınabilir ajan + taşınabilir hafıza + kullandıkça-�
 |---|---|---|
 | Merkeziyetsiz compute | Akash, io.net, Render | Onlar **kaynak** satar; Tamga "host'a güvenmeyen, hafızasını taşıyan ajan paketi" satar |
 | TEE compute | Phala, iExec, Marlin | Onlar enclave kiralar; Tamga enclave + taşınabilir bağlam + ödemeyi tek pakette verir |
-| Ajan hafızası | Mem0, Letta, Zep | Onların hafızası host'ta yaşar; Tamga hafızayı ajanla taşır |
-| Ajan ödemesi | x402, hazır L1'ler | Standartları yeniden icat etmiyoruz; üstlerine node + muhasebe katmanı ekliyoruz |
+| Ajan hafızası | Mem0 (51k+ ★, $24M yatırım, 100k+ geliştirici), Letta, Zep | Onların hafızası host'un kontrolündeki serviste yaşar; Tamga hafızayı ajanla, host-kör taşır |
+| Ajan ödemesi | x402 (165M+ işlem/69k ajan, Nis 2026), Google AP2, Skyfire | Standartları yeniden icat etmiyoruz; üstlerine node + muhasebe + kanıtlı-koşum katmanı ekliyoruz |
 
 İddia "her şeyi yapan protokol" değil, **paketleme** iddiasıdır: entegrasyon bizim ürünümüz.
 

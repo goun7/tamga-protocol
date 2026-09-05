@@ -13,13 +13,13 @@
 - **Kill kriteri:** hafta 12'de AT-001b/d (taşıma + host-körlük) yeşile gelemiyorsa kapsamı sadeleştir — taşıma primitifidir, diğer her şey pazarlıktır.
 
 ## Faz 2 — v0 Sertleşmesi (ay 4→6)
-- **İş:** 1 dış pilot müşteri; performans ölçümü (runner overhead ms cinsinden beyan); kanıt kültürünün dış node şahitliğinde testi; birim ekonomi simülasyonu (TOKENOMICS §3) çalıştırılır; hafıza içe-aktarma adaptörleri (**MERGEN** → Mem0 → Letta → Zep → Tamga snapshot) — mevcut ajanlara sıfır-sürtünmeli göç yolu = birincil katılım kaldıracı. MERGEN ilk sıra: sahibi biziz (kurucu projesi, /MERGEN), şeması dosyadan biliniyor, ilk adaptörün test maliyeti en düşük (bkz. MERGEN-ENTEGRASYON-NOTU.md).
+- **İş:** 1 dış pilot müşteri; performans ölçümü (runner overhead ms cinsinden beyan); kanıt kültürünün dış node şahitliğinde testi; birim ekonomi simülasyonu (TOKENOMICS §3) çalıştırılır; hafıza içe-aktarma adaptörleri (**MERGEN** → Mem0 → Letta → Zep → Tamga snapshot) — mevcut ajanlara sıfır-sürtünmeli göç yolu = birincil katılım kaldıracı. MERGEN ilk sıra: sahibi biziz (kurucu projesi, /MERGEN), şeması dosyadan biliniyor, ilk adaptörün test maliyeti en düşük (bkz. MERGEN-ENTEGRASYON-NOTU.md). (2026-09 pazar notu: Mem0 51k+ ★ / $24M / 100k+ geliştirici — adaptör pazarı gerçek ve büyüyor; LoCoMo/LongMemEval/BEAM benchmark'ları ölçüt.)
 - **Çıkış kriteri:** pilot aktif; ölçülmüş overhead beyanlı; break-even kullanım eşiği hesaplı.
 - **Kill kriteri:** 6. ay sonunda dış talep sinyali yoksa "ağ" hedefi durdurulur; v0 tek-makine ürün olarak sadeleştirilir.
 
 ## Faz 3 — v1 Ağ (ay 6→18) — TETİKLEYİCİLİ
 - **Tetik:** Faz 2 metrikleri (dış node sayısı, pilot geliri, simülasyon eşikleri).
-- **İş:** node keşfi+itibar — **ERC-8004 kayıt sözleşmeleriyle (kimlik/itibar/doğrulama) uyumlu tasarlanır** (Eylül 2026: ERC-8004 Standards-Track Draft); gerçek mikro-ödeme (x402 vs L1 channel — prototip ölçümüyle karar; x402: 30 günde ~75M işlem, ~$24M hacim — hakimiyet kanıtlı); TEE pilot (bulut enclave — Nitro/SEV-SNP; Intel TDX'i de izle); AT-002 test ailesi.
+- **İş:** node keşfi+itibar — **ERC-8004 kayıt sözleşmeleriyle (kimlik/itibar/doğrulama) uyumlu tasarlanır** (2026-09-05 teyidi: hâlâ Draft — Identity Registry ERC-721 tabanlı, Reputation/Validation kayıtları ayrı; ajan kayıt-dosyası `registration-v1` şeması `x402Support` + `supportedTrust` alanları taşıyor — Tamga manifest'i eşlenebilir tutulur); gerçek mikro-ödeme (x402 vs L1 channel — prototip ölçümüyle karar; x402: Nisan 2026'da 165M+ işlem / ~69k aktif ajan / ~$50M kümülatif — dürüst not: hacmin kabaca yarısı test trafiği olabilir, gerçek-ticaret payı ölçümü v1 öncesi şart; ağ: Base + Solana); TEE pilot (bulut enclave — Nitro/SEV-SNP; Intel TDX'i de izle); AT-002 test ailesi.
 - **Kill kriteri:** ödeme entegrasyonu ücret geliri ≤ node işletme maliyeti ise ağ büyütme durdurulur.
 
 ## Faz 4 — v2 Protokol (ay 18+) — ÇİFT TETİKLEYİCİLİ

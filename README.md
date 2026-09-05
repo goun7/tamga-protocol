@@ -48,8 +48,9 @@ python3 tamga_runner.py memory <pkg> --import-json d.json   # MERGEN → Tamga d
   TEE/niyet-kanatı (RFC-004 attestation) v1 planıdır — v0 bunu iddia etmez.
 - **Bütünlük:** ledger hash-zinciri (kurcalama → `broken_at` RED), hafıza `graph_merkle`,
   snapshot ↔ ledger bağlaması (`ledger_tip` — truncate saldırısı RED).
-- **Bağlantısız çalışma:** motor (wasmtime v48.0.1, digest-pinli) default-deny: dosya yok, ağ yok,
-  host env sıfır. Yetenekler manifest'te beyan edilir (şu an: clock, random).
+- **Bağlantısız çalışma:** motor (wasmtime v48.0.1, digest-pinli — **ratifiye WASI 0.3.0 üstünde**,
+  Wasmtime 46+ default) default-deny: dosya yok, ağ yok, host env sıfır. Yetenekler
+  manifest'te beyan edilir (şu an: clock, random).
 - Açık bulgular her zaman [SECURITY-AUDIT.md](SECURITY-AUDIT.md)'de yaşar; kapatma kanıtsız yapılmaz.
 
 ## Tek-Komut Regresyon

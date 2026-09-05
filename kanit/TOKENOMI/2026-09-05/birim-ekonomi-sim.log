@@ -1,0 +1,5 @@
+# TOKENOMICS §3 sim — 2026-09-05T11:16:55+0300
+cpu-bazlı eşik bandı 1154–42857 iş/ay; doğrulanabilir-iş bandı 170–852 iş/ay; I3 tez teyidi: fiyat tabanı değişimi eşiği ~1.4× aşağı çeker
+probe'lar: {'I1_burn': True, 'I2_kasa': True, 'I3_tez': True}
+sonuç: GECERLI
+breakeven: taban=19 hedef=4 cokus=None

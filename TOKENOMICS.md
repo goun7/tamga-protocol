@@ -31,6 +31,23 @@
 
 **Çıkış sorusu — v1 Go/No-Go metriği:** hangi kullanım seviyesinde tipik bir node'un ücret geliri işletme maliyetini karşılar? Bu eşik, TOKENOMICS'i hayalden gerçeğe ayıran tek sayıdır.
 
+## 3.1 Simülasyon Kanıtı (2026-09-05 — kurucu kararı: token ekonomisini önce çözsek)
+
+**Araç:** `tests/sim/tokenomics_sim.py` (saf stdlib, deterministik; kanıt: kanit/TOKENOMI/2026-09-05/).
+Değişmez-probe'ları GECERLI: I1 (cover<1 → burn=0), I2 (kasaya dış-akış RED — ponzi-testi), I3.
+
+**Go/No-Go sayısı (eşik U\*):** maliyet/ış-başı-gelir:
+- cpu-bazlı fiyat ($0.30/cpu-s, 60sn-iş): **5.000 iş/ay ($30 maliyet)** → 25.000 iş/ay ($150)
+- doğrulanabilir-iş fiyat ($0.15/iş): **170 iş/ay ($30)** → **852 iş/ay ($150)** — iş-süresi eşik-eğrisinden bağımsız
+- **I3 tez teyidi:** fiyat tabanını cpu-saatten doğrulanabilir-işe çekmek eşiği ~6–30× aşağı çeker →
+  node cpu-satmamalı, KANITLI-iş satmalı (kanıt overhead'i marj gerekçesi)
+
+**Senaryo-breakeven (tek node, $0.15/iş, $90/ay, büyüme):** taban (%5/ay, %50 test-trafiği)
+= **19. ay**; hedef (%15/ay, %20 test) = **4. ay**; çöküş (%-30/ay) = hiç (kasa §1-5 testine uyumlu).
+
+**Hüküm:** eşik 852 iş/ay — tek-node için günlük ~28 kanıtlı-iş. Bu, TOKENOMICS'in
+hayalden gerçeğe ayrılan TEK sayısıdır; Faz 4 tetiği bu sayının gerçek-ağda ölçülmesidir.
+
 ## 4. Anlatı ve Dağıtım
 
 **Tek cümlelik anlatı:** *"Kendine-sahip ajan: hafızası, kimliği ve parası onunla gider."*

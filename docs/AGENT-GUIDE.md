@@ -110,6 +110,14 @@ python3 tamga_runner.py memory <pkg> --search "keyword"
 
 Re-importing the same source is idempotent (existing entries are skipped).
 
+Coming from another memory store? Convert first — Mem0/Letta/Zep exports and plain
+JSON-lines are recognized automatically:
+
+```bash
+python3 tools/memory_import.py --from export.json --format auto -o converted.json
+python3 tamga_runner.py memory <pkg> --import-json converted.json
+```
+
 ## 9. Pre-PR checklist
 
 - [ ] `tamga_validator.py validate <pkg>` → ACCEPT

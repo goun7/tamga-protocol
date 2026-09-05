@@ -100,6 +100,10 @@ PY
     fi
   fi
 
+  # ---- kontrol-18: AT-005 memory import (multi-format, idempotent, oversize RED) ----
+  bash tests/at005_memory_import.sh > /dev/null 2>&1
+  kontrol $? "AT-005: memory-import (4-format + idempotency + oversize RED)"
+
   rm -rf "$SB"
   echo ""
   echo "SONUÇ: $PASS PASS, $FAIL FAIL — log: $LOG"

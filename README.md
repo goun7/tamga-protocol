@@ -3,7 +3,7 @@
 <img src="docs/assets/banner.svg" width="660" alt="Tamga Protocol — portable identity, encrypted memory, verifiable work receipts"/>
 
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-17%2F17%20PASS-brightgreen)](#one-command-regression)
+[![Tests](https://img.shields.io/badge/tests-18%2F18%20PASS-brightgreen)](#one-command-regression)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Phase%202%20--%20pilot-orange)](#roadmap)
 
@@ -88,7 +88,7 @@ attack simulations). Disclosure process: [SECURITY.md](SECURITY.md).
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 pip install -r requirements.txt
-bash tests/run_all.sh          # 17/17 controls — ~6 s
+bash tests/run_all.sh          # 18/18 controls — ~10 s
 
 # your first agent:
 python3 tamga_validator.py keygen tests/keys/alice
@@ -106,16 +106,18 @@ python3 tamga_runner.py import snapshot.tsg <new-pkg>
 python3 tamga_runner.py ledger-verify <new-pkg>
 python3 tamga_runner.py memory <pkg> --search <query>
 python3 tamga_runner.py memory <pkg> --import-json lessons.json   # ADD-only memory bridge
+# bringing memory from another store? multi-format converter (mem0/letta/zep/jsonl):
+python3 tools/memory_import.py --from export.json --format auto -o converted.json
 ```
 
 ## One-command regression
 
 ```bash
-bash tests/run_all.sh        # 17/17 controls — families below, ~6 s on a laptop
+bash tests/run_all.sh        # 18/18 controls — families below, ~10 s on a laptop
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
-(AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), manifest-schema
-cross-validation (34/34), plus tokenomics/economy invariants. Details:
+(AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory
+import (AT-005), manifest-schema cross-validation (34/34), plus tokenomics/economy invariants. Details:
 [docs/TESTS.md](docs/TESTS.md). CI runs the full suite on every push (ubuntu-latest,
 wasmtime v48.0.1).
 

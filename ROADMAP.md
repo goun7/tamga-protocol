@@ -21,6 +21,10 @@
 ## Faz 3 — v1 Ağ (ay 6→18) — TETİKLEYİCİLİ
 - **Tetik:** Faz 2 metrikleri (dış node sayısı, pilot geliri, simülasyon eşikleri).
 - **İş:** node keşfi+itibar — **ERC-8004 kayıt sözleşmeleriyle (kimlik/itibar/doğrulama) uyumlu tasarlanır** (2026-09-05 teyidi: hâlâ Draft — Identity Registry ERC-721 tabanlı, Reputation/Validation kayıtları ayrı; ajan kayıt-dosyası `registration-v1` şeması `x402Support` + `supportedTrust` alanları taşıyor — Tamga manifest'i eşlenebilir tutulur); gerçek mikro-ödeme (x402 vs L1 channel — prototip ölçümüyle karar; x402: Nisan 2026'da 165M+ işlem / ~69k aktif ajan / ~$50M kümülatif — dürüst not: hacmin kabaca yarısı test trafiği olabilir, gerçek-ticaret payı ölçümü v1 öncesi şart; ağ: Base + Solana); TEE pilot (bulut enclave — Nitro/SEV-SNP; Intel TDX'i de izle); AT-002 test ailesi.
+- **İş (ek, K10):** coin-içi koşum-tanımlı "iş" tanımı (Simülasyon-C) — kâr-solucuğu ilkesi:
+  ağ-kârı yalnız gerçek-kullanıcı-işi akışından türesin; her kontrat-tasarımında ponzi-testi (§1-5) birim şartı.
+- **Node-alım-kapısı (I4):** dış-node çağırma eşiği = medyan-node-geliri ≥ node-maliyeti
+  (economy_sim: λ≥2000 iş/ay/node bölgesi); eşik-aşağısında founder-node taşır.
 - **Kill kriteri:** ödeme entegrasyonu ücret geliri ≤ node işletme maliyeti ise ağ büyütme durdurulur.
 
 ## Faz 4 — v2 Protokol (ay 18+) — ÇİFT TETİKLEYİCİLİ
@@ -35,4 +39,6 @@
 | Kendi ajan sayısı | 3+ | 5+ | — |
 | Dış node | — | 1 pilot | 5+ |
 | Ölçülmüş overhead | beyanlı | beyanlı | iyileşme |
-| Dış gelir | — | pilot | ücret > maliyet yüzdesi |
+| Dış gelir | — | pilot + hizmet-geliri (göç/destek/yönetilen-node ~$30-60k hedef) | ücret > maliyet yüzdesi |
+| Geçerli-iş oranı (K11) | — | pilot'ta toplanmaya başlar | ağırlıklı kalem |
+| Node-gelir Gini (K13) | — | pilot'ta toplanır | ≤ 0.6 hedef |

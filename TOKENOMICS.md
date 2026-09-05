@@ -48,6 +48,25 @@ Değişmez-probe'ları GECERLI: I1 (cover<1 → burn=0), I2 (kasaya dış-akış
 **Hüküm:** eşik 852 iş/ay — tek-node için günlük ~28 kanıtlı-iş. Bu, TOKENOMICS'in
 hayalden gerçeğe ayrılan TEK sayısıdır; Faz 4 tetiği bu sayının gerçek-ağda ölçülmesidir.
 
+## 3.2 Ekonomi-Simülasyonu v2 — Ücret-bölüşümü, node-tutarlılığı, protokol-geliri (2026-09-05)
+
+**Araç:** `tests/sim/economy_sim.py` (deterministik tohum=42; kanıt: kanit/TOKENOMI/2026-09-05/ekonomi-sim.*).
+Probe'lar GECERLI: I2 (kasaya dış-akış yok), I4 (node-alım-kapısı), I5 (bölüşüm=1.0), I6 (bölüşüm-düzeltmesi).
+
+**Ücret-bölüşümü (aday-mantık):** node %70 · doğrulayıcı %10 · protokol %15 · sigorta %5.
+**Dürüst düzeltme (I6):** §3.1 eşiği (170–852) node-payı sonrası **286–1429 iş/ay**'a revize —
+bölüşüm gizli-maliyettir; node-perspektifinden sayı budur ($30→286, $90→858, $150→1429).
+
+**Node-kazanç tutarlılığı (Poisson-talep, ay-başına):**
+- λ≥2000 iş/ay/node (gün~67): p50=$210/ay — TÜM maliyet-bantları P(cover)=1.0 → tutarlı kazanç
+- λ=500 (gün~17): yalnız $30-bandı P=1.0; $90/$150'de başabaş yok
+- λ≤170: hiçbir bantta kârlı değil → **I4 KAPALI**: dış-node alımı bu bölgede YASAK;
+  founder-kendi-node'u taşır (ödeme-ile-DAU ölüm-spirali panzehiri; K10-K13 çerçevesi)
+
+**Protokol-geliri (ağ-talebi × %15 × $0.15):** 5k iş/ay→$112; 50k→$1.1k; **500k→$11.2k
+(1 kişilik takım)**; 5M→$112k (3-6 kişi). Hüküm: **protokol-ücreti GEÇ gelir; erken gelir
+HİZMET geliri** — göç-paketi/destek/yönetilen-node (~$30-60k ilk yıl hedefi).
+
 ## 4. Anlatı ve Dağıtım
 
 **Tek cümlelik anlatı:** *"Kendine-sahip ajan: hafızası, kimliği ve parası onunla gider."*

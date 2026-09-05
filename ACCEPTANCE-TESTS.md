@@ -50,7 +50,7 @@ Ajan paketi: minimal bağlam grafiği (≥3 düğüm) + manifest + WASM kodu.
   aynı snapshot'ın yeniden import'u rollback sayılır → RED (replay/geri-sarma engeli).
 - **Kanıt:** `bash tests/negative_snapshots.sh` → `kanit/AT-001/<tarih>/AT-001f-vektorler.log`
   (4 kontrol: 3 RED beklentisi + s8 önkoşulu ACCEPT). Takıma entegre: run_all.sh
-  AT-001f bölümü (tek toplu kontrol, 15 kontrol toplam).
+  AT-001f bölümü (tek toplu kontrol, 16 kontrol toplam).
 
 ## Kabul Kriterleri
 
@@ -65,7 +65,7 @@ Ajan paketi: minimal bağlam grafiği (≥3 düğüm) + manifest + WASM kodu.
 
 ## Tek-Komut Takım (2026-09-05 gerçeklemesi)
 
-`tests/run_all.sh` — 15 kontrol, idempotent sandbox, POSIX çıkış-semantiği,
+`tests/run_all.sh` — 16 kontrol, idempotent sandbox, POSIX çıkış-semantiği,
 PIPESTATUS boru-koruma. Bölümler: AT-001a (6 vektör) · AT-001f (3 negatif vektör,
 toplu) · grant/koşum/zincir-ucu · F21 truncate (14) · merkle kurcalama (17) ·
 göç+gömülü zincir (F24 kapanışı) · AT-001d özü (düz-metin taraması) ·

@@ -108,9 +108,9 @@ idempotent; yavaş kanıt turu (wall) mevcut; test-dokümanı ↔ gerçek takım
 **Tur 2 (2026-09-05): 12/12.** Kapanış kanıtı: **AT-001f negatif vektör fabrikası**
 (tests/negative_snapshots.sh — tc-s7 64MiB → reason 7, tc-s9 header agent_id taklidi →
 reason 9, tc-s8 oturum rollback → reason 8; 4/4 PASS, kanıt: kanit/AT-001/2026-09-05/,
-commit 2f59bab) ve takıma entegrasyon (run_all.sh AT-001f bölümü → 15 kontrol; taze
+commit 2f59bab) ve takıma entegrasyon (run_all.sh AT-001f bölümü → 16 kontrol; taze
 16/16 yavaş tur RUN_SLOW ile — c30 wall TAZE). ACCEPTANCE-TESTS.md'ye AT-001f bölümü +
-"Tek-Komut Takım" bölümü eklendi (takım gerçeklemesiyle birebir: 15 kontrol, bölümler
+"Tek-Komut Takım" bölümü eklendi (takım gerçeklemesiyle birebir: 16 kontrol, bölümler
 listeli). Takım idempotentliği gün içinde 4 bağımsız koşumda teyit.
 
 ## 5. Kod Kalitesi (10) — Tur 1: 9 · Tur 2: 10

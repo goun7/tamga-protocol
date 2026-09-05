@@ -38,7 +38,7 @@ python3 tamga_runner.py memory <pkg> --import-json d.json   # MERGEN → Tamga d
 | [RFC-004](RFC-004-context-graph.md) | Bağlam grafiği ve snapshot sözleşmesi | TASLAK — kurucu onayı bekliyor |
 | [SECURITY-AUDIT.md](SECURITY-AUDIT.md) | Audit-1…7 — 25 bulgu (F1…F25), kapanış kanıtlarıyla | Yaşayan belge |
 | [AGENT-REHBERI.md](AGENT-REHBERI.md) | Ajan geliştirici rehberi (ilk 5 dakika → taşıma) | v0 (Faz 1) |
-| [ACCEPTANCE-TESTS.md](ACCEPTANCE-TESTS.md) | AT-001 ailesi + tek-komut takım tanımı | 15 kontrol |
+| [ACCEPTANCE-TESTS.md](ACCEPTANCE-TESTS.md) | AT-001/003 ailesi + tek-komut takım tanımı | 16 kontrol |
 | [ROADMAP.md](ROADMAP.md) | Dikey dilim planı + çıkış ölçütleri | Yaşayan belge |
 | [TOKENOMICS.md](TOKENOMICS.md) | Birim ekonomi (yalnız sim) | Faz 4 kapısı kilitli |
 | [kanit/](kanit/) | Tüm koşu kanıtları (log'lar) | Eklenir, silinmez |
@@ -50,10 +50,15 @@ python3 tamga_runner.py memory <pkg> --import-json d.json   # MERGEN → Tamga d
 - **Kullanım-anı (in-use) gizlilik KANITLANMAMIŞTIR:** koşum sırasında seed host belleğinde yaşar.
   TEE/niyet-kanatı (RFC-004 attestation) v1 planıdır — v0 bunu iddia etmez.
 - **Bütünlük:** ledger hash-zinciri (kurcalama → `broken_at` RED), hafıza `graph_merkle`,
-  snapshot ↔ ledger bağlaması (`ledger_tip` — truncate saldırısı RED).
+  snapshot ↔ ledger bağlaması (`ledger_tip` — truncate saldırısı RED); **node-cosign L1
+  pilot** (gömülü zincir taze node'da node-sertifikalı; F25'ün mekanizma kapanışı —
+  Audit-8 kanıtlı; politika kararı OQ-1 kurucuda).
 - **Bağlantısız çalışma:** motor (wasmtime v48.0.1, digest-pinli — **ratifiye WASI 0.3.0 üstünde**,
   Wasmtime 46+ default) default-deny: dosya yok, ağ yok, host env sıfır. Yetenekler
   manifest'te beyan edilir (şu an: clock, random).
+- **Determinizm ön-ölçümü:** aynı wasm+girdi → birebir aynı `stdout_sha256` (4/4 başarılı
+  koşum; kanit/AT-002/2026-09-05/) — stake'li yeniden-koşum (ERC-8004 Validation)
+  tasarımına zemin.
 - Açık bulgular her zaman [SECURITY-AUDIT.md](SECURITY-AUDIT.md)'de yaşar; kapatma kanıtsız yapılmaz.
 
 ## Tek-Komut Regresyon

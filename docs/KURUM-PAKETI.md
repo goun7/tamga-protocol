@@ -37,5 +37,11 @@
 tek koşul: 4 hafta geri-bildirim + referans hakkı. Pilot çıktısı size: denetlenebilir
 ajan-muhasebesi raporu + vendor-bağımsız hafıza arşivi. (İletişim: repo Issues.)
 
+## 5. "Bunu zaten LangGraph + şifreli-DB ile yaparız" diyenler için
+
+Uygulamanızın sürekliliği için checkpointer en hızlı yoldur — doğru. Fark: **kimliğin
+kimiolarını, kurcalama-direncinin kimde olduğunu ve iş-makbuzunun protokol-düzeyinde
+olup olmadığını** sorar. Karşılaştırma tablosu: [REKABET-HARITASI.md §5](REKABET-HARITASI.md).
+
 ---
 *Kanıt-kültürü: bu sayfadaki her "kanıt" hücresi, depodaki log'la eşleşir (kanit/).*

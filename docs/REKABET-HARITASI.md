@@ -47,3 +47,30 @@ ve MutMem-V2'nin varlığı bu boşluğun *gerçek bir araştırma-konusu* oldu�
 TessIndex üçlüsü yanlış yerde olmadığımızı gösteriyor).
 EOF
 echo "REKABET-HARITASI yazıldı"; ls docs/
+## 5. v2 Taraması — LangGraph-checkpointer ve "moat-cevabı" (2026-09-05, Tur-4 telafi-7)
+
+Tur-4'ün itirazı: "LangGraph checkpointer + şifreli-DB + x402 inandırıcı DIY-stack;
+bununla senin farkın ne?" Cevap önce dürüst kabul: **o stack birleşimde ÇALIŞIR** —
+ve tek-framework içi süreklilik için en hızlı yoldur. Fark tablosu (LangGraph
+persistence/checkpointer dokümantasyonu 2026-09-05 canlı-doğrulamalı):
+
+| Boyut | LangGraph checkpointer (+şifreli-DB+x402) | Tamga |
+|---|---|---|
+| Kimlik sahipliği | thread_id / config — **altyapı-sahibinin** | ed25519 ajan-anahtar çifti — **ajanın**; seed diskte-düz-değil (şifreli keystore) |
+| Durum-koruma | checkpointer'ın DB'si ne kadar güvenliyse o kadar; şifreleme DEPLOYMAN kararında | paketin İÇİNDE uçtan-uca (XChaCha20-Poly1305+scrypt); host-dışı aktarımda da şifreli |
+| Kurcalama-direnci | DB-bağımlı; hash-zincir/kurcalama-RED dilinde değil | ledger hash-zinciri + graph_merkle + ledger_tip → truncate/splice RED (adversarial testli) |
+| Taşınabilirlik | framework-şeması-bağlı (checkpoints tablosu, thread kavramı) | framework-bağımsız snapshot (tamga-snapshot/1); farklı host, farklı yığın |
+| Ödeme | x402 ayrıca eklenir; ödeme↔iş bağlantısı uygulamacının işi | iş-makbuzu (charge) protokol-düzeyinde; ücret ölçüm+medyan-adaletle makbuzda |
+| Kapsam | **graf-yürütümü çerçevesi** (LangGraph uygulamaları) | framework-agnostik durum+kanıt katmanı (graf-yürütümü DEĞİL — kasıtlı sınır) |
+
+**Moat-cevabı (tek cümle):** LangGraph-stack *uygulamanın* sürekliliğini verir; Tamga
+*ajanın* sahipliğini, kurcalama-direncini ve faturalanabilir-iş kanıtını verir — birincisi
+uygulama-seçimi, ikincisi altyapı-sözleşmesi; çakışan yer hafıza-depolama satırıdır ve
+orada Tamga'nın ayrışması şifreleme+kurcalama-RED'in **protokol-düzeyinde** olmasıdır.
+
+**Dürüst sınırlar (v2 taraması):** (1) LangGraph için onlarca katkı-yıllık ekosistem var —
+bizim "adaptör" tezimiz (Mem0-gibi hafıza-export → Tamga) onların kullanıcı-tabanına
+köprü kurma stratejisidir, rakip-iddiası değil; (2) TEE-altyapıları (Phala vb.) bu taramada
+derinlemesine incelenmedi — Faz 3 öncesi ayrı tarama kalemi; (3) skill/artifact bütünlüğü
+(SkillShift tehdidi) endüstride henüz kimse protokol-düzeyinde çözmüş görünmüyor —
+imzalı-manifest ilkesi bizim başlangıç-avantajı adayı (Faz 2+ yetenek-sisteminde kanıtlanacak).

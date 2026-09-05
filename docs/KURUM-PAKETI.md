@@ -23,7 +23,7 @@
 | Kurcalama anlaşılsın | Zincir bozulursa RED — sahte makbuz üretilemez | truncate/splice saldırı testleri (Audit-4/7) |
 | Sunucunuz da yalan söylemesin | node-cosign: sunucu kendi sertifikasıyla makbuzu mühürler; iptal listesi devreden-çıkanı geçersiz kılar | Audit-8; iptal-RED 14 kanıtı |
 | Veri tesisinizden çıkmasın | Varsayılan-yasak koşum: ağ yok, dosya yok, ortam-değişkeni yok | default-deny tasarımı, wasmtime sandbox |
-| Uyum (GDPR md.20 veri-taşınabilirliği) | Ajan-hafızası **standart pakette** dışa aktarılabilir — "veriyi taşı" hakkına ajan-çeşidi | export/import sözleşmesi (RFC-002) |
+| Uyum (GDPR md.20 veri-taşınabilirliği) | Ajan-hafızası **standart pakette** dışa aktarılabilir — "veriyi taşı" hakkına ajan-çeşidi; *kapsam-notu: madde-20 kişisel-veri taşınabilirliğidir; ayrıca md.32 (güvenlik-işleme) için bekleyen-veri şifrelemesi tam uyumda — koşum-anı belleği için düzenli-silme prosedürü yerine koşum-başına geçici-kopya+otomatik-silme (D11)* | export/import sözleşmesi (RFC-002); koşum tempfile-otomatik-sil (Tur-5) |
 
 ## 3. Ne DEĞİL (dürüst sınırlar — satın-alma kararına girenler için)
 

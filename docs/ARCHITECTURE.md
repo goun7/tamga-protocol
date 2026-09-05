@@ -63,7 +63,7 @@ Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spe
 - The node operator holds a certificate key (`keygen-node`); receipts can be sealed
   with the node's signature; a revocation list invalidates retired nodes.
 - Import policies: L0 (default — accept any well-formed chain), L1 (require valid
-  node cosign on every embedded record). Full design note available on request
+  node cosign on every embedded record). The design contract is docs/RFC-002-runner.md (frozen v0.1)
   (canonical version is Turkish).
 - Known open problem (documented, not hidden): on a fresh node, an embedded chain is
   self-attested unless cosign is enforced.

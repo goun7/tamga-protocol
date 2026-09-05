@@ -5,7 +5,7 @@ Exit code: 0=ACCEPT, 1=RED. Every verdict carries a one-line reason (evidence cu
 Dependency: PyNaCl only (ed25519). Schema validation hand-rolled with stdlib;
 cross-validated with jsonschema (2026-09-05): 6 vectors + 28 mutations,
 34/34 agreement with jsonschema — test: tests/cross_validate_schema.py
-(run with .venv-jsonschema/bin/python; the core dependency stays unchanged).
+(run with `python3 tests/cross_validate_schema.py` after `pip install jsonschema`; the runner itself keeps zero mandatory deps beyond PyNaCl).
 Note: RFC 8785 (JCS) — this schema holds only string/integer values; sorted-compact
 serialization is JCS-equivalent. If a float field is added, jcs() must be updated.
 """

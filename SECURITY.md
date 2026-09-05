@@ -1,5 +1,18 @@
 # Security Policy — Tamga Protocol
 
+## Threat model in one paragraph
+
+Tamga protects an agent's identity and history against the operator of the machine
+it runs on, under two assumptions spelled out in the docs: the user passphrase is
+never stored on the host, and the host does not persist plaintext state. Data at
+rest is sealed with scrypt + XChaCha20-Poly1305; history is a hash-chained ledger
+(optionally counter-signed by a separate node key under L1 policy). What Tamga
+explicitly does NOT defend against: an adversary who knows the user passphrase
+(they can mint internally-consistent state — see the F25 analysis in
+docs/RFC-002-runner.md), a compromised wasmtime engine, or the host exfiltrating
+secrets during an active run. These limits are design-enforced, tested
+(18-control suite + adversarial audits in CI), and documented rather than hidden.
+
 ## Supported versions
 
 | Version | Supported |
@@ -10,7 +23,7 @@
 
 **Do NOT open a public issue for security problems.**
 
-Email: use the GitHub Security Advisories feature ("Report a vulnerability" on the
+Use the GitHub Security Advisories feature ("Report a vulnerability" on the
 Security tab) — private by default.
 
 Include: affected component (runner/validator/format), a minimal reproduction, and

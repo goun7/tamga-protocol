@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# AT-001f — snapshot-import negatif vektör fabrikası (wasmtime'sız, yük-bağımsız)
+# AT-001f — snapshot-import negative-vector factory (no wasmtime, load-independent)
 # Kapsam: reason_code 7 (snapshot_too_large), 9 (agent_identity_mismatch), 8 (replay_rollback)
-# İlke: her vektör kendi tek-kullanımlık sandbox'ını kurar; kalıcı fixture bozmaz.
+# Principle: each vector builds its own one-shot sandbox; never breaks persistent fixtures.
 # Semantik: kontrol <exit> — 0 = PASS (POSIX).
 set -u
 cd "$(dirname "$0")/.."
@@ -12,7 +12,7 @@ mkdir -p "$(dirname "$LOG")"
 PASS=0; FAIL=0
 say() { echo "  [$1] $2"; }
 kontrol() { if [ "$1" = "0" ]; then PASS=$((PASS+1)); say PASS "$2"; else FAIL=$((FAIL+1)); say FAIL "$2"; fi; }
-bekle_red() { kontrol "$@"; }  # RED-kanıt grepleri için anlamsal ad; tek uygulama (run_all deseni)
+bekle_red() { kontrol "$@"; }  # semantic alias for expected-RED greps; single implementation (run_all pattern)
 
 {
   echo "# AT-001f negatif vektörler — $(date -Iseconds)"

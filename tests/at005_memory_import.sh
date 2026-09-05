@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# AT-005 — memory_import: çok-formatlı içe-aktarma + uçtan-uca + idempotency
-# Çıktısı .evidence/AT-005/<tarih>/at005.log
+# AT-005 — memory_import: multi-format import + end-to-end + idempotency
+# Output: .evidence/AT-005/<date>/at005.log
 set -uo pipefail
 cd "$(dirname "$0")/.."
 export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
@@ -26,24 +26,24 @@ for f in mem0.jsonl mem0.json letta.json zep.json; do
   ok $? "convert $f"
 done
 
-# jsonl → runner'a uçtan-uca
+# jsonl → end-to-end into the runner
 python3 tools/memory_import.py --from "$FIX/mem0.jsonl" -o "$FIX/conv-e2e.json" 2>>"$LOG"
 python3 tamga_runner.py memory "$W/pkg" --import-json "$FIX/conv-e2e.json" > "$FIX/imp1.json" 2>>"$LOG"
 python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d.get("added")==2 else 1)' "$FIX/imp1.json"
 ok $? "runner import: 2 nodes added (jsonl)"
 
-# idempotency: aynı kaynak tekrar → 0 added, skipped==2
+# idempotency: re-importing the same source → 0 added, skipped==2
 python3 tamga_runner.py memory "$W/pkg" --import-json "$FIX/conv-e2e.json" > "$FIX/imp2.json" 2>>"$LOG"
 python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d.get("added")==0 and d.get("skipped")==2 else 1)' "$FIX/imp2.json"
 ok $? "idempotency: re-import adds 0, skips 2"
 
-# farklı kaynak aynı pkg'ye → ADD-only birleşme
+# a different source into the same pkg → ADD-only merge
 python3 tools/memory_import.py --from "$FIX/mem0.json" -o "$FIX/conv-mem0.json" 2>>"$LOG"
 python3 tamga_runner.py memory "$W/pkg" --import-json "$FIX/conv-mem0.json" > "$FIX/imp3.json" 2>>"$LOG"
 python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if d.get("added")==2 else 1)' "$FIX/imp3.json"
 ok $? "second source merges ADD-only (2 more nodes)"
 
-# zincir hâlâ sağlam
+# chain still intact
 python3 tamga_runner.py ledger-verify "$W/pkg" | grep -q '"ok": true'
 ok $? "ledger-verify ok after imports"
 
@@ -64,9 +64,9 @@ ok $rc "malformed JSON RED"
 } > "$EV/at005.out" 2>&1
 cat "$EV/at005.out" | tee -a "$LOG"
 
-# sayaç: boru-subshell tuzağına karşı log'dan sayılır
+# counter: counted from the log (pipe-subshell trap)
 PASS=$(grep -c "PASS:" "$EV/at005.out")
 FAIL=$(grep -c "FAIL:" "$EV/at005.out")
 rm -rf "$W"
-echo "AT-005 SONUÇ: $PASS PASS, $FAIL FAIL"
+echo "AT-005 RESULT: $PASS PASS, $FAIL FAIL"
 [ "$FAIL" = "0" ]

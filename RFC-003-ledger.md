@@ -36,6 +36,8 @@ Ortak alanlar: `op, seq, prev, h, ts`. `seq` 1'den başlar, +1 artar (eksik/atla
 
 14=ledger_broken (zincir doğrulaması kırık satırda başarısız), 15=ledger_empty (grant'sız koşum — faz 1'de uyarı, RED değil; koşum yine ücret kaydını yazar ve bakiye negatife düşebilir).
 
+**Uyum notu (2026-09-05, quickstart bulgusu):** `ledger-verify`'ın zincirsiz pkg davranışı — boş/olmayan `ledger.jsonl` bozuk-değildir; `ok=true, lines=0, head=64×'0'` (genesis ucu) döner. D7'nin "doğru zincir" tanımıyla uyumludur; reason 14 yalnız **var olan** zincirin doğrulaması kırılırsa atılır.
+
 ## 5. Açık Sorular
 
 1. `pay` kayıt şeması + ajan cüzdanı denge kaydı → Faz 3 ağ RFC'si.

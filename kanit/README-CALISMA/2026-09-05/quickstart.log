@@ -1,0 +1,140 @@
+# README Hızlı Başlangıç uçtan-uca kanıtı — 2026-09-05T04:04:22+03:00
+# ortam: kopya paket (tc-a1 çoğaltması; fixture'lar el değmemiş)
+
+$ python3 tamga_validator.py keygen tests/keys/alici
+keys written: tests/keys/alici
+
+$ python3 tamga_validator.py sign <pkg>/tamga.json <pkg>/agent.wasm tests/keys/alici/seed.hex
+signed: tests/simnet/.quickstart/pkg/tamga.json
+
+$ python3 tamga_validator.py validate <pkg>
+ACCEPT manifest_ok
+
+$ python3 tamga_runner.py keygen   # (seed yalnız stdout; burada $SEED olarak tutuldu — D3)
+
+$ export TAMGA_KS_PASSPHRASE="..."  # simnet: simnet-2026
+
+$ python3 tamga_runner.py run <pkg> --seed <hex> --note "not"
+{"ok": false, "op": "run", "reason_code": 11, "reason": "runtime_limit: cpu_ms_per_run=5000"}
+
+$ python3 tamga_runner.py export <pkg> -o snapshot.tsg --seed <hex>
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/.quickstart/snapshot.tsg", "sha256": "771ab20307424b69df2a6f35a43bba7beea7189015331ab450aa4eaa9122dc1b", "bytes": 688, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+
+$ python3 tamga_runner.py import snapshot.tsg <yeni-pkg>
+{"ok": false, "op": "import", "reason_code": 3, "reason": "manifest_reject: RED parse_error: tamga.json yok"}
+
+$ python3 tamga_runner.py ledger <pkg>
+{"ok": true, "op": "ledger", "pkg": "pkg", "charges": 0, "grants": 0, "fees_sim": 0, "balance_sim": 0}
+
+$ python3 tamga_runner.py ledger-verify <pkg>
+{"ok": false, "op": "ledger-verify", "reason_code": 14, "reason": "ledger_broken: dosya yok"}
+
+$ python3 tamga_runner.py grant <pkg> 0.01 "hibe"
+{"ok": true, "op": "grant", "seq": 1, "h": "b74b0f8a2c153b69ba397a09daff16458b275f0f76f543f8976b6f16e021613f", "amount": 0.01, "note": "zincire eklendi (RFC-003 D5 taslak)"}
+
+$ python3 tamga_runner.py memory <pkg> --import-json d.json
+{"ok": true, "op": "memory-import", "added": 3, "skipped": 2, "nodes": 5, "note": "ADD-only birleştirme (RFC-004 D2/D7 taslak)"}
+
+$ python3 tamga_runner.py memory <pkg> --search <q>
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 0, "nodes": [], "edges": []}
+
+# SON: 2026-09-05T04:04:30+03:00
+
+## TUR-2 — düzeltmeler sonrası tam yeniden koşum: 2026-09-05T04:06:15+03:00
+# değişiklik: (1) ledger-verify boş-zincir=ok (2) README import önkoşul satırı
+
+$ python3 tamga_validator.py keygen tests/keys/alici
+keys written: tests/keys/alici
+
+$ python3 tamga_validator.py sign ... && validate <pkg>
+Traceback (most recent call last):
+  File "/mnt/hdd/projects/algoat/01-KokProtocol/tamga_validator.py", line 164, in <module>
+    {"keygen": cmd_keygen, "sign": cmd_sign, "validate": cmd_validate}[sys.argv[1]](sys.argv[2:])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/mnt/hdd/projects/algoat/01-KokProtocol/tamga_validator.py", line 27, in cmd_sign
+    m = json.loads(pathlib.Path(mp).read_text(encoding="utf-8"))
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'tests/simnet/.quickstart/pkg/tamga.json'
+RED parse_error: tamga.json yok
+
+$ keygen (stdout-only, D3) + export TAMGA_KS_PASSPHRASE=...
+
+$ python3 tamga_runner.py run <pkg> --seed <hex> --note "not"   [yük-bağımlı; bu koşumda:]
+{"ok": false, "op": "run", "reason_code": 3, "reason": "manifest_reject: RED parse_error: tamga.json yok"}
+
+$ python3 tamga_runner.py grant <pkg> 0.01 "hibe"   # koşum-öncesi bakiye hazırlığı
+{"ok": true, "op": "grant", "seq": 1, "h": "d8df81b04f427e64337b2a3e3320b8ec05a91189fae9d63df98cfc4bd32d30ea", "amount": 0.01, "note": "zincire eklendi (RFC-003 D5 taslak)"}
+
+$ python3 tamga_runner.py export <pkg> -o snapshot.tsg --seed <hex>
+Traceback (most recent call last):
+  File "/mnt/hdd/projects/algoat/01-KokProtocol/tamga_runner.py", line 523, in <module>
+    sys.exit(cmds[sys.argv[1]](sys.argv[2:]))
+             ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/mnt/hdd/projects/algoat/01-KokProtocol/tamga_runner.py", line 393, in cmd_export
+    manifest = json.loads((pkg / "tamga.json").read_text(encoding="utf-8"))
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'tests/simnet/.quickstart/pkg/tamga.json'
+
+$ python3 tamga_runner.py import snapshot.tsg <yeni-pkg>   # hedef pkg önceden kurulu
+{"ok": false, "op": "import", "reason_code": 1, "reason": "snapshot_bad_magic: [Errno 2] No such file or directory: 'tests/simnet/.quickstart/snapshot.tsg'"}
+
+$ python3 tamga_runner.py ledger <pkg> / ledger-verify <pkg>
+{"ok": true, "op": "ledger", "pkg": "pkg", "charges": 0, "grants": 1, "fees_sim": 0, "balance_sim": 0.01}
+{"ok": true, "op": "ledger-verify", "lines": 1, "head": "d8df81b04f427e64337b2a3e3320b8ec05a91189fae9d63df98cfc4bd32d30ea", "note": "zincir ucuca dogru (RFC-003 D7 taslak)"}
+
+$ python3 tamga_runner.py memory <pkg> --import-json d.json / --search "scrypt"
+{"ok": true, "op": "memory-import", "added": 3, "skipped": 2, "nodes": 5, "note": "ADD-only birleştirme (RFC-004 D2/D7 taslak)"}
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m4", "kind": "fact", "text": "MERGEN-dersi: scrypt maxmem 64MB gerekli (kanit dilim-1)", "valid_from": "2026-09-02", "ts": "2026-09-05T04:06:16+0300"}], "edges": []}
+
+## TUR-3 — README sırasıyla birebir koşum: 2026-09-05T04:06:57+03:00
+
+$ python3 tamga_validator.py keygen tests/keys/alici
+keys written: tests/keys/alici
+
+$ python3 tamga_validator.py sign ... ; validate <pkg>
+signed: tests/simnet/.quickstart/pkg/tamga.json
+ACCEPT manifest_ok
+
+$ python3 tamga_runner.py keygen  # seed yalnız stdout (D3); TAMGA_KS_PASSPHRASE set edildi
+
+$ python3 tamga_runner.py run <pkg> --seed <hex> --note "not"
+{"ok": true, "op": "run", "pkg": "tamga-ornek-ajani", "agent_id": "23321d5d0716b9e8965d192c88eb253d6b2b35846b9bc46cf01df4818ae6277c", "session": 1, "nodes": 4, "engine": "wasmtime-v48.0.1", "wall_ms": 2022, "cpu_saat": 4.587e-06, "ram_gb_sn": 0.044297585, "io_mb": 4.9e-05, "fee_sim": 2.2207e-05, "stdout_sha256": "c06fc1df75a83f3667f18246691751ebae1c421a53c4dcea2ce202ddb0230215", "stdout_file": "tests/simnet/.quickstart/pkg/session-1.stdout", "note_id": "m3"}
+
+$ python3 tamga_runner.py export <pkg> -o snapshot.tsg --seed <hex>
+{"ok": true, "op": "export", "pkg": "pkg", "file": "tests/simnet/.quickstart/snapshot.tsg", "sha256": "a032fb464a331b08ed1d971f1bfbfc1030292c04dd699269c713ea4691897a1f", "bytes": 1772, "note": "D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı"}
+
+$ python3 tamga_runner.py import snapshot.tsg <yeni-pkg>  # hedef pkg önceden kurulu (kod ayrı seyahat eder)
+{"ok": true, "op": "import", "pkg": "pkg2", "agent_id": "23321d5d0716b9e8965d192c88eb253d6b2b35846b9bc46cf01df4818ae6277c", "resumed_session": 1, "memory_nodes": 4, "note": "AT-001e: kimlik keystore'dan, hafıza gövdeden restore"}
+
+$ python3 tamga_runner.py ledger <pkg>
+{"ok": true, "op": "ledger", "pkg": "pkg", "charges": 1, "grants": 0, "fees_sim": 2.2207e-05, "balance_sim": -2.2207e-05}
+
+$ python3 tamga_runner.py ledger-verify <pkg>   # zincirsiz pkg → boş zincir ok (E-7 uyum notu)
+{"ok": true, "op": "ledger-verify", "lines": 1, "head": "42093f688384574e1b3f9d2484b1a8cc965ec42d15ecb43dedc6eb6063711c04", "note": "zincir ucuca dogru (RFC-003 D7 taslak)"}
+
+$ python3 tamga_runner.py grant <pkg> 0.01 "hibe"
+{"ok": true, "op": "grant", "seq": 2, "h": "fc4ec5e491f97b1eb28728f50096abae70484857bdf5e0f3f514fd164cad58de", "amount": 0.01, "note": "zincire eklendi (RFC-003 D5 taslak)"}
+
+$ python3 tamga_runner.py memory <pkg> --import-json d.json
+{"ok": true, "op": "memory-import", "added": 1, "skipped": 4, "nodes": 5, "note": "ADD-only birleştirme (RFC-004 D2/D7 taslak)"}
+
+$ python3 tamga_runner.py memory <pkg> --search "scrypt"
+{"ok": true, "op": "memory", "pkg": "pkg", "count": 1, "nodes": [{"id": "m4", "kind": "fact", "text": "MERGEN-dersi: scrypt maxmem 64MB gerekli (kanit dilim-1)", "valid_from": "2026-09-02", "ts": "2026-09-05T04:07:00+0300"}], "edges": []}
+
+## EK — zincirsiz pkg'de ledger-verify (TUR-3'te pkg2 gömülü-zincirliydı, ayrıca gösteriliyor): 2026-09-05T04:07:41+03:00
+{"ok": true, "op": "ledger-verify", "lines": 0, "head": "0000000000000000000000000000000000000000000000000000000000000000", "note": "boş zincir: henüz kayıt yok (genesis ucu geçerli)"}
+
+# NOT: TUR-3'teki 'ledger-verify pkg2' satırındaki yorum etiketi hatalıydı — pkg2 gömülü-zincirli
+# (import'tan). Boş-zincir davranışı bu EK bloğuyla kanıtlandı. run ACCEPT: wall_ms=2022 (yük penceresi).

@@ -19,6 +19,7 @@ python3 tamga_runner.py keygen                              # ajan kimliği (yal
 export TAMGA_KS_PASSPHRASE="..."
 python3 tamga_runner.py run    <pkg> --seed <hex> --note "not"
 python3 tamga_runner.py export <pkg> -o snapshot.tsg --seed <hex>
+# import için hedef pkg önceden kurulmalı: tamga.json + agent.wasm (kod ayrı seyahat eder, D3)
 python3 tamga_runner.py import snapshot.tsg <yeni-pkg>      # kimlik + hafıza + ledger göçü
 python3 tamga_runner.py ledger <pkg>                        # bakiye özeti
 python3 tamga_runner.py ledger-verify <pkg>                 # hash-zinciri doğrulaması

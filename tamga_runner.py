@@ -152,7 +152,10 @@ def cmd_ledger_verify(a):
     pkg = pathlib.Path(a[0]) if a else pathlib.Path(".")
     lp = pkg / "ledger.jsonl"
     if not lp.exists():
-        return out(False, op="ledger-verify", reason_code=14, reason="ledger_broken: dosya yok")
+        # Quickstart bulgusu (2026-09-05): zincirsiz pkg bozuk değil — boş zincir
+        # meşru doğum-öncesi durumdur; genesis ucu geçerli (D7 ok=doğru-zincir).
+        return out(True, op="ledger-verify", lines=0, head="0" * 64,
+                   note="boş zincir: henüz kayıt yok (genesis ucu geçerli)")
     prev_h, n, broken = "0" * 64, 0, None
     with open(lp, "r", encoding="utf-8") as f:
         for line in f:

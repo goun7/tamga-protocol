@@ -238,3 +238,22 @@ değerlendirmesi (kullanıcının "acımasız" ölçütleri) bu belgeyi kıyasla
 puan şişirme değil, her satır commit + log ile bağlıdır.
 
 *Tur 1: 2026-09-05 01:30 → 86/100 · Tur 2: 2026-09-05 04:20 → 99/100 · Tur 3: —*
+
+## Tur 3 Ara Notu (2026-09-05, 05:00 — Dilim-10 sonrası)
+
+Puan değişmedi (99 — K8 telafisiz); ama güvenlik kategorisinin İÇERİĞİ güçlendi ve
+tur-2'de vaat edilen tur-3 hedefleri gerçekleşti:
+
+- **F25 → "mekanizma hazır + kanıtlı":** node-cosign L1 pilot gerçeklendi (52b5591);
+  Audit-8 adversarial: A1 güçlü düşman (kendi node anahtarıyla tam zincir) L1'de RED —
+  L0'da ACCEPT bilinen kalıntı olarak kaldı (politika kararı OQ-1 kurucuda). AT-003
+  6/6; takım 16 kontrole çıktı.
+- **Tur-3 hedefi 2 (ERC-8004 eşleme):** docs/ERC-8004-ESLEME.md yazıldı; registration-v1
+  ↔ Tamga tablosu + OQ-5..8.
+- **Yeni bulgu OQ-8 (dürüstlük):** wall-faturalama yük-gürültüsü ~172× oynayabiliyor
+  (kanıt-bağlı) — RFC-003 D1 gerilimi kayda geçti; KOD BİLİNÇLİ DEĞİŞMEDİ (D1 kurucu
+  onayı çerçevesi). Bu satır puan DÜŞÜRMEZ ama Tur-3'ün dürüstlük göstergesidir:
+  acımasız denetim, bizzat önceki düzeltmenin (Audit-7) uygulandığı yeni yüzeyi de
+  denetledi (Audit-8).
+- Bağımsız taze-göz denetimi (alt-agent: doc↔kod drift + güvenlik + kanıt tutarlılığı)
+  çalıştırıldı — bulgular işlendikçe tur-3 kesinleşir.

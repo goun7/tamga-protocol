@@ -39,3 +39,18 @@ Apache-2.0 ile başkaları kodu alıp değiştirebilir — bu doğrudur ve bilin
   verirse bakım yükümüz düşer (Observability/infra dünyasında bu kalıp defalarca işledi).
 - Alternatif karşılaştırması: kapalı kod → benimseme ölür; AGPL → kurumsal hukuk
   departmanları kaçar; MIT → patent maddesi yok. Apache-2.0 dengeli nokta.
+
+## Katman-2 kararları (2026-09-05, "sistem-inşası evrimi" görüşmesi)
+
+| # | Konu | Karar | Gerekçe |
+|---|---|---|---|
+| K10 | Sistemin akıllı-kontrat çerçevesi | **ERC-8004 + TOKENOMICS §3.1'i doğuran kâr-solucuğu ilkesi** her kontrat-tasarımının birim testi; coin-içi koşum-tanımlı "iş" (Simülasyon-C) Faz 3 zorunlu kalem | Nihai kriptografik çözüm akıllı-kontratlarda yaşayacak; itibar/muhasebe/gelir ayrılabilir katmanlar olmalı; menkul-kıymet kuyruğu zayıflatmamalı |
+| K11 | Sürdürülebilirlik-bütünlüğü | **"Geçerli-iş / zincir-yazımı" oranı = ağırlıklandırılmış metrik panosu kalemi** (atanmış-akış meşruiyeti: node-kârı = gerçek-kullanıcı-işi × p-adımı-üretilir-cüzdan-ortancalı-ış) | Gelir modellenmemiş ağ = ölüm; "kazanç tutarlı mı" sorusu metrik-panosunda yaşayacak |
+| K12 | Repo-açılış zamanlaması | **EN SONA saklandı (revizyon)** — "pilot-başlangıcı" yerine "pilot-başarısı": ekosistem-sınanmış + kâr-solucuğu birim-testli ağ-okyanusu olsun, sonra sahne | Kurucu 5 Eylül 2026 görüşmesi: "en iyilenmiş mantıkla hareket etmeliyiz, o yüzden repoyu açık yapma fikrini en sona saklıyorum" |
+| K13 | Node-kazanç tutarlılığı | **Faz 3 çıkış-kriterine eklendi:** node-gelir-dağılımı Gini ≤ 0.6 hedefi; ölçülebilir, pilot'tan itibaren toplanır | "kazançları tutarlı mı" sorusu yanıtlanabilir kriter olmadan cevaplanamaz |
+
+### K10–K13'ün sisteme yansımaları (teknik-iş listesi)
+- TOKENOMICS §1-5 ponzi-testi artık her akıllı-kontrat-tasarımında birim-test şartı (K10)
+- Metrik-panosuna "geçerli-iş oranı" satırı (K11) — Faz 2 pilot'unda veri-toplama başlar
+- ROADMAP Faz 3 iş listesine "Sim-C coin-içi koşum tanımı" (kâr-solucuğu) eklendi
+- Repo-açılış kaldırıcıları (demo, ERC-8004 katkısı) yeniden-sıralandı: en-iyileme-sonrası

@@ -39,9 +39,25 @@ Ortak alanlar: `op, seq, prev, h, ts`. `seq` 1'den başlar, +1 artar (eksik/atla
 ## 5. Açık Sorular
 
 1. `pay` kayıt şeması + ajan cüzdanı denge kaydı → Faz 3 ağ RFC'si.
-2. Zincirin snapshot'a gömülü son-hash özeti (cross-check) → Faz 2 sertleşmesi.
+2. ~~Zincirin snapshot'a gömülü son-hash özeti (cross-check) → Faz 2 sertleşmesi.~~ **SUPERSADED (2026-09-05):** sertleşme Faz 2'de beklemek yerine Dilim-8'de daha güçlü haliyle ships edildi — tam zincir gömülüyor (`ledger_records`) + `ledger_tip` çapraz-bağlama (F21/F24, RFC-002 E-9a).
 3. Multi-node ortak ledger → Faz 3 (tek makinede simnet değil, ağ).
+4. **node-cosign (2026-09-05, Audit-7 F25):** gömülü zincir taze node'da ajan-iddiasıdır; seed-sahibi tutarlı sahte tarih kurabilir (kanıt: kanit/GUVENLIK/2026-09-05/audit-7.log A1b). Kaydın hash girdisine node anahtarı girecek (kayıt node-sertifikalı olur) → Faz 2/3 revizyonu. Simnet v0'da kabul edilen sınır (tek-yazar).
 
 ## 6. Onay Kütüğü
 
 - [ ] Kurucu onayı (tarih) — onay anında bu RFC donar, Durum: v0.1-FINAL olur.
+
+## 7. Gerçekleme Uyumu Notu (2026-09-05, Dilim-9 — dondurma değildir)
+
+TASLAK'tan normatif sapma yok; gerçekleme bu RFC'yi izliyor, iki adsal/erdamsal fark errata'ya bağlanıyor:
+
+| RFC-003 hükmü | Gerçekleme | Not |
+|---|---|---|
+| D3 append-only JSONL 0600 | `ledger.jsonl` 0600 (`_ledger_append`) | birebir |
+| D4 hash-zinciri `sha256(prev \| jcs(kayıt-h-dışında))`, genesis 64×'0', seq 1-bazlı | `_ledger_head` + `ledger-verify` | birebir; kanıt: kanit/FAZ1/2026-09-02/dilim-5.log |
+| D7 doğrulama alt-komutu `ledger --verify` | **`ledger-verify`** (tek kelime, tireli) | **adsal düzeltme**: CLI yüzeyi budur; `--verify` bayrağı yoktur. Onay öncesi metin güncellenecek |
+| §4 reason 14/15 | 14=zincir kırık (kırık@N), 15=grant'sız uyarı | birebir; ek: 14 artık **gömülü zincir** için de import'ta atılır (RFC-002 E-10a) |
+| — (RFC'de yok) | `ledger_tip` state'te; import'ta zincir-üyeliği doğrulanır (F21) | normatif kaynak: RFC-002 E-9a |
+| — (RFC'de yok) | gömülü `ledger_records` kuruluş-öncesi doğrulanır | normatif kaynak: RFC-002 E-10a |
+
+Kural: bu not RFC'yi değiştirmez; farklar RFC-002 §9 errata'larında normatiftir. Kurucu onayı anında "adsal düzeltme" ve Açık Soru 4 ana metne alınır, sonra RFC donar.

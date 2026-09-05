@@ -3,7 +3,9 @@
 Doğrulama sırası (normatif, RFC §5): 1) parse 2) şema 3) hash 4) imza
 Çıkış kodu: 0=ACCEPT, 1=RED. Her sonucun tek satır sebep kodu vardır (kanıt kültürü).
 Bağımlılık: yalnız PyNaCl (ed25519). Şema doğrulaması stdlib ile elle gerçeklendi;
-jsonschema kütüphanesiyle çapraz-doğrulama CI aşamasında eklenir (TODO).
+jsonschema ile çapraz-doğrulama YAPILDI (2026-09-05): 6 vektör + 28 mutasyon,
+karar-düzeyi 34/34 UYUM (kanit/VALIDASYON/2026-09-05/) — test: tests/cross_validate_schema.py
+(.venv-jsonschema/bin/python ile koşulur; çekirdek bağımlılığı değişmez).
 Not: RFC 8785 (JCS) — bu şemada yalnız string/integer değerler var; sıralı-compact
 serileştirme JCS'e denktir. Float alan eklenirse jcs() güncellenmelidir.
 """

@@ -1,0 +1,53 @@
+# kanit/ — Kanıt Arşivi İndeksi
+
+> Kural: add-only (eklenir, silinmez). Her satır: tarih · test/konu · sonuç · tek satır özet.
+> Ayrıntı her zaman log dosyasının kendisindedir; buradaki özet iddianın yerini tutmaz.
+
+## AT-001 — Kabul Testleri
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-02 | AT-001/2026-09-02/AT-001a.log | ✅ 6/6 | manifest vektörleri: tc-a1 ACCEPT + a2..a6 RED (hash, bilinmeyen alan, yetenek, imza, sürüm) |
+| 2026-09-02 | AT-001/2026-09-02/AT-001b.log | ✅ | şifreli snapshot export/import taşıma döngüsü |
+| 2026-09-02 | AT-001/2026-09-02/AT-001c.log | ✅ 31.1 sn | wall-ölçüm: formül sapması %0.000022 (c30 koşumu) |
+| 2026-09-02 | AT-001/2026-09-02/AT-001d.log | ✅ 0 eşleşme | host-körlük: "muhrudur" işareti snapshot'ta düz-metin yok |
+| 2026-09-02 | AT-001/2026-09-02/AT-001e.log | ✅ | kimlik sürekliliği: aynı agent_id, resumed_session |
+| 2026-09-02 | AT-001/2026-09-02/AT-001-regresyon-dilim8.log | ✅ | Dilim-8 sonrası AT-001a regresyonu |
+| 2026-09-05 | AT-001/2026-09-05/AT-001f-vektorler.log | ✅ 4/4 | negatif vektörler: tc-s7 (64MiB, reason 7) · tc-s9 (agent_id taklidi, 9) · tc-s8 (rollback, 8) |
+
+## FAZ1 — Dikey Dilimler
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-02 | FAZ1/2026-09-02/dilim-1.log | ✅ | runner doğuşu: keygen→run→export→import zinciri, D3 (seed diske yazılmaz) kanıtlı |
+| 2026-09-02 | FAZ1/2026-09-02/dilim-2.log | ✅ | bağlam grafiği + şifreli snapshot; E-4 pkg_name kanonik sahip düzeltmesi |
+| 2026-09-02 | FAZ1/2026-09-02/dilim-3.log + -kurulum.log | ✅ | gerçek WASI koşumu: wasmtime v48.0.1 digest-pin, süreç-izole, default-deny |
+| 2026-09-02 | FAZ1/2026-09-02/dilim-5.log | ✅ | ledger hash-zinciri + grant/ledger-verify |
+| 2026-09-02 | FAZ1/2026-09-02/dilim-6.log | ✅ | state v1: graph_merkle + ledger_tip (F21 panzehiri) |
+| 2026-09-02 | FAZ1/2026-09-02/dilim-7.log | ✅ | çapraz-import RED (reason 14); kimlik tutarlılığı 4 koşum |
+
+## GUVENLIK — Denetim Turarı
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-02 | GUVENLIK/2026-09-02/audit-1-regresyon.log | ✅ | Audit-1 sonrası regresyon |
+| 2026-09-02 | GUVENLIK/2026-09-02/audit-2-regresyon.log | ✅ | Audit-2 (E-4) sonrası regresyon |
+| 2026-09-02 | GUVENLIK/2026-09-02/audit-3-regresyon.log | ✅ | Audit-3 sonrası regresyon |
+| 2026-09-05 | GUVENLIK/2026-09-05/audit-7.log | ⚠️+✅ | gömülü-zincir saldırıları: A1a kuruluş-öncesi RED (düzeltme sonrası), A1b F25 AÇIK (belgeli), A2 tip-bağlama RED, A3 üst-sınır belgeli |
+
+## REGRESYON — Tek-Komut Takım (run_all.sh)
+
+| Tarih | Dosya | Sonuç | Özet |
+|---|---|---|---|
+| 2026-09-03 | REGRESYON/2026-09-03/run_all-231735.log … -232935.log | ✅ (son) | takım gelişim şeridi: semantik düzeltmeler → 14/14, SUITE_EXIT=0 |
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-005933.log | ❌ 11/14 | host load 41: koşum wall-limit (reason 11) — E-9c dürüst not, kod regresyonu değil |
+| 2026-09-05 | REGRESYON/2026-09-05/run_all-031110.log | ❌ 11/14 | host load 31: aynı kök; üç FAIL tek kökten (run→memory cascade) |
+
+*Not: 2026-09-05 kırmızı koşular bilinçli olarak arşivde tutulur — kanıt kültürü başarısızlığı da kaydeder. Yeşil taze tur yük-kapısından sonra eklenecektir (bkz. task_plan Faz C).*
+
+## Ekleme Protokolü
+
+1. Log önce diske düşer (test betiği kendi yazar).
+2. Bu indekse tarih-dosya-sonuç-özet satırı eklenir.
+3. Satır silinmez/düzenlenmez; düzeltme yeni satırla yapılır.
+| 2026-09-05 | VALIDASYON/2026-09-05/schema-crossvalidation.log | ✅ 34/34 | RFC-001 şema çapraz-doğrulaması: jsonschema 2020-12 vs stdlib validator — 6 vektör + 28 mutasyon, karar-düzeyi birebir UYUM |

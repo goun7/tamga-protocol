@@ -140,6 +140,7 @@ def main():
     log(f"A3 SONUÇ: {'L1 node_sig_eksik RED (beklendi)' if r3.get('ok') is False and 'node_sig_eksik' in str(r3.get('reason')) else 'BEKLENMEDİK'}")
 
     shutil.rmtree(SB, ignore_errors=True)
+    return 0 if "BEKLENMEDİK" not in "\n".join(OUT) and "İDDİA" not in "\n".join(OUT) else 1
 
 
 if __name__ == "__main__":
@@ -147,10 +148,11 @@ if __name__ == "__main__":
     logf.parent.mkdir(parents=True, exist_ok=True)
     buf = io.StringIO(); _old = sys.stdout; sys.stdout = buf
     try:
-        main()
+        _rc = main()
     finally:
         sys.stdout = _old
     text = buf.getvalue()
     print(text)
     with open(logf, "a", encoding="utf-8") as f:
         f.write(text)
+    sys.exit(_rc or 0)

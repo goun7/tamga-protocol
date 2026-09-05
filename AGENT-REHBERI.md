@@ -113,8 +113,9 @@ python3 tamga_runner.py import snapshot.tsg <yeni-pkg>
 - Snapshot ~1.8KB (örnek ajan); şifreli: parolayı bilmeyen host gövdeyi okuyamaz
   (AT-001d: 0 düz-metin sızıntısı).
 - Import RED kodları seni korur: 7 (64MiB üstü), 8 (oturum-rollback/replay), 9
-  (kimlik taklidi), 14 (kırık gömülü zincir), 17 (merkle uyuşmaz) — hepsi negatif
-  vektörle testli (AT-001f).
+  (kimlik taklidi), 14 (kırık gömülü zincir — run_all F21-truncate + AT-003 vektörleriyle
+  testli), 17 (merkle uyuşmaz — run_all merkle bölümü), 18 (sahiplik uyuşmazlığı —
+  Audit-9 B7). 7/8/9 AT-001f negatif vektörleriyledir.
 - **Node operatörüysen:** gömülü zinciri node sertifikasıyla zorlamak isteyen hedefte
   `import --cosign-policy L1 --node-trust <dosya>` kullan (node anahtarı:
   `keygen-node <dir>`; L0 default her zinciri kabul eder — politika ayrıntısı

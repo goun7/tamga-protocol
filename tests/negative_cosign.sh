@@ -16,8 +16,8 @@ bekle_red() { kontrol "$@"; }
 
 {
   echo "# AT-003 node-cosign negatif vektörler — $(date -Iseconds)"
-  rm -rf "$SB"; mkdir -p "$SB/pkg" "$SB/tazeL0" "$SB/tazeL1" "$SB/tazeL1b"
-  for d in pkg tazeL0 tazeL1 tazeL1b; do cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$SB/$d/"; done
+  rm -rf "$SB"; mkdir -p "$SB/pkg" "$SB/pkg-temiz" "$SB/tazeL0" "$SB/tazeL1" "$SB/tazeL1b"
+  for d in pkg pkg-temiz tazeL0 tazeL1 tazeL1b; do cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$SB/$d/"; done
   S=$(python3 tamga_runner.py keygen | python3 -c 'import sys,json;print(json.load(sys.stdin)["seed_hex"])')
   python3 tamga_runner.py keygen-node "$SB/node" > /dev/null
   NK=$(cat "$SB/node/node_seed.hex")
@@ -47,15 +47,16 @@ PY
   bekle_red $? "tc-n2: bozuk node_sig → ledger-verify RED (reason 14)"
 
   # tc-n3: node_id kurcalama → zincir-hash kırılır (node_id hash İÇİNDE)
-  python3 tamga_runner.py grant "$SB/pkg" 0.01 "at003b" --node-key "$NK" > /dev/null
-  python3 - "$SB/pkg/ledger.jsonl" <<'PY'
+  # Audit-9 B15: izole zincir — tc-n2 kalıntısı ÜZERİNE değil (taze node)
+  python3 tamga_runner.py grant "$SB/pkg-temiz" 0.01 "at003b" --node-key "$NK" > /dev/null
+  python3 - "$SB/pkg-temiz/ledger.jsonl" <<'PY'
 import sys, json, pathlib
 p = pathlib.Path(sys.argv[1])
 lines = [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
 lines[-1]["node_id"] = "cd" * 32   # son kaydın node_id'si takas edilir
 p.write_text("\n".join(json.dumps(r, sort_keys=True, separators=(",", ":"), ensure_ascii=False) for r in lines) + "\n")
 PY
-  python3 tamga_runner.py ledger-verify "$SB/pkg" | grep -q '"ok": false'
+  python3 tamga_runner.py ledger-verify "$SB/pkg-temiz" | grep -q '"ok": false'
   bekle_red $? "tc-n3: node_id takası → zincir-hash kırığı (RED)"
 
   # tc-n4: node_sig'siz (temiz legacy) zincir + L1 → RED (node_sig_eksik)

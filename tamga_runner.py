@@ -41,7 +41,15 @@ def passphrase() -> bytes:
     return p.encode()
 
 def _seed_from(a):
-    return bytes.fromhex(a[a.index("--seed") + 1])      # Audit-1 F3
+    seed = bytes.fromhex(a[a.index("--seed") + 1])      # Audit-1 F3 (hex)
+    if len(seed) != 32:                                  # Audit-9 B3: ed25519 tam 32 bayt
+        raise ValueError("seed 32 bayt olmalı")
+    return seed
+
+def _secure_open(path, append=False):
+    """Audit-9 B6: '0600' iddiası atomik olsun — yazma-sonrası chmod penceresi kapanır."""
+    flags = os.O_WRONLY | os.O_CREAT | (os.O_APPEND if append else os.O_TRUNC)
+    return os.open(path, flags, 0o600)
 
 def _pkg(pkg):
     p = pathlib.Path(pkg)
@@ -174,7 +182,8 @@ def _ledger_append(lp, rec, node_key=None):
     if node_key:
         rec["node_sig"] = SigningKey(node_key).sign(h.encode()).signature.hex()  # h'yi imzalar; hash-girdisi DIŞI
     rec["h"] = h
-    with open(lp, "a") as f:
+    fd = _secure_open(lp, append=True)
+    with os.fdopen(fd, "a") as f:
         f.write(jcs(rec) + "\n")
     os.chmod(lp, 0o600)
     return rec
@@ -241,6 +250,9 @@ def cmd_run(a):
     pkg = pathlib.Path(a[0])
     try:
         seed = _seed_from(a)
+    except ValueError as e:
+        # Audit-9 B3: geçerli-hex ama 32-bayt olmayan seed — koşum/ücret YAZILMADAN RED
+        return out(False, op="run", reason_code=6, reason="seed_invalid: " + str(e))
     except Exception:
         return out(False, op="run", reason_code=6, reason="seed_invalid")
     node_key = _node_key_from(a)                            # node-cosign (opt-in)
@@ -256,17 +268,36 @@ def cmd_run(a):
     # --- gerçek koşum: süreç-izole wasmtime; D4: fs preopen yok, ağ yok ---
     # Dilim-4 (Audit-3 F15): stdout belleğe değil DİSKÉ yazılır; io sınırı dosya boyutundan.
     _, sp0, _ = _pkg(pkg)
+    agent_id = SigningKey(seed).verify_key.encode().hex()
     st0 = _load_state(sp0)  # session no'yu önceden bil (kanıt dosyası adı için)
+    # Audit-9 B7: pkg↔ajan sahiplik bağı — state bir ajanın ise başka ajanın seed'i
+    # o state'e koşamaz (hafıza/zincir ezilmesi engellenir; reason 18).
+    owner = st0.get("agent_id")
+    if owner and owner != agent_id:
+        return out(False, op="run", reason_code=18,
+                   reason=f"agent_ownership_mismatch: state {owner[:16]}… ajanının; "
+                          f"verilen seed {agent_id[:16]}… üretiyor (R7): taşıma için export/import kullanın")
     sess_no = st0.get("sessions", 0) + 1
     art = pkg / f"session-{sess_no}.stdout"
     ru0 = resource.getrusage(resource.RUSAGE_CHILDREN)   # child CPU ölçüm başlangıcı
     t0 = time.monotonic()
+    # Audit-9 B5: io sınırı koşum SIRASINDA uygulanır (RLIMIT_FSIZE) — bitti-sonra
+    # kontrol yerine; ajan timeout'a kadar diski dolduramaz. (F15 kapanışı)
+    io_limit = limits["io_mb_per_run"] * (1 << 20)
+    import tempfile
     try:
-        with open(art, "wb") as af:
-            proc = subprocess.run([WASMTIME, "run", str(pkg / "agent.wasm")],
-                                  stdout=af, stderr=subprocess.STDOUT,
-                                  timeout=limits["cpu_ms_per_run"] / 1000,
-                                  env={})   # Audit-3 F16: host env motor sürecine sızmaz
+        fd = os.open(art, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)  # Audit-9 B6: atomik 0600
+        try:
+            with os.fdopen(fd, "wb") as af:
+                proc = subprocess.run([WASMTIME, "run", str(pkg / "agent.wasm")],
+                                      stdout=af, stderr=subprocess.STDOUT,
+                                      timeout=limits["cpu_ms_per_run"] / 1000,
+                                      env={},   # Audit-3 F16: host env motor sürecine sızmaz
+                                      preexec_fn=lambda: resource.setrlimit(
+                                          resource.RLIMIT_FSIZE, (io_limit, io_limit)))
+        finally:
+            if os.path.exists(art):
+                os.chmod(art, 0o600)
     except subprocess.TimeoutExpired:
         art.unlink(missing_ok=True)
         return out(False, op="run", reason_code=11,
@@ -331,9 +362,10 @@ def cmd_run(a):
     st["format"] = "tamga-state/1"
     st["ledger_tip"] = charge["h"]                            # Dilim-6: F21 panzehiri
     st["graph_merkle"] = _graph_merkle(mem)
-    sp.write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
-    os.chmod(sp, 0o600)
-    agent_id = SigningKey(seed).verify_key.encode().hex()
+    st["agent_id"] = agent_id                                 # Audit-9 B7: sahiplik bağı
+    fd = _secure_open(sp)                                     # Audit-9 B6: atomik 0600
+    with os.fdopen(fd, "w") as f:
+        f.write(json.dumps(st, ensure_ascii=False))
     kw = {"op": "run", "pkg": manifest["package"]["name"], "agent_id": agent_id,
           "session": st["sessions"], "nodes": len(mem["nodes"]),
           "engine": "wasmtime-v48.0.1", "wall_ms": dt_ms, "cpu_saat": cpu_saat,
@@ -392,7 +424,9 @@ def cmd_memory(a):
             if isinstance(edge, list) and len(edge) >= 3 and edge not in mem["edges"]:
                 mem["edges"].append(edge)
         st["format"] = "tamga-state/1"; st["graph_merkle"] = _graph_merkle(mem)
-        sp.write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8"); os.chmod(sp, 0o600)
+        fd = _secure_open(sp)  # Audit-9 B6: atomik 0600
+        with os.fdopen(fd, "w") as f:
+            f.write(json.dumps(st, ensure_ascii=False))
         return out(True, op="memory-import", added=added, skipped=skipped,
                    nodes=len(mem["nodes"]), note="ADD-only birleştirme (RFC-004 D2/D7 taslak)")
     if "--export-json" in a:
@@ -412,8 +446,13 @@ def cmd_export(a):
     pkg = pathlib.Path(a[0])
     try:
         dst = pathlib.Path(a[a.index("-o") + 1]); seed = _seed_from(a)
+    except ValueError as e:
+        return out(False, op="export", reason_code=6, reason="seed_invalid: " + str(e))
     except Exception:
         return out(False, op="export", reason_code=6, reason="seed_invalid")
+    if not (pkg / "tamga.json").exists():
+        # Audit-9 B11: quickstart.log TUR-2'de kanıtlı traceback — JSON sözleşmesi şart
+        return out(False, op="export", reason_code=3, reason="manifest_reject: tamga.json yok")
     try:
         agent_id = SigningKey(seed).verify_key.encode().hex()
         _, sp, lp_x = _pkg(pkg)
@@ -437,7 +476,9 @@ def cmd_export(a):
         hb = json.dumps(header, ensure_ascii=False, sort_keys=True).encode("utf-8")
         ct = xenc(state, hb, body_nonce, body_key(seed))
         data = MAGIC + len(hb).to_bytes(4, "big") + hb + ct
-        dst.write_bytes(data); os.chmod(dst, 0o600)
+        fd = _secure_open(dst)  # Audit-9 B6: atomik 0600
+        with os.fdopen(fd, "wb") as f:
+            f.write(data)
         return out(True, op="export", pkg=pkg.name, file=str(dst), sha256=hashlib.sha256(data).hexdigest(),
                    bytes=len(data), note="D3: anahtar diske yazılmadı, şifreli keystore blob ile taşındı")
     except ValueError:
@@ -464,7 +505,9 @@ def cmd_keygen_node(a):
     Kullanım: keygen-node <dir>"""
     out_d = pathlib.Path(a[0]); out_d.mkdir(parents=True, exist_ok=True)
     sk = SigningKey.generate()
-    (out_d / "node_seed.hex").write_text(sk.encode().hex()); (out_d / "node_seed.hex").chmod(0o600)
+    fd = _secure_open(out_d / "node_seed.hex")
+    with os.fdopen(fd, "w") as f:
+        f.write(sk.encode().hex())   # Audit-9 B6: atomik 0600 (operatör özel anahtar)
     (out_d / "node_pub.hex").write_text(sk.verify_key.encode().hex())
     return out(True, op="keygen-node", dir=str(out_d), node_id=sk.verify_key.encode().hex(),
                note="node anahtarı 0600 yazıldı (operatör kimliği; D3 ajan seed'ine özgüdür)")
@@ -473,7 +516,10 @@ def _cosign_policy(a):
     """import politikası: --cosign-policy L0|L1 (default L0) + --node-trust <file>
     (L1 için zorunlu; JSON dizi: güvenilen node_id hex listesi)."""
     pol = "L0"
-    if "--cosign-policy" in a: pol = a[a.index("--cosign-policy") + 1]
+    try:
+        if "--cosign-policy" in a: pol = a[a.index("--cosign-policy") + 1]
+    except IndexError:
+        pol = "L0"   # Audit-9 B11: değersiz bayrak crash değil, default
     if pol not in ("L0", "L1"): pol = "L0"
     trust = None
     if "--node-trust" in a:
@@ -515,6 +561,18 @@ def cmd_import(a):
         return out(False, op="import", reason_code=4, reason="keystore_unlock_failed")
     if SigningKey(seed).verify_key.encode().hex() != header["agent_id"]:
         return out(False, op="import", reason_code=9, reason="agent_identity_mismatch")
+    # Audit-9 B7 (import yanı): hedefte YAŞAYAN başka bir ajanın state'i varsa ezme
+    # kabul edilmez (taşıma = boş node'a; sahip-değişimi belgeli akışla yapılır).
+    _, sp_x, _ = _pkg(pkg)
+    if sp_x.exists():
+        try:
+            cur_owner = json.loads(sp_x.read_text(encoding="utf-8")).get("agent_id")
+        except Exception:
+            cur_owner = None
+        if cur_owner and cur_owner != header["agent_id"]:
+            return out(False, op="import", reason_code=18,
+                       reason=f"agent_ownership_mismatch: hedef state {cur_owner[:16]}… ajanının; "
+                              f"snapshot {header['agent_id'][:16]}… ajanının (boş node'a import edin)")
     hb = json.dumps(header, ensure_ascii=False, sort_keys=True).encode("utf-8")
     try:
         state = xdec(data[8 + hlen:], hb, bytes.fromhex(header["body_nonce"]), body_key(seed))
@@ -533,9 +591,11 @@ def cmd_import(a):
     tip = parsed.get("ledger_tip")
     head, why = _ledger_head(lp)
     tip_note = "yerel ledger yok — tip kontrolü yeni node'da ertelendi"
+    if why not in ("ok", "yok"):
+        # Audit-9 B4: kırık YEREL zincirde import'u kabul etmek, doğrulanamayan
+        # snapshot ledger_tip'ini state'e yazmak olur — RED şart.
+        return out(False, op="import", reason_code=14, reason="ledger_broken: yerel zincir " + why)
     if head is not None and tip:
-        if why != "ok":
-            return out(False, op="import", reason_code=14, reason="ledger_broken: " + why)
         if not _tip_in_chain(lp, tip):                        # Audit-4 F21: truncate/replace saldırısı
             return out(False, op="import", reason_code=14,
                        reason="ledger_broken: snapshot ledger_tip yerel zincirde yok (truncate/replace?)")
@@ -564,17 +624,20 @@ def cmd_import(a):
         head2, why2 = _ledger_head(lp)
         if head2 is None and why2 in ("yok",):
             body2 = {k: v for k, v in parsed.items() if k != "ledger_records"}
-            sp.write_text(json.dumps(body2, ensure_ascii=False), encoding="utf-8")
-            with open(lp, "w", encoding="utf-8") as f:
+            fd = _secure_open(sp)  # Audit-9 B6: atomik 0600
+            with os.fdopen(fd, "w") as f:
+                f.write(json.dumps(body2, ensure_ascii=False))
+            fd = _secure_open(lp)  # Audit-9 B6: atomik 0600
+            with os.fdopen(fd, "w") as f:
                 for rec in recs:
                     f.write(jcs(rec) + "\n")
-            os.chmod(lp, 0o600)
             tip_note += "; gömülü zincir kuruldu (" + str(len(recs)) + " kayıt)"
         else:
             tip_note += "; hedefte zincir var — gömülü zincir yereli ezmedi (D4 append-only)"
     body_final = {k: v for k, v in parsed.items() if k != "ledger_records"}
-    sp.write_text(json.dumps(body_final, ensure_ascii=False), encoding="utf-8")
-    os.chmod(sp, 0o600)
+    fd = _secure_open(sp)  # Audit-9 B6: atomik 0600
+    with os.fdopen(fd, "w") as f:
+        f.write(json.dumps(body_final, ensure_ascii=False))
     return out(True, op="import", pkg=pkg.name, agent_id=header["agent_id"],
                resumed_session=parsed.get("sessions", 0),
                memory_nodes=len(parsed.get("memory", {}).get("nodes", [])),
@@ -583,7 +646,13 @@ def cmd_import(a):
 def cmd_ledger(a):
     pkg = pathlib.Path(a[0]) if a else pathlib.Path(".")
     lp = pkg / "ledger.jsonl"
-    recs = [json.loads(l) for l in lp.read_text(encoding="utf-8").splitlines() if l.strip()] if lp.exists() else []
+    recs = []
+    if lp.exists():
+        try:
+            recs = [json.loads(l) for l in lp.read_text(encoding="utf-8").splitlines() if l.strip()]
+        except Exception:
+            return out(False, op="ledger", reason_code=14,
+                       reason="ledger_broken: ledger.jsonl JSON-satır bozuk")  # Audit-9 B11
     grants = sum(r["amount"] for r in recs if r["op"] == "grant")
     fees = sum(r["fee_sim"] for r in recs if r["op"] == "charge")
     return out(True, op="ledger", pkg=pkg.name, charges=sum(1 for r in recs if r["op"] == "charge"),

@@ -16,7 +16,7 @@ Bu RFC muhasebe kaydını pinler: kanıt kültürünün finansal hali — **her 
 | D1 | **Faturalama tabanı = wall_ms** (duvar-saati). cpu_saat/ram_gb_sn/io_mb kayıtta ayrı "kanıtsayı" kalır | Wasmtime saat-okuma yield'i cpu'yu wall'ın ~⅔'üne düşürür (kanıt: AT-001c.log); node'un kapasite sattığı şey duvar-saati kaynak dilimidir. cpu tabanı = host waktu ayarıyla oynanabilir | cpu-only (host ile kolayca oyunlanır; ajan saati vs host saati uyuşmazlığı) |
 | D2 | **Formül:** `ucret = wall_sn * fiyat + ram_gb_sn * fiyat + io_mb * fiyat`. `cpu_saat` faturalamaya girmez, kanıt alanıdır | D1'in doğal sonucu; AT-001c formülüyle uyum (wall dönüşümü) | cpu tabanlı karma formül |
 | D3 | **Ledger = append-only JSONL** (`ledger.jsonl`), 0600; satır = kanıt | RFC-002 D5 devamı; hash-zinciriyle D4 birleşir | SQLite (v1'de yeniden değerlendirilir) |
-| D4 | **Hash-zinciri:** her kayıt `prev` (önceki kaydın 64-hex zincir-hash'i) + `h` (kendi hash'i) taşır. Genesis `prev` = 64×'0'. Zincir-hash = sha256(prev_hex | jcs(kayıt-prev-h-olmadan)) | MERGEN ÖZ/MÜHÜR dersinin Tamga karşılığı; kurcalama tek satırla zinciri kırar; `ledger --verify` ile ucuca kontrol | düz JSONL (sonradan düzenlenebilir) |
+| D4 | **Hash-zinciri:** her kayıt `prev` (önceki kaydın 64-hex zincir-hash'i) + `h` (kendi hash'i) taşır. Genesis `prev` = 64×'0'. **Zincir-hash = sha256(prev_hex + jcs(kayıt-h-dışında))** — prev hem ÖNEK hem jcs girdisi İÇİNDE (Audit-9 B8: metin-kod tutarlılığı; node-cosign'da node_sig hash-girdisi dışında, node_id içindedir — bkz. §8 D8) | MERGEN ÖZ/MÜHÜR dersinin Tamga karşılığı; kurcalama tek satırla zinciri kırar; `ledger --verify` ile ucuca kontrol | düz JSONL (sonradan düzenlenebilir) |
 | D5 | **Kayıt tipleri:** `grant` (hibe), `charge` (koşum ücreti), `pay` (v1, ajan→ajan; şimdi rezerve) | AT-001c şartı + v1 ödeme halkasının yeri hazır | sadece charge |
 | D6 | **Kanıt sayı alanları:** cpu_saat, ram_gb_sn, io_mb, wall_ms + `stdout_sha256`, `stdout_file` | AT-001c ±%5 şartının denetlenebilir verisi; sayılar bilimsel gösterimde olsa da değerler JCS-uyumlu JSON | yuvarlamasız float (JSON şeması karmaşıklaşır) |
 | D7 | `ledger --verify` alt-komutu: zinciri baştan sona doğrular, `ok/broken_at` döner | Kanıt kültürü: zincir iddiası da kanıtlanabilmeli | elle script |
@@ -30,11 +30,11 @@ Bu RFC muhasebe kaydını pinler: kanıt kültürünün finansal hali — **her 
  "wall_ms": 31081, "cpu_saat": 0.006119096, "ram_gb_sn": 0.644635761,
  "io_mb": 3.8e-05, "stdout_sha256": "<64hex>", "fee_sim": 0.000334594, "ts": "<ISO-8601>"}
 ```
-Ortak alanlar: `op, seq, prev, h, ts`. `seq` 1'den başlar, +1 artar (eksik/atlama = zincir kırık). `grant`: `{op, seq, prev, h, pkg, amount, note, ts}`. Zincir-hash girdisi kaydın `h` ve `prev` dışındaki tüm alanlarıdır (JCS sıralı).
+Ortak alanlar: `op, seq, prev, h, ts`. `seq` 1'den başlar, +1 artar (eksik/atlama = zincir kırık). `grant`: `{op, seq, prev, h, pkg, amount, note, ts}`. **Zincir-hash girdisi = `prev` + jcs(`h` ve `node_sig` dışındaki tüm alanlar)** (JCS sıralı; Audit-9 B8).
 
 ## 4. reason_code uzantısı (E-7)
 
-14=ledger_broken (zincir doğrulaması kırık satırda başarısız), 15=ledger_empty (grant'sız koşum — faz 1'de uyarı, RED değil; koşum yine ücret kaydını yazar ve bakiye negatife düşebilir).
+14=ledger_broken (zincir doğrulaması kırık satırda başarısız; Audit-9 B9 dürüst notu: **15=ledger_empty bugün HİÇ üretilmiyor** — grant'sız koşum sessizce bakiyeyi düşürür; 15 tasarım-rezervi olarak kalır, onayda üretilip üretilmeyeceği netleştirilir).
 
 **Uyum notu (2026-09-05, quickstart bulgusu):** `ledger-verify`'ın zincirsiz pkg davranışı — boş/olmayan `ledger.jsonl` bozuk-değildir; `ok=true, lines=0, head=64×'0'` (genesis ucu) döner. D7'nin "doğru zincir" tanımıyla uyumludur; reason 14 yalnız **var olan** zincirin doğrulaması kırılırsa atılır.
 
@@ -56,9 +56,9 @@ TASLAK'tan normatif sapma yok; gerçekleme bu RFC'yi izliyor, iki adsal/erdamsal
 | RFC-003 hükmü | Gerçekleme | Not |
 |---|---|---|
 | D3 append-only JSONL 0600 | `ledger.jsonl` 0600 (`_ledger_append`) | birebir |
-| D4 hash-zinciri `sha256(prev \| jcs(kayıt-h-dışında))`, genesis 64×'0', seq 1-bazlı | `_ledger_head` + `ledger-verify` | birebir; kanıt: kanit/FAZ1/2026-09-02/dilim-5.log |
+| D4 hash-zinciri `sha256(prev + jcs(kayıt-h-node_sig-dışında))`, genesis 64×'0', seq 1-bazlı | `_ledger_head` + `ledger-verify` | birebir (B8 formül-tutarlılığı); kanıt: kanit/FAZ1/2026-09-02/dilim-5.log |
 | D7 doğrulama alt-komutu `ledger --verify` | **`ledger-verify`** (tek kelime, tireli) | **adsal düzeltme**: CLI yüzeyi budur; `--verify` bayrağı yoktur. Onay öncesi metin güncellenecek |
-| §4 reason 14/15 | 14=zincir kırık (kırık@N), 15=grant'sız uyarı | birebir; ek: 14 artık **gömülü zincir** için de import'ta atılır (RFC-002 E-10a) |
+| §4 reason 14 (15: bugün üretilmiyor — B9 notu) | 14=zincir kırık (kırık@N/node_sig_geçersiz@N), ayrıca cosign-L1 RED'leri | birebir; ek: 14 artık **gömülü zincir** için de import'ta atılır (RFC-002 E-10a) |
 | — (RFC'de yok) | `ledger_tip` state'te; import'ta zincir-üyeliği doğrulanır (F21) | normatif kaynak: RFC-002 E-9a |
 | — (RFC'de yok) | gömülü `ledger_records` kuruluş-öncesi doğrulanır | normatif kaynak: RFC-002 E-10a |
 

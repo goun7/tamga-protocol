@@ -50,10 +50,11 @@ def main():
     rows.append(bench("memory-import+ADD-only", 30, lambda: sh("memory", str(pkg), "--import-json", "tests/simnet/mergen-dersler.json")))
     rows.append(bench("memory-search", 50, lambda: sh("memory", str(pkg), "--search", "scrypt")))
     rows.append(bench("export(scrypt+XChaCha)", 20, lambda: sh("export", str(pkg), "-o", str(SB / "s.tsg"), "--seed", seed)))
-    rows.append(bench("import(derin-doğrulama)", 20, lambda: sh("import", str(SB / "s.tsg"), str(SB / "hedef"))))
-    (SB / "hedef").mkdir(exist_ok=True)
+    # Audit-9 B2: fixture bench'ten ÖNCE kurulmalı — aksi halde erken-RED yolu ölçülür
+    hedef = SB / "hedef"; hedef.mkdir(exist_ok=True)
     for f in ("tamga.json", "agent.wasm"):
-        (SB / "hedef" / f).write_bytes((ROOT / "tests/vectors/tc-a1" / f).read_bytes())
+        (hedef / f).write_bytes((ROOT / "tests/vectors/tc-a1" / f).read_bytes())
+    rows.append(bench("import(derin-doğrulama)", 20, lambda: sh("import", str(SB / "s.tsg"), str(hedef))))
 
     load = open("/proc/loadavg").read().split()[:3]
     out = {"tarih": time.strftime("%FT%T%z"), "loadavg": load,

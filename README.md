@@ -32,7 +32,7 @@ python3 tamga_runner.py memory <pkg> --import-json d.json   # MERGEN → Tamga d
 
 | Belge | İçerik | Durum |
 |---|---|---|
-| [RFC-001](specs/RFC-001-paket-bicimi.md) | Paket biçimi (`tamga.json`, manifest şeması) | v0.1-FINAL (donmuş) |
+| [RFC-001](RFC-001-manifest.md) (şema: [specs/manifest-0.1.0.schema.json](specs/manifest-0.1.0.schema.json)) | Paket biçimi (`tamga.json`, manifest şeması) | v0.1-FINAL (donmuş) |
 | [RFC-002](RFC-002-runner.md) | Runner sözleşmesi (koşum, ölçüm, snapshot) | v0.1-FINAL (donmuş, erratalı) |
 | [RFC-003](RFC-003-ledger.md) | Ledger kaydı ve ölçüm sözleşmesi (`tamga-sim/1`) | TASLAK — kurucu onayı bekliyor |
 | [RFC-004](RFC-004-context-graph.md) | Bağlam grafiği ve snapshot sözleşmesi | TASLAK — kurucu onayı bekliyor |

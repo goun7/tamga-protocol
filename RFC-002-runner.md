@@ -102,3 +102,24 @@ Kural: her komut **stdout'a tek satır JSON** yazar: `{"ok":true,"op":"import","
   (b) **F25 açık bulgu (belgeli):** seed-sahibi düşman, zinciri baştan yeniden hash'leyerek taze node'a kendi-tutarlı **sahte tarih** kurabiliyor (A1b saldırısı import + ledger-verify geçiyor). Mevcut panzehirler: D4 append-only (zincirli hedefte `ledger_tip` bağlaması RED — A2) + seed gizliliği. Kalıcı çözüm **node-cosign**'dir (kaydın hash girdisine node anahtarı girer) → RFC-003 Açık Soru 4'e eklendi. Simnet'te tek-yazar ortam olduğu için şiddet Orta; ağda Yüksek.
   (c) **Tutarlı-kurcalama üst sınırı (belgelendi):** seed-sahibi, `graph_merkle`'ı yeniden hesaplayıp tutarlı state üretebilir (A3) — merkle'in düşman modeli seed'siz host'tur; bu sınır açık-değil, model-tanımlamasıdır.
 - **E-11 (2026-09-05, Dilim-9/öğrenme):** Ölçüm-limiti yavaş turda da teyit edildi: 16/16 geçen koşumda `c30 wall_ms=31022` (AT-001c formül sapması %0.000022; kanit/REGRESYON/2026-09-05/run_all-040841.log). Pratik not: yavaş tur c30 koşumu wall-30000 sınırını host load ~22-29 bandında ancak ~%3 marjla geçer — yük ~40 bandında reason-11 riski yavaş turda da vardır; kanıt-koşumları düşük-yük penceresiyle planlanır (bu tur: inline koşum load ~21'de). Overhead taban çizgisi: kanit/BENCH/2026-09-05/runner-overhead.json (E-4).
+
+## §9 Errata — Devam
+
+- **E-12 (2026-09-05, Audit-9 B12/B3/B7):** §3 normatif CLI imzaları gerçek yüzeye sabitlenir:
+  (i) `export <pkg> -o <snapshot.tsg> --seed <hex>` — `--seed` **zorunludur** (eksikse RED 6);
+  (ii) `import <snapshot.tsg> <pkg>` — ikinci argüman hedef pkg **zorunludur** (§3'te unutulmuştu);
+  (iii) `run` koşum sonunda **snapshot OLUŞTURMAZ** — yalnız state.json + ledger.jsonl günceller;
+  snapshot yalnız `export` ile üretilir (§3'teki "otomatik güncellenir" yorumu düşer).
+  (iv) **Yeni RED kodu 18 = `agent_ownership_mismatch` (Audit-9 B7):** state.json artık
+  `agent_id` taşır; run'da başka ajanın seed'i sahipli state'e koşamaz, import'ta hedefteki
+  yaşayan ajanın state'i başka ajanın snapshot'ıyla ezilemez (taşıma = boş node'a export/import;
+  sahip-değişimi belgeli akışla — kurucu kararı gerektirir). Eski fixture state'lerinde
+  `agent_id` yoksa bağlama İLK koşumda kurulur (geriye-uyum). Kayıt: §4 reason tablosuna 18
+  eklenir; RFC-001 şeması state'e `agent_id` opsiyonel alanı olarak eklenir (v0.1.1).
+  (v) **B5:** io sınırı (`io_mb_per_run`) artık koşum SIRASINDA `RLIMIT_FSIZE` ile uygulanır
+  (bitti-sonra kontrol değil); aşım → süreç SIGXFSZ ile ölür → RED 11 io gerekçesiyle kayıtlı.
+  (vi) **B6:** tüm "0600" iddiaları atomiktir (os.open O_CREAT|mode; yazma-sonrası chmod yok).
+- **E-11 düzeltme (Audit-9 B2):** E-11'in referans verdiği overhead taban çizgisi v1'de
+  HATALIYDI (import 72ms = erken-RED artefaktı; fixture bench'ten sonra kuruluyordu).
+  Bağlayıcı taban v2: kanit/BENCH/2026-09-05/runner-overhead.json — import(derin-doğrulama)
+  = 421ms medyan (en ağır op); ROADMAP.md güncel.

@@ -32,8 +32,8 @@ def log(s):
 
 
 def manual_verdict(pkg: pathlib.Path):
-    r = subprocess.run([sys.executable, "tamga_validator.py", "validate", str(pkg)],
-                       capture_output=True, text=True)
+    r = subprocess.run([sys.executable, str(ROOT / "tamga_validator.py"), "validate", str(pkg)],
+                       capture_output=True, text=True, cwd=str(ROOT))  # Audit-9 B20: cwd-bağımsız
     msg = r.stdout.strip()
     schema_family = ("schema_violation" in msg or "unknown_field" in msg or
                      "unknown_capability" in msg or "unsupported_spec_version" in msg)

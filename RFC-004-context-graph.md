@@ -28,7 +28,7 @@ burada pinlenir (RFC-002 §7-1 açık sorusu).
 
 ## 4. reason_code uzantısı (E-8)
 
-16=node_limit (nodes >= 10000 — mevcut), 17=state_invalid (state.json şema ihlali — import'ta derin doğrulama; gerçeklemede `graph_merkle` uyuşmazlığı bu kodla RED olur).
+16=node_limit (nodes ≥ 10000) — **Audit-9 B9 dürüst notu: kodda bu sınır reason 10 (memory_limit) ile üretiliyor; 16 bugün HİÇ üretilmiyor** (rezerv; onayda ya metin koda ya kod metne hizalanır). 17=state_invalid (import'ta derin doğrulama; gerçeklemede `graph_merkle` uyuşmazlığı bu kodla RED olur).
 
 İlgili reason_code'lar (normatif kayıt RFC-002 §9'dadır): 7=snapshot_too_large (SAFE_SNAP_MAX 64MiB), 8=snapshot_replay_rollback (hedef `sessions` sayacı snapshot'tan ileriyse import RED — hafıza sürekliliği savunması), 9=agent_identity_mismatch (header kimliği keystore'dan türeyen pubkey ile uyuşmaz). Negatif-vektör kanıtı: kanit/AT-001/2026-09-05/AT-001f-vektorler.log.
 
@@ -49,7 +49,7 @@ burada pinlenir (RFC-002 §7-1 açık sorusu).
 | D5 Keystore KDF = Argon2id (öncelik), scrypt fallback (n=2^15, r=8, p=1) | **Gönderilen = scrypt (n=2^15, r=8, p=1)**, `kdf` alanı beyanlı | **dürüst not:** PyNaCl Argon2id içermez; D5'in fallback parametreleri v0'ın gerçeklemesidir. Argon2id v1 yükseltmesi olarak kalır (`kdf` beyanı sayesinde geçiş uyumlu). Kanıt: dilim-1/dilim-2 logları |
 | D6 state v1 (`format`, `sessions`, `memory`, `ledger_tip`, `graph_merkle`) | birebir (F14 göç dahil) | kanıt: dilim-6.log |
 | §3 düğüm türleri note/fact/session_marker | birebir; MERGEN dersleri `fact` olarak akıyor (`memory --import-json`) | kanıt: dilim-4.log + audit-7.log önkoşul |
-| §4 E-8 kodları 16/17 | birebir | ayrıca yukarıdaki 7/8/9 bağlam notu |
+| §4 E-8 kodları 17 (16: bugün reason 10 ile üretiliyor — B9 notu) | 17 birebir | ayrıca yukarıdaki 7/8/9 bağlam notu |
 | — (RFC'de yok) | snapshot gövdesi gömülü `ledger_records` taşır | normatif kaynak: RFC-002 E-9a |
 
 Model sınırı (Audit-7 A3): seed-sahibi `graph_merkle`'ı yeniden hesaplayıp tutarlı state üretebilir; merkle'in düşman modeli **seed'siz host** kurcalamasıdır — tasarımdaki yerini belgeler, açık bulgu değildir.

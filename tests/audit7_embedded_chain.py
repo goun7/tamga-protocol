@@ -162,6 +162,7 @@ def main():
     shutil.rmtree(SB, ignore_errors=True)
     log("")
     log("# Audit-7 betik sonu — değerlendirme SECURITY-AUDIT.md'de")
+    return 0 if "BEKLENMEDİK" not in "\n".join(OUT) and "İDDİA" not in "\n".join(OUT) else 1
 
 
 if __name__ == "__main__":
@@ -172,10 +173,11 @@ if __name__ == "__main__":
     _old = sys.stdout
     sys.stdout = buf
     try:
-        main()
+        _rc = main()
     finally:
         sys.stdout = _old
     text = buf.getvalue()
     print(text)
     with open(logf, "a", encoding="utf-8") as f:
         f.write(f"# audit-7 — {__import__('time').strftime('%FT%T%z')}\n" + text)
+    sys.exit(_rc or 0)

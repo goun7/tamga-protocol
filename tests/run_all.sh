@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tamga Protocol — tek-komut regresyon takımı
-# Semantik: kontrol <exit> — 0 = PASS, sıfırdan farklı = FAIL (POSIX konvansiyonu).
-# İlke: takım her koşuda kendi tek-kullanımlık sandbox'ını kurar; kalıcı fixture'ları bozmaz.
+# Semantik: kontrol <exit> — 0 = PASS, sıfırdan farklı = FAIL (bash PIPESTATUS konvansiyonu;
+# 'POSIX' değil: PIPESTATUS bash'e özgüdür (Audit-9 B19). Takım her koşuda kendi
+# tek-kullanımlık sandbox'ını kurar; kalıcı fixture'ları bozmaz.
 set -u
 cd "$(dirname "$0")/.."
 export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
@@ -73,9 +74,15 @@ PY
   if grep -q "takim-notu" "$SB/snap3.tsg"; then kontrol 1 "snapshot gövdesinde düz-metin sızıntı"; else kontrol 0 "snapshot gövdesinde 0 düz-metin sızıntı"; fi
 
   if [ "${RUN_SLOW:-0}" = "1" ]; then
+    # Audit-9 B16: yavaş tur gitignored fixture'lara bağlı (c30 + seedC) — taze klonde
+    # çalışmaz; önkoşul kapısı net mesaj verir.
+    if [ ! -f tests/simnet/node-C/pkg-c30/tamga.json ] || [ ! -f tests/simnet/seedC.hex ]; then
+      echo "  [SKIP] RUN_SLOW atlandı: tests/simnet/node-C + seedC.hex fixture'ları bu klonde yok (gitignored)"
+    else
     echo "--- AT-001c özü: 31s wall-ölçümü (yavaş)"
     W=$(python3 tamga_runner.py run tests/simnet/node-C/pkg-c30 --seed "$(cat tests/simnet/seedC.hex)" | python3 -c 'import sys,json;print(json.load(sys.stdin).get("wall_ms",0))')
     if [ "$W" -ge 30000 ] 2>/dev/null; then kontrol 0 "c30 wall_ms=$W ≥ 30000"; else kontrol 1 "c30 wall_ms=$W < 30000"; fi
+    fi
   fi
 
   rm -rf "$SB"

@@ -1,60 +1,60 @@
 {
-  "tarih": "2026-09-05T04:17:03+0300",
+  "tarih": "2026-09-05T05:17:03+0300",
   "loadavg": [
-    "26.32",
-    "27.04",
-    "28.01"
+    "32.83",
+    "31.40",
+    "30.61"
   ],
   "not": "koşum-kenarı (wasmtime) hariç; scrypt n=2^15 baskın emdiridir; load ortamı paralel oturumlarla meşgul — mutlak değer değil, op-arası ORAN anlamlıdır (Faz 2 çıkış-ölçütü taban çizgisi)",
   "sonuclar": [
     {
       "op": "keygen(ed25519)",
       "n": 50,
-      "medyan_ms": 192.42,
-      "ortalama_ms": 204.92,
-      "p95_ms": 297.69
+      "medyan_ms": 218.8,
+      "ortalama_ms": 217.8,
+      "p95_ms": 302.5
     },
     {
       "op": "grant+zincir-ekleme",
       "n": 50,
-      "medyan_ms": 151.7,
-      "ortalama_ms": 177.5,
-      "p95_ms": 299.96
+      "medyan_ms": 217.24,
+      "ortalama_ms": 223.97,
+      "p95_ms": 324.1
     },
     {
       "op": "ledger-verify(5-kayıt)",
       "n": 50,
-      "medyan_ms": 72.52,
-      "ortalama_ms": 80.19,
-      "p95_ms": 123.69
+      "medyan_ms": 195.4,
+      "ortalama_ms": 204.82,
+      "p95_ms": 318.32
     },
     {
       "op": "memory-import+ADD-only",
       "n": 30,
-      "medyan_ms": 138.46,
-      "ortalama_ms": 164.95,
-      "p95_ms": 333.28
+      "medyan_ms": 217.31,
+      "ortalama_ms": 307.43,
+      "p95_ms": 709.94
     },
     {
       "op": "memory-search",
       "n": 50,
-      "medyan_ms": 69.56,
-      "ortalama_ms": 73.93,
-      "p95_ms": 99.78
+      "medyan_ms": 200.19,
+      "ortalama_ms": 204.57,
+      "p95_ms": 287.78
     },
     {
       "op": "export(scrypt+XChaCha)",
       "n": 20,
-      "medyan_ms": 181.74,
-      "ortalama_ms": 186.12,
-      "p95_ms": 229.21
+      "medyan_ms": 356.24,
+      "ortalama_ms": 371.47,
+      "p95_ms": 554.74
     },
     {
       "op": "import(derin-doğrulama)",
       "n": 20,
-      "medyan_ms": 72.1,
-      "ortalama_ms": 78.5,
-      "p95_ms": 85.58
+      "medyan_ms": 421.04,
+      "ortalama_ms": 475.24,
+      "p95_ms": 666.26
     }
   ]
 }

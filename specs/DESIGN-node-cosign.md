@@ -23,8 +23,10 @@ ledger-verify geçer). Mevcut panzehirler: D4 append-only (zincirli hedef ezilem
 ## 3. Önerilen mekanizma (minimum-sürükleme tasarımı)
 
 **Kilit fikir: zincir-hash formatı DEĞİŞMEZ.** D4'ün `h = sha256(prev | jcs(kayıt))`
-tanımı bozulmaz; node sertifikası kaydın İÇİNE yeni alan olarak girer ve D4'ün
-"jcs(kayıt-h-dışında)" kuralı onu otomatik kapsar:
+tanımı bozulmaz; node sertifikası kaydın İÇİNE yeni alan olarak girer. Gerçeklemede
+kesin kural (Audit-9 B13 ile netleştirildi): `node_id` **hash-girdisinin İÇİNDE**
+(kimlik zincire bağlanır), `node_sig` **hash-girdisinin DIŞINDA** — çünkü node_sig
+h'yi imzalar; h, node_sig'i içeren kaydın hash'i olsaydı döngüsel olurdu:
 
 ```jsonc
 // charge kaydı (v0.2 adayı):
@@ -48,7 +50,7 @@ node konfigürasyonunda — ajan kendi denetçisini seçemez):
 | Seviye | Davranış | Kullanım |
 |---|---|---|
 | L0 (bugünkü) | node_sig'siz zincir kurulur, provenance notu düşer | simnet v0 |
-| L1 | zincirdeki her kayıt node_sig taşımali ve `node_id` bilinen güvencili listede olmalı; yoksa import RED (reason 14 alt-kodu) | Faz 2 pilot |
+| L1 | zincirdeki her kayıt node_sig taşımali ve `node_id` bilinen güvencili listede olmalı; yoksa import RED (reason 14 alt-kodu). **Audit-9 B14 kapsam notu:** L1 bugün yalnız GÖMÜLÜ zinciri denetler; hedefte zaten var olan yerel zincir hash+imza katmanıyla doğrulanır ama güven-listesinden geçirilmez (yerel zincir operatörün kendi donanım kontrolündedir) — tam-kapsam L1 Faz 2 adayı | Faz 2 pilot |
 | L2 | L1 + kayıt node'ları arası itibar sorgusu (ERC-8004 Validation/Reputation) | Faz 3 ağ |
 
 Güvencili-liste bootstrap sorusu bilinçli açık bırakılır (aşağıda OQ-2).

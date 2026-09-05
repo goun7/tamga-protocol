@@ -56,3 +56,15 @@ A3 merkle-fold (tutarlı kurcalama): import ok=True
 A3 SONUÇ: KABUL — belgeli sınır: seed sahibi tutarlı state üretebilir (düşman üst sınırı); merkle seed'siz host'a karşıdır
 
 # Audit-7 betik sonu — değerlendirme SECURITY-AUDIT.md'de
+# audit-7 — 2026-09-05T05:15:09+0300
+# önkoşul: memory-import ok=True
+A1a splice (hash eski): import ok=False reason=14 ledger_broken: gömülü zincir kırık@1 · hedef ledger-verify ok=True broken_at=None
+A1a SONUÇ: import kuruluş-öncesinde RED (beklendi — Audit-7 D4 takviyesi sonrası)
+A1b splice (zincir yeniden hesaplı): import ok=True · hedef ledger-verify ok=True bakiye=None
+A1b SONUÇ: AÇIK BULGU F25 — seed-sahibi taze node'a kendi-tutarlı sahte tarih kurabiliyor; mevcut panzehir: D4 append-only (zincirli hedef ezilmez) + provenance notu; kalıcı çözüm RFC-003 kapsamında node-cosign (kaydın hash'ine node anahtarı girer)
+A2 tip-swap: taze node ok=True (erteleme notu beklenir) · zincirli node ok=False reason=14
+A2 SONUÇ: tip-bağlama zincirli node üzerinde RED (beklendi); taze node erteliyor (bilinen, aşağıda)
+A3 merkle-fold (tutarlı kurcalama): import ok=True
+A3 SONUÇ: KABUL — belgeli sınır: seed sahibi tutarlı state üretebilir (düşman üst sınırı); merkle seed'siz host'a karşıdır
+
+# Audit-7 betik sonu — değerlendirme SECURITY-AUDIT.md'de

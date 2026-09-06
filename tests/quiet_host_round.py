@@ -26,26 +26,36 @@ def load1():
 def main():
     nproc = os.cpu_count() or 1
     deadline = time.monotonic() + MAX_HOURS * 3600
-    while time.monotonic() < deadline:
-        la = load1()
-        if la <= THRESH * nproc:
-            print(f"[{time.strftime('%H:%M:%S')}] kapı-açık (loadavg1={la:.2f} "
-                  f"<= {THRESH * nproc:.2f}) — op-bench başlıyor", flush=True)
-            r1 = subprocess.run(["python3", str(ROOT / "tests/bench_runner_overhead.py")],
-                                cwd=ROOT)
-            if r1.returncode != 0:
-                print(f"op-bench rc={r1.returncode} — tur-iptal", flush=True)
-                return 1
-            print(f"[{time.strftime('%H:%M:%S')}] op-bench OK — run-edge başlıyor "
-                  "(c30 dahil ~3 dk)", flush=True)
-            r2 = subprocess.run(["python3", str(ROOT / "tests/bench_run_edge.py")], cwd=ROOT)
-            print(f"run-edge rc={r2.returncode}", flush=True)
-            return 0 if r2.returncode == 0 else 2
-        print(f"[{time.strftime('%H:%M:%S')}] meşgul (loadavg1={la:.2f} > "
-              f"{THRESH * nproc:.2f}) — {POLL_S}s sonra tekrar", flush=True)
-        time.sleep(POLL_S)
-    print("süre-aşımı: sessiz-pencere-açılmadı", flush=True)
-    return 3
+
+    def wait_quiet(reason):
+        # Each bench enforces its own gate; between stages the load may have crept
+        # back (ambient decay or our own previous bench). Wait for the same gate.
+        while time.monotonic() < deadline:
+            la = load1()
+            if la <= THRESH * nproc:
+                return True
+            print(f"[{time.strftime('%H:%M:%S')}] {reason}: meşgul "
+                  f"(loadavg1={la:.2f} > {THRESH * nproc:.2f}) — {POLL_S}s sonra", flush=True)
+            time.sleep(POLL_S)
+        return False
+
+    if not wait_quiet("giriş"):
+        print("süre-aşımı: sessiz-pencere-açılmadı", flush=True)
+        return 3
+    print(f"[{time.strftime('%H:%M:%S')}] kapı-açık — op-bench başlıyor", flush=True)
+    r1 = subprocess.run(["python3", str(ROOT / "tests/bench_runner_overhead.py")],
+                        cwd=ROOT)
+    if r1.returncode != 0:
+        print(f"op-bench rc={r1.returncode} — tur-iptal", flush=True)
+        return 1
+    if not wait_quiet("run-edge-öncesi"):
+        print("op-bench OK ama run-edge için sessiz-pencere-açılmadı", flush=True)
+        return 3
+    print(f"[{time.strftime('%H:%M:%S')}] op-bench OK — run-edge başlıyor "
+          "(c30 dahil ~3 dk)", flush=True)
+    r2 = subprocess.run(["python3", str(ROOT / "tests/bench_run_edge.py")], cwd=ROOT)
+    print(f"run-edge rc={r2.returncode}", flush=True)
+    return 0 if r2.returncode == 0 else 2
 
 
 if __name__ == "__main__":

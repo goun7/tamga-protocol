@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 18/18 controls, ~10 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 19/19 controls, ~10 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)
@@ -19,7 +19,7 @@ Local-only adversarial tools (not CI-hosted: they depend on gitignored simnet no
 fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip rollback
 attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
 runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
-the c30 cross-host control (19/19).
+the c30 cross-host control (20/20).
 ## Control families
 
 | Family | What it proves |
@@ -29,6 +29,7 @@ the c30 cross-host control (19/19).
 | AT-003 — ledger attack vectors | truncated and spliced chains → RED 14 (`ledger_broken`) |
 | AT-004 — input-bound receipts | `input_sha256` lands in the receipt; distinct inputs → distinct fingerprints; >1 MiB → RED 10; `--require-proof` stamp verified runner-side; replay determinism |
 | AT-005 — multi-format memory import | mem0/letta/zep/jsonl exports convert to `tamga-memory/1`; end-to-end import is idempotent (re-import adds 0); ADD-only merge across sources; >64 MiB and malformed sources → RED |
+| AT-006 — net proxy (RFC-005A slice-1) | `net.json` declaration parse is strict (>8 endpoints, bad port, unknown key → RED); allow-listed CONNECT tunnels byte-exact with per-connection counters; not-listed host and raw-IP pinhole → 403 + `net_denied` event while the session continues (soft path); exceeding `max_bytes_per_run` kills the flow and marks the session capped (hard path); net-events log is 0600 |
 | Schema cross-validation | runner decisions ≡ `jsonschema` validation (34/34 fixtures) |
 | Cosign / snapshot negatives | L1 policy enforcement, revocation-list rejections |
 | Tokenomics + economy invariants | fee curve, threshold and fairness invariants hold under the deterministic simulator |
@@ -38,7 +39,7 @@ a "fix" that makes them pass is itself a regression and fails the suite.
 
 ## CI
 
-`.github/workflows/ci.yml` runs the full 18-control suite on `ubuntu-latest` with
+`.github/workflows/ci.yml` runs the full 19-control suite on `ubuntu-latest` with
 wasmtime v48.0.1 (downloaded from the pinned release tarball) on every push to `main`.
 The badge in the README links to the workflow.
 

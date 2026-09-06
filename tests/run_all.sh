@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (18 controls; 19 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (19 controls; 20 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -120,6 +120,10 @@ PY
   # ---- kontrol-18: AT-005 memory import (multi-format, idempotent, oversize RED) ----
   bash tests/at005_memory_import.sh > /dev/null 2>&1
   kontrol $? "AT-005: memory-import (4-format + idempotency + oversize RED)"
+
+  # ---- kontrol-19: AT-006 net proxy (RFC-005A slice-1; box stays socket-free) ----
+  bash tests/at006_net_proxy.sh > /dev/null 2>&1
+  kontrol $? "AT-006: net-proxy (decl-RED + allow-list tunnel + deny/pinhole + byte cap)"
 
   rm -rf "$SB"
   echo ""

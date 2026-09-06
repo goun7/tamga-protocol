@@ -1,7 +1,7 @@
 # Tamga Protocol — Technical Architecture (v0, simnet)
 
 > Audience: engineers evaluating or building on Tamga. Every "proven" below refers to
-> a runnable control in `tests/run_all.sh` (18 controls, CI-green) unless noted.
+> a runnable control in `tests/run_all.sh` (19 controls, CI-green) unless noted.
 > Deep design documents (RFC-001…005, full audit report) are canonical in Turkish;
 > this page summarizes the public surface.
 
@@ -154,7 +154,7 @@ exit criteria.
 ```
 tamga_runner.py      run/export/import/ledger/memory/keygen-node CLI
 tamga_validator.py   manifest keygen/sign/validate
-tests/run_all.sh     18-control acceptance suite (CI)
+tests/run_all.sh     19-control acceptance suite (CI)
 tests/vectors/       tc-a1..a6 fixtures incl. intentionally-broken negatives
 tests/sim/           tokenomics + economy invariants (deterministic seed)
 tests/agent-src/     example agent (Rust → wasm32-wasip2)

@@ -61,9 +61,10 @@ def main():
     # 2) hash membership: recompute the receipt hash from the shipped record
     rec = {k: v for k, v in charge.items() if k not in ("h", "node_sig")}
     h = hashlib.sha256((charge["prev"] + jcs(rec)).encode("utf-8")).hexdigest()
-    if h != fx["tamga_observed"]["receiptHash"]["value"]:
+    if h != fx["tamga_observed"]["receiptHash"]["value"] or \
+       h != charge.get("h"):
         print(json.dumps({"ok": False, "where": "membership",
-                          "error": "recomputed h != receiptHash"}))
+                          "error": "recomputed h != receiptHash or charge.h"}))
         sys.exit(1)
 
     delivery = (d / "delivery.stdout").read_bytes()
@@ -83,11 +84,13 @@ def main():
         print(json.dumps({"ok": False, "where": "delivery_bytes",
                           "error": "keccak256 mismatch"}))
         sys.exit(1)
-    # 5) input commitment (D11)
+    # 5) input commitment (D11): the on-disk input must equal BOTH the fixture
+    #    commitment AND the charge's own input_sha256 (record-hash binding)
     inp = (d / "input.json").read_bytes()
-    if hashlib.sha256(inp).hexdigest() != fx["input_commitment"]["input_sha256"]["value"]:
+    if hashlib.sha256(inp).hexdigest() != fx["input_commitment"]["input_sha256"]["value"] or \
+       hashlib.sha256(inp).hexdigest() != charge.get("input_sha256"):
         print(json.dumps({"ok": False, "where": "input_commitment",
-                          "error": "sha256(input.json) mismatch"}))
+                          "error": "sha256(input.json) != fixture commitment or charge.input_sha256"}))
         sys.exit(1)
 
     print(json.dumps({"ok": True, "receiptHash": h,

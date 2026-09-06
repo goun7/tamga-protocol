@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # AT-007 — pairing fixture (x402 <-> Tamga, #3379)
 # positive: regenerate a fixture in a temp dir and verify it (5 checks)
-# negative: tamper delivery bytes / receiptHash / a label / input -> verifier RED
+# negative x6: tamper delivery bytes / receiptHash / label / input / stale charge.h /
+#   re-signed commitment with stale charge.input_sha256 -> verifier RED
 # the committed docs/pairing fixture is ALSO verified against its own bytes
 set -u
 cd "$(dirname "$0")/.." || exit 1
@@ -64,6 +65,42 @@ open(sys.argv[1], "w").write('{"demo": "tampered", "v": 2}\n')
 PY
 python3 tools/verify_pairing_fixture.py "$W/t4" 2>/dev/null | grep -q '"ok": false'
 ok $? "AT-007f: swapped input -> input_sha256 commitment RED"
+
+# ---------- negative 5: doctored record with consistent receiptHash but stale
+# charge.h -> membership RED (safal207 gap-2: h must bind to charge.h too) ----------
+cp -r "$W/fx" "$W/t5"
+python3 - "$W/t5/pairing-fixture.json" <<'PY'
+import hashlib, json, sys
+sys.path.insert(0, ".")
+from tools.verify_pairing_fixture import jcs
+p = sys.argv[1]
+fx = json.load(open(p))
+ch = fx["tamga_observed"]["charge_record"]["value"]
+ch["fee_sim"] = 9.9e-9                      # doctor the record
+rec = {k: v for k, v in ch.items() if k != "h"}
+h = hashlib.sha256((ch["prev"] + jcs(rec)).encode("utf-8")).hexdigest()
+fx["tamga_observed"]["receiptHash"]["value"] = h   # receiptHash made consistent...
+json.dump(fx, open(p, "w"))                        # ...but charge.h is now stale
+PY
+python3 tools/verify_pairing_fixture.py "$W/t5" 2>/dev/null | grep -q '"ok": false'
+ok $? "AT-007g: consistent receiptHash but stale charge.h -> membership RED"
+
+# ---------- negative 6: input tampered + commitment re-signed, stale
+# charge.input_sha256 -> input_commitment RED (safal207 gap-1) ----------
+cp -r "$W/fx" "$W/t6"
+python3 - "$W/t6" <<'PY'
+import hashlib, json, sys
+d = sys.argv[1]
+new_inp = b'{"demo": "tampered", "v": 2}\n'
+open(d + "/input.json", "wb").write(new_inp)
+p = d + "/pairing-fixture.json"
+fx = json.load(open(p))
+fx["input_commitment"]["input_sha256"]["value"] = hashlib.sha256(new_inp).hexdigest()
+json.dump(fx, open(p, "w"))                 # commitment made consistent...
+# ...but charge.input_sha256 stays stale
+PY
+python3 tools/verify_pairing_fixture.py "$W/t6" 2>/dev/null | grep -q '"ok": false'
+ok $? "AT-007h: re-signed input commitment but stale charge.input_sha256 -> RED"
 
 echo "RESULT: $PASS PASS, $FAIL FAIL"
 [ "$FAIL" = 0 ]

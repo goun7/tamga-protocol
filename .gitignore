@@ -12,6 +12,7 @@ tests/keys/
 tests/simnet/.sandbox/
 tests/simnet/.dbg*/
 *.stdout
+!docs/pairing/delivery.stdout
 .DS_Store
 docs/aegis/
 task_plan.md

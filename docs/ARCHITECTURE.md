@@ -1,7 +1,7 @@
 # Tamga Protocol — Technical Architecture (v0, simnet)
 
 > Audience: engineers evaluating or building on Tamga. Every "proven" below refers to
-> a runnable control in `tests/run_all.sh` (19 controls, CI-green) unless noted.
+> a runnable control in `tests/run_all.sh` (20 controls, CI-green) unless noted.
 > Deep design documents (RFC-001…005, full audit report) are canonical in Turkish;
 > this page summarizes the public surface.
 

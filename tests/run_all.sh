@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (19 controls; 20 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (20 controls; 21 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -121,9 +121,13 @@ PY
   bash tests/at005_memory_import.sh > /dev/null 2>&1
   kontrol $? "AT-005: memory-import (4-format + idempotency + oversize RED)"
 
-  # ---- kontrol-19: AT-006 net proxy (RFC-005A slice-1; box stays socket-free) ----
+  # ---- kontrol-19: AT-006 net proxy (RFC-005A slices 1-2; box stays socket-free) ----
   bash tests/at006_net_proxy.sh > /dev/null 2>&1
-  kontrol $? "AT-006: net-proxy (decl-RED + allow-list tunnel + deny/pinhole + byte cap)"
+  kontrol $? "AT-006: net-proxy (decl-RED + allow-list tunnel + deny/pinhole + byte cap + D12 binding)"
+
+  # ---- kontrol-20: AT-007 pairing fixture (x402 <-> Tamga, #3379) ----
+  bash tests/at007_pairing_fixture.sh > /dev/null 2>&1
+  kontrol $? "AT-007: pairing-fixture (labeling + membership + sha256/keccak256 + tamper REDs)"
 
   rm -rf "$SB"
   echo ""

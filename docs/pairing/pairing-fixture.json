@@ -1,0 +1,89 @@
+{
+  "fixture": "tamga-x402-pairing/1",
+  "labeling_discipline": "every field carries source: simulated (x402 side, no real payment) | observed (from the real Tamga run) | derived (computed from observed bytes)",
+  "x402_settlement": {
+    "scheme": {
+      "value": "tamga-sim/1",
+      "source": "simulated"
+    },
+    "payment_id": {
+      "value": "SIM-PAY-0001",
+      "source": "simulated"
+    },
+    "note": {
+      "value": "no real payment occurred; replace with a real settlement to make this a live pairing",
+      "source": "simulated"
+    }
+  },
+  "tamga_observed": {
+    "receiptHash": {
+      "value": "36a8c38609c5e8d0dc89167581ef48122111bdcc8f831aecb3631834285214d6",
+      "source": "observed",
+      "note": "x402 envelope receiptHash carries this value"
+    },
+    "charge_record": {
+      "value": {
+        "cpu_saat": 4.793e-06,
+        "engine": "wasmtime-v48.0.1",
+        "fee_birebir": 6.69e-07,
+        "fee_sim": 6.69e-07,
+        "h": "36a8c38609c5e8d0dc89167581ef48122111bdcc8f831aecb3631834285214d6",
+        "input_sha256": "4a73430df8b6b8fda8cc15717d4d0652a965aa02373b796fc17f6a2f5cd45bcf",
+        "io_mb": 0.000108,
+        "op": "charge",
+        "pkg": "tamga-ornek-ajani",
+        "prev": "56b60af17f250bea48d2b40dda447b37ad8364a10c97497e066da682b69e37d6",
+        "ram_gb_sn": 0.001103256,
+        "seq": 2,
+        "session": 1,
+        "stdout_sha256": "c7023eda7dab3faf782149158fa55583a4f57cd3a230092da1933688d05f94be",
+        "ts": "2026-09-06T19:19:32+0300",
+        "wall_ms": 66
+      },
+      "source": "observed",
+      "note": "membership: h = sha256(prev + jcs(record without h)); recompute to verify"
+    },
+    "engine": {
+      "value": "wasmtime-v48.0.1",
+      "source": "observed"
+    },
+    "session": {
+      "value": 1,
+      "source": "observed"
+    },
+    "pkg": {
+      "value": "tamga-ornek-ajani",
+      "source": "observed"
+    }
+  },
+  "input_commitment": {
+    "input_sha256": {
+      "value": "4a73430df8b6b8fda8cc15717d4d0652a965aa02373b796fc17f6a2f5cd45bcf",
+      "source": "observed",
+      "note": "D11: sha256(input.json) bound into the receipt"
+    }
+  },
+  "delivery_bytes": {
+    "what": {
+      "value": "the complete stdout of the run (the deliverable)",
+      "source": "observed"
+    },
+    "byte_count": {
+      "value": 113,
+      "source": "observed"
+    },
+    "sha256": {
+      "value": "c7023eda7dab3faf782149158fa55583a4f57cd3a230092da1933688d05f94be",
+      "source": "observed",
+      "note": "== charge stdout_sha256; Tamga is a SHA-256 ledger"
+    },
+    "keccak256": {
+      "value": "8494d3b500e45e6b8395bc8eb5b7766cf09cd175a91f20d11d028b72a953f4cd",
+      "source": "derived",
+      "note": "same bytes under Keccak-256 (legacy padding) for durable-evidence contentHash comparison"
+    }
+  },
+  "verify": [
+    "python3 tools/verify_pairing_fixture.py docs/pairing"
+  ]
+}

@@ -310,7 +310,144 @@ PY
 ok $? "M3: conn_limit denial recorded in the event log"
 touch "$W/done3"; wait_for "$W/sum-cc.json"
 
+# ---------- AT-006g: D12 fields on a net-run (runner-side wiring) ----------
+mkdir -p "$W/pkg-g"; cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$W/pkg-g/"
+python3 - "$W/pkg-g/net.json" <<'PY'
+import json, sys
+json.dump({"format": "tamga-net-declaration/1",
+           "egress": ["api.openai.com:443"],
+           "max_bytes_per_run": 1048576, "timeout_s": 10}, open(sys.argv[1], "w"))
+PY
+SG=$(python3 tamga_runner.py keygen | python3 -c 'import sys,json;print(json.load(sys.stdin)["seed_hex"])')
+python3 tamga_runner.py grant "$W/pkg-g" 0.01 "at006g" > /dev/null 2>> "$LOG"
+python3 tamga_runner.py run "$W/pkg-g" --seed "$SG" --note "at006g" > "$W/g.json" 2>> "$LOG"
+python3 - "$W/pkg-g" <<'PY'
+import hashlib, json, sys, pathlib
+pkg = pathlib.Path(sys.argv[1])
+recs = [json.loads(l) for l in (pkg / "ledger.jsonl").read_text().splitlines() if l.strip()]
+ch = [r for r in recs if r.get("op") == "charge"][-1]
+for k in ("net_decl_sha256", "net_events_sha256", "net_mb"):
+    assert k in ch, f"charge missing {k}"
+assert ch["net_decl_sha256"] == hashlib.sha256((pkg / "net.json").read_bytes()).hexdigest()
+assert ch["net_mb"] == 0.0                      # silent agent: zero traffic, honestly metered
+ev = pkg / "net-events-1.jsonl"
+assert ev.exists() and (ev.stat().st_mode & 0o777) == 0o600, "events file missing or not 0600"
+first = json.loads(ev.read_text().splitlines()[0])
+assert first["event"] == "proxy_start" and first["port"] > 0, "proxy_start missing"
+PY
+ok $? "AT-006g: net-run receipt carries net_decl_sha256 + net_events_sha256 + net_mb (0.0)"
+
+# ---------- AT-006f: post-run declaration tamper -> validator RED ----------
+python3 - "$W/pkg-g/net.json" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+d["egress"].append("api.anthropic.com:443")
+json.dump(d, open(sys.argv[1], "w"))
+PY
+python3 tamga_validator.py validate "$W/pkg-g" > "$W/f.out" 2>> "$LOG"; cat "$W/f.out" >> "$LOG"
+grep -q "RED net_binding_mismatch" "$W/f.out"
+ok $? "AT-006f: post-run net.json tamper -> validator RED net_binding_mismatch"
+
+# ---------- AT-006c: live byte cap trips a REAL run (slow agent + traffic) ----------
+mkdir -p "$W/pkg-c"; cp tests/vectors/tc-net-slow/tamga.json tests/vectors/tc-net-slow/agent.wasm "$W/pkg-c/"
+start_echo "$W/echo4.port"; EPORT4=$(cat "$W/echo4.port")
+python3 - "$W/pkg-c/net.json" "$EPORT4" <<'PY'
+import json, sys
+json.dump({"format": "tamga-net-declaration/1",
+           "egress": [f"127.0.0.1:{sys.argv[2]}"],
+           "max_bytes_per_run": 1024, "timeout_s": 10}, open(sys.argv[1], "w"))
+PY
+SC=$(python3 tamga_runner.py keygen | python3 -c 'import sys,json;print(json.load(sys.stdin)["seed_hex"])')
+python3 tamga_runner.py grant "$W/pkg-c" 0.01 "at006c" > /dev/null 2>> "$LOG"
+python3 tamga_runner.py run "$W/pkg-c" --seed "$SC" --note "at006c" > "$W/c.json" 2>> "$LOG" &
+RUNPID=$!
+for i in $(seq 1 100); do
+  [ -s "$W/pkg-c/net-events-1.jsonl" ] && grep -q proxy_start "$W/pkg-c/net-events-1.jsonl" && break
+  sleep 0.1
+done
+PPORT4=$(python3 -c "
+import json
+for l in open('$W/pkg-c/net-events-1.jsonl'):
+    e = json.loads(l)
+    if e.get('event') == 'proxy_start':
+        print(e['port']); break
+")
+python3 - "$PPORT4" "$EPORT4" <<'PY' >> "$LOG" 2>&1
+import socket, sys, time
+c = socket.create_connection(("127.0.0.1", int(sys.argv[1])), timeout=10)
+c.sendall(f"CONNECT 127.0.0.1:{sys.argv[2]} HTTP/1.1\r\n\r\n".encode())
+r = b""
+while b"\r\n\r\n" not in r:
+    r += c.recv(4096)
+assert b" 200 " in r.split(b"\r\n", 1)[0], r[:60]
+c.sendall(b"B" * 8192)          # 8KiB > 1KiB cap -> session capped mid-run
+time.sleep(0.5)
+c.close()
+PY
+wait $RUNPID
+grep -q '"reason_code": 11' "$W/c.json" && grep -q "session capped" "$W/c.json"
+ok $? "AT-006c: live byte-cap during a real run -> run-level RED 11"
+python3 -c "
+import json
+recs = [json.loads(l) for l in open('$W/pkg-c/ledger.jsonl') if l.strip()]
+assert not [r for r in recs if r.get('op') == 'charge'], 'failed run must not append a charge'
+"
+ok $? "AT-006c: capped run appends no charge receipt"
+python3 - "$W/pkg-c/net-events-1.jsonl" <<'PY'
+import json, sys
+evs = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+assert any(e["event"] == "net_byte_cap" for e in evs), "byte_cap event missing in run events"
+PY
+ok $? "AT-006c: net_byte_cap recorded in the run's event log (0600)"
+
+# ---------- IP-pinning proof: a tampered resolver cannot redirect a listed FQDN ----------
+start_echo "$W/echo5.port"; EPORT5=$(cat "$W/echo5.port")
+python3 - "$W/net-pin.json" "$EPORT5" <<'PY'
+import json, sys
+json.dump({"format": "tamga-net-declaration/1",
+           "egress": [f"localhost:{sys.argv[2]}"],
+           "max_bytes_per_run": 1048576, "timeout_s": 10}, open(sys.argv[1], "w"))
+PY
+python3 - "$W/net-pin.json" "$W/ev-pin.jsonl" "$W/sum-pin.json" "$W/done5" <<'PY' >> "$LOG" 2>&1 &
+import json, os, socket, sys, time
+sys.path.insert(0, ".")
+import tamga_netproxy as tp
+d = tp.load_net_decl(sys.argv[1])
+assert d["_pinned"]["localhost"] == "127.0.0.1", "localhost not pinned to loopback"
+p = tp.TamgaProxy(d, events_path=sys.argv[2])
+port = p.start()
+open(sys.argv[1] + ".port", "w").write(str(port))
+_orig = socket.getaddrinfo
+def _attacker(host, port=None, *a, **k):
+    # Real rebinding model: NAME lookups are poisoned, IP-literal lookups pass.
+    if host in ("localhost", "localhost."):
+        return [(2, 1, 6, "", ("203.0.113.7", 0))]
+    return _orig(host, port, *a, **k)
+socket.getaddrinfo = _attacker
+time.sleep(12)
+socket.getaddrinfo = _orig
+open(sys.argv[3], "w").write(json.dumps(p.summary()))
+p.stop()
+PY
+wait_for "$W/net-pin.json.port" || { echo "  FAIL: pin proxy did not start"; exit 1; }
+PPORT5=$(cat "$W/net-pin.json.port")
+agent_connect "$PPORT5" "localhost:$EPORT5" "pin-stays" > "$W/pin.out" 2>> "$LOG"
+grep -q "PROXY_STATUS:HTTP/1.1 200" "$W/pin.out" && grep -q "ECHO_MATCH:True" "$W/pin.out"
+ok $? "D12-dns: attacker-resolver active, pinned endpoint still reaches the real host"
+touch "$W/done5"; wait_for "$W/sum-pin.json"
+
+# unresolvable endpoint -> declaration RED at load (fail-closed)
+python3 - "$W/net-bad.json" <<'PY'
+import json, sys
+json.dump({"format": "tamga-net-declaration/1",
+           "egress": ["no-such-host-tamga.invalid:443"],
+           "max_bytes_per_run": 1048576, "timeout_s": 5}, open(sys.argv[1], "w"))
+PY
+python3 tamga_netproxy.py --decl "$W/net-bad.json" > "$W/bad.out" 2>> "$LOG"
+[ $? -ne 0 ] && grep -q "cannot resolve" "$W/bad.out"
+ok $? "D12-dns: unresolvable endpoint -> declaration RED at load (fail-closed)"
+
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" = "0" ]
-rm -rf "$W"
+cp -r "$W" /tmp/at006-keep 2>/dev/null; rm -rf "$W"
 exit $((FAIL > 0))

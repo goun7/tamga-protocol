@@ -1,0 +1,38 @@
+{
+  "spec_version": "0.1.0",
+  "package": {
+    "name": "tamga-net-slow",
+    "version": "0.1.0",
+    "code": {
+      "wasm_sha256": "ea692a2046e36f7f983f48a0bc601f7b73c7493d644693e119b70b92beb9fd68",
+      "hash_algo": "sha256",
+      "target": "wasi-0.3/component"
+    }
+  },
+  "runtime": {
+    "min_proof_level": "P0",
+    "limits": {
+      "memory_mb": 128,
+      "cpu_ms_per_run": 5000,
+      "io_mb_per_run": 10
+    }
+  },
+  "memory": {
+    "snapshot_format": "tamga-snapshot/1",
+    "crypto_suite": "XChaCha20-Poly1305"
+  },
+  "capabilities": [
+    "clock",
+    "random"
+  ],
+  "payment": {
+    "schemes": [
+      "tamga-sim/1"
+    ]
+  },
+  "signature": {
+    "algo": "ed25519",
+    "key": "2d28005e1a173f9680c2a48d36489c750d4aef1e97bc5562a603b5788663bdbe",
+    "sig": "d33401262855a85d80bde8a811023d6db662c4c7097e4ceb8a7930f8485b067e59a42424ce8af1e13b9a6d42849d0e6132bf159dd61cb4968d03340afb82640c"
+  }
+}

@@ -155,6 +155,34 @@ def validate(pkg: pathlib.Path):
     got = hashlib.sha256((pkg / "agent.wasm").read_bytes()).hexdigest()
     if want != got: return 1, "RED code_hash_mismatch"
 
+    # 3b) RFC-005A D12 (slice-2, founder-approved 2026-09-06): when the package ships
+    # a net.json, the charge receipt must bind it (net_decl_sha256). A post-run swap
+    # of net.json fails validation — the receipt cannot be made to point at network
+    # permissions other than the ones enforced during the run. Deletion-detection
+    # (net.json absent + net-bound receipt) is deferred to the v0.2 manifest binding.
+    ndf = pkg / "net.json"
+    if ndf.is_file():
+        try:
+            recs = [json.loads(l) for l in (pkg / "ledger.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+        except Exception:
+            recs = []
+        ch = [r for r in recs if r.get("op") == "charge"]
+        if ch:
+            decl_now = hashlib.sha256(ndf.read_bytes()).hexdigest()
+            bound = ch[-1].get("net_decl_sha256")
+            if bound is None:
+                return 1, "RED net_binding_missing: receipt has no net_decl_sha256 though net.json exists"
+            if bound != decl_now:
+                return 1, "RED net_binding_mismatch: net.json changed after the run (receipt binds the pre-run declaration)"
+        try:
+            import tamga_netproxy as _tnp
+        except ImportError:
+            return 1, "RED net_proxy_missing: net.json present but tamga_netproxy unavailable"
+        try:
+            _tnp.load_net_decl(str(ndf))
+        except _tnp.NetDeclError as ex:
+            return 1, "RED net_decl_reject: " + str(ex)
+
     # 4) signature (D2: JCS with sig emptied)
     sig = m["signature"]; probe = dict(m); probe["signature"] = {**sig, "sig": ""}
     try:

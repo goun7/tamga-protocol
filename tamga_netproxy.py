@@ -85,6 +85,24 @@ def _check_endpoint(ep, idx):
     return f"{host}:{port}"
 
 
+def _resolve_ip(host, what):
+    """Founder decision D12-dns (2026-09-06): endpoints are IP-PINNED at declaration
+    load. A listed FQDN resolves exactly once, here; the proxy later connects by the
+    pinned IP, so a later DNS rebinding cannot redirect a tunnel (the CONNECT-time
+    resolver path no longer exists). SNI/Host are untouched - the client keeps
+    speaking to the name it dialed."""
+    try:
+        socket.inet_pton(socket.AF_INET, host)
+        return host                                    # already an IP literal
+    except OSError:
+        pass
+    try:
+        infos = socket.getaddrinfo(host, None, socket.AF_INET, socket.SOCK_STREAM)
+    except socket.gaierror as e:
+        _bad(f"egress[{what}]: cannot resolve '{host}' at declaration load: {e}")
+    return infos[0][4][0]
+
+
 def load_net_decl(path):
     """Parse and validate net.json; returns the normalized declaration."""
     raw = open(path, "rb").read()  # read-only source; a declaration is host-authored
@@ -107,6 +125,10 @@ def load_net_decl(path):
     endpoints = [_check_endpoint(e, i) for i, e in enumerate(egress)]
     if len(set(endpoints)) != len(endpoints):
         _bad("net.json: duplicate endpoints")
+    pinned = {}
+    for i, ep in enumerate(endpoints):
+        h = ep.rpartition(":")[0]
+        pinned[h] = _resolve_ip(h, i)
     mb = d.get("max_bytes_per_run")
     if not isinstance(mb, int) or isinstance(mb, bool) or not BYTES_MIN <= mb <= BYTES_MAX:
         _bad(f"net.json: max_bytes_per_run must be an int in [{BYTES_MIN}, {BYTES_MAX}]")
@@ -115,7 +137,7 @@ def load_net_decl(path):
         _bad(f"net.json: timeout_s must be an int in [{TIMEOUT_S_MIN}, {TIMEOUT_S_MAX}]")
     return {"format": NET_FORMAT, "egress": endpoints,
             "max_bytes_per_run": mb, "timeout_s": ts,
-            "_allowed": set(endpoints)}
+            "_allowed": set(endpoints), "_pinned": pinned}
 
 
 def decl_sha256(path):
@@ -128,6 +150,7 @@ class TamgaProxy:
 
     def __init__(self, decl, events_path=None, max_concurrent=32):
         self.allowed = decl["_allowed"]
+        self.pinned = decl.get("_pinned", {})
         self.max_bytes = decl["max_bytes_per_run"]
         self.timeout_s = decl["timeout_s"]
         self.max_concurrent = max_concurrent
@@ -236,15 +259,13 @@ class TamgaProxy:
             if host_port not in self.allowed:
                 return self._deny(c, host_port, "not_listed")
             host, _, port_s = host_port.rpartition(":")
-            # DNS pinning antidote: the client may only NAME endpoints; resolution
-            # happens here, after the list match, from the proxy's own resolver.
+            # IP-pinning: connect-time DNS does not exist. The listed host was
+            # resolved once at declaration load; here we dial the pinned IP.
+            ip = self.pinned.get(host)
+            if not ip:
+                return self._deny(c, host_port, "unpinned_endpoint")
             try:
-                infos = socket.getaddrinfo(host, int(port_s), socket.AF_INET, socket.SOCK_STREAM)
-            except socket.gaierror:
-                return self._deny(c, host_port, "dns_fail")
-            addr = infos[0][4]
-            try:
-                up = socket.create_connection(addr, timeout=self.timeout_s)
+                up = socket.create_connection((ip, int(port_s)), timeout=self.timeout_s)
             except OSError:
                 return self._deny(c, host_port, "upstream_fail")
             c.sendall(b"HTTP/1.1 200 Connection established\r\n\r\n")

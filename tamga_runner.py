@@ -314,6 +314,37 @@ def cmd_run(a):
         stdin_src = open(tf.name, "rb")
         _tf_name = tf.name
         inp_sha = _h.sha256(inp_bytes).hexdigest()
+    # --- RFC-005A slice-2 (D12, founder-approved 2026-09-06): egress proxy wiring ---
+    # The proxy starts ONLY when the package declares net.json (v0.1 packages keep
+    # D4 untouched: no net.json -> no proxy, no receipt fields, byte-identical flow).
+    # The wasmtime box still cannot open sockets (v48 CLI grants no outbound; the
+    # experiment is recorded in RFC-005A §8), so this slice proves the runner-side
+    # enforcement + binding: declaration pinning, byte/conn caps, D12 receipt fields.
+    net_decl_sha = None
+    net_events_sha = None
+    net_mb = None
+    net_proxy = None
+    net_events_path = None
+    net_decl_file = pkg / "net.json"
+    if net_decl_file.is_file():
+        try:
+            import tamga_netproxy as tnp
+        except ImportError:
+            return out(False, op="run", reason_code=12,
+                       reason="net_proxy_missing: net.json present but tamga_netproxy unavailable")
+        try:
+            ndecl = tnp.load_net_decl(str(net_decl_file))
+        except tnp.NetDeclError as e:
+            return out(False, op="run", reason_code=10,
+                       reason=f"net_decl_reject: {e}")
+        net_decl_sha = hashlib.sha256(net_decl_file.read_bytes()).hexdigest()
+        net_events_path = pkg / f"net-events-{sess_no}.jsonl"
+        net_proxy = tnp.TamgaProxy(ndecl, events_path=str(net_events_path))
+        net_proxy_port = net_proxy.start()   # loopback ephemeral; stopped in the post-run block
+        # proxy_start goes into the events log: the operator (and the box, once the
+        # agent-side socket path exists) discovers the port there — one source of truth.
+        net_proxy._log({"event": "proxy_start", "port": net_proxy_port,
+                        "egress": ndecl["egress"]})
     art = pkg / f"session-{sess_no}.stdout"
     ru0 = resource.getrusage(resource.RUSAGE_CHILDREN)   # child CPU measurement start
     t0 = time.monotonic()
@@ -339,6 +370,8 @@ def cmd_run(a):
         art.unlink(missing_ok=True)
         if _tf_name:
             pathlib.Path(_tf_name).unlink(missing_ok=True)   # D11: input copy; deleted after the run
+        if net_proxy:
+            net_proxy.stop()
         return out(False, op="run", reason_code=11,
                    reason=f"runtime_limit: cpu_ms_per_run={limits['cpu_ms_per_run']}")
     dt_ms = max(1, int((time.monotonic() - t0) * 1000))
@@ -352,6 +385,8 @@ def cmd_run(a):
     if proc.returncode != 0:
         tail = art.read_text(encoding="utf-8", errors="replace")[-200:].replace("\n", " ") if art.exists() else ""
         art.unlink(missing_ok=True)
+        if net_proxy:
+            net_proxy.stop()
         return out(False, op="run", reason_code=12,
                    reason=f"agent_run_failed: rc={proc.returncode}: {tail}")
     # slice-11: --require-proof — the agent stamps the LAST line of its stdout with
@@ -367,13 +402,35 @@ def cmd_run(a):
                 raise ValueError
         except ValueError:
             art.unlink(missing_ok=True)
+            if net_proxy:
+                net_proxy.stop()
             return out(False, op="run", reason_code=12,
                        reason="output_proof_mismatch: TAMGA line does not match the preceding bytes")
     io_bytes = art.stat().st_size
     if io_bytes > limits["io_mb_per_run"] * (1 << 20):
         art.unlink(missing_ok=True)
+        if net_proxy:
+            net_proxy.stop()
         return out(False, op="run", reason_code=11,
                    reason=f"runtime_limit: io > {limits['io_mb_per_run']}MB")
+    # --- D12: collect proxy session results (RFC-005A slice-2) ---
+    if net_proxy:
+        net_proxy.stop()
+        if net_proxy.capped:
+            art.unlink(missing_ok=True)
+            return out(False, op="run", reason_code=11,
+                       reason=f"runtime_limit: net_bytes > {ndecl['max_bytes_per_run']} "
+                              f"(session capped; byte-cap is a run-level hard path)")
+        nsum = net_proxy.summary()
+        net_mb = nsum["net_mb"]
+        if net_events_path is not None and net_events_path.exists():
+            os.chmod(net_events_path, 0o600)
+            net_events_sha = hashlib.sha256(net_events_path.read_bytes()).hexdigest()
+        else:
+            # a session with zero connections still gets its (empty) log hashed
+            net_events_path.write_bytes(b"")
+            os.chmod(net_events_path, 0o600)
+            net_events_sha = hashlib.sha256(b"").hexdigest()
     os.chmod(art, 0o600)
     # --- state + memory ---
     ni = a.index("--note") if "--note" in a else -1
@@ -436,6 +493,9 @@ def cmd_run(a):
                         "wall_ms": dt_ms, "fee_birebir": fee,
                         "stdout_sha256": hashlib.sha256(art.read_bytes()).hexdigest(),
                         **({"input_sha256": inp_sha} if inp_sha else {}),
+                        **({"net_decl_sha256": net_decl_sha,                  # RFC-005A D12
+                            "net_events_sha256": net_events_sha,
+                            "net_mb": net_mb} if net_decl_sha else {}),
                         "fee_sim": round(median_fee, 9)},
                         node_key=node_key)   # Dilim-5 + node-cosign (opt-in) + OQ-8 medyan
     st["format"] = "tamga-state/1"
@@ -453,6 +513,9 @@ def cmd_run(a):
           "stdout_file": str(art)}
     if note is not None: kw["note_id"] = nid
     if link_ignored: kw["link_ignored"] = link_ignored
+    if net_decl_sha is not None:                                     # RFC-005A D12
+        kw["net_mb"] = net_mb
+        kw["net_decl_sha256"] = net_decl_sha
     return out(True, **kw)
 
 def cmd_memory(a):

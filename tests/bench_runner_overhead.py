@@ -37,6 +37,15 @@ def bench(name, n, fn):
 
 def main():
     import hashlib
+    # Quiet-host gate (E-4 beyan öncesi): between-op ratios stay meaningful on a
+    # busy box, but the "overhead < X%" claim needs a quiet machine. Nproc-scaled
+    # threshold; override with --allow-busy (smoke only, not for the claim).
+    if "--allow-busy" not in sys.argv:
+        la1 = float(open("/proc/loadavg").read().split()[0])
+        if la1 > 0.35 * (os.cpu_count() or 1):
+            print(f"RED: host busy (loadavg1={la1}, nproc={os.cpu_count()}). "
+                  "Close heavy apps and retry, or rerun with --allow-busy for a smoke test.")
+            sys.exit(2)
     shutil.rmtree(SB, ignore_errors=True)
     pkg = SB / "pkg"; pkg.mkdir(parents=True)
     for f in ("tamga.json", "agent.wasm"):

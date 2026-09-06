@@ -69,7 +69,16 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n-micro", type=int, default=30)
     ap.add_argument("--n-c30", type=int, default=3)
+    ap.add_argument("--allow-busy", action="store_true",
+                    help="skip the quiet-host gate (for smoke tests on a busy box)")
     args = ap.parse_args()
+    # Quiet-host gate (E-4 beyan öncesi): absolute numbers are claimable only on a
+    # quiet machine. Nproc-scaled threshold; override with --allow-busy (smoke only).
+    la1 = float(loadavg()[0])
+    if la1 > 0.35 * (os.cpu_count() or 1) and not args.allow_busy:
+        print(f"RED: host busy (loadavg1={la1}, nproc={os.cpu_count()}). "
+              "Close heavy apps and retry, or rerun with --allow-busy for a smoke test.")
+        sys.exit(2)
     la_bas = loadavg()
 
     os.environ["TAMGA_KS_PASSPHRASE"] = "simnet-2026"

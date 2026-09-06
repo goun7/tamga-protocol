@@ -345,6 +345,7 @@ def cmd_run(a):
         # agent-side socket path exists) discovers the port there — one source of truth.
         net_proxy._log({"event": "proxy_start", "port": net_proxy_port,
                         "egress": ndecl["egress"]})
+        net_proxy.port = net_proxy_port          # D13: shim connects as a proxy client
     art = pkg / f"session-{sess_no}.stdout"
     ru0 = resource.getrusage(resource.RUSAGE_CHILDREN)   # child CPU measurement start
     t0 = time.monotonic()
@@ -353,8 +354,27 @@ def cmd_run(a):
     io_limit = limits["io_mb_per_run"] * (1 << 20)
     import tempfile
     try:
-        fd = os.open(art, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)  # Audit-9 B6: atomik 0600
-        try:
+        # RFC-006 D13 (founder-approved 2026-09-06): net.json'lu paketlerde çocuk-süreç
+        # AKIŞLI çalışır (şim pompası) — istekler vekil-tünelinden geçer, yanıtlar
+        # çocuk-stdin'e yazılır; net.json'suz paket ESKİ-YOL (subprocess.run, bayt-bayt).
+        payload = None
+        if stdin_src is not subprocess.DEVNULL:
+            stdin_src.seek(0)
+            payload = stdin_src.read()
+            stdin_src.seek(0)
+        if net_proxy is not None:
+            import tamga_net_shim as shim
+            rc, shim_ignored, shim_timeout = shim.run_streamed(
+                [WASMTIME, "run", str(pkg / "agent.wasm")], str(art), ndecl,
+                net_proxy, limits["cpu_ms_per_run"] / 1000, io_limit,
+                stdin_payload=payload)
+            if shim_timeout:
+                raise subprocess.TimeoutExpired("wasmtime", limits["cpu_ms_per_run"] / 1000)
+            class _P:  # minimal post-run contract compat (returncode surface)
+                returncode = rc
+            proc = _P()
+        else:
+            fd = os.open(art, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)  # Audit-9 B6
             with os.fdopen(fd, "wb") as af:
                 proc = subprocess.run([WASMTIME, "run", str(pkg / "agent.wasm")],
                                       stdin=stdin_src,
@@ -363,9 +383,8 @@ def cmd_run(a):
                                       env={},   # Audit-3 F16: host env never leaks into the engine process
                                       preexec_fn=lambda: resource.setrlimit(
                                           resource.RLIMIT_FSIZE, (io_limit, io_limit)))
-        finally:
-            if os.path.exists(art):
-                os.chmod(art, 0o600)
+        if os.path.exists(art):
+            os.chmod(art, 0o600)
     except subprocess.TimeoutExpired:
         art.unlink(missing_ok=True)
         if _tf_name:
@@ -406,6 +425,16 @@ def cmd_run(a):
                 net_proxy.stop()
             return out(False, op="run", reason_code=12,
                        reason="output_proof_mismatch: TAMGA line does not match the preceding bytes")
+    # RFC-006 D13: agent net-requests counted from the evidence itself (both paths —
+    # the artifact scan is the single source of truth; curating it is forbidden).
+    nreq = 0
+    try:
+        raw = art.read_bytes()
+        nreq = raw.count(b"\nTAMGA-NET-1 ")
+        if raw.startswith(b"TAMGA-NET-1 "):
+            nreq += 1
+    except OSError:
+        pass
     io_bytes = art.stat().st_size
     if io_bytes > limits["io_mb_per_run"] * (1 << 20):
         art.unlink(missing_ok=True)
@@ -422,7 +451,7 @@ def cmd_run(a):
                        reason=f"runtime_limit: net_bytes > {ndecl['max_bytes_per_run']} "
                               f"(session capped; byte-cap is a run-level hard path)")
         nsum = net_proxy.summary()
-        net_mb = nsum["net_mb"]
+        net_mb = round(nsum["bytes_total"] / (1 << 20), 6)   # D12c: MiB-6-hane (RFC-003 §11)
         if net_events_path is not None and net_events_path.exists():
             os.chmod(net_events_path, 0o600)
             net_events_sha = hashlib.sha256(net_events_path.read_bytes()).hexdigest()
@@ -516,6 +545,8 @@ def cmd_run(a):
     if net_decl_sha is not None:                                     # RFC-005A D12
         kw["net_mb"] = net_mb
         kw["net_decl_sha256"] = net_decl_sha
+    if nreq:                                                         # RFC-006 D13
+        kw["net_shim_ignored"] = nreq
     return out(True, **kw)
 
 def cmd_memory(a):

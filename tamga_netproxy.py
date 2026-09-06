@@ -29,9 +29,11 @@ Hardening notes (post-slice-1 adversarial self-review, 2026-09-06):
   proxy process with parallel connections.
 - Header read is bounded (8KiB) and every connection thread is a daemon; a
   malformed request can never buffer beyond the cap.
-- Half-close simplification: when either tunnel side ends, BOTH sockets close.
-  Full TCP half-close semantics are a slice-2 refinement, not needed for the
-  CONNECT usage pattern of slice-1.
+- Half-close (slice-4, D13): when a tunnel side ends its SENDING direction, EOF is
+  forwarded downstream via shutdown(SHUT_WR) and the opposite direction stays alive —
+  TLS request/response (response arrives after the client half-closes) works; the
+  socket closes only when BOTH directions have ended. Slice-1 simplified this to a
+  full close, which killed TLS responses.
 
 CLI (for the slice-2 runner spawn and manual demos):
     python3 tamga_netproxy.py --decl <net.json> [--events <file>]
@@ -308,8 +310,18 @@ class TamgaProxy:
                     except (BlockingIOError, InterruptedError):
                         continue
                     if not data:
-                        socks = []  # peer half-closed; drain and stop
-                        break
+                        # True half-close: the peer finished SENDING. Forward EOF
+                        # downstream only (shutdown-WR); keep the opposite
+                        # direction alive — TLS clients rely on it (response
+                        # arrives after the request side signals EOF).
+                        other = up if s is c else c
+                        socks.remove(s)
+                        try:
+                            other.shutdown(socket.SHUT_WR)
+                        except OSError:
+                            socks = []
+                            break
+                        continue
                     dst = up if s is c else c
                     n = len(data)
                     tx += n if s is c else 0

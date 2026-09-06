@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   test:
-    name: Acceptance suite (20 controls)
+    name: Acceptance suite (21 controls)
     runs-on: ubuntu-latest
     env:
       # simnet fixture passphrase — a public test constant, not a real secret

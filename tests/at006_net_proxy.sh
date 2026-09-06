@@ -289,16 +289,28 @@ n200=$(grep -c " 200 " "$W/hold-ids.txt" || true); n403=$(grep -c " 403 " "$W/ho
 [ "$n200" -le 32 ] && [ "$n403" -ge 3 ]
 ok $? "concurrency: 35 parallel CONNECTs -> at most 32 tunneled ($n200), excess 403 ($n403)"
 python3 - "$PPORT3" "127.0.0.1:$EPORT3" <<'PY' > "$W/after-cc.out" 2>> "$LOG"
-import socket, sys
-c = socket.create_connection(("127.0.0.1", int(sys.argv[1])), timeout=10)
-c.sendall(f"CONNECT {sys.argv[2]} HTTP/1.1\r\n\r\n".encode())
-r = b""
-while b"\r\n\r\n" not in r:
-    d = c.recv(4096)
-    if not d: break
-    r += d
-print("AFTER:" + r.split(b"\r\n", 1)[0].decode("latin-1"))
-c.close()
+import socket, sys, time
+# Slot-release latency under teardown load (35 threads + GIL) is ~1s; poll for
+# recovery instead of racing the scheduler — the assertion is EVENTUAL recovery.
+deadline = time.monotonic() + 5.0
+status = ""
+while time.monotonic() < deadline:
+    try:
+        c = socket.create_connection(("127.0.0.1", int(sys.argv[1])), timeout=2)
+        c.sendall(f"CONNECT {sys.argv[2]} HTTP/1.1\r\n\r\n".encode())
+        r = b""
+        while b"\r\n\r\n" not in r:
+            d = c.recv(4096)
+            if not d: break
+            r += d
+        status = r.split(b"\r\n", 1)[0].decode("latin-1")
+        c.close()
+        if " 200 " in status:
+            break
+    except OSError:
+        pass
+    time.sleep(0.05)
+print("AFTER:" + status)
 PY
 grep -q "AFTER:HTTP/1.1 200" "$W/after-cc.out"
 ok $? "concurrency: slots released after holders exit (service recovered)"

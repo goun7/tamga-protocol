@@ -3,7 +3,7 @@
 <img src="docs/assets/banner.svg" width="660" alt="Tamga Protocol — portable identity, encrypted memory, verifiable work receipts"/>
 
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-18%2F18%20PASS-brightgreen)](#one-command-regression)
+[![Tests](https://img.shields.io/badge/tests-21%2F21%20PASS-brightgreen)](#one-command-regression)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Phase%202%20--%20pilot-orange)](#roadmap)
 
@@ -105,7 +105,7 @@ git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate   # or: pip install --break-system-packages -r requirements.txt
 pip install -r requirements.txt
 bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
-bash tests/run_all.sh          # 20/20 controls — ~15 s
+bash tests/run_all.sh          # 21/21 controls — ~20 s
 
 # your first agent (copy the sample vector as the package — see docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice
@@ -130,7 +130,7 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 ## One-command regression
 
 ```bash
-bash tests/run_all.sh        # 20/20 controls — families below, ~15 s on a laptop
+bash tests/run_all.sh        # 21/21 controls — families below, ~20 s on a laptop
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
 (AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory

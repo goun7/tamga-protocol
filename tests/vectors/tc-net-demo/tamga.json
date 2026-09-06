@@ -1,0 +1,38 @@
+{
+  "spec_version": "0.1.0",
+  "package": {
+    "name": "tamga-net-demo",
+    "version": "0.1.0",
+    "code": {
+      "wasm_sha256": "ee107f9b3e02e510a82b78a10011bf67a5c7cadf5bb5a271852f0f3225225c48",
+      "hash_algo": "sha256",
+      "target": "wasi-0.3/component"
+    }
+  },
+  "runtime": {
+    "min_proof_level": "P0",
+    "limits": {
+      "memory_mb": 128,
+      "cpu_ms_per_run": 5000,
+      "io_mb_per_run": 10
+    }
+  },
+  "memory": {
+    "snapshot_format": "tamga-snapshot/1",
+    "crypto_suite": "XChaCha20-Poly1305"
+  },
+  "capabilities": [
+    "clock",
+    "random"
+  ],
+  "payment": {
+    "schemes": [
+      "tamga-sim/1"
+    ]
+  },
+  "signature": {
+    "algo": "ed25519",
+    "key": "986b7477239efcb3c19193773bfa7d8b6f752eef2dc656a3c02a070b7bd39a63",
+    "sig": "f0370e24c576fc9d6becb3d6ec3d0f40576693080d7f9135771dde436b9c8f93c9de0772ec0bf4d84e81c2d9f0a7ec7ef8fa7c49660b28779fd75636cc8b4002"
+  }
+}

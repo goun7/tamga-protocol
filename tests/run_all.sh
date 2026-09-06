@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (20 controls; 21 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (21 controls; 22 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -128,6 +128,10 @@ PY
   # ---- kontrol-20: AT-007 pairing fixture (x402 <-> Tamga, #3379) ----
   bash tests/at007_pairing_fixture.sh > /dev/null 2>&1
   kontrol $? "AT-007: pairing-fixture (labeling + membership + sha256/keccak256 + tamper REDs)"
+
+  # ---- kontrol-21: AT-008 agent-side net shim (RFC-006 D13; runner-as-proxy-client) ----
+  bash tests/at008_net_shim.sh > /dev/null 2>&1
+  kontrol $? "AT-008: net-shim (framed stdin + request-line evidence + mock-HTTPS + soft denial + cap RED)"
 
   rm -rf "$SB"
   echo ""

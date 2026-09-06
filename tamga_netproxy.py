@@ -20,6 +20,19 @@ name-based and resolution happens at connect time from the operator's own
 resolver. Slice-2 should pin resolved IPs at declaration load (connect by IP,
 SNI preserved) or document the trust assumption explicitly.
 
+Hardening notes (post-slice-1 adversarial self-review, 2026-09-06):
+- timeout_s is an IDLE gap on a live connection (a slow streaming response
+  survives; a silent endpoint is cut). It is NOT a total-duration limit - a
+  total-duration policy is a slice-2 founder decision.
+- Concurrent tunnels are capped (max_concurrent, default 32). Excess CONNECTs
+  get 403 + net_denied(conn_limit), so a runaway agent cannot exhaust the
+  proxy process with parallel connections.
+- Header read is bounded (8KiB) and every connection thread is a daemon; a
+  malformed request can never buffer beyond the cap.
+- Half-close simplification: when either tunnel side ends, BOTH sockets close.
+  Full TCP half-close semantics are a slice-2 refinement, not needed for the
+  CONNECT usage pattern of slice-1.
+
 CLI (for the slice-2 runner spawn and manual demos):
     python3 tamga_netproxy.py --decl <net.json> [--events <file>]
   prints one JSON line {"ok":true,"port":N,...} when listening, then serves
@@ -113,14 +126,16 @@ def decl_sha256(path):
 class TamgaProxy:
     """Threaded HTTP-CONNECT loopback proxy with an exact host:port allow-list."""
 
-    def __init__(self, decl, events_path=None):
+    def __init__(self, decl, events_path=None, max_concurrent=32):
         self.allowed = decl["_allowed"]
         self.max_bytes = decl["max_bytes_per_run"]
         self.timeout_s = decl["timeout_s"]
+        self.max_concurrent = max_concurrent
         self.events_path = events_path
         self._lock = threading.Lock()
         self._total = 0
         self._conns_ok = 0
+        self._conns = 0
         self._denied = 0
         self.capped = False
         self._srv = None
@@ -185,6 +200,21 @@ class TamgaProxy:
 
     # ---- per-connection policy (M3) ----
     def _handle(self, c):
+        with self._lock:
+            if self._conns >= self.max_concurrent:
+                over = True
+            else:
+                over = False
+                self._conns += 1
+        if over:
+            return self._deny(c, "?", "conn_limit")
+        try:
+            self._handle_gated(c)
+        finally:
+            with self._lock:
+                self._conns -= 1
+
+    def _handle_gated(self, c):
         try:
             c.settimeout(self.timeout_s)
             req = b""

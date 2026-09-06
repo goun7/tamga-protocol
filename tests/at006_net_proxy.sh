@@ -48,6 +48,34 @@ ECHO_PIDS="$ECHO_PIDS $!"
 for i in $(seq 1 50); do [ -s "$1" ] && break; sleep 0.1; done
 }
 
+# upstream echo with an artificial echo delay (holds a tunnel slot open)
+start_echo_slow() { # $1 port-file  $2 delay seconds
+python3 - "$1" "$2" <<'PY' >> "$LOG" 2>&1 &
+import socket, sys, threading, time
+pf = open(sys.argv[1], "w")
+srv = socket.socket(); srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+srv.bind(("127.0.0.1", 0)); srv.listen(8); pf.write(str(srv.getsockname()[1])); pf.close()
+delay = float(sys.argv[2])
+def serve():
+    while True:
+        c, _ = srv.accept()
+        def h(c=c):
+            try:
+                d = c.recv(4096)
+                time.sleep(delay)
+                if d: c.sendall(d)
+                while True:
+                    x = c.recv(4096)
+                    if not x: break
+            except OSError: pass
+            finally: c.close()
+        threading.Thread(target=h, daemon=True).start()
+serve()
+PY
+ECHO_PIDS="$ECHO_PIDS $!"
+for i in $(seq 1 50); do [ -s "$1" ] && break; sleep 0.1; done
+}
+
 # in-repo proxy driver: starts TamgaProxy, waits for a sentinel, then stops
 start_proxy() { # $1 decl  $2 events  $3 summary-out  $4 sentinel
 python3 - "$1" "$2" "$3" "$4" <<'PY' >> "$LOG" 2>&1 &
@@ -223,6 +251,64 @@ ok $? "M4: net_byte_cap event + summary.capped, session counter clamps the flow"
 PERM=$(stat -c '%a' "$W/events.jsonl")
 [ "$PERM" = "600" ]
 ok $? "M5 seed: net-events file is 0600"
+
+# ---------- concurrency cap (post-review hardening) ----------
+start_echo_slow "$W/echo3.port" 1.0; EPORT3=$(cat "$W/echo3.port")
+python3 - "$W/net-cc.json" "$EPORT3" <<'PY'
+import json, sys
+json.dump({"format": "tamga-net-declaration/1",
+           "egress": [f"127.0.0.1:{sys.argv[2]}"],
+           "max_bytes_per_run": 8 * 1024 * 1024, "timeout_s": 10},
+          open(sys.argv[1], "w"))
+PY
+start_proxy "$W/net-cc.json" "$W/events-cc.jsonl" "$W/sum-cc.json" "$W/done3"
+wait_for "$W/net-cc.json.port" || { echo "  FAIL: cc proxy did not start"; exit 1; }
+PPORT3=$(cat "$W/net-cc.json.port")
+python3 - "$PPORT3" "127.0.0.1:$EPORT3" "$W/hold-ids.txt" <<'PY' > "$W/hold.out" 2>> "$LOG"
+import socket, sys, threading
+pp, target = sys.argv[1], sys.argv[2]
+out = []
+def one(i):
+    c = socket.create_connection(("127.0.0.1", int(pp)), timeout=10)
+    c.sendall(f"CONNECT {target} HTTP/1.1\r\n\r\n".encode())
+    r = b""
+    while b"\r\n\r\n" not in r:
+        d = c.recv(4096)
+        if not d: break
+        r += d
+    out.append((i, r.split(b"\r\n", 1)[0].decode("latin-1"), c))
+ts = [threading.Thread(target=one, args=(i,)) for i in range(35)]
+[t.start() for t in ts]; [t.join() for t in ts]
+open(sys.argv[3], "w").write("\n".join(f"{i} {s}" for i, s, _ in out))
+import time; time.sleep(2.5)     # hold the 32 slots while the excess CONNECTs arrive
+for _, _, c in out:
+    try: c.close()
+    except OSError: pass
+PY
+n200=$(grep -c " 200 " "$W/hold-ids.txt" || true); n403=$(grep -c " 403 " "$W/hold-ids.txt" || true)
+[ "$n200" -le 32 ] && [ "$n403" -ge 3 ]
+ok $? "concurrency: 35 parallel CONNECTs -> at most 32 tunneled ($n200), excess 403 ($n403)"
+python3 - "$PPORT3" "127.0.0.1:$EPORT3" <<'PY' > "$W/after-cc.out" 2>> "$LOG"
+import socket, sys
+c = socket.create_connection(("127.0.0.1", int(sys.argv[1])), timeout=10)
+c.sendall(f"CONNECT {sys.argv[2]} HTTP/1.1\r\n\r\n".encode())
+r = b""
+while b"\r\n\r\n" not in r:
+    d = c.recv(4096)
+    if not d: break
+    r += d
+print("AFTER:" + r.split(b"\r\n", 1)[0].decode("latin-1"))
+c.close()
+PY
+grep -q "AFTER:HTTP/1.1 200" "$W/after-cc.out"
+ok $? "concurrency: slots released after holders exit (service recovered)"
+python3 - "$W/events-cc.jsonl" <<'PY'
+import json, sys
+evs = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+assert any(e.get("reason") == "conn_limit" for e in evs), "conn_limit denial missing"
+PY
+ok $? "M3: conn_limit denial recorded in the event log"
+touch "$W/done3"; wait_for "$W/sum-cc.json"
 
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" = "0" ]

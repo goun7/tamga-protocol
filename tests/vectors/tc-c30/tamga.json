@@ -1,0 +1,38 @@
+{
+  "spec_version": "0.1.0",
+  "package": {
+    "name": "tamga-c30-ornek",
+    "version": "0.1.0",
+    "code": {
+      "wasm_sha256": "857d25c5319de6ccc82613f076f0ae5a6eac9d6d940f2f56b4b6c0bedb6fbaf9",
+      "hash_algo": "sha256",
+      "target": "wasi-0.3/component"
+    }
+  },
+  "runtime": {
+    "min_proof_level": "P0",
+    "limits": {
+      "memory_mb": 128,
+      "cpu_ms_per_run": 60000,
+      "io_mb_per_run": 10
+    }
+  },
+  "memory": {
+    "snapshot_format": "tamga-snapshot/1",
+    "crypto_suite": "XChaCha20-Poly1305"
+  },
+  "capabilities": [
+    "clock",
+    "random"
+  ],
+  "payment": {
+    "schemes": [
+      "tamga-sim/1"
+    ]
+  },
+  "signature": {
+    "algo": "ed25519",
+    "key": "637c85ab48839c4392b52f6d4871f8c79e2b2dbc87fca538e13b2f194feee177",
+    "sig": "624a10b9f959e76b4e3712950abb07dd60f00f4a21aa53f3e3c44dd28ca0ab83ae23139b2924c71d9e7479001d7cc2617a36fece181efe4be1ec16e083577d0d"
+  }
+}

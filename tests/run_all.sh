@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (25 controls; 26 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (26 controls; 27 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -148,6 +148,10 @@ PY
   # ---- kontrol-25: AT-012 dx402 pairing verification (RFC-007 track, #3379) ----
   bash tests/at012_dx402_pairing.sh > /dev/null 2>&1
   kontrol $? "AT-012: dx402-pairing (paymentId + CID roundtrip + ecrecover + pair-charge bridge + tamper RED)"
+
+  # ---- kontrol-26: Audit-11 ledger bombası (D1: satır-bombası + grant-note kapısı) ----
+  bash tests/audit11_ledger_bomb.sh > /dev/null 2>&1
+  kontrol $? "Audit-11: ledger-bomb (50MB-line fail-closed + grant-note cap + legit-flow intact)"
 
   rm -rf "$SB"
   echo ""

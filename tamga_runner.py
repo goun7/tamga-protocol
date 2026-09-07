@@ -95,13 +95,21 @@ def _graph_merkle(mem):
     eh = [hashlib.sha256(jcs(e).encode("utf-8")).hexdigest() for e in mem.get("edges", [])]
     return hashlib.sha256(jcs({"nodes": nh, "edges": eh}).encode("utf-8")).hexdigest()
 
+MAX_LINE_BYTES = 1 * 1024 * 1024          # Audit-11 D1: satır-bombası panzehiri (grant-note+JSON-overhead üstü)
+
 def _ledger_lines(lp):
-    """Stream ledger.jsonl as parsed records (F19: no full-file loading)."""
+    """Stream ledger.jsonl as parsed records (F19: no full-file loading).
+    Audit-11 D1: a line beyond MAX_LINE_BYTES is yielded as a sentinel {} WITHOUT
+    reading it fully — the chain prev/seq check flags it broken (fail-closed),
+    memory stays bounded, and no 50MB line ever lands in RAM."""
     with open(lp, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line: continue
             try:
+                if len(line.encode("utf-8")) > MAX_LINE_BYTES:
+                    yield {}      # sentinel: break the chain check without absorbing the bomb
+                    continue
                 yield json.loads(line)
             except Exception:
                 yield {}          # sentinel: _verify_chain's prev/seq check flags it broken
@@ -181,17 +189,29 @@ def _node_key_from(a):
         raise ValueError("node_key_invalid: --node-key must be 64-hex (32 bytes)")
     return key
 
-def _ledger_append(lp, rec, node_key=None):
+def _ledger_append(lp, rec, node_key=None, op="append"):
     """Append the record to the chain with seq+prev+h; returns the written line.
     node_key verilirse node-cosign L1: node_id + node_sig(=ed25519(h)) eklenir
     (DESIGN-node-cosign.md; pre-implementation of RFC-003 Open Question 4)."""
-    lines = lp.read_text(encoding="utf-8").splitlines() if lp.exists() else []
-    last = None
-    for l in reversed(lines):
-        if l.strip():
-            last = json.loads(l); break
-    prev = last["h"] if last else "0" * 64
-    rec["seq"] = len([l for l in lines if l.strip()]) + 1
+    # Audit-11 D1: streaming append — full-file load yok (F19 disiplin append-tarafında da).
+    # Son-GEÇERLİ-h-taşıyan-kayıt aranır (bozuk/yabancı-son-satır-onun-ARDINA-eklenemez —
+    # zincir-zaten-RED'li; append fail-closed: son-h-bilinmiyorsa-ekleme-RED).
+    last_rec = None; n = 0
+    if lp.exists():
+        with open(lp, "r", encoding="utf-8") as f:
+            for l in f:
+                if not l.strip(): continue
+                n += 1
+                try:
+                    cand = json.loads(l)
+                    if cand.get("h"): last_rec = cand
+                except Exception:
+                    pass   # bozuk-satır: sayılır ama-h-yok → son-geçerli-kalır
+    if last_rec is None and n > 0:
+        return out(False, op=op, reason_code=14,
+                   reason="ledger_broken: tail has no valid head record — refuse to append")
+    prev = last_rec["h"] if last_rec else "0" * 64
+    rec["seq"] = n + 1
     rec["prev"] = prev
     rec["ts"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     if node_key:
@@ -298,6 +318,9 @@ def cmd_grant(a):
         return out(False, op="grant", reason_code=1,
                    reason="parse_error: amount outside (0,1e6]")
     note = a[2] if len(a) > 2 else ""
+    if len(note.encode("utf-8")) > MAX_NOTE_BYTES:      # Audit-2 F12 — grant-a-da-uygula
+        return out(False, op="grant", reason_code=8,
+                   reason=f"memory_limit: note > {MAX_NOTE_BYTES}B")
     mf = pkg / "tamga.json"
     name = json.loads(mf.read_text(encoding="utf-8"))["package"]["name"] if mf.exists() else pkg.name
     try:
@@ -306,7 +329,7 @@ def cmd_grant(a):
         return out(False, op="grant", reason_code=6, reason=str(e))  # Audit-10: no silent-unsigned records
     rec = _ledger_append(pkg / "ledger.jsonl",
                          {"op": "grant", "pkg": name, "amount": amount, "note": note},
-                         node_key=nk)
+                         node_key=nk, op="grant")
     return out(True, op="grant", seq=rec["seq"], h=rec["h"], amount=amount,
                node_id=rec.get("node_id") if "node_id" in rec else None,
                note="appended to chain (RFC-003 D5 draft)")

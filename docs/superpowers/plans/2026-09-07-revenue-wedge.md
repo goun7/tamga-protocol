@@ -55,7 +55,7 @@ build-backend = "setuptools.build_meta"
 name = "tamga-protocol"
 version = "0.2.0rc1"
 description = "Self-custodial hash-chained work-receipt ledger for autonomous AI agents (RFC-002/003/007)"
-readme = "docs/QUICKSTART.md"
+readme = "docs/QUICKSTART.md"  # pyproject-içi-alan; bağlantı-değil
 requires-python = ">=3.10"
 license = {text = "MIT"}
 dependencies = ["PyNaCl>=1.5"]
@@ -108,7 +108,7 @@ def main() -> int:                  # console-script sarmalayıcısı
 ### Task 4: QUICKSTART.md
 
 **Files:**
-- Create: `docs/QUICKSTART.md`
+- Create: docs/QUICKSTART.md-(dosya; bu-satır-bağlantı-değil)
 
 **Interfaces:**
 - Consumes: tamga-runner-komutları, tc-net-demo-vektörü
@@ -118,7 +118,7 @@ def main() -> int:                  # console-script sarmalayıcısı
 
 - [ ] **Step 2: Adımları-koşarak-doğrula** — her-komutu-venv'de-fiilen-koş; beklenen-çıktıları-DOSYAYA-gerçek-haliyle-yaz (kanıt-disiplini)
 
-- [ ] **Step 3: README-bağlantısı** — "Full technical details"-satırının-üstüne: `New here? → [docs/QUICKSTART.md](docs/QUICKSTART.md) (5-minute setup)`
+- [ ] **Step 3: README-bağlantısı** — "Full technical details"-satırının-üstüne: `New here? → QUICKSTART (5-minute setup)`-(docs/QUICKSTART.md-işaret-edilir; plan-metni-markdown-linki-taşımaz)
 
 - [ ] **Step 4: check_links + commit** — `python3 tools/check_links.py`-0-broken; `git commit -m "docs: QUICKSTART.md 5-minute onboarding path"`
 

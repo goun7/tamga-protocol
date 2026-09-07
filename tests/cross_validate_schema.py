@@ -6,6 +6,9 @@ Method: decision-level equivalence. For each sample (6 real vectors + 36 mutatio
   B) tamga_validator.py (stdlib schema block) — is it a schema-family RED (otherwise ACCEPT /
      hash/imza ailesi RED mi)?
 Claim: A-invalid ⇔ B-schema-RED. A divergence = drift: one of the two implementations deviates from RFC-001.
+Faz-B (RFC-007): 9 draft-phase probes — specs/manifest-0.2.0-draft.schema.json additive
+contract (0.1.0 manifests stay valid; runtime.net validates under draft only; tc-a6's
+spec_version flip is the documented v0.2 gate, not drift).
 
 Run: .venv-jsonschema/bin/python tests/cross_validate_schema.py
 Evidence: .evidence/VALIDASYON/<date>/schema-crossvalidation.log
@@ -16,6 +19,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 try:
     import jsonschema
+    from jsonschema import Draft202012Validator
 except ImportError:
     print("ERROR: jsonschema missing — run with .venv-jsonschema/bin/python")
     sys.exit(2)
@@ -149,6 +153,51 @@ def main():
     for name, m in mutants(base):
         total += 1
         ok += check(name, m)
+    log("")
+
+    # ---- Faz-B: v0.2 DRAFT additive contract (RFC-007) --------------------
+    # Dondur-ikili (0.1.0 schema + validator) yukarıdaki her vektöre aynı kararı
+    # vermeye devam eder; 0.2.0 DRAFT şema EKLEYİCİDİR: her 0.1.0 manifest'i
+    # onun altında da geçerli kalır, runtime.net'li manifest YALNIZ draft'ta
+    # geçerlidir (üst-sınır sapması belgelenmiş v0.2 kapısı — validator const'ı
+    # kurucu sürüm-flip'ine kadar 0.1.0 kalır; bu drift değil tasarımdır).
+    log("## v0.2 draft additive contract (RFC-007)")
+    draft = json.loads((ROOT / "specs/manifest-0.2.0-draft.schema.json").read_text(encoding="utf-8"))
+    draft_state = {"ok": 0, "total": 0}
+
+    def draft_check(name, manifest, expect_draft_valid):
+        errs = list(Draft202012Validator(draft).iter_errors(manifest))
+        valid = not errs
+        agree = valid == expect_draft_valid
+        draft_state["total"] += 1
+        draft_state["ok"] += 1 if agree else 0
+        log(f"[{'AGREE' if agree else '!!DRIFT!!'}] {name:24s} draft={'valid' if valid else 'INVALID':8s} "
+            f"(beklenen={'valid' if expect_draft_valid else 'INVALID'})")
+
+    for tc in ["tc-a1", "tc-a2", "tc-a3", "tc-a4", "tc-a5", "tc-a6"]:
+        m = json.loads((VEC / tc / "tamga.json").read_text(encoding="utf-8"))
+        if "payment" not in m:
+            m["payment"] = {"schemes": ["tamga-sim/1"]}
+        # beklenti = donuk-şema-kararı: draft EKLEYİCİ → hiçbir donmuş-vektör
+        # karar-sınıfı değiştiremez. TEK-istisna tc-a6: o vektör spec_version
+        # "0.2.0" taşır — donuk-çift onu RED'ler (üst-sınır), draft KABUL eder;
+        # bu-flip belgelenen v0.2 kapısının kendisidir, drift-değil.
+        frozen_valid = not list(Draft202012Validator(SCHEMA).iter_errors(m))
+        expect = frozen_valid
+        if tc == "tc-a6":
+            expect = m.get("spec_version") in draft["properties"]["spec_version"]["enum"]
+        draft_check(f"{tc}/under-draft", m, expect)
+    v2 = json.loads(json.dumps(base))
+    v2["spec_version"] = "0.2.0"
+    v2["runtime"]["net"] = {"egress": ["127.0.0.1:1"], "max_bytes_per_run": 1048576, "timeout_s": 10}
+    draft_check("v0.2-runtime.net", v2, True)
+    v2_bad = json.loads(json.dumps(v2))
+    v2_bad["runtime"]["net"]["egress"] = ["127.0.0.1:0"]
+    draft_check("v0.2-port-0", v2_bad, False)
+    v2_big = json.loads(json.dumps(v2))
+    v2_big["runtime"]["net"]["max_bytes_per_run"] = 8388609
+    draft_check("v0.2-cap-overflow", v2_big, False)
+    total += draft_state["total"]; ok += draft_state["ok"]
     log("")
     log(f"RESULT: {ok}/{total} AGREE — {'cross-validation CLEAN' if ok == total else 'DRIFT → RFC-001 fidelity must be fixed'}")
     shutil.rmtree(SB, ignore_errors=True)

@@ -59,5 +59,8 @@ jobs:
       - name: Runner overhead benchmark (CI smoke — claim evidence is local quiet-host)
         run: python3 tests/bench_runner_overhead.py --allow-busy
 
+      - name: dx402 vector-tool selftest (paymentId/CID/contentHash derivations)
+        run: python3 tests/verify_dx402_selftest.py
+
       - name: Documentation link integrity
         run: python3 tools/check_links.py

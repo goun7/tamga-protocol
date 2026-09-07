@@ -48,7 +48,7 @@ def _latest_charge_binds(pkg: pathlib.Path) -> bool:
         return False
 
 
-def validate(pkg: pathlib.Path):
+def validate(pkg: pathlib.Path, known_prior_hashes=()):
     # Audit-1 F11: source limits (before reading)
     mf = pkg / "tamga.json"
     if not mf.exists(): return 1, "RED parse_error: tamga.json not found"
@@ -222,16 +222,48 @@ def validate(pkg: pathlib.Path):
             recs = []
         ch = [r for r in recs if r.get("op") == "charge"]
         if ch:
+            _ci = len(recs) - 1 - recs[::-1].index(ch[-1])   # son-charge-index (geçiş-kanıtı-sonrası)
             if not ndf.is_file() and rnet_active is None:
                 return 1, "RED net_binding_missing: receipt binds a net declaration but no declaration source is active (bridge deleted?)"
+            # D12a across the R1 migration: a charge binds the canonical form of the
+            # source that was active WHEN IT WAS WRITTEN. Migration re-homes the SAME
+            # policy content (file bytes <-> jcs subtree are content-equivalent), so the
+            # accept-set holds BOTH canonical forms of the ACTIVE declaration. What the
+            # gate must still catch: a post-run CHANGE of policy content (any hash not
+            # in the set) and a bridge resurrection/deletion that changes the source.
+            import tamga_netproxy as _t
+            cands = set(known_prior_hashes)   # migration pass-down (migrate-net's post-gate)
+            # R1 geçiş-kanıtı (bayraksız-yol): charge'dan-SONRAKI zincirdeki migrate-net
+            # kaydı eski-bağlamayı-taşır. Kaçış-kapısı-tamper'e-karşı-ŞİFRESEL: kayıt-chain-h
+            # altında; burada-chain-bütünlüğü-quick-verify-edilir (F19) — sahte-kaydı-kırar.
+            _mig = [r for r in recs[_ci + 1:] if r.get("op") == "migrate-net"]
+            if _mig:
+                _prev, _ok = "0" * 64, True
+                for _r in recs:
+                    _noh = {k: v for k, v in _r.items() if k not in ("h", "node_sig")}
+                    if _r.get("prev") != _prev or _r.get("h") != hashlib.sha256(
+                            (_r.get("prev", "") + jcs(_noh).decode("utf-8")).encode("utf-8")).hexdigest():
+                        _ok = False; break
+                    _prev = _r["h"]
+                if not _ok:
+                    return 1, "RED ledger_broken: migration evidence record fails chain integrity"
+                for _mr in _mig:
+                    cands.add(_mr["old_net_decl_sha256"])
             if ndf.is_file():
-                decl_now = hashlib.sha256(ndf.read_bytes()).hexdigest()
-            else:
-                decl_now = hashlib.sha256(jcs(rnet_active)).hexdigest()
+                cands.add(hashlib.sha256(ndf.read_bytes()).hexdigest())
+            if rnet_active is not None:
+                # the active SUBTREE form, and the same content under the v0.1
+                # declaration shape (format key included) — the two canonical forms
+                # migrate-net documents in decl_canonicals
+                cands.add(hashlib.sha256(jcs(rnet_active)).hexdigest())
+                sub = {k: rnet_active[k] for k in ("egress", "max_bytes_per_run", "timeout_s")}
+                cands.add(hashlib.sha256(jcs({"format": _t.NET_FORMAT, **sub})).hexdigest())
+            if not cands:
+                return 1, "RED net_binding_missing: no declaration source could be read"
             bound = ch[-1].get("net_decl_sha256")
             if bound is None:
                 return 1, "RED net_binding_missing: receipt has no net_decl_sha256 though a net declaration is active"
-            if bound != decl_now:
+            if bound not in cands:
                 return 1, "RED net_binding_mismatch: the active net declaration changed after the run (receipt binds the pre-run declaration)"
         if ndf.is_file():                      # strict-declaration gate: file source only;
             try:                               # the manifest source was already shape-gated

@@ -950,6 +950,7 @@ def cmd_migrate_net(a):
         return out(False, op="migrate-net", reason_code=1, reason=usage)
     pkg = pathlib.Path(a[0])
     mj, nj = pkg / "tamga.json", pkg / "net.json"
+    lp = pkg / "ledger.jsonl"
     if not mj.is_file():
         return out(False, op="migrate-net", reason_code=1, reason="tamga.json not found")
     if not nj.is_file():
@@ -979,13 +980,19 @@ def cmd_migrate_net(a):
     m.setdefault("runtime", {})["net"] = net_sub
     probe = dict(m); probe["signature"] = {**m["signature"], "sig": ""}   # D2: sig-boş-probe
     m["signature"]["sig"] = sk.sign(tv.jcs(probe)).signature.hex()
-    mj.write_text(json.dumps(m, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    old_file_sha = hashlib.sha256(nj.read_bytes()).hexdigest()   # delete-öncesi: geçmiş-charge'lar
+    mj.write_text(json.dumps(m, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")  # buna-bound-kaldı
     nj.unlink()
-    val = subprocess.run([sys.executable, str(pathlib.Path(__file__).resolve().parent / "tamga_validator.py"),
-                          "validate", str(pkg)], capture_output=True, text=True)
-    if "ACCEPT" not in val.stdout:
+    # R1-geçiş-kanıtı zincirde: bayrak-yok-CLI-validate bile-geçmiş-charge'ın-dosya-baytı-
+    # bağlamasını-bu-kayıtla-doğrulayabilir (validator-kaçış-kullanımı-chain-h-doğrulaması-ile)
+    mig_rec = _ledger_append(lp, {"op": "migrate-net", "pkg": m["package"]["name"],
+                                  "old_net_decl_sha256": old_file_sha,
+                                  "new_net_decl_sha256": new_canon,
+                                  "note": "RFC-007 R1 one-way bridge migration (content-equivalent)"})
+    rc, msg = tv.validate(pkg, known_prior_hashes=(old_file_sha,))
+    if rc != 0:
         return out(False, op="migrate-net", reason_code=1,
-                   reason=f"post-migration validation RED: {val.stdout.strip()[:160]}")
+                   reason=f"post-migration validation RED: {msg[:160]}")
     return out(True, op="migrate-net", pkg=pkg.name,
                migrated="net.json -> runtime.net",
                decl_canonicals={"old_net.json_form": old_canon,

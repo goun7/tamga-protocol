@@ -123,6 +123,22 @@ python3 tamga_validator.py validate "$W/pkgE" > "$W/e.json" 2>> "$LOG"
 grep -q 'RED net_binding_mismatch' "$W/e.json"
 ok $? "AT-011e: re-signed runtime.net tamper -> validator RED net_binding_mismatch (canonical binding)"
 
+# ---------- AT-011f: migrate-net on a package that RAN under net.json ----------
+# the pre-migration charge binds the FILE-byte form; after migration the active source
+# is the manifest subtree (jcs form) of the SAME policy content — the post-gate must
+# ACCEPT (content-equivalence across the one-release dual-read window), and a later
+# policy-content change must still RED (AT-011e covers the re-signed tamper)
+SEED_G=$(new_pkg "$W/pkgG" "$NET")
+SG=$(cat "$W/pkgG/author.seed")
+python3 tamga_runner.py grant "$W/pkgG" 0.01 "at011" > /dev/null 2>> "$LOG"
+python3 -c "import json,sys; json.dump({'net_demo':False,'payload':'at011f'}, open('$W/inG.json','w'), separators=(',',':'))"
+python3 tamga_runner.py run "$W/pkgG" --seed "$SG" --input "$W/inG.json" > "$W/g-run.json" 2>> "$LOG"
+grep -q '"ok": true' "$W/g-run.json"
+python3 tamga_runner.py migrate-net "$W/pkgG" --seed-hex "$SEED_G" > "$W/g-mig.json" 2>> "$LOG"
+grep -q '"ok": true' "$W/g-mig.json" && \
+  python3 tamga_validator.py validate "$W/pkgG" 2>/dev/null | grep -q 'ACCEPT'
+ok $? "AT-011f: ran-under-net.json package migrates cleanly (content-equivalent accept-set)"
+
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 cp -r "$W" /tmp/at011-keep 2>/dev/null; rm -rf "$W"
 exit $((FAIL > 0))

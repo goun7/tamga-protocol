@@ -12,6 +12,8 @@ facilitator may 404 by the time you verify — the point is the math):
 
 Usage:
   python3 tools/verify_dx402_vector.py receipt.json [--delivery-file out.bin]
+  python3 tools/verify_dx402_vector.py --pair-charge receipt.json ledger.jsonl
+      # cross-party bridge: our charge.delivery_hash vs their contentHash
 
 Exit 0 = no mandatory FAIL; 1 = any FAIL; 2 = precondition (bad args).
 Honesty rules: checks are labeled PASS/FAIL/SKIP; a skipped optional check is
@@ -28,7 +30,35 @@ def out(ok, label, detail=""):
     print(f"[{tag}] {label}" + (f" — {detail}" if detail else ""))
     return 0 if ok is True else (1 if ok is False else 0)
 
+def pair_charge(receipt_path, ledger_path, delivery_alg="keccak256"):
+    """Pilot-günü çapraz-köprü: bizim charge.delivery_hash ↔ dx402 receipt.contentHash.
+    Aynı baytlar teslim edildiyse ve bizim alg aynıysa iki hash EŞİT OLMALI —
+    eşitlik varsa iki taraf da üçüncü-sıfır-güvenle kapanır. Kural: etiketli-eşitlik
+    (alg+hex), assumed-equality yok."""
+    rc = 0
+    raw = json.loads(pathlib.Path(receipt_path).read_text(encoding="utf-8"))
+    rec = raw.get("receipt", raw)
+    their_ch = (rec.get("contentHash") or "").lower().removeprefix("0x")
+    ch_alg = "keccak256"  # DX402: contentHash = keccak256(plaintext)
+    last = None
+    for line in pathlib.Path(ledger_path).read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            r = json.loads(line)
+            if r.get("op") == "charge" and isinstance(r.get("delivery_hash"), dict):
+                last = r
+    if last is None:
+        print("[FAIL] pair-charge: ledger'da delivery_hash'li charge yok")
+        return 1
+    ours = last["delivery_hash"]
+    print(f"bizim   : {ours.get('alg')} {str(ours.get('hex'))[:18]}… (charge seq={last.get('seq')})")
+    print(f"onların : {ch_alg} {their_ch[:18]}… (dx402 receipt)")
+    ok = (ours.get("alg") == ch_alg and str(ours.get("hex", "")).lower().removeprefix("0x") == their_ch)
+    print(f"[{'PASS' if ok else 'FAIL'}] çapraz-bağlama: aynı-bayt-teslimi (alg-eş + hex-eş)")
+    return 0 if ok else 1
+
 def main(a):
+    if len(a) >= 2 and a[0] == "--pair-charge":
+        return pair_charge(a[1], a[2])
     if len(a) < 1:
         print(__doc__)
         return 2

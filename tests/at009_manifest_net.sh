@@ -68,7 +68,7 @@ PY
 
 NET='{"format":"tamga-net-declaration/1","egress":["127.0.0.1:1"],"max_bytes_per_run":1048576,"timeout_s":10}'
 
-run_agent() {
+run_agent() {  # agent identity = the AUTHOR seed (R7 ownership); fresh-operator seed each run
   S=$(python3 tamga_runner.py keygen | python3 -c 'import sys,json;print(json.load(sys.stdin)["seed_hex"])')
   python3 tamga_runner.py grant "$1" 0.01 "at009" > /dev/null 2>> "$LOG"
   python3 tamga_runner.py run "$1" --seed "$S" --input "$2" --require-proof --note at009 > "$3" 2>> "$LOG"
@@ -122,8 +122,8 @@ SEED_C=$(new_pkg "$W/pkgC" "$NET")
 python3 tamga_runner.py migrate-net "$W/pkgC" --seed-hex "$SEED_C" > /dev/null 2>> "$LOG"
 printf '%s' "$NET" > "$W/pkgC/net.json"          # resurrect the bridge file
 run_agent "$W/pkgC" "$W/inB.json" "$W/c.json"
-grep -q '"reason_code": 10' "$W/c.json" && grep -q 'net_decl_ambiguous' "$W/c.json"
-ok $? "AT-009c: net.json + runtime.net both present -> net_decl_ambiguous RED"
+grep -q '"ok": false' "$W/c.json" && grep -q 'net_decl_ambiguous' "$W/c.json"
+ok $? "AT-009c: net.json + runtime.net both present -> net_decl_ambiguous RED (runner or pre-run validator gate)"
 
 SEED_D=$(new_pkg "$W/pkgD" "{\"format\":\"tamga-net-declaration/1\",\"egress\":[\"127.0.0.1:$EPORT\"],\"max_bytes_per_run\":1048576,\"timeout_s\":10}")
 python3 -c "import json,sys; json.dump({'net_demo':True,'url':'http://127.0.0.1:$EPORT/echo','payload':'at009d'}, open('$W/inD.json','w'), separators=(',',':'))"

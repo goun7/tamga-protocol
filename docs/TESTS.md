@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 23/23 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 24/24 controls, ~20 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)
@@ -19,7 +19,7 @@ Local-only adversarial tools (not CI-hosted: they depend on gitignored simnet no
 fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip rollback
 attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
 runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
-the c30 cross-host control (24/24).
+the c30 cross-host control (25/25).
 ## Control families
 
 | Family | What it proves |
@@ -34,7 +34,8 @@ the c30 cross-host control (24/24).
 | AT-008 — agent-side net shim (RFC-006 D13) | net-demo agent speaks `TAMGA-NET-1` request lines to stdout; the runner executes them over its own CONNECT tunnel (single edge) and answers via `TAMGA-NET-RESP-1` on stdin — request lines land in the evidence artifact verbatim; non-egress host → shim soft denial (`not_listed`), run continues; mock-HTTPS via `TAMGA_NET_CA_BUNDLE` verifies a local CA over CONNECT+TLS; net.json-less packages get `net_shim_ignored` counted from the evidence scan (D4 silence kept); a mid-run byte cap → live RED 11, no charge; charge `stdout_sha256` covers the artifact including request lines |
 | AT-010 — labeled delivery digest (RFC-007 R2, D10) | `run --delivery-alg sha256\|keccak256` embeds an OPTIONAL labeled digest of the stdout bytes (the deliverable) into the charge record: `delivery_hash {"alg","hex"}` — the label is REQUIRED (safal207: keccak256 ≠ sha256; an unlabeled digest invites fake cross-ledger agreement); unknown alg → RED `delivery_alg_invalid` before any charge exists; `keccak256` byte-matches the x402 durable-evidence `contentHash` (verified against known vectors), `sha256` byte-matches `stdout_sha256`; `ledger-verify` shape-gates any `delivery_hash` found in the chain (`alg ∈ {sha256,keccak256}`, 64-hex — defensive depth for future tools); absent flag → no field (D4 silence); the pairing fixture now carries the labeled digest and verifies 6/6 including the `receiptHash → receipt → delivery_hash → contentHash` third-party chain, and a doctored digest → verify RED |
 | AT-009 — manifest net declaration (RFC-007 R1) | `migrate-net` is a one-way, author-only bridge: embeds `net.json` into `manifest.runtime.net` (format key implied, not stored), re-signs over the D2 empty-`sig` probe, deletes the bridge file, keeps the author identity, and refuses to finish unless the validator ACCEPTs afterwards (wrong seed → RED 9 `author_identity_mismatch` — the tool never invents identity); migrated runs enforce the manifest declaration and the receipt binds `sha256(jcs(runtime.net))` (D12a v0.2 canonical semantics) while legacy packages keep file-byte semantics during the one-release dual-read window; BOTH sources present → RED 10 `net_decl_ambiguous` (policy ambiguity); invalid `runtime.net` (9 endpoints) → validator `schema_violation` RED and the run REDs at the pre-run manifest gate (fail-closed) |
-| Schema cross-validation | runner decisions ≡ `jsonschema` validation (34/34 fixtures) |
+| AT-011 — D12 conditional unity (RFC-007 R3) | the D12 trio (`net_decl_sha256` / `net_events_sha256` / `net_mb`) enters a charge TOGETHER or not at all — `ledger-verify` REDs a half-bound charge (`net_trio_incomplete`) and a `net_mb` beyond 6 decimal places (`net_mb_format`, RFC-003 §11 normative); the validator binds the LATEST charge against whichever declaration source is active — `net.json` by file bytes, `runtime.net` by `sha256(jcs(...))` — so a post-run swap OR a re-signed manifest tamper (`net_binding_mismatch`), a bridge deletion (`net_binding_missing`), and a both-sources state (`net_decl_ambiguous`) all RED; jsonschema cross-validation extended to the `runtime.net` shape family (8 mutants, 42/42 AGREE) |
+| Schema cross-validation | runner decisions ≡ `jsonschema` validation (42/42 fixtures) |
 | Cosign / snapshot negatives | L1 policy enforcement, revocation-list rejections |
 | Tokenomics + economy invariants | fee curve, threshold and fairness invariants hold under the deterministic simulator |
 

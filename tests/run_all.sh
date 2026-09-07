@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (23 controls; 24 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (24 controls; 25 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -140,6 +140,10 @@ PY
   # ---- kontrol-23: AT-010 RFC-007 R2 labeled delivery digest (D10, founder-approved) ----
   bash tests/at010_delivery_hash.sh > /dev/null 2>&1
   kontrol $? "AT-010: delivery-hash (labeled sha256|keccak256 digest in the charge + ledger depth-gate + pairing chain)"
+
+  # ---- kontrol-24: AT-011 RFC-007 R3 D12 conditional unity + formal binding ----
+  bash tests/at011_d12_unity.sh > /dev/null 2>&1
+  kontrol $? "AT-011: d12-unity (trio together-or-neither + net_mb formality + manifest binding + deletion detection)"
 
   rm -rf "$SB"
   echo ""

@@ -252,20 +252,37 @@ def cmd_ledger_verify(a):
     # alg must be sha256|keccak256 (safal207: label REQUIRED), hex must be 64-hex;
     # field absent = D4 silence (no gate). Shape fault ≠ chain break but it IS a RED:
     # a mislabeled digest would fake cross-ledger agreement.
+    # RFC-007 R3 (D12 conditional unity): net_decl_sha256 / net_events_sha256 / net_mb
+    # enter a charge TOGETHER or not at all. A half-bound charge would let an operator
+    # claim some D12 evidence without carrying all of it — RED 10 per record.
     with open(lp, "r", encoding="utf-8") as f:
         for ln, line in enumerate(f, 1):
             if not line.strip():
                 continue
-            dh = json.loads(line).get("delivery_hash")
-            if dh is None:
-                continue
-            if not isinstance(dh, dict) or set(dh) != {"alg", "hex"} \
-                    or dh["alg"] not in ("sha256", "keccak256") \
-                    or not isinstance(dh["hex"], str) or len(dh["hex"]) != 64 \
-                    or any(c not in "0123456789abcdef" for c in dh["hex"]):
-                return out(False, op="ledger-verify", reason_code=10, broken_at=ln,
-                           reason="delivery_hash_invalid: "
-                                  "expected {alg: sha256|keccak256, hex: 64-hex}")
+            rec = json.loads(line)
+            dh = rec.get("delivery_hash")
+            if dh is not None:
+                if not isinstance(dh, dict) or set(dh) != {"alg", "hex"} \
+                        or dh["alg"] not in ("sha256", "keccak256") \
+                        or not isinstance(dh["hex"], str) or len(dh["hex"]) != 64 \
+                        or any(c not in "0123456789abcdef" for c in dh["hex"]):
+                    return out(False, op="ledger-verify", reason_code=10, broken_at=ln,
+                               reason="delivery_hash_invalid: "
+                                      "expected {alg: sha256|keccak256, hex: 64-hex}")
+            if rec.get("op") == "charge":
+                present = {k for k in ("net_decl_sha256", "net_events_sha256", "net_mb")
+                           if k in rec}
+                if present and len(present) != 3:
+                    return out(False, op="ledger-verify", reason_code=10, broken_at=ln,
+                               reason="net_trio_incomplete: D12 fields enter the charge "
+                                      f"together or not at all (got {sorted(present)})")
+                nm = rec.get("net_mb")
+                if nm is not None:
+                    if isinstance(nm, bool) or not isinstance(nm, (int, float)) \
+                            or round(float(nm), 6) != float(nm):
+                        return out(False, op="ledger-verify", reason_code=10, broken_at=ln,
+                                   reason="net_mb_format: must be a number rounded to "
+                                          "6 decimal places (MiB, RFC-003 §11)")
     lines = sum(1 for line in open(lp, "r", encoding="utf-8") if line.strip())
     return out(True, op="ledger-verify", lines=lines, head=tip,
                note="chain tip verified (RFC-003 D7 draft)")

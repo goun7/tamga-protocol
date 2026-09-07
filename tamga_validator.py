@@ -39,6 +39,15 @@ def cmd_sign(args):
     pathlib.Path(mp).write_text(json.dumps(m, indent=2, ensure_ascii=False), encoding="utf-8")
     print("signed:", mp)
 
+def _latest_charge_binds(pkg: pathlib.Path) -> bool:
+    try:
+        recs = [json.loads(l) for l in (pkg / "ledger.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+        ch = [r for r in recs if r.get("op") == "charge"]
+        return bool(ch) and any(k in ch[-1] for k in ("net_decl_sha256", "net_events_sha256", "net_mb"))
+    except Exception:
+        return False
+
+
 def validate(pkg: pathlib.Path):
     # Audit-1 F11: source limits (before reading)
     mf = pkg / "tamga.json"
@@ -184,33 +193,55 @@ def validate(pkg: pathlib.Path):
     got = hashlib.sha256((pkg / "agent.wasm").read_bytes()).hexdigest()
     if want != got: return 1, "RED code_hash_mismatch"
 
-    # 3b) RFC-005A D12 (slice-2, founder-approved 2026-09-06): when the package ships
-    # a net.json, the charge receipt must bind it (net_decl_sha256). A post-run swap
-    # of net.json fails validation — the receipt cannot be made to point at network
-    # permissions other than the ones enforced during the run. Deletion-detection
-    # (net.json absent + net-bound receipt) is deferred to the v0.2 manifest binding.
+    # 3b) RFC-005A D12 (slice-2, founder-approved 2026-09-06) + RFC-007 R3 formalization:
+    # the charge receipt must bind the ACTIVE net declaration. Two sources, one rule —
+    #   net.json (v0.1 bridge):    bound bytes = the FILE bytes
+    #   runtime.net (v0.2, R1):    bound bytes = sha256(jcs(runtime.net subtree))
+    # A post-run swap of either source fails validation. R3 conditional-unity (D12):
+    # the trio net_decl_sha256 / net_events_sha256 / net_mb enters the charge TOGETHER
+    # or not at all (half-bound receipts are RED in ledger-verify; here we check the
+    # binding of the LATEST charge against whichever source is active).
     ndf = pkg / "net.json"
-    if ndf.is_file():
+    mj = pkg / "tamga.json"
+    rnet_active = None
+    if mj.is_file():
+        try:
+            _m = json.loads(mj.read_text(encoding="utf-8"))
+            if isinstance(_m.get("runtime", {}).get("net"), dict):
+                rnet_active = _m["runtime"]["net"]
+        except Exception:
+            pass
+    if rnet_active is not None and ndf.is_file():
+        return 1, "RED net_decl_ambiguous: both net.json and runtime.net declare policy"
+    # R3 deletion-detection: a charge that Binds D12 while NO declaration source is
+    # active means the bridge file was deleted after the run — no more silent stripping.
+    if ndf.is_file() or rnet_active is not None or _latest_charge_binds(pkg):
         try:
             recs = [json.loads(l) for l in (pkg / "ledger.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
         except Exception:
             recs = []
         ch = [r for r in recs if r.get("op") == "charge"]
         if ch:
-            decl_now = hashlib.sha256(ndf.read_bytes()).hexdigest()
+            if not ndf.is_file() and rnet_active is None:
+                return 1, "RED net_binding_missing: receipt binds a net declaration but no declaration source is active (bridge deleted?)"
+            if ndf.is_file():
+                decl_now = hashlib.sha256(ndf.read_bytes()).hexdigest()
+            else:
+                decl_now = hashlib.sha256(jcs(rnet_active)).hexdigest()
             bound = ch[-1].get("net_decl_sha256")
             if bound is None:
-                return 1, "RED net_binding_missing: receipt has no net_decl_sha256 though net.json exists"
+                return 1, "RED net_binding_missing: receipt has no net_decl_sha256 though a net declaration is active"
             if bound != decl_now:
-                return 1, "RED net_binding_mismatch: net.json changed after the run (receipt binds the pre-run declaration)"
-        try:
-            import tamga_netproxy as _tnp
-        except ImportError:
-            return 1, "RED net_proxy_missing: net.json present but tamga_netproxy unavailable"
-        try:
-            _tnp.load_net_decl(str(ndf))
-        except _tnp.NetDeclError as ex:
-            return 1, "RED net_decl_reject: " + str(ex)
+                return 1, "RED net_binding_mismatch: the active net declaration changed after the run (receipt binds the pre-run declaration)"
+        if ndf.is_file():                      # strict-declaration gate: file source only;
+            try:                               # the manifest source was already shape-gated
+                import tamga_netproxy as _tnp  # above (schema block) and is signed (D2)
+            except ImportError:
+                return 1, "RED net_proxy_missing: net.json present but tamga_netproxy unavailable"
+            try:
+                _tnp.load_net_decl(str(ndf))
+            except _tnp.NetDeclError as ex:
+                return 1, "RED net_decl_reject: " + str(ex)
 
     # 4) signature (D2: JCS with sig emptied)
     sig = m["signature"]; probe = dict(m); probe["signature"] = {**sig, "sig": ""}

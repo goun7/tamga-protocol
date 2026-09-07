@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """RFC-001 schema cross-validation (closes the validator TODO — Audit-1 note).
 
-Method: decision-level equivalence. For each sample (6 real vectors + ~28 mutations):
+Method: decision-level equivalence. For each sample (6 real vectors + 36 mutations):
   A) jsonschema (draft 2020-12, specs/manifest-0.1.0.schema.json) — is it valid?
   B) tamga_validator.py (stdlib schema block) — is it a schema-family RED (otherwise ACCEPT /
      hash/imza ailesi RED mi)?
@@ -97,6 +97,24 @@ def mutants(base: dict):
     add("m24-scheme-yabanci", lambda m: m["payment"]["schemes"].__setitem__(0, "tamga-real/1")
         if "payment" in m and m["payment"].get("schemes")
         else m.update(payment={"schemes": ["tamga-real/1"]}))
+    # --- RFC-007 R1/R3: runtime.net shape family (schema <-> validator drift net) ---
+    add("m29-net-tam", lambda m: m["runtime"].update(net={
+        "egress": ["api.ornek.com:443"], "max_bytes_per_run": 1048576, "timeout_s": 30}))
+    add("m30-net-9-uç", lambda m: m["runtime"].update(net={
+        "egress": [f"h{i}:443" for i in range(9)], "max_bytes_per_run": 1048576, "timeout_s": 30}))
+    add("m31-net-0-uç", lambda m: m["runtime"].update(net={
+        "egress": [], "max_bytes_per_run": 1048576, "timeout_s": 30}))
+    add("m32-net-port-0", lambda m: m["runtime"].update(net={
+        "egress": ["api.ornek.com:0"], "max_bytes_per_run": 1048576, "timeout_s": 30}))
+    add("m33-net-port-65536", lambda m: m["runtime"].update(net={
+        "egress": ["api.ornek.com:65536"], "max_bytes_per_run": 1048576, "timeout_s": 30}))
+    add("m34-net-bytes-küçük", lambda m: m["runtime"].update(net={
+        "egress": ["api.ornek.com:443"], "max_bytes_per_run": 512, "timeout_s": 30}))
+    add("m35-net-timeout-121", lambda m: m["runtime"].update(net={
+        "egress": ["api.ornek.com:443"], "max_bytes_per_run": 1048576, "timeout_s": 121}))
+    add("m36-net-bilinmeyen-anahtar", lambda m: m["runtime"].update(net={
+        "egress": ["api.ornek.com:443"], "max_bytes_per_run": 1048576, "timeout_s": 30,
+        "proto": "https"}))
     add("m25-sig-algo", lambda m: m["signature"].update(algo="rsa"))
     add("m26-sig-key-hex", lambda m: m["signature"].update(key="zz" * 32))
     add("m27-sig-sig-hex", lambda m: m["signature"].update(sig="zz" * 64))

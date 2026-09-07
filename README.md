@@ -160,7 +160,7 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 |---|---|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical architecture: formats, chain, cosign, reason codes, limits |
 | [docs/DESIGN-PARTNERS.md](docs/DESIGN-PARTNERS.md) | Design-partner program (v0.1→v0.2): free migration + a seat in the freeze loop |
-| [RELEASE.md](RELEASE.md) | v0.1.0-alpha release notes: highlights, verification, honest limits |
+| [RELEASE.md](RELEASE.md) | v0.2.0-rc.1 release notes (declared egress, RFC-007) + v0.1 archive: highlights, verification, honest limits |
 | [docs/RFC-001-manifest.md](docs/RFC-001-manifest.md) | Package manifest schema contract (v0.1-FINAL, frozen, English translation) |
 | [docs/RFC-002-runner.md](docs/RFC-002-runner.md) | Runner API + snapshot transport contract (v0.1-FINAL, frozen, English translation) |
 | [docs/RFC-003-ledger.md](docs/RFC-003-ledger.md) | Ledger record contract (DRAFT v0.1, English translation) |

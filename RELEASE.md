@@ -1,3 +1,68 @@
+# Release notes — v0.2.0-rc.1
+
+Release date: 2026-09-07 · Tag: `v0.2.0-rc.1` · Branch: `main`
+
+## What is in this release
+
+First release candidate of the v0.2 line: **declared egress** (RFC-007) — the
+agent's network surface stops being implicit and becomes a signed, chained,
+per-run-verified declaration. Three founder-approved slices landed as
+implemented, plus the §5 draft schema.
+
+## Highlights (RFC-007)
+
+- **R1 — `runtime.net` in the manifest** (5819be0): the net declaration moves
+  from a side-file (`net.json`) into the signed manifest under `runtime.net`.
+  `migrate-net` performs the one-way, author-seed-gated migration; the bridge
+  is deleted and the identity is preserved. The migration writes an on-chain
+  evidence record (`op=migrate-net`, old/new declaration hashes) so plain CLI
+  `validate` resolves pre-migration bindings with no flags (b9aa59f).
+- **R2 — labeled delivery digest** (6782614): `run --delivery-alg sha256|keccak256`
+  adds an OPTIONAL `delivery_hash {"alg","hex"}` to the charge — the digest of
+  the exact stdout bytes delivered to the counterparty, carried under its own
+  name (D10, safal207 binding-discipline). Pure-python keccak (`tools/keccak256.py`),
+  known-vector self-test.
+- **R3 — D12 conditional unity** (19028ca): the receipt trio
+  `net_decl_sha256` / `net_events_sha256` / `net_mb` enters the charge together
+  or not at all; `net_mb` is normative to 6 decimal places; the validator binds
+  the latest charge to whichever declaration source is active — swap, deletion
+  and both-sources states all RED (`net_binding_mismatch` / `net_binding_missing`
+  / `net_decl_ambiguous`).
+- **§5 — v0.2 draft schema** (b708622): `specs/manifest-0.2.0-draft.schema.json`
+  is ADDITIVE — every 0.1.0 manifest stays valid under it. The frozen 0.1.0
+  schema and the validator's 0.1.0 const are untouched; the release flip is a
+  separate founder gate.
+
+## Verification
+
+- 24-control acceptance suite, CI-green (smoke bench; claim evidence stays
+  local quiet-host). Schema cross-validation 51/51 (incl. the 9-probe draft
+  additive contract). Docs link integrity 0 broken. Pairing fixture 6/6 checks.
+- Bug sweep (founder-requested, 2026-09-07): one real defect found and fixed —
+  `migrate-net` on packages with pre-migration net runs (D12a
+  content-equivalence); AT-011 extended to 6 controls (f: migration of a
+  ran-under-net.json package). No other open defect found.
+
+## Honest limits (read before using)
+
+- Everything in v0.1.0-alpha's limits still applies (simnet/experimental;
+  passphrase-knowledgeable adversary F25).
+- `spec_version` remains `0.1.0` in validator-accepted manifests; the draft
+  schema documents the v0.2 shape but the const flip is not part of rc.1.
+- Declared egress is enforced by the runner at the WASI boundary; it is NOT a
+  sandbox guarantee against a malicious host (RFC-005A is the vektor line).
+- The c30 slow control still requires RUN_SLOW=1 and is not part of CI.
+
+## Known gaps / next
+
+- RFC-007 R4 (signed refusal/RED evidence artifact) is an ADOPTED candidate
+  note, parked pending the pilot decision.
+- Reason codes 5/15/16 remain reserved.
+- Pilot/partnership track open (docs/DESIGN-PARTNERS.md); the x402 #3379
+  pairing offer (consented 113-byte delivery) is with the counterparties.
+
+---
+
 # Release notes — v0.1.0-alpha
 
 Release date: 2026-09-05 · Tag: `v0.1.0-alpha` · Branch: `main` (fresh public history)

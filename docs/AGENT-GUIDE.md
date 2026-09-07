@@ -136,11 +136,33 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 python3 tamga_runner.py memory <pkg> --import-json converted.json
 ```
 
+## 8b. Standalone verification & evidence bundles (2026-09-08)
+
+**Verify without installing the runner** (counterparty path, stdlib-only):
+
+```bash
+python3 tamga_verify_mini.py ledger.jsonl            # chain math: prev + JCS-hash + seq
+# or, from the pip package:
+tamga verify-mini ledger.jsonl --expect-tip=<hex>
+```
+
+**Hand a third party a single proof file** (copies records — asserts nothing new):
+
+```bash
+tamga bundle ./my-pkg -o evidence/     # evidence/my-pkg-bundle.json + .md
+```
+
+The bundle contains the full chain records (byte-equal), the re-hashed manifest,
+per-job stdout/delivery digests, and the verify instructions. The counterparty
+extracts `.chain.records` and runs the mini verifier — no Tamga install required.
+A broken chain still produces a bundle (verdict `broken@N`, rc=1): it is evidence too.
+
 ## 9. Pre-PR checklist
 
 - [ ] `tamga_validator.py validate <pkg>` → ACCEPT
 - [ ] `run` → ok; `fee_sim` sane; `stdout_sha256` produced
-- [ ] `ledger-verify` → ok
+- [ ] `ledger-verify` → ok  (and/or `tamga_verify_mini.py ledger.jsonl` — parity-proven)
+- [ ] `tamga bundle <pkg>` → evidence/ committed for the receipt you will quote
 - [ ] export → fresh directory → import → same `agent_id`, session resumed
 - [ ] limits fit your scenario (over-generous limits spend the agent's own budget)
 - [ ] capabilities = smallest set (if you don't need fs/net, don't declare them)

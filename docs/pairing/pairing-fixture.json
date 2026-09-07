@@ -17,28 +17,32 @@
   },
   "tamga_observed": {
     "receiptHash": {
-      "value": "36a8c38609c5e8d0dc89167581ef48122111bdcc8f831aecb3631834285214d6",
+      "value": "6c0cab5f0f4d385f41409337f0182a964ce5589d734c085c9edd3f56bea292de",
       "source": "observed",
       "note": "x402 envelope receiptHash carries this value"
     },
     "charge_record": {
       "value": {
-        "cpu_saat": 4.793e-06,
+        "cpu_saat": 2.983e-06,
+        "delivery_hash": {
+          "alg": "keccak256",
+          "hex": "8494d3b500e45e6b8395bc8eb5b7766cf09cd175a91f20d11d028b72a953f4cd"
+        },
         "engine": "wasmtime-v48.0.1",
-        "fee_birebir": 6.69e-07,
-        "fee_sim": 6.69e-07,
-        "h": "36a8c38609c5e8d0dc89167581ef48122111bdcc8f831aecb3631834285214d6",
+        "fee_birebir": 2.93e-07,
+        "fee_sim": 2.93e-07,
+        "h": "6c0cab5f0f4d385f41409337f0182a964ce5589d734c085c9edd3f56bea292de",
         "input_sha256": "4a73430df8b6b8fda8cc15717d4d0652a965aa02373b796fc17f6a2f5cd45bcf",
         "io_mb": 0.000108,
         "op": "charge",
         "pkg": "tamga-ornek-ajani",
-        "prev": "56b60af17f250bea48d2b40dda447b37ad8364a10c97497e066da682b69e37d6",
-        "ram_gb_sn": 0.001103256,
+        "prev": "d034e3199877455cb46b6ba82b8d1b33815203c9463123477cff3b20a371050b",
+        "ram_gb_sn": 0.000357178,
         "seq": 2,
         "session": 1,
         "stdout_sha256": "c7023eda7dab3faf782149158fa55583a4f57cd3a230092da1933688d05f94be",
-        "ts": "2026-09-06T19:19:32+0300",
-        "wall_ms": 66
+        "ts": "2026-09-07T10:28:26+0300",
+        "wall_ms": 19
       },
       "source": "observed",
       "note": "membership: h = sha256(prev + jcs(record without h)); recompute to verify"
@@ -80,7 +84,7 @@
     "keccak256": {
       "value": "8494d3b500e45e6b8395bc8eb5b7766cf09cd175a91f20d11d028b72a953f4cd",
       "source": "derived",
-      "note": "same bytes under Keccak-256 (legacy padding) for durable-evidence contentHash comparison"
+      "note": "same bytes under Keccak-256 (legacy padding) for durable-evidence contentHash comparison; the charge now ALSO carries it labeled (charge.delivery_hash)"
     }
   },
   "verify": [

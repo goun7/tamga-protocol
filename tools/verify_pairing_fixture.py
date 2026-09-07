@@ -93,10 +93,26 @@ def main():
                           "error": "sha256(input.json) != fixture commitment or charge.input_sha256"}))
         sys.exit(1)
 
+    # 6) RFC-007 R2 (D10): the charge MAY carry a labeled delivery digest —
+    #    receiptHash -> receipt -> delivery_hash -> contentHash (envelope) third-party
+    #    chain. When present it must match the fixture's corresponding digest; absent
+    #    = D4 silence (pre-R2 charges stay verifiable).
+    checks = ["labeling", "membership", "delivery_sha256",
+              "delivery_keccak256", "input_sha256"]
+    dh = charge.get("delivery_hash")
+    if dh is not None:
+        expect = {"sha256": d_sha,
+                  "keccak256": keccak256(delivery).hex()}.get(dh.get("alg"))
+        if expect is None or dh.get("hex") != expect:
+            print(json.dumps({"ok": False, "where": "delivery_hash",
+                              "error": "charge.delivery_hash != labeled digest of "
+                                       "delivery.stdout (envelope contentHash chain broken)"}))
+            sys.exit(1)
+        checks.append("delivery_hash_chain")
+
     print(json.dumps({"ok": True, "receiptHash": h,
                       "stdout_sha256": d_sha,
-                      "checks": ["labeling", "membership", "delivery_sha256",
-                                 "delivery_keccak256", "input_sha256"]}))
+                      "checks": checks}))
 
 
 if __name__ == "__main__":

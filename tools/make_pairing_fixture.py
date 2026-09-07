@@ -54,6 +54,7 @@ def main():
     (work / "input.json").write_bytes(inp)
     run = json.loads(_sh("tamga_runner.py", "run", str(pkg), "--seed", seed,
                          "--input", str(work / "input.json"),
+                         "--delivery-alg", "keccak256",     # RFC-007 R2 (D10): labeled digest
                          "--note", "pairing-fixture (public demo run)"))
     if not run.get("ok"):
         raise SystemExit(f"run failed: {run}")
@@ -98,7 +99,8 @@ def main():
                        "note": "== charge stdout_sha256; Tamga is a SHA-256 ledger"},
             "keccak256": {"value": keccak256(delivery).hex(), "source": "derived",
                           "note": "same bytes under Keccak-256 (legacy padding) for "
-                                  "durable-evidence contentHash comparison"},
+                                  "durable-evidence contentHash comparison; the charge "
+                                  "now ALSO carries it labeled (charge.delivery_hash)"},
         },
         "verify": ["python3 tools/verify_pairing_fixture.py docs/pairing"],
     }

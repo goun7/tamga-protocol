@@ -206,6 +206,34 @@ def _ledger_append(lp, rec, node_key=None):
     os.chmod(lp, 0o600)
     return rec
 
+def _delivery_hash_arg(a):
+    """RFC-007 R2 (D10, founder-approved): --delivery-alg sha256|keccak256 — the run
+    embeds an OPTIONAL labeled delivery digest into the charge record:
+    delivery_hash = {"alg": ..., "hex": ...} over the stdout bytes (the deliverable).
+    Label REQUIRED (safal207: keccak256 != sha256 — an unlabeled field invites
+    fake agreement). Unknown alg or unparseable arg -> RED before the run starts."""
+    if "--delivery-alg" not in a:
+        return None, None
+    i = a.index("--delivery-alg")
+    if i + 1 >= len(a):
+        return None, out(False, op="run", reason_code=1,
+                         reason="usage: --delivery-alg requires sha256|keccak256")
+    alg = a[i + 1]
+    if alg not in ("sha256", "keccak256"):
+        return None, out(False, op="run", reason_code=10,
+                         reason=f"delivery_alg_invalid: {alg!r} — must be sha256|keccak256")
+    return alg, None
+
+
+def _digest(alg: str, data: bytes) -> str:
+    if alg == "sha256":
+        return hashlib.sha256(data).hexdigest()
+    import sys as _sys
+    _sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent / "tools"))
+    from keccak256 import keccak256           # standalone, no external deps
+    return keccak256(data).hex()
+
+
 def cmd_ledger_verify(a):
     """RFC-003 D7: stream-verify the chain (F19: no full-file loading)."""
     pkg = pathlib.Path(a[0]) if a else pathlib.Path(".")
@@ -220,6 +248,24 @@ def cmd_ledger_verify(a):
         broken_at = int(why.split("@")[1]) if "@" in why else 0
         return out(False, op="ledger-verify", reason_code=14, broken_at=broken_at,
                    reason="ledger_broken")
+    # RFC-007 R2 (D10): shape-gate on any labeled delivery digest found in the chain.
+    # alg must be sha256|keccak256 (safal207: label REQUIRED), hex must be 64-hex;
+    # field absent = D4 silence (no gate). Shape fault ≠ chain break but it IS a RED:
+    # a mislabeled digest would fake cross-ledger agreement.
+    with open(lp, "r", encoding="utf-8") as f:
+        for ln, line in enumerate(f, 1):
+            if not line.strip():
+                continue
+            dh = json.loads(line).get("delivery_hash")
+            if dh is None:
+                continue
+            if not isinstance(dh, dict) or set(dh) != {"alg", "hex"} \
+                    or dh["alg"] not in ("sha256", "keccak256") \
+                    or not isinstance(dh["hex"], str) or len(dh["hex"]) != 64 \
+                    or any(c not in "0123456789abcdef" for c in dh["hex"]):
+                return out(False, op="ledger-verify", reason_code=10, broken_at=ln,
+                           reason="delivery_hash_invalid: "
+                                  "expected {alg: sha256|keccak256, hex: 64-hex}")
     lines = sum(1 for line in open(lp, "r", encoding="utf-8") if line.strip())
     return out(True, op="ledger-verify", lines=lines, head=tip,
                note="chain tip verified (RFC-003 D7 draft)")
@@ -289,6 +335,10 @@ def cmd_run(a):
                    reason=f"agent_ownership_mismatch: state belongs to {owner[:16]}…; "
                           f"given seed produces {agent_id[:16]}… (R7): use export/import to migrate")
     sess_no = st0.get("sessions", 0) + 1
+    # RFC-007 R2: optional labeled delivery digest (D10)
+    delivery_alg, derr = _delivery_hash_arg(a)
+    if derr is not None:
+        return derr
     # slice-11: --input <file> — the input hash is bound into the receipt (input half of the replay contract)
     inp_sha = None
     _tf_name = None                  # D11 input copy (deleted after the run — privacy)
@@ -551,6 +601,9 @@ def cmd_run(a):
                         **({"net_decl_sha256": net_decl_sha,                  # RFC-005A D12
                             "net_events_sha256": net_events_sha,
                             "net_mb": net_mb} if net_decl_sha else {}),
+                        **({"delivery_hash": {"alg": delivery_alg,             # RFC-007 R2 (D10)
+                                              "hex": _digest(delivery_alg, art.read_bytes())}}
+                           if delivery_alg else {}),
                         "fee_sim": round(median_fee, 9)},
                         node_key=node_key)   # Dilim-5 + node-cosign (opt-in) + OQ-8 medyan
     st["format"] = "tamga-state/1"
@@ -571,6 +624,9 @@ def cmd_run(a):
     if net_decl_sha is not None:                                     # RFC-005A D12
         kw["net_mb"] = net_mb
         kw["net_decl_sha256"] = net_decl_sha
+    if delivery_alg:                                                 # RFC-007 R2 (D10)
+        kw["delivery_hash"] = {"alg": delivery_alg,
+                               "hex": _digest(delivery_alg, art.read_bytes())}
     if nreq:                                                         # RFC-006 D13
         kw["net_shim_ignored"] = nreq
     return out(True, **kw)

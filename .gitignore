@@ -28,3 +28,4 @@ private/
 .evidence/
 tests/simnet/.tf/
 kanit/
+.mergen-id

@@ -19,7 +19,7 @@ Local-only adversarial tools (not CI-hosted: they depend on gitignored simnet no
 fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip rollback
 attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
 runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
-the c30 cross-host control (25/25).
+the c30 cross-host control (now 31/31 baseline + c30 slow control).
 ## Control families
 
 | Family | What it proves |

@@ -60,6 +60,11 @@ implemented, plus the §5 draft schema.
 - Reason codes 5/15/16 remain reserved.
 - Pilot/partnership track open (docs/DESIGN-PARTNERS.md); the x402 #3379
   pairing offer (consented 113-byte delivery) is with the counterparties.
+- Post-rc.1 hardening (2026-09-07/08, all CI-proven): AT-012 dx402 pairing
+  family, Audit-11 ledger-bomb defense, AT-013 pip sanity (engine-free verify
+  path), AT-014 standalone mini-verifier (B2), AT-015 evidence bundle (B4),
+  Audit-15 state hardening, Audit-16 node-revocation closure — suite now
+  31/31 (+32 slow); RFC-008 external-receipt binding drafted (pilot-pending).
 
 ---
 

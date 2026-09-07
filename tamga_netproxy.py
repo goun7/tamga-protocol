@@ -116,6 +116,12 @@ def load_net_decl(path):
         _bad(f"net.json parse error: {e}")
     if not isinstance(d, dict):
         _bad("net.json: top level must be an object")
+    return validate_net_decl_dict(d)
+
+
+def validate_net_decl_dict(d):
+    """Strict declaration validation, source-agnostic (RFC-007 R1: net.json OR the
+    manifest's runtime.net subtree must satisfy the SAME schema)."""
     if d.get("format") != NET_FORMAT:
         _bad(f"net.json: format must be {NET_FORMAT}")
     unknown = set(d) - {"format", "egress", "max_bytes_per_run", "timeout_s"}

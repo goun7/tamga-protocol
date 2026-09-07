@@ -35,9 +35,11 @@ Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spe
   **WASI 0.3 / component** (ratified 2026-09).
 - **Default-deny:** no sockets, no filesystem preopens, no environment access.
   Capabilities are *declared* in the manifest (`fs`, `net`, `clock`, `env`, `random`,
-  ≤5) and `fs`/`net` are denied at runtime regardless in v0. Declared-egress
-  (capability-based networking for LLM-class agents) is designed in RFC-005, not yet
-  implemented.
+  ≤5) and `fs`/`net` are denied at runtime regardless in v0. Declared-egress is
+  enforced by the runner-side net proxy (RFC-005A) and the agent-side net shim
+  (RFC-006 D13): the egress policy lives either in the legacy `net.json` bridge or,
+  since RFC-007 R1, in the manifest's `runtime.net` subtree — both present is an
+  ambiguous policy (RED); `migrate-net` moves the bridge into the manifest one-way.
 - **Limits (enforced):** `memory_mb [16,4096]`, `cpu_ms_per_run [1,60000]` (wall-clock
   timeout), `io_mb_per_run [0,1024]` — out-of-range manifests are rejected before execution.
 - **Metering:** wall_ms, cpu-seconds, RAM·seconds, IO-MB per run → recorded in the

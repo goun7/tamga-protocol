@@ -85,7 +85,7 @@ def validate(pkg: pathlib.Path):
     r = m.get("runtime")
     if isinstance(r, dict):
         for k in r:
-            if k not in {"min_proof_level", "limits"}: bad(f"runtime.{k}", "bilinmeyen alan")
+            if k not in {"min_proof_level", "limits", "net"}: bad(f"runtime.{k}", "bilinmeyen alan")
         if r.get("min_proof_level") not in ("P0", "P1", "P2"): bad("runtime.min_proof_level", "enum ihlali")
         L = {"memory_mb": (16, 4096), "cpu_ms_per_run": (1, 60000), "io_mb_per_run": (0, 1024)}
         lim = r.get("limits")
@@ -101,6 +101,35 @@ def validate(pkg: pathlib.Path):
                 if k not in lim: bad(f"runtime.limits.{k}", "zorunlu alan eksik")
         elif "limits" in r: bad("runtime.limits", "nesne bekleniyordu")
         if "min_proof_level" not in r: bad("runtime.min_proof_level", "zorunlu alan eksik")
+        # RFC-007 R1: runtime.net — the manifest-embedded network declaration.
+        # Shape-gate here (keys/types/ranges); full semantic gate (resolution,
+        # duplicates) happens at declaration load in the runner — fail-closed there.
+        if "net" in r:
+            n = r["net"]
+            if not isinstance(n, dict):
+                bad("runtime.net", "nesne bekleniyordu")
+            else:
+                nk = set(n) - {"egress", "max_bytes_per_run", "timeout_s"}
+                if nk: bad(f"runtime.net.{sorted(nk)[0]}", "bilinmeyen alan")
+                eg = n.get("egress")
+                if not isinstance(eg, list) or not (1 <= len(eg) <= 8):
+                    bad("runtime.net.egress", "1..8 elemanlı liste bekleniyordu")
+                else:
+                    for i, ep in enumerate(eg):   # NOT 'e': shadows the error list!
+                        if not isinstance(ep, str) or ":" not in ep:
+                            bad(f"runtime.net.egress[{i}]", "host:port metni bekleniyordu")
+                        else:
+                            try:
+                                p = int(ep.rpartition(":")[2])
+                                if not (1 <= p <= 65535): bad(f"runtime.net.egress[{i}].port", "1..65535")
+                            except ValueError:
+                                bad(f"runtime.net.egress[{i}].port", "sayı bekleniyordu")
+                mb = n.get("max_bytes_per_run")
+                if isinstance(mb, bool) or not isinstance(mb, int) or not (1024 <= mb <= 8 * 1024 * 1024):
+                    bad("runtime.net.max_bytes_per_run", "1024..8388608 aralığında tamsayı")
+                ts = n.get("timeout_s")
+                if isinstance(ts, bool) or not isinstance(ts, int) or not (1 <= ts <= 120):
+                    bad("runtime.net.timeout_s", "1..120 aralığında tamsayı")
     elif "runtime" in m: bad("runtime", "nesne bekleniyordu")
 
     mem = m.get("memory")

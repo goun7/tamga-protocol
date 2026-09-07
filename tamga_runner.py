@@ -325,19 +325,45 @@ def cmd_run(a):
     net_mb = None
     net_proxy = None
     net_events_path = None
+    # RFC-007 R1 (founder-approved 2026-09-07): the declaration lives EITHER in the
+    # legacy bridge file net.json (v0.1; dual-read window = one release) OR in the
+    # manifest's runtime.net subtree (v0.2). BOTH present = ambiguous policy → RED.
     net_decl_file = pkg / "net.json"
+    net_decl_src = None            # None | "file" | "manifest"
     if net_decl_file.is_file():
+        net_decl_src = "file"
+    try:
+        mjson = json.loads((pkg / "tamga.json").read_text(encoding="utf-8"))
+        if isinstance(mjson.get("runtime", {}).get("net"), dict):
+            if net_decl_src == "file":
+                return out(False, op="run", reason_code=10,
+                           reason="net_decl_ambiguous: both net.json and runtime.net "
+                                  "declare policy — migrate-net removes the bridge file")
+            net_decl_src = "manifest"
+            rnet = dict(mjson["runtime"]["net"])
+            rnet.setdefault("format", "tamga-net-declaration/1")
+    except (json.JSONDecodeError, OSError):
+        pass
+    if net_decl_src is not None:
         try:
             import tamga_netproxy as tnp
         except ImportError:
             return out(False, op="run", reason_code=12,
                        reason="net_proxy_missing: net.json present but tamga_netproxy unavailable")
         try:
-            ndecl = tnp.load_net_decl(str(net_decl_file))
+            if net_decl_src == "file":
+                ndecl = tnp.load_net_decl(str(net_decl_file))
+                net_decl_sha = hashlib.sha256(net_decl_file.read_bytes()).hexdigest()
+            else:
+                ndecl = tnp.validate_net_decl_dict(rnet)
+                # D12a semantics under R1: the bound bytes are the canonical JCS of
+                # the runtime.net subtree itself (byte-exact manifest sections vary
+                # with whitespace/key order — the canonical form is the invariant).
+                canon = tv.jcs(mjson["runtime"]["net"])
+                net_decl_sha = hashlib.sha256(canon).hexdigest()
         except tnp.NetDeclError as e:
             return out(False, op="run", reason_code=10,
                        reason=f"net_decl_reject: {e}")
-        net_decl_sha = hashlib.sha256(net_decl_file.read_bytes()).hexdigest()
         net_events_path = pkg / f"net-events-{sess_no}.jsonl"
         net_proxy = tnp.TamgaProxy(ndecl, events_path=str(net_events_path))
         net_proxy_port = net_proxy.start()   # loopback ephemeral; stopped in the post-run block
@@ -841,6 +867,59 @@ def cmd_import(a):
                memory_nodes=len(parsed.get("memory", {}).get("nodes", [])),
                note="AT-001e: identity from keystore, memory from body — restored")
 
+def cmd_migrate_net(a):
+    """RFC-007 R1 (founder-approved 2026-09-07): net.json -> runtime.net migration.
+    One-way. Requires the AUTHOR seed (--seed-hex): the manifest is re-signed with
+    the SAME author identity (pubkey must match signature.key — the tool never
+    invents identity). Bridge file deleted after a validator-ACCEPT post-gate."""
+    usage = "usage: migrate-net <pkg> --seed-hex <64hex>"
+    if len(a) != 3 or a[1] != "--seed-hex":
+        return out(False, op="migrate-net", reason_code=1, reason=usage)
+    pkg = pathlib.Path(a[0])
+    mj, nj = pkg / "tamga.json", pkg / "net.json"
+    if not mj.is_file():
+        return out(False, op="migrate-net", reason_code=1, reason="tamga.json not found")
+    if not nj.is_file():
+        return out(False, op="migrate-net", reason_code=1,
+                   reason="net.json not found — nothing to migrate")
+    m = json.loads(mj.read_text(encoding="utf-8"))
+    if "net" in m.get("runtime", {}):
+        return out(False, op="migrate-net", reason_code=1,
+                   reason="runtime.net already present — package already migrated")
+    import tamga_netproxy as tnp
+    from tamga_validator import SigningKey
+    ndecl = tnp.load_net_decl(str(nj))                    # strict gate FIRST (fail-closed)
+    try:
+        sk = SigningKey(bytes.fromhex(a[2]))
+    except (ValueError, TypeError):
+        return out(False, op="migrate-net", reason_code=6, reason="seed_invalid")
+    if sk.verify_key.encode().hex() != m["signature"]["key"]:
+        return out(False, op="migrate-net", reason_code=9,
+                   reason="author_identity_mismatch: seed pubkey != manifest signature.key")
+    old_canon = tv.jcs({"format": tnp.NET_FORMAT, "egress": ndecl["egress"],
+                        "max_bytes_per_run": ndecl["max_bytes_per_run"],
+                        "timeout_s": ndecl["timeout_s"]}).decode()
+    net_sub = {"egress": ndecl["egress"],
+               "max_bytes_per_run": ndecl["max_bytes_per_run"],
+               "timeout_s": ndecl["timeout_s"]}
+    new_canon = tv.jcs(net_sub).decode()
+    m.setdefault("runtime", {})["net"] = net_sub
+    probe = dict(m); probe["signature"] = {**m["signature"], "sig": ""}   # D2: sig-boş-probe
+    m["signature"]["sig"] = sk.sign(tv.jcs(probe)).signature.hex()
+    mj.write_text(json.dumps(m, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    nj.unlink()
+    val = subprocess.run([sys.executable, str(pathlib.Path(__file__).resolve().parent / "tamga_validator.py"),
+                          "validate", str(pkg)], capture_output=True, text=True)
+    if "ACCEPT" not in val.stdout:
+        return out(False, op="migrate-net", reason_code=1,
+                   reason=f"post-migration validation RED: {val.stdout.strip()[:160]}")
+    return out(True, op="migrate-net", pkg=pkg.name,
+               migrated="net.json -> runtime.net",
+               decl_canonicals={"old_net.json_form": old_canon,
+                                "new_runtime.net_form": new_canon},
+               note="one-way; bridge deleted; author identity preserved; RFC-007 Q3: "
+                    "D12a meaning follows the canonical form of the active source")
+
 def cmd_ledger(a):
     pkg = pathlib.Path(a[0]) if a else pathlib.Path(".")
     lp = pkg / "ledger.jsonl"
@@ -884,7 +963,8 @@ if __name__ == "__main__":
     cmds = {"keygen": cmd_keygen, "run": cmd_run, "export": cmd_export,
             "import": cmd_import, "ledger": cmd_ledger, "memory": cmd_memory,
             "grant": cmd_grant, "ledger-verify": cmd_ledger_verify,
-            "keygen-node": cmd_keygen_node}
+            "keygen-node": cmd_keygen_node,
+            "migrate-net": cmd_migrate_net}
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):
         print(USAGE)
         sys.exit(0 if len(sys.argv) >= 2 else 1)  # bare invocation = usage error

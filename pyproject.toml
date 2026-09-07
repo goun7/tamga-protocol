@@ -23,5 +23,5 @@ classifiers = [
 tamga = "tamga_bootstrap:main"
 
 [tool.setuptools]
-py-modules = ["tamga_runner", "tamga_validator", "tamga_netproxy", "tamga_net_shim", "tamga_bootstrap", "tamga_verify_mini"]
+py-modules = ["tamga_runner", "tamga_validator", "tamga_netproxy", "tamga_net_shim", "tamga_bootstrap", "tamga_verify_mini", "tamga_bundle"]
 include-package-data = false

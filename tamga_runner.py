@@ -67,7 +67,14 @@ def _pkg(pkg):
 
 def _load_state(sp):
     if sp.exists():
-        st = json.loads(sp.read_text(encoding="utf-8"))
+        try:
+            st = json.loads(sp.read_text(encoding="utf-8"))
+            if not isinstance(st, dict):
+                raise ValueError("state root is not an object")
+        except Exception as e:                               # Audit-15 S5: bozuk-state
+            raise SystemExit(out(False, op="run", reason_code=5,
+                                 reason=f"state_invalid: unreadable state.json ({e}) — "
+                                        "fail-closed; restore from export snapshot"))
     else:
         st = {"format": "tamga-state/0", "sessions": 0,
               "memory_probe": ["kimligim-muhrudur-1", "hafizam-benimledir-2"]}

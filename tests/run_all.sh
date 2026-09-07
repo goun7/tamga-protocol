@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (29 controls; 30 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (30 controls; 31 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -164,6 +164,10 @@ PY
   # ---- kontrol-29: Audit-14 / AT-015 evidence-bundle (tek-komut-kanıt-paketi) ----
   bash tests/at015_bundle.sh > /dev/null 2>&1
   kontrol $? "AT-015: evidence-bundle (JSON+MD copy-equal + mini-verify reproducibility + tamper RED)"
+
+  # ---- kontrol-30: Audit-15 state-sertleştirme (fail-closed-RED + F21-kaniti) ----
+  bash tests/audit15_state_hardening.sh > /dev/null 2>&1
+  kontrol $? "Audit-15: state-hardening (corrupt-state fail-closed + tamper-inert-chain + nesting ok)"
 
   rm -rf "$SB"
   echo ""

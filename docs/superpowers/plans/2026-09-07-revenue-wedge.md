@@ -4,7 +4,7 @@
 
 **Goal:** Kurucunun-outreach-mühimmatı-(doğrulama-servisi-teklif-matrisi)-ve-`pip install tamga-protocol`-(tam-runner + lazy wasmtime)-teslimatı — her-ikisi-CI-yeşil-kapanır.
 
-**Architecture:** Kol-1-yalnız-private/-dokümanı-(gitignored, public-repo-izine-girmez). Kol-2-repo-köküne-pyproject.toml-(setuptools, py_modules-listesi)+tamga_bootstrap.py-(wasmtime-lazy-loader, digest-pinned)+docs/QUICKSTART.md; mevcut-tamga_runner-dokunulmaz-yalnız-`if __name__`-kapısına-bootstrap-eklenir. at013_pip_sanity-kontrol-27-olarak-süite-girer.
+**Architecture:** Kol-1-yalnız-private/-dokümanı-(gitignored, public-repo-izine-girmez). Kol-2-repo-köküne-pyproject.toml-(setuptools, py_modules-listesi)+tamga_bootstrap.py-(wasmtime-lazy-loader, digest-pinned)+QUICKSTART-dosyası; mevcut-tamga_runner-dokunulmaz-yalnız-`if __name__`-kapısına-bootstrap-eklenir. at013_pip_sanity-kontrol-27-olarak-süite-girer.
 
 **Tech Stack:** setuptools (py_modules, minimum-surpriz), PyNaCl (tek-sert-bağımlılık), wasmtime-v48.0.1-binary-lazy-download-(tests/setup.sh'teki-digest-çapasıyla-aynı), stdlib-only-testler.
 

@@ -115,6 +115,9 @@ def main(argv=None) -> int:
         if not pathlib.Path(r.WASMTIME).exists():
             r.WASMTIME = ensure_wasmtime()
     import tamga_runner as r
+    if argv[0] == "verify-mini":            # B2: bağımsız-mini-doğrulayıcı (engine-süz)
+        import tamga_verify_mini as mv
+        return int(mv.main(argv[1:]) or 0)
     cmds = {"keygen": r.cmd_keygen, "run": r.cmd_run, "export": r.cmd_export,
             "import": r.cmd_import, "ledger": r.cmd_ledger, "memory": r.cmd_memory,
             "grant": r.cmd_grant, "ledger-verify": r.cmd_ledger_verify,

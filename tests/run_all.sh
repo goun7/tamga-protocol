@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (27 controls; 28 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (28 controls; 29 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -156,6 +156,10 @@ PY
   # ---- kontrol-27: Audit-12 / AT-013 pip-kurulum sağlığı (motor-free doğrulama-yolçapı) ----
   bash tests/at013_pip_sanity.sh > /dev/null 2>&1
   kontrol $? "AT-013: pip-sanity (install+keygen+ledger-verify engine-free in isolated venv)"
+
+  # ---- kontrol-28: Audit-13 / AT-014 mini-verifier (runner-paritesi + tamper-RED) ----
+  bash tests/at014_mini_verifier.sh > /dev/null 2>&1
+  kontrol $? "AT-014: mini-verifier (runner≡mini parity + tamper RED + line-bomb guard + desert-mode)"
 
   rm -rf "$SB"
   echo ""

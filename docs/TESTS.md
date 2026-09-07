@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 27/27 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 28/28 controls, ~20 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)
@@ -37,6 +37,7 @@ the c30 cross-host control (25/25).
 | AT-011 — D12 conditional unity (RFC-007 R3) | the D12 trio (`net_decl_sha256` / `net_events_sha256` / `net_mb`) enters a charge TOGETHER or not at all — `ledger-verify` REDs a half-bound charge (`net_trio_incomplete`) and a `net_mb` beyond 6 decimal places (`net_mb_format`, RFC-003 §11 normative); the validator binds the LATEST charge against whichever declaration source is active — `net.json` by file bytes, `runtime.net` by `sha256(jcs(...))` — so a post-run swap OR a re-signed manifest tamper (`net_binding_mismatch`), a bridge deletion (`net_binding_missing`), and a both-sources state (`net_decl_ambiguous`) all RED; jsonschema cross-validation extended to the `runtime.net` shape family (8 mutants) and the v0.2 draft additive contract (9 draft-phase probes, 51/51 AGREE) |
 | Schema cross-validation | runner decisions ≡ `jsonschema` validation (51/51 fixtures incl. v0.2 draft phase) |
 | Audit-11 — ledger bomb defense (D1 findings) | three hardening gates: a 50 MB hostile line appended to ledger.jsonl is detected WITHOUT being absorbed into memory (fail-closed RED in ~0.2-0.4 s, bounded RSS — `_ledger_lines` yields a sentinel for over-size lines); grant notes now carry the same 64 KiB cap as memory notes (Audit-2 F12 extended — reason_code 8 `memory_limit`); `_ledger_append` streams and refuses to append after a corrupt tail (no valid head record → RED-14, never building on a broken chain) |
+| AT-014 — mini verifier (Audit-13, B2) | standalone stdlib-only chain verifier (`tamga_verify_mini.py`, also `tamga verify-mini`): byte-identical decision + tip with the runner on the same ledger, amount-flip tamper → RED, 50 MB line-bomb rejected without absorption (Audit-11 parity), `--expect-tip` binding, runs from any cwd on a bare ledger file — a counterparty can verify without installing our runner |
 | AT-013 — pip installation sanity (Audit-12) | isolated-venv proof that `pip install .` yields a working `tamga` console script; `keygen` and `ledger-verify` run engine-FREE (the 67 MB wasmtime binary is never in the wheel — it is digest-pinned and downloaded once, only on first `run`); uninstall removes the entry point |
 | AT-012 — dx402 pairing verification (RFC-007 track, x402 #3379) | offline-first family against the archived canonical-spelling live evidence: paymentId derivation (keccak chain‖tx), CIDv1/raw/sha2-256 roundtrip byte-equal to the pointer fragment (4510B), EIP-712 ecrecover == declared signer (PASS with `eth_account`, explicit SKIP without), honest contentHash-vs-served labeling (SKIP, plaintext sealed to payer — assumed equality is never claimed), and the `--pair-charge` cross-party bridge (equal hash → PASS, differing → RED) |
 | Cosign / snapshot negatives | L1 policy enforcement, revocation-list rejections |

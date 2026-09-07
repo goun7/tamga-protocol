@@ -1,2 +1,0 @@
-[console_scripts]
-tamga = tamga_bootstrap:main

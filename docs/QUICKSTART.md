@@ -1,0 +1,84 @@
+# QUICKSTART — Tamga Protocol in 5 minutes
+
+> Self-custodial, hash-chained work-receipt ledger for autonomous AI agents.
+> Every claim below was executed on a clean venv before being written here.
+
+## 0. Install
+
+```bash
+pip install tamga-protocol        # Python 3.10+, single dependency: PyNaCl
+tamga --help                      # command overview (no engine needed)
+```
+
+The 67 MB wasmtime engine is **not** in the wheel. It is downloaded once,
+SHA256-pinned, on your first `tamga run` — verification commands never need it.
+
+## 1. Generate an agent seed (printed once, never stored)
+
+```bash
+tamga keygen
+```
+
+```json
+{"ok": true, "op": "keygen", "agent_id": "4f83f2ac…", "seed_hex": "c4717ab8…",
+ "note": "D3: seed not written to disk; store it safely"}
+```
+
+Keep `seed_hex` for the next step. Losing it means losing the agent identity.
+
+## 2. Run a job (fee charged, receipt appended)
+
+```bash
+export TAMGA_KS_PASSPHRASE=quickstart-2026   # keystore passphrase (your choice)
+tamga run ./my-pkg --seed <seed_hex>
+```
+
+```json
+{"ok": true, "op": "run", "pkg": "my-pkg", "session": 1, "nodes": 3,
+ "engine": "wasmtime-v48.0.1", "wall_ms": 115, "fee_sim": 2.279e-06,
+ "stdout_sha256": "aa8a2cd1…"}
+```
+
+No package yet? Copy the demo: `cp -r tests/vectors/tc-net-demo ./my-pkg`
+(from the repo) — it contains `tamga.json` + a tiny WASI-0.3 agent.
+
+## 3. Verify the chain (no engine, no trust in the runner)
+
+```bash
+tamga ledger-verify ./my-pkg
+```
+
+```json
+{"ok": true, "op": "ledger-verify", "lines": 1,
+ "head": "9314bcdf…", "note": "chain tip verified (RFC-003 D7 draft)"}
+```
+
+Anyone with this JSON output can re-verify your chain independently.
+
+## 4. Migrate the agent (sealed snapshot travels, key never on disk)
+
+```bash
+tamga export ./my-pkg -o snapshot.tsg --seed <seed_hex>
+# on the new host — package dir must exist with the same code (tamga.json + agent.wasm):
+tamga import snapshot.tsg ./my-pkg-restored
+tamga ledger-verify ./my-pkg-restored       # chain resumed: lines=1
+```
+
+```json
+{"ok": true, "op": "import", "resumed_session": 1, "memory_nodes": 3,
+ "note": "AT-001e: identity from keystore, memory from body — restored"}
+```
+
+## What just happened
+
+- The job ran inside a **denied-by-default WASI sandbox** (no filesystem preopens, no network).
+- Its **fee, stdout hash, and memory delta** were appended to a hash-chained ledger.
+- The **agent identity + memory** traveled in one encrypted snapshot you can hold.
+- Verification is **offline and third-party** — `ledger-verify` recomputes the chain.
+
+## Next steps
+
+- Threat model & architecture: [docs/ARCHITECTURE.md](ARCHITECTURE.md)
+- Ledger spec: [RFC-003](RFC-003-ledger.md) · Runner spec: [RFC-002](RFC-002-runner.md)
+- Full test evidence: [docs/TESTS.md](TESTS.md)
+- Plain-language intro (Türkçe): [docs/PLAIN-TURKISH.md](PLAIN-TURKISH.md)

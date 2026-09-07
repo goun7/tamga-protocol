@@ -71,6 +71,8 @@ flowchart LR
     end
 ```
 
+New here? → [docs/QUICKSTART.md](docs/QUICKSTART.md) (5-minute setup, `pip install tamga-protocol`).
+
 Full technical details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Honest limits (what v0 does NOT claim)

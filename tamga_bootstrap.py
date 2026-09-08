@@ -109,6 +109,7 @@ def main(argv=None) -> int:
         # motor-İSTEMEYEN-komutlar-için-runner.usage-direkt
         import tamga_runner as r
         print(r.USAGE)
+        print("\n  doctor                        kurulum-sağlığı (engine-süz; sorunu kendin gör)")
         return 0 if argv else 1
     if argv[0] == "run":  # motor-gereken-tek-yolçap
         import tamga_runner as r
@@ -121,6 +122,40 @@ def main(argv=None) -> int:
     if argv[0] == "bundle":                 # B4: evidence-bundle-çıkarıcı (engine-süz)
         import tamga_bundle as tb
         return int(tb.main(argv[1:]) or 0)
+    if argv[0] == "doctor":                 # kurulum-sağlık: sorun-kendin-sor-komutu (engine-süz)
+        ok = True
+        print("tamga doctor")
+        print(f"  python       : {sys.version.split()[0]}  (>=3.10 gerekir)")
+        if sys.version_info < (3, 10):
+            print("    [FAIL] Python 3.10+ gerekir"); ok = False
+        else:
+            print("    [OK]")
+        try:
+            import nacl  # noqa: F401
+            print("  pynacl       : [OK]")
+        except Exception:
+            print("  pynacl       : [FAIL] pip install pynacl"); ok = False
+        import tamga_runner as r
+        w = pathlib.Path(r.WASMTIME)
+        if w.exists():
+            print(f"  wasmtime     : [OK] {w}")
+        else:
+            cache = _CACHE_DIR / "wasmtime"
+            print(f"  wasmtime     : [YOK] → ilk 'tamga run' otomatik-indirir (SHA256-pinned)")
+            print(f"                 {w}  |  {cache}")
+        try:
+            import tamga_verify_mini as mv
+            print("  verify-mini  : [OK] (stdlib-only; engine-süz doğrulama hazır)")
+        except Exception as e:
+            print(f"  verify-mini  : [FAIL] {e}"); ok = False
+        try:
+            import tamga_bundle as tb
+            print("  bundle       : [OK] (engine-süz kanıt paketi hazır)")
+        except Exception as e:
+            print(f"  bundle       : [FAIL] {e}"); ok = False
+        print("  verdict      :", "SAĞLIKLI — tüm engine-süz yolçapları hazır" if ok
+              else "SORUNLU — [FAIL] satırlarını giderin")
+        return 0 if ok else 1
     cmds = {"keygen": r.cmd_keygen, "run": r.cmd_run, "export": r.cmd_export,
             "import": r.cmd_import, "ledger": r.cmd_ledger, "memory": r.cmd_memory,
             "grant": r.cmd_grant, "ledger-verify": r.cmd_ledger_verify,

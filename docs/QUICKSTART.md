@@ -69,7 +69,14 @@ tamga ledger-verify ./my-pkg-restored       # chain resumed: lines=1
  "note": "AT-001e: identity from keystore, memory from body — restored"}
 ```
 
-## 5. Let someone verify you without installing anything
+## 5. If something misbehaves
+
+```bash
+tamga doctor          # install health: python / pynacl / wasmtime / verify-mini / bundle
+tamga --version
+```
+
+## 6. Let someone verify you without installing anything
 
 ```bash
 tamga verify-mini ./my-pkg/ledger.jsonl   # stdlib-only, no engine, no Tamga install

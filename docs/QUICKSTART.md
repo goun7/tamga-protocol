@@ -69,6 +69,17 @@ tamga ledger-verify ./my-pkg-restored       # chain resumed: lines=1
  "note": "AT-001e: identity from keystore, memory from body — restored"}
 ```
 
+## 5. Let someone verify you without installing anything
+
+```bash
+tamga verify-mini ./my-pkg/ledger.jsonl   # stdlib-only, no engine, no Tamga install
+tamga bundle ./my-pkg -o evidence/        # one-file proof package (JSON + human summary)
+```
+
+The bundle carries the chain records, the manifest re-hash, and per-job
+digests — the counterparty re-derives every claim offline. Full flow:
+[docs/AGENT-GUIDE.md §8b](AGENT-GUIDE.md).
+
 ## What just happened
 
 - The job ran inside a **denied-by-default WASI sandbox** (no filesystem preopens, no network).

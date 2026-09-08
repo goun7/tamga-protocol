@@ -94,7 +94,8 @@ def build(pkg: pathlib.Path, out_dir: pathlib.Path):
                       "delivery_hash alg+hex-etiketli (RFC-007 R2)",
         } for r in jobs],
         "how_to_verify": [
-            "python3 tamga_verify_mini.py <(jq -c '.chain.records[]' bundle.json)",
+            "jq: python3 tamga_verify_mini.py <(jq -c '.chain.records[]' bundle.json)",
+            "python (jq'suz): json.load bundle; '\\n'.join(json.dumps(r) for r in records) → mini-verifier",
             "veya / or: pip install tamga-protocol && tamga ledger-verify <pkg>",
         ],
     }

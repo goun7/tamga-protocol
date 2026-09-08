@@ -122,6 +122,14 @@ def main(argv=None) -> int:
     if argv[0] == "bundle":                 # B4: evidence-bundle-çıkarıcı (engine-süz)
         import tamga_bundle as tb
         return int(tb.main(argv[1:]) or 0)
+    if argv[0] in ("--version", "version"):
+        # tek-kaynak-sürüm: pyproject'ten-okunmaz-(kurulu-olmayan-klon); importlib-metadata-dene
+        try:
+            from importlib.metadata import version as _v
+            print(f"tamga-protocol {_v('tamga-protocol')}")
+        except Exception:
+            print("tamga-protocol 0.2.0rc1 (source tree; version from pyproject.toml)")
+        return 0
     if argv[0] == "doctor":                 # kurulum-sağlık: sorun-kendin-sor-komutu (engine-süz)
         ok = True
         print("tamga doctor")

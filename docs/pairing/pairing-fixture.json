@@ -13,6 +13,10 @@
     "note": {
       "value": "no real payment occurred; replace with a real settlement to make this a live pairing",
       "source": "simulated"
+    },
+    "canonical_rendering_note": {
+      "value": "live-vector lesson (2026-09-07, #3379): the facilitator registry is string-keyed — canonical id form is 0x+64-lowercase-hex; a verifier recomputing an id must normalize (0x-prefix + lowercase) before lookup. mode is a string ('direct'), not uint8; contentHash is keccak over the PLAINTEXT (payer-sealed) while the blob pointer CID covers the SERVED bytes — two commitments over two byte populations, equality never assumed.",
+      "source": "derived"
     }
   },
   "tamga_observed": {

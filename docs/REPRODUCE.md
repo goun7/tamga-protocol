@@ -7,7 +7,7 @@ our CI required — clone, run, compare.
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
-python3 -m pip install -r requirements-dev.txt 2>/dev/null || true
+bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime + pynacl
 bash tests/run_all.sh
 ```
 

@@ -68,3 +68,23 @@ python3 tools/make_pairing_fixture.py /tmp/tamga-fixture docs/pairing
 
 Each regeneration is a fresh run (fresh seed, fresh timestamps), so `receiptHash`
 changes every time — the *pairing structure* is what is stable.
+
+## Reproduce the charge hash yourself (added 2026-09-09)
+
+The `tamga_observed.receiptHash` is not a number to trust — re-derive it:
+
+```python
+import json, hashlib, sys
+sys.path.insert(0, ".")
+from tamga_validator import jcs          # canonical JSON (RFC 8785 subset)
+fx = json.load(open("docs/pairing/pairing-fixture.json"))
+rec = fx["tamga_observed"]["charge_record"]["value"]
+body = {k: v for k, v in rec.items() if k not in ("h", "node_sig")}
+h = hashlib.sha256(rec["prev"].encode() + jcs(body)).hexdigest()
+assert h == fx["tamga_observed"]["receiptHash"]["value"]
+print("receipt hash reproduces:", h[:24], "…")
+```
+
+Rule recap (RFC-003 D5): `h = sha256(prev || jcs(record-minus-{h, node_sig}))` —
+`node_sig` signs the hash and stays outside it; the chain head recomputes the
+same way over `ledger.jsonl`.

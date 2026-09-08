@@ -136,6 +136,15 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 python3 tamga_runner.py memory <pkg> --import-json converted.json
 ```
 
+## 8a. When something doesn't work
+
+```bash
+tamga doctor    # install health: python / pynacl / wasmtime / verify-mini / bundle
+```
+
+Engine-free paths (verify-mini, bundle, ledger-verify) work without wasmtime;
+only the first `tamga run` triggers the pinned engine download.
+
 ## 8b. Standalone verification & evidence bundles (2026-09-08)
 
 **Verify without installing the runner** (counterparty path, stdlib-only):

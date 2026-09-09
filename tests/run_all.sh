@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (35 controls; 36 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (36 controls; 37 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -188,6 +188,10 @@ PY
   # ---- kontrol-35: AT-015 sürüm-pinli-export-vektörleri (P4) ----
   bash tests/at015_pinned_exports.sh > /dev/null 2>&1
   kontrol $? "AT-015: pinned-exports (mem0/letta/zep sürüm-pinli şekiller → sniff+import+determinizm)"
+
+  # ---- kontrol-36: Audit-19 zaman-tüneli ölçümü (unlock-RED≈başarı; KDF-parite) ----
+  bash tests/audit19_timing.sh > /dev/null 2>&1
+  kontrol $? "Audit-19: timing (unlock-RED≈başarı band-içi; scrypt her yolçapta tam koşar)"
 
   rm -rf "$SB"
   echo ""

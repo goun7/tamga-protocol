@@ -72,5 +72,24 @@ def main(argv):
     print(json.dumps(res))
     return 0 if ok else 1
 
+# --- Vauban stark-receipt-profile v0.1 §4.4 uyumu (2026-09-09) ---
+# 'a verifier that does not know the label concludes nothing (indeterminate), never absent'
+KNOWN_FOREIGN_TAGS = {"TAMGA_CHAIN_HEAD_V1", "APODIX_EPOCH_ROOT_V1"}
+
+def foreign_leaf_verdict(tag, digest_lo, digest_hi):
+    """v3-yabancı-leaf üçlüsü-için-üç-verdict-döndürür: established|refuted|indeterminate.
+    Kurallar (§4.3-F1/F2 + §4.4): tag=0→indeterminate-(etiket-bilinmiyor); digest=0→refuted
+    -(boş-söz); tag-bilinmiyor→indeterminate; biliniyor→indeterminate-(kök-recompute-bizde-değil
+    — origin-registry-validity-ASLA-iddia-edilmez)."""
+    if not tag:
+        return "indeterminate", "empty origin tag (§4.3 F1) — a digest without a label is a number"
+    if digest_lo == 0 and digest_hi == 0:
+        return "refuted", "zero digest (§4.3 F2) — an unfilled field, never a real hash"
+    if tag not in KNOWN_FOREIGN_TAGS:
+        return "indeterminate", f"unknown origin tag {tag!r} — conclusion withheld, not absence"
+    return "indeterminate", (f"tag {tag!r} known but root recompute belongs to the origin "
+                             "registry; this verifier claims presentation only (§4.4)")
+
+
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

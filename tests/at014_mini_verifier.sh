@@ -68,5 +68,17 @@ cp "$W/ledger.jsonl" "$W/colon.jsonl"
 [ "$RC" -eq 1 ] && grep -q '"ok": false' "$LOG.5"; ok $? "çöl-modu: başka-cwd'den-sadece-dosya-yoluyla-koşar (rc=1-zincir-kırık-beklenir)"
 
 rm -rf "$W"
+python3 -c "
+import sys; sys.path.insert(0, '.')
+from tamga_verify_mini import foreign_leaf_verdict as fv
+r1 = fv('TAMGA_CHAIN_HEAD_V1', 0x12, 0x34)
+r2 = fv('', 1, 2)
+r3 = fv('OTHER_V1', 1, 2)
+r4 = fv('X', 0, 0)
+assert r1[0] == 'indeterminate' and r2[0] == 'indeterminate' and r3[0] == 'indeterminate' and r4[0] == 'refuted', (r1, r2, r3, r4)
+print('v3-verdict: F1-empty=indeterminate, F2-zero=refuted, unknown=indeterminate, known=indeterminate(presentation-only)')
+" > "$LOG.v3" 2>&1
+ok $? "v3-foreign-leaf: üç-verdict-disiplini (§4.4 indeterminate-never-absent)"
+
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" -eq 0 ]

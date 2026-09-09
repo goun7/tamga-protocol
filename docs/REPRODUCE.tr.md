@@ -3,7 +3,7 @@
 Bu depodaki her iddia, çalıştırabileceğiniz bir komutla arkalanır. CI'mıza güvenmek
 zorunda değilsiniz — klonlayın, çalıştırın, karşılaştırın.
 
-## 1. Tam kabul-süiti (31 kontrol, ~20 sn)
+## 1. Tam kabul-süiti (35 kontrol, ~20 sn)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -26,6 +26,15 @@ RUN_SLOW=1 bash tests/run_all.sh     # → 32 kontrol
 python3 tamga_verify_mini.py tests/vectors/tc-net-demo/ledger.jsonl
 # → {"ok": true, ...}  — wasmtime yok, ağ yok, pynacl gerekmez
 ```
+
+## 2b. stdlib-saf altküme, PyNaCl kasıtlı-engelli
+
+```bash
+python3 tools/verify_lite.py
+```
+
+Dört-sağlama-(mini-doğrulayıcı, pairing-hash, explain zincir-dürüstlüğü, nacl-blok-kanıtı) —
+`import nacl`-aktif-yasakken-çalışır; karşı-taraf-yolçapı-gerçekten-stdlib-saf ve bu-komut-o-kanıttır.
 
 ## 3. Üçüncü-taraf kanıt paketi üretin
 

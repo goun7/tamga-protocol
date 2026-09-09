@@ -10,7 +10,7 @@ onboarding = QUICKSTART.md + README-bağlantı
 
 **Amaç:** "ilk-gerçek-$1"i-gelmesi-icine-en-kisa-yol — satışa-hazır-teklif-matrisi.
 **Hedef-alıcı:** ajan-hafızası/iş-kanıtı-üreten-ekipler (x402-ekosistemi-ilk-sıra).
-**Kanıt-temeli:** AT-012 + 26/27-kontrol + crossval-51/51 + 2-dış-referans (safal207, wildcherrycasa)
+**Kanıt-temeli:** AT-012 + 34-kontrol + crossval-55/55 + 2-dış-referans (safal207, wildcherrycasa)
 — teklifte-SADECE-linklenebilir-kanıtlar, iddia-yok.
 
 ### 1.1 Fiyat-modeli (3-kademe, sabit-bant)

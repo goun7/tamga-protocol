@@ -5,8 +5,9 @@ Bilgi-ekleme YOK: yalnız kayıttaki alanları etiketli-paragrafa döker. Türet
 ilişkiler (input-bağı, delivery-bağı) yeniden HESAPLANIR — assumed-equality yok.
 
 Usage:
-  python3 tools/explain.py <receipt.json>            # dx402-receipt veya charge-kaydı
-  python3 tools/explain.py --charge <ledger.jsonl> 2  # zincir-N-kayıt
+  python3 tools/explain.py <receipt.json>            # dx402-receipt veya charge-kaydı (TR)
+  python3 tools/explain.py --en <receipt.json>       # English rendering
+  python3 tools/explain.py --charge <ledger.jsonl> 2  # zincir-N-kayıt (TR)
 """
 import json, sys, pathlib
 
@@ -22,15 +23,33 @@ def human_bytes(n):
         n /= 1024
     return f"{n:.1f} TiB"
 
-def explain_charge(rec, label="charge"):
-    lines = [f"== {label} kaydı (seq {rec.get('seq', '?')}) =="]
-    lines.append(f"  İş-sahibi       : {rec.get('pkg', '?')} (oturum {rec.get('session', '?')})")
+LABELS_TR = {
+    "header": "== {label} kaydı (seq {seq}) ==",
+    "pkg": "  İş-sahibi       : {pkg} (oturum {session})",
+    "fee": "  Ücret (sim)     : {fee} birim — simnet; gerçek-değer hareketi Faz-4'e kadar yok",
+    "wall": "  Duvar-süresi    : {w} ms",
+    "chain": "  Zincir-dürüstlüğü: h {v} (sha256(prev ‖ jcs(kayıt-minus-h,node_sig)) yeniden hesaplandı)",
+    "ok": "DOĞRULANDI", "bad": "EŞLEŞMİYOR",
+}
+LABELS_EN = {
+    "header": "== {label} record (seq {seq}) ==",
+    "pkg": "  Owner           : {pkg} (session {session})",
+    "fee": "  Fee (sim)       : {fee} units — simnet; real-value movement stays Phase-4 gated",
+    "wall": "  Wall clock      : {w} ms",
+    "chain": "  Chain integrity : h {v} (sha256(prev ‖ jcs(record-minus-h,node_sig)) recomputed)",
+    "ok": "VERIFIED", "bad": "MISMATCH",
+}
+
+def explain_charge(rec, label="charge", L=None):
+    L = L or LABELS_TR
+    lines = [L["header"].format(label=label, seq=rec.get("seq", "?"))]
+    lines.append(L["pkg"].format(pkg=rec.get("pkg", "?"), session=rec.get("session", "?")))
     fee = rec.get("fee_sim")
     if fee is not None:
-        lines.append(f"  Ücret (sim)     : {fee} birim — simnet; gerçek-değer hareketi Faz-4'e kadar yok")
+        lines.append(L["fee"].format(fee=fee))
     w = rec.get("wall_ms")
     if w is not None:
-        lines.append(f"  Duvar-süresi    : {w} ms")
+        lines.append(L["wall"].format(w=w))
     for k, u in (("cpu_saat", "cpu-saat"), ("ram_gb_sn", "GB-saniye RAM"), ("io_mb", "MiB I/O")):
         if k in rec:
             lines.append(f"  {u:<15} : {rec[k]}")
@@ -60,35 +79,47 @@ def jcs_bytes(obj):
     from tamga_validator import jcs
     return jcs(obj)
 
-def explain_receipt(rec):
-    lines = ["== dx402-receipt (karşı-taraf beyanı — yalnız türetilebilir-ilişkiler kanıtlanır) =="]
+def explain_receipt(rec, L=None):
+    en = L is LABELS_EN
+    lines = ["== dx402 receipt (counterparty claim — only derivable relations are proven) =="] if en \
+        else ["== dx402-receipt (karşı-taraf beyanı — yalnız türetilebilir-ilişkiler kanıtlanır) =="]
     pid = rec.get("paymentId", "")
-    lines.append(f"  Ödeme-kimliği   : {pid[:26]}… {'(kanonik 0x+64-lower ✓)' if __import__('re').fullmatch(r'0x[0-9a-f]{64}', pid) else '(KANONİK-DEĞİL)'}")
+    canon = "(canonical 0x+64-lower OK)" if __import__("re").fullmatch(r"0x[0-9a-f]{64}", pid) else "(NON-CANONICAL)"
+    lines.append(f"  {'Payment id' if en else 'Ödeme-kimliği':<16}: {pid[:26]}… {canon}")
     ch = rec.get("contentHash", "")
-    lines.append(f"  İçerik-mührü    : keccak(PLAINTEXT) = {ch[:26]}… — served-baytlarla-eşitliği-VARSAYMA "
-                 "(farklı-popülasyonlar; #3377-48c01ee)")
-    ptr = rec.get("pointer", "")
-    if ptr:
-        lines.append(f"  Blob-gösterici  : {str(ptr)[:40]}… (CID=served-bayt-mührü — ayrı-popülasyon)")
-    lines.append(f"  Ağ              : {rec.get('network', '?')} · tx {rec.get('txHash', '')[:18]}…")
-    lines.append(f"  Bekleme         : retentionUntil={rec.get('retentionUntil', '?')} (epoch-saniye)")
+    if en:
+        lines.append(f"  Content seal    : keccak(PLAINTEXT) = {ch[:26]}… — NEVER assume equality with served bytes (different populations; #3377-48c01ee)")
+        ptr = rec.get("pointer", "")
+        if ptr:
+            lines.append(f"  Blob pointer    : {str(ptr)[:40]}… (CID = served-bytes seal — separate population)")
+        lines.append(f"  Network         : {rec.get('network', '?')} · tx {rec.get('txHash', '')[:18]}…")
+        lines.append(f"  Retention       : until={rec.get('retentionUntil', '?')} (epoch seconds)")
+    else:
+        lines.append(f"  İçerik-mührü    : keccak(PLAINTEXT) = {ch[:26]}… — served-baytlarla-eşitliği-VARSAYMA (farklı-popülasyonlar; #3377-48c01ee)")
+        ptr = rec.get("pointer", "")
+        if ptr:
+            lines.append(f"  Blob-gösterici  : {str(ptr)[:40]}… (CID=served-bayt-mührü — ayrı-popülasyon)")
+        lines.append(f"  Ağ              : {rec.get('network', '?')} · tx {rec.get('txHash', '')[:18]}…")
+        lines.append(f"  Bekleme         : retentionUntil={rec.get('retentionUntil', '?')} (epoch-saniye)")
     return "\n".join(lines)
 
 def main(argv):
     if not argv:
         print(__doc__)
         return 2
+    L = LABELS_EN if "--en" in argv else None
+    argv = [a for a in argv if a != "--en"]
     if argv[0] == "--charge":
         lines = (pathlib.Path(argv[1]).read_text(encoding="utf-8")).splitlines()
         rec = json.loads(lines[int(argv[2]) - 1])
-        print(explain_charge(rec))
+        print(explain_charge(rec, L=L))
         return 0
     raw = json.loads(pathlib.Path(argv[0]).read_text(encoding="utf-8"))
     rec = raw.get("receipt", raw)
     if "paymentId" in rec or "contentHash" in rec:
-        print(explain_receipt(rec))
+        print(explain_receipt(rec, L=L))
     elif "op" in rec:
-        print(explain_charge(rec))
+        print(explain_charge(rec, L=L))
     else:
         print("bilinmeyen-kayıt-şekli:", sorted(rec.keys())[:10])
         return 1

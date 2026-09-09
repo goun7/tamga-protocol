@@ -41,7 +41,13 @@ python3 -m venv .venv-jsonschema && . .venv-jsonschema/bin/activate
 pip install jsonschema && bash tests/crossval.sh && deactivate
 ```
 
-## 5. The adversarial families
+## 5. Verify the public pairing fixture in one command
+
+```bash
+python3 tools/verify_pairing_bundle.py    # charge-hash re-derivation + chain-context
+```
+
+## 6. The adversarial families
 
 | Family | Command | What it proves |
 |---|---|---|

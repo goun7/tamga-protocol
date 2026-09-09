@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (31 controls; 32 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (32 controls; 33 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -172,6 +172,10 @@ PY
   # ---- kontrol-31: Audit-16 node-revocation (OQ-3-çalışır + mimari-notu-belgelenir) ----
   bash tests/audit16_revocation_gap.sh > /dev/null 2>&1
   kontrol $? "Audit-16: node-revocation (L1-import revoked-RED; verify-lists documented as architecture)"
+
+  # ---- kontrol-32: Audit-17 export-snapshot-fuzz (6-kurcalama-sınıfı-RED + gövde-gizliliği) ----
+  bash tests/audit17_snapshot_fuzz.sh > /dev/null 2>&1
+  kontrol $? "Audit-17: snapshot-fuzz (truncate/flip/swap/magic→RED; ciphertext-bölgesi-desen-temiz)"
 
   rm -rf "$SB"
   echo ""

@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 31/31 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 32/32 controls, ~20 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)
@@ -37,6 +37,7 @@ the c30 cross-host control (now 31/31 baseline + c30 slow control).
 | AT-011 — D12 conditional unity (RFC-007 R3) | the D12 trio (`net_decl_sha256` / `net_events_sha256` / `net_mb`) enters a charge TOGETHER or not at all — `ledger-verify` REDs a half-bound charge (`net_trio_incomplete`) and a `net_mb` beyond 6 decimal places (`net_mb_format`, RFC-003 §11 normative); the validator binds the LATEST charge against whichever declaration source is active — `net.json` by file bytes, `runtime.net` by `sha256(jcs(...))` — so a post-run swap OR a re-signed manifest tamper (`net_binding_mismatch`), a bridge deletion (`net_binding_missing`), and a both-sources state (`net_decl_ambiguous`) all RED; jsonschema cross-validation extended to the `runtime.net` shape family (8 mutants) and the v0.2 draft additive contract (9 draft-phase probes, 51/51 AGREE) |
 | Schema cross-validation | runner decisions ≡ `jsonschema` validation (51/51 fixtures incl. v0.2 draft phase) |
 | Audit-11 — ledger bomb defense (D1 findings) | three hardening gates: a 50 MB hostile line appended to ledger.jsonl is detected WITHOUT being absorbed into memory (fail-closed RED in ~0.2-0.4 s, bounded RSS — `_ledger_lines` yields a sentinel for over-size lines); grant notes now carry the same 64 KiB cap as memory notes (Audit-2 F12 extended — reason_code 8 `memory_limit`); `_ledger_append` streams and refuses to append after a corrupt tail (no valid head record → RED-14, never building on a broken chain) |
+| Audit-17 — snapshot fuzz (D-round 4) | six tamper classes on the exported snapshot (truncate, body/header/tail bit-flip, two-byte swap, magic-swap) all fail closed (reason 1/3); plus a privacy proof: the ciphertext region carries no field-name plaintext patterns (header-only design verified) |
 | Memory scale sanity (2026-09-09, manual bench) | 1000-node context-graph import + 3 search shapes (broad-match/unique-term/absent-term) each resolve in ≤0.2 s — the recall path stays interactive at realistic session scales; formal bench harness tracked for Phase 3 |
 | Audit-16 — node revocation (OQ-3 sweep) | proves the founder-decided revocation semantics end-to-end: a node-cosigned ledger whose node appears on `--node-revoked` is RED at L1 import (`node_id_iptal_edildi` — removing from trust is not enough, closes key-theft); documents the architecture note that standalone `ledger-verify` is policy-agnostic (chain math only) — revocation is an import-time policy decision, not a chain property |
 | Audit-15 — state hardening (bug sweep D-round 3) | corrupt state.json (truncated/invalid JSON) previously crashed the runner with a traceback — now fail-closed RED-5 `state_invalid` with a restore hint; positive proof that state tampering (ledger_tip swap, sessions inflation) cannot affect the chain: `_ledger_append` reads the real last hash from the ledger (F21 discipline), seq/prev sequences stay intact; foreign keys + 1000-level nesting tolerated |

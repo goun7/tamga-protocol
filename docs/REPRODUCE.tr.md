@@ -34,7 +34,7 @@ python3 tamga_bundle.py tests/vectors/tc-net-demo -o /tmp/kanit
 # → /tmp/kanit/tc-net-demo-bundle.json + .md (kayıtlar bayt-eşit kopyalanır)
 ```
 
-## 4. Şemayı çapraz-doğrulayın (51/51)
+## 4. Şemayı çapraz-doğrulayın (55/55)
 
 ```bash
 python3 -m venv .venv-jsonschema && . .venv-jsonschema/bin/activate

@@ -19,7 +19,7 @@ Bugün bir yapay zekâ ajanı sizin adınıza bir şey yaptığında (satın alm
 ## Bugün neredeyiz
 
 - **Çalışan bir prototip var** — açık kaynak, herkes bakabilir (GitHub). Henüz **simülasyon** aşamasında; gerçek para dönmüyor.
-- **Kalite iddiası boş değil:** her değişiklikte otomatik koşan **26 kontrol testi** var (gece moduyla 27); ikinci bağımsız doğrulama yöntemiyle **51/51 aynı karar** veriyor. Her iddianın altında koşulmuş test kanıtı var.
+- **Kalite iddiası boş değil:** her değişiklikte otomatik koşan **34 kontrol testi** var (yavaş modda 35); ikinci bağımsız doğrulama yöntemiyle **55/55 aynı karar** veriyor. Her iddianın altında koşulmuş test kanıtı var.
 - **Bu hafta önemli bir eşik geçti:** ajanın ağ izinleri artık imzalı belgeye gömülüyor (v0.2.0 sürüm adayı). Kapsamlı hata araması yapıldı: iki turda **4 gerçek hata bulundu ve düzeltildi**, başka açık çıkmadı.
 - **Ekosistemde dikkat çekiyor:** x402 topluluğundaki açık tartışmada dört farklı ekip bizimle müzakere ediyor; biri bizim test paketimizi bağımsız doğruladı, diğeri bizim çalışmamızı kendi ticari teklifinde kamu kanıtı olarak referans gösteriyor. Biz de onların kanıt araçlarını çevrimdışı doğruladık (sahtecilik girişinde kırmızı verdiğini bizzat test ettik).
 - **Şimdi beklenen:** bir tarafın "onaylı test teslimatı" demesi. Gerçekleşirse prototip "gerçek dünyada uçtan uca doğrulandı" statüsüne geçecek — bunun tek komutluk hazırlığı tamam.
@@ -37,6 +37,6 @@ run — inputs, outputs, fees, and the network permissions it acted under — la
 hash-chained record that any third party can verify offline with a single command, without
 trusting the agent's owner. The agent carries its encrypted ledger between hosts as one
 snapshot. Status: working prototype, simulation only (no real money), 26-control acceptance
-suite, schema cross-validation 51/51, two external-verification tracks live on the x402
+suite, schema cross-validation 55/55, two external-verification tracks live on the x402
 standard discussion. The core discipline: **every claim ships with the evidence that produced
 it.**

@@ -11,16 +11,22 @@ facilitator may 404 by the time you verify — the point is the math):
      is importable; otherwise SKIPPED with an explicit note (never silently).
 
 Usage:
-  python3 tools/verify_dx402_vector.py receipt.json [--delivery-file out.bin]
+  python3 tools/verify_dx402_vector.py receipt.json [--delivery-file out.bin] [--spec-pin]
   python3 tools/verify_dx402_vector.py --pair-charge receipt.json ledger.jsonl
       # cross-party bridge: our charge.delivery_hash vs their contentHash
+
+Spec pin (#3377 review, 2026-09-08): this verifier tests the x402 spec *as written at
+  pinned commits* — canonical paymentId rendering (f97f6cd: 0x+64-lowercase-hex, MUST-accept
+  any casing), and the two-hash separation (48c01ee: CID binds stored bytes, contentHash
+  binds plaintext; a verifier MUST NOT treat one as evidence of the other). The --spec-pin
+  flag prints these commitments and verifies the receipt follows the canonical rendering.
 
 Exit 0 = no mandatory FAIL; 1 = any FAIL; 2 = precondition (bad args).
 Honesty rules: checks are labeled PASS/FAIL/SKIP; a skipped optional check is
 never reported as PASS. Fields read from the receipt are trusted as *claimed*
 values; only the derived relations are proven here.
 """
-import json, sys, pathlib
+import json, re, sys, pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from keccak256 import keccak256  # pure-python, self-testing
@@ -62,9 +68,12 @@ def main(a):
     if len(a) < 1:
         print(__doc__)
         return 2
-    raw = json.loads(pathlib.Path(a[0]).read_text(encoding="utf-8"))
+    args = [x for x in a if x != "--spec-pin"]
+    spec = "--spec-pin" in a
+    raw = json.loads(pathlib.Path(args[0]).read_text(encoding="utf-8"))
     # facilitator-canlı-şekli: {receipt: {...}, signature, signer, domain} — düz-vöktör-de-çalışır
     rec = raw.get("receipt", raw) if isinstance(raw, dict) else raw
+    rc_pin = spec_pin(rec if isinstance(rec, dict) else {}) if spec else 0
     rec = dict(rec)
     if isinstance(raw, dict) and "signature" in raw and "signature" not in rec:
         rec["signature"] = raw["signature"]
@@ -91,8 +100,8 @@ def main(a):
         rc |= out(None, "paymentId derivation", "network/txHash/paymentId missing")
     # --- 2. contentHash binding (derived vs asserted) ---
     ch = rec.get("contentHash") or (rec.get("delivery_hash") or {}).get("hex") or ""
-    if len(a) >= 3 and a[1] == "--delivery-file":
-        blob = pathlib.Path(a[2]).read_bytes()
+    if len(args) >= 3 and args[1] == "--delivery-file":
+        blob = pathlib.Path(args[2]).read_bytes()
         if ch:
             # DX402'de contentHash = keccak(PLAINTEXT) ve plaintext payer'a mühürlü;
             # served bytes ≠ plaintext olabilir. Eşitlik varsa güçlü kanıt; yoksa
@@ -151,6 +160,23 @@ def main(a):
     else:
         rc |= out(None, "EIP-712 ecrecover", "signature/signer alanı yok")
     return 1 if rc else 0
+
+def spec_pin(receipt):
+    """Spec-commitment-print + kanonik-rendering-kontrolü (#3377 pin f97f6cd/48c01ee)."""
+    print("[SPEC] pin f97f6cd — paymentId canonical form: 0x + 64 lowercase hex; "
+          "facilitators MUST accept any casing, MUST key records on canonical form")
+    print("[SPEC] pin 48c01ee — CID (sha2-256, served bytes) and contentHash (keccak, "
+          "plaintext) are DIFFERENT populations; equality never assumed")
+    pid = (receipt.get("paymentId") or receipt.get("payment_id") or "")
+    if isinstance(pid, str) and pid:
+        norm = pid.lower()
+        ok = bool(re.fullmatch(r"0x[0-9a-f]{64}", norm))
+        print(f"[{'PASS' if ok else 'FAIL'}] canonical paymentId rendering "
+              f"({pid[:14]}… -> {norm[:14]}…)")
+        return 0 if ok else 1
+    print("[SKIP] canonical paymentId rendering — no paymentId field")
+    return 0
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

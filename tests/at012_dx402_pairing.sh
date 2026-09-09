@@ -76,5 +76,10 @@ sys.exit(0 if (r_eq.returncode == 0 and r_diff.returncode == 1) else 1)
 PYEOF
 ok $? "e: pair-charge cross-bridge (equal→PASS, differing→RED)"
 
+# --- f: spec-pin (#3377-commit-karşılıklılığı) ---
+"$PY" tools/verify_dx402_vector.py --spec-pin "$EV/recv-canonical.json" --delivery-file "$EV/blob-canonical.bin" > "$LOG.f" 2>&1
+grep -q "SPEC. pin f97f6cd" "$LOG.f" && grep -q "PASS. canonical paymentId rendering" "$LOG.f" && grep -q "SPEC. pin 48c01ee" "$LOG.f"
+ok $? "f: spec-pin (canonical-rendering + two-hash-commitments yazılı)"
+
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" -eq 0 ]

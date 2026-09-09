@@ -11,7 +11,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 31 PASS, 0 FAIL`. The evidence log lands in
+Expected tail: `RESULT: 31 PASS, 0 FAIL`. Last verified here: **2026-09-09**. The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`.
 
 Slow extra control (cross-host, simnet fixtures — not in CI):

@@ -70,4 +70,7 @@ if __name__ == "__main__":
     v_abc = "4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"
     assert keccak256(b"").hex() == v_empty, "keccak256('') vector FAILED"
     assert keccak256(b"abc").hex() == v_abc, "keccak256('abc') vector FAILED"
-    print("keccak256 self-test OK (2/2 known vectors)")
+    v_fox = ("4d741b6f1eb29cb2a9b9911c82f56fa8d73b04959d3d9d222895df6c0b28aa15")  # KAT
+    assert keccak256(b"The quick brown fox jumps over the lazy dog").hex() == v_fox, \
+        "keccak256('fox') vector FAILED"
+    print("keccak256 self-test OK (3/3 known vectors)")

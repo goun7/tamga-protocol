@@ -34,6 +34,16 @@ python3 tamga_bundle.py tests/vectors/tc-net-demo -o /tmp/evidence
 # → /tmp/evidence/tc-net-demo-bundle.json + .md (records copied byte-equal)
 ```
 
+## 3b. The stdlib-only subset, with PyNaCl deliberately blocked
+
+```bash
+python3 tools/verify_lite.py
+```
+
+Four checks (mini-verifier, pairing hash, explain chain-integrity, nacl-blocker
+proof) run with `import nacl` actively forbidden — the counterparty path really
+is stdlib-only, and this command is the proof.
+
 ## 4. Cross-validate the schema (51/51)
 
 ```bash

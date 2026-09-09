@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 33/33 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 34/34 controls, ~20 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)

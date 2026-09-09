@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (34 controls; 35 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (35 controls; 36 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -184,6 +184,10 @@ PY
   # ---- kontrol-34: verify-lite (nacl-ENGELLİ ortamda stdlib-saf-yolçaplar) ----
   python3 tools/verify_lite.py > /dev/null 2>&1
   kontrol $? "verify-lite: mini-verifier+pairing-hash+explain nacl-blocked ortamda PASS"
+
+  # ---- kontrol-35: AT-015 sürüm-pinli-export-vektörleri (P4) ----
+  bash tests/at015_pinned_exports.sh > /dev/null 2>&1
+  kontrol $? "AT-015: pinned-exports (mem0/letta/zep sürüm-pinli şekiller → sniff+import+determinizm)"
 
   rm -rf "$SB"
   echo ""

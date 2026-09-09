@@ -1,0 +1,18 @@
+[
+ {
+  "id": "mem-0001",
+  "memory": "Kullanıcı projeyi 2026-09'da kurdu",
+  "user_id": "alice",
+  "agent_id": null,
+  "role": "user",
+  "created_at": "2026-09-01T10:00:00Z"
+ },
+ {
+  "id": "mem-0002",
+  "memory": "Ledger formatı RFC-003 D5",
+  "user_id": "alice",
+  "agent_id": "tamga-ornek-ajani",
+  "role": "assistant",
+  "created_at": "2026-09-02T11:30:00Z"
+ }
+]

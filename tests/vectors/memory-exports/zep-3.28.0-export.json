@@ -1,0 +1,14 @@
+{
+ "facts": [
+  {
+   "fact": "Kurucu-kanıt-kültürü",
+   "created_at": "2026-09-05T08:00:00Z",
+   "valid_at": "2026-09-05"
+  },
+  {
+   "fact": "Faz kapıları takvimsiz",
+   "created_at": "2026-09-06T08:00:00Z",
+   "valid_at": "2026-09-06"
+  }
+ ]
+}

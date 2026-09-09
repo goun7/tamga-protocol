@@ -41,7 +41,17 @@ python3 -m venv .venv-jsonschema && . .venv-jsonschema/bin/activate
 pip install jsonschema && bash tests/crossval.sh && deactivate
 ```
 
-## 5. Verify the public pairing fixture in one command
+## 5. Explain a receipt in plain language
+
+```bash
+python3 tools/explain.py receipt.json            # dx402 receipt → labeled human summary
+python3 tools/explain.py --charge ledger.jsonl 2 # chain record N → same
+```
+
+Derived relations are recomputed, never assumed; the chain-integrity line re-derives
+the record hash (RFC-003 D5) and prints DOĞRULANDI / EŞLEŞMİYOR.
+
+## 5b. Verify the public pairing fixture in one command
 
 ```bash
 python3 tools/verify_pairing_bundle.py    # charge-hash re-derivation + chain-context

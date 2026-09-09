@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (32 controls; 33 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (33 controls; 34 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -176,6 +176,10 @@ PY
   # ---- kontrol-32: Audit-17 export-snapshot-fuzz (6-kurcalama-sınıfı-RED + gövde-gizliliği) ----
   bash tests/audit17_snapshot_fuzz.sh > /dev/null 2>&1
   kontrol $? "Audit-17: snapshot-fuzz (truncate/flip/swap/magic→RED; ciphertext-bölgesi-desen-temiz)"
+
+  # ---- kontrol-33: Audit-18 ünikod-hash-ayrıştırma (JCS-subset-sınırı-belgeli) ----
+  bash tests/audit18_unicode_fuzz.sh > /dev/null 2>&1
+  kontrol $? "Audit-18: unicode-fuzz (NFC/NFD+homoglif+null→farklı-hash; JCS-subset sınırı belgeli)"
 
   rm -rf "$SB"
   echo ""

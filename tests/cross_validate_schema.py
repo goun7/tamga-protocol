@@ -197,6 +197,28 @@ def main():
     v2_big = json.loads(json.dumps(v2))
     v2_big["runtime"]["net"]["max_bytes_per_run"] = 8388609
     draft_check("v0.2-cap-overflow", v2_big, False)
+
+    # --- geçiş-matrisi (P2, 2026-09-09): yükseltme-DOWNgrade-yönleri ---
+    log("## spec_version geçiş matrisi (yükseltme + downgrade)")
+    a1 = json.loads((VEC / "tc-a1" / "tamga.json").read_text(encoding="utf-8"))
+    a1_v2 = json.loads(json.dumps(a1))
+    a1_v2["spec_version"] = "0.2.0"
+    a1_v2["runtime"]["net"] = {"egress": ["127.0.0.1:1"], "max_bytes_per_run": 1048576, "timeout_s": 10}
+    matrix = [
+        ("down:0.2.0→frozen-schema", a1_v2, SCHEMA, False),
+        ("up:0.1.0→draft-schema", a1, draft, True),
+        ("down:0.2.0→draft-schema", a1_v2, draft, True),
+    ]
+    for name, m, schema, expect in matrix:
+        valid = not list(Draft202012Validator(schema).iter_errors(m))
+        agree = valid == expect
+        total += 1
+        ok += 1 if agree else 0
+        log(f"[{'AGREE' if agree else '!!DRIFT!!'}] {name:28s} {'valid' if valid else 'RED':8s} "
+            f"(beklenen={'valid' if expect else 'RED'})")
+    v2_big = json.loads(json.dumps(v2))
+    v2_big["runtime"]["net"]["max_bytes_per_run"] = 8388609
+    draft_check("v0.2-cap-overflow", v2_big, False)
     total += draft_state["total"]; ok += draft_state["ok"]
     log("")
     log(f"RESULT: {ok}/{total} AGREE — {'cross-validation CLEAN' if ok == total else 'DRIFT → RFC-001 fidelity must be fixed'}")

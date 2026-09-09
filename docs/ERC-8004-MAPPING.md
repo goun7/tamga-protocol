@@ -4,10 +4,14 @@
 > the Phase-3 trigger (external demand signal) fires. Source: ERC-8004 draft as of
 > 2026-09; the ERC may change before Final — wobbly points are marked.
 
-Ecosystem scan (accessed 2026-09-05):
-- ERC-8004 is still **Draft** (created 2025-08-13); the registration-file schema in
-  this mapping matches the draft's `type: ...#registration-v1` structure, including
-  the optional `x402Support` flag.
+Ecosystem scan (accessed 2026-09-05; re-verified 2026-09-09 against the ERCs repo):
+- ERC-8004 is still **Draft** (created 2025-08-13; authoritative front-matter re-read
+  from ethereum/ERCs `ERCS/erc-8004.md` on 2026-09-09 — status unchanged, requires
+  EIP-155 only); the registration-file schema in this mapping matches the draft's
+  `type: ...#registration-v1` structure, including the optional `x402Support` flag.
+  Registries now expose Reputation/Validation read APIs (`getResponseCount`,
+  `getResponseByIndex` with revoke-omitted filters) — Tamga receipt chains can feed
+  these as evidence without schema surgery (off-chain evidence, on-chain signal).
 - x402 is now a Linux Foundation project (x402 Foundation, operational launch
   announced 2026); its public dashboard reports 75.41M transactions, $24.24M volume,
   94.06K buyers and 22K sellers over the last 30 days.

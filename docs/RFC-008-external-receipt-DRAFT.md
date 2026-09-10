@@ -59,3 +59,19 @@ alanlarını-alg+hex-ETİKETLE-bağlar (RFC-003 D5/RFC-007 D10-disiplininin-geni
 
 Pilot-günü-ÇOK-yakın. Taslak-hazırken-iş-başlamıyor: pilot-bilgisi-§3'ü-değiştirebilir
 (üç-açık-soru-işi-bağlayabilir). Kurucu-kültürü-uyumu: "düşünmek-bedava, kodla-değil".
+
+## 6. F1 — TAMGA_EXTERNAL_ANCHOR_V1 (2026-09-10, kurucu-ONAYLI-çerçeve)
+
+> Yön-çevrimi: §1-5 x402-dış-receipt'i-BİZİM-zincire-cite ediyor. §6 TERSİ: bizim-zincir-
+> başlarının-dış-epoch-fact'lere-bağlanması. İkisi-aynı-RFC'nin-iki-yüzü — V0.2-diliminde-
+> birlikte-girer.
+
+- **Tasarım-dosyası**: private/F1-EXTERNAL-ANCHOR-TASARIM.md-(anchor-op-şekli: foreign_registry/
+  foreign_fact/foreign_digest/foreign_source + verified_at-iki-alanlı-iddia)
+- **Dondurulmuş-matematik**: tests/vectors/anchor-v0-design/anchor-design-vector.json +
+  AT-017-(kontrol-39): D5-uyumu-(anchor-kaydı-her-kayıt-gibi-zincir-hash'ine-girer)-
+  ve-§4.4-parite-(bilinmeyen-registry→indeterminate, never absent)-kanonik-beyanlı
+- **Kanıt-bağlantısı**: .evidence/APODIX-EPOCH-10/2026-09-10/ — ilk-gerçek-dış-anchor-adayı
+  (fact-0x0236…36e2, 2-bağımsız-keccak-uygulaması-aynı-merkle-yolunda-eşleşti)
+- **Kapı**: const-flip-(verifier-known-tags+runner-op)-pilot-SONRASI; P8-1/2/3 ile-aynı-kapıdan-
+  geçer — pilot-günü-4-açık-(P8-1..3 + F1-etiket-uyumu-Vauban'la)-kapalı-olur

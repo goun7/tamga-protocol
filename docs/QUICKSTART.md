@@ -94,6 +94,20 @@ The bundle carries the chain records, the manifest re-hash, and per-job
 digests — the counterparty re-derives every claim offline. Full flow:
 [docs/AGENT-GUIDE.md §8b](AGENT-GUIDE.md).
 
+## 6b. Use it as a library (no CLI, no engine)
+
+The four engine-free modules import directly from the published wheel:
+
+```python
+import tamga_verify_mini          # stdlib-only chain verification (verify(...))
+import tamga_bundle               # evidence-bundle builder (build(...))
+import tamga_validator            # manifest + record canonicalization (jcs(...))
+import tamga_bootstrap            # pinned wasmtime fetch for tamga run
+```
+
+Verified 2026-09-10 against the published 0.2.0rc1 wheel: all four import on
+a clean interpreter with zero third-party packages.
+
 ## What just happened
 
 - The job ran inside a **denied-by-default WASI sandbox** (no filesystem preopens, no network).

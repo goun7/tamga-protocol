@@ -1,0 +1,43 @@
+# Verify a Tamga receipt chain in YOUR repository's CI.
+#
+# Copy this file to .github/workflows/verify-receipt.yml, commit your ledger
+# (ledger.jsonl) somewhere in the repo, and set LEDGER_PATH below. The job
+# fails your CI if the chain is broken - receipts stop being prose.
+#
+# Requirements: none beyond Python (the verifier is stdlib-only).
+# Cheap: runs in ~2 s; scheduled weekly so a stale pass reads OLDER, not false.
+
+name: verify-receipt
+
+on:
+  push:
+    paths: [LEDGER_PATH]
+  schedule:
+    - cron: "0 6 * * 1"   # weekly Monday 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Receipt chain verify (stdlib-only)
+    runs-on: ubuntu-latest
+    env:
+      LEDGER_PATH: ledger.jsonl   # <-- set to your chain's path
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Pin the verifier to a released tag instead of main for auditability:
+      - name: Fetch mini-verifier
+        run: |
+          curl -sSL -o tamga_verify_mini.py \
+            https://raw.githubusercontent.com/goun7/tamga-protocol/v0.2.0rc1/tamga_verify_mini.py
+          python3 -c "import hashlib,pathlib;print('sha256:',hashlib.sha256(pathlib.Path('tamga_verify_mini.py').read_bytes()).hexdigest())"
+
+      - name: Verify chain
+        run: python3 tamga_verify_mini.py "$LEDGER_PATH"

@@ -15,7 +15,7 @@ without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`
 Last verified from the published wheel: **2026-09-10** (end-to-end log:
 `.evidence/QUICKSTART-PYPI/2026-09-10/`).
 
-## 1. The full acceptance suite (39 controls, ~20 s)
+## 1. The full acceptance suite (40 controls, ~20 s)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -23,13 +23,13 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 39 PASS, 0 FAIL`. Last verified here: **2026-09-10** (39/39). The evidence log lands in
+Expected tail: `RESULT: 40 PASS, 0 FAIL`. Last verified here: **2026-09-10** (40/40). The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`.
 
 Slow extra control (cross-host, simnet fixtures — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 40 controls
+RUN_SLOW=1 bash tests/run_all.sh     # → 41 controls
 ```
 
 ## 2. Verify a chain without installing anything (stdlib-only)

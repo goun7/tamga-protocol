@@ -76,9 +76,16 @@ Anyone with this JSON output can re-verify your chain independently.
 
 ```bash
 tamga export ./my-pkg -o snapshot.tsg --seed <seed_hex>
-# on the new host — package dir must exist with the same code (tamga.json + agent.wasm):
+```
+
+On the new host, prepare the package dir FIRST (same code: `tamga.json` +
+`agent.wasm`) - import fails closed with `manifest_reject` if it is missing
+(this is the A1 ownership boundary, verified 2026-09-10 on the published wheel):
+
+```bash
+mkdir -p ./my-pkg-restored && cp my-pkg/tamga.json my-pkg/agent.wasm ./my-pkg-restored/
 tamga import snapshot.tsg ./my-pkg-restored
-tamga ledger-verify ./my-pkg-restored       # chain resumed: lines=1
+tamga ledger-verify ./my-pkg-restored       # chain resumed: lines=1, same head
 ```
 
 ```json

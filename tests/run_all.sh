@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (39 controls; 40 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (40 controls; 41 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -204,6 +204,11 @@ PY
   # ---- kontrol-39: AT-017 anchor-design-vector (F1; const-YOK, şekil-matematiği-donuk) ----
   bash tests/at017_anchor_design.sh > /dev/null 2>&1
   kontrol $? "AT-017: anchor-design-vector (F1 şekli D5-uyumlu; §4.4-parite-beyanlı; const-YOK)"
+
+
+  # ---- kontrol-40: AT-018 M6 manifest-schema draft (v0.3.0 additive; RFC-008 external-receipt) ----
+  bash tests/at018_m6_manifest_schema.sh > /dev/null 2>&1
+  kontrol $? "AT-018: M6 manifest-schema v0.3.0-draft (additive-contract; 1-VALID+4-RED sentetik; izolasyon)"
 
   rm -rf "$SB"
   echo ""

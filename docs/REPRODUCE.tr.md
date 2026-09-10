@@ -3,7 +3,7 @@
 Bu depodaki her iddia, çalıştırabileceğiniz bir komutla arkalanır. CI'mıza güvenmek
 zorunda değilsiniz — klonlayın, çalıştırın, karşılaştırın.
 
-## 1. Tam kabul-süiti (35 kontrol, ~20 sn)
+## 1. Tam kabul-süiti (40 kontrol, ~20 sn)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol

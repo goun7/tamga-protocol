@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/acceptance%20suite-24%20controls-blue)](docs/TESTS.md)
+[![Tests](https://img.shields.io/badge/tests-40%2F40%20PASS-brightgreen)](#tek-komut-regresyon)
 
 </div>
 
@@ -57,7 +57,7 @@ Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Rehber: [docs/AGENT-G
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 pip install -r requirements.txt
 bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
-bash tests/run_all.sh    # 35/35 kontrol — ~20 sn
+bash tests/run_all.sh    # 40/40 kontrol — ~20 sn
 ```
 Komut-seti ve ilk-ajan akışı: [README.md#quick-start](README.md#quick-start) ve
 [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).

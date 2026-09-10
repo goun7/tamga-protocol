@@ -3,7 +3,19 @@
 Every claim on this repository is backed by a command you can run. No trust in
 our CI required — clone, run, compare.
 
-## 1. The full acceptance suite (31 controls, ~20 s)
+## 0. No clone? Install the wheel and run the same checks
+
+```bash
+pip install tamga-protocol        # published: pypi.org/project/tamga-protocol
+tamga --version && tamga doctor   # engine-free paths report SAĞLIKLI
+```
+
+Verification commands (`ledger-verify`, `verify-mini`, `bundle`, `explain`) work
+without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`.
+Last verified from the published wheel: **2026-09-10** (end-to-end log:
+`.evidence/QUICKSTART-PYPI/2026-09-10/`).
+
+## 1. The full acceptance suite (39 controls, ~20 s)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -11,13 +23,13 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 31 PASS, 0 FAIL`. Last verified here: **2026-09-09** (32/32). The evidence log lands in
+Expected tail: `RESULT: 39 PASS, 0 FAIL`. Last verified here: **2026-09-10** (39/39). The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`.
 
 Slow extra control (cross-host, simnet fixtures — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 32 controls
+RUN_SLOW=1 bash tests/run_all.sh     # → 40 controls
 ```
 
 ## 2. Verify a chain without installing anything (stdlib-only)

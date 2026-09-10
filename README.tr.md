@@ -2,6 +2,7 @@
 
 <img src="docs/assets/banner.svg" width="660" alt="Tamga Protocol — taşınabilir kimlik, şifreli hafıza, doğrulanabilir iş-makbuzu"/>
 
+[![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/acceptance%20suite-24%20controls-blue)](docs/TESTS.md)
 

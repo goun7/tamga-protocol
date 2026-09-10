@@ -75,3 +75,8 @@ Pilot-günü-ÇOK-yakın. Taslak-hazırken-iş-başlamıyor: pilot-bilgisi-§3'�
   (fact-0x0236…36e2, 2-bağımsız-keccak-uygulaması-aynı-merkle-yolunda-eşleşti)
 - **Kapı**: const-flip-(verifier-known-tags+runner-op)-pilot-SONRASI; P8-1/2/3 ile-aynı-kapıdan-
   geçer — pilot-günü-4-açık-(P8-1..3 + F1-etiket-uyumu-Vauban'la)-kapalı-olur
+
+## 8. GERIBILDIRIM-YUZEYI (2026-09-10, E1-gitti)
+
+- Kamu-tartismasi: x402-foundation/x402#3447 (DRAFT-proposal-issue; non-binding)
+- Bu-taslagin-kaderi orada-kararasir; PR-yalniz P8-1..3 cevaplandiktan-sonra

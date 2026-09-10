@@ -220,6 +220,25 @@ def main():
     v2_big["runtime"]["net"]["max_bytes_per_run"] = 8388609
     draft_check("v0.2-cap-overflow", v2_big, False)
     total += draft_state["total"]; ok += draft_state["ok"]
+
+    # --- v0.3.0-draft satiri (M6, 2026-09-10): RFC-008 external_receipt dilimi ---
+    draft3 = json.loads((ROOT / "specs/manifest-0.3.0-draft.schema.json").read_text(encoding="utf-8"))
+    a1_v3 = json.loads(json.dumps(a1))
+    a1_v3["spec_version"] = "0.3.0"
+    matrix3 = [
+        ("up:0.1.0→v0.3.0-draft", a1, draft3, True),
+        ("down:0.2.0→v0.3.0-draft", a1_v2, draft3, True),
+        ("ext-receipt:0.3.0→v0.3.0-draft", json.loads((VEC / "m6-external-receipt" / "ok-external-receipt.json").read_text(encoding="utf-8")), draft3, True),
+        ("down:0.3.0→v0.2.0-draft", json.loads((VEC / "m6-external-receipt" / "ok-external-receipt.json").read_text(encoding="utf-8")), draft, False),
+    ]
+    log("## v0.3.0-draft gecis-satiri (M6 additive-contract)")
+    for name, m, schema, expect in matrix3:
+        valid = not list(Draft202012Validator(schema).iter_errors(m))
+        agree = valid == expect
+        total += 1
+        ok += 1 if agree else 0
+        log(f"[{'AGREE' if agree else '!!DRIFT!!'}] {name:28s} {'valid' if valid else 'RED':8s} "
+            f"(beklenen={'valid' if expect else 'RED'})")
     log("")
     log(f"RESULT: {ok}/{total} AGREE — {'cross-validation CLEAN' if ok == total else 'DRIFT → RFC-001 fidelity must be fixed'}")
     shutil.rmtree(SB, ignore_errors=True)

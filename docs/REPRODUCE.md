@@ -29,7 +29,7 @@ Expected tail: `RESULT: 40 PASS, 0 FAIL`. Last verified here: **2026-09-10** (40
 Slow extra control (cross-host, simnet fixtures — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 41 controls
+RUN_SLOW=1 bash tests/run_all.sh     # → 42 controls
 ```
 
 ## 2. Verify a chain without installing anything (stdlib-only)

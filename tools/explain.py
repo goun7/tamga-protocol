@@ -50,28 +50,42 @@ def explain_charge(rec, label="charge", L=None):
     w = rec.get("wall_ms")
     if w is not None:
         lines.append(L["wall"].format(w=w))
-    for k, u in (("cpu_saat", "cpu-saat"), ("ram_gb_sn", "GB-saniye RAM"), ("io_mb", "MiB I/O")):
+    en = L is LABELS_EN
+    for k, u in (("cpu_saat", "cpu-hours" if en else "cpu-saat"),
+                 ("ram_gb_sn", "GB-seconds RAM" if en else "GB-saniye RAM"),
+                 ("io_mb", "MiB I/O")):
         if k in rec:
-            lines.append(f"  {u:<15} : {rec[k]}")
+            lines.append(f"  {u:<19} : {rec[k]}")
     if "stdout_sha256" in rec:
-        lines.append(f"  Çıktı-parmak-izi: sha256(stdout) = {rec['stdout_sha256'][:24]}…")
+        head = "Output fingerprint" if en else "Çıktı-parmak-izi"
+        lines.append(f"  {head:<19} : sha256(stdout) = {rec['stdout_sha256'][:24]}…")
     dh = rec.get("delivery_hash")
     if isinstance(dh, dict):
-        lines.append(f"  Teslim-bağı     : {dh.get('alg', '?')} = {dh.get('hex', '')[:24]}… "
-                     f"(etiketli — alg+hex çifti, assumed-equality yok)")
+        head = "Delivery binding" if en else "Teslim-bağı"
+        note = ("(labeled - alg+hex pair, no assumed-equality)" if en
+                else "(etiketli — alg+hex çifti, assumed-equality yok)")
+        lines.append(f"  {head:<19} : {dh.get('alg', '?')} = {dh.get('hex', '')[:24]}… {note}")
     if "input_sha256" in rec:
-        lines.append(f"  Girdi-bağı (D11): sha256(input) = {rec['input_sha256'][:24]}…")
+        head = "Input binding (D11)" if en else "Girdi-bağı (D11)"
+        lines.append(f"  {head:<19} : sha256(input) = {rec['input_sha256'][:24]}…")
     if "net_decl_sha256" in rec:
-        lines.append(f"  Ağ-beyanı (D12) : net_decl_sha256 = {rec['net_decl_sha256'][:24]}…")
+        head = "Net declaration" if en else "Ağ-beyanı (D12)"
+        lines.append(f"  {head:<19} : net_decl_sha256 = {rec['net_decl_sha256'][:24]}…")
     if "net_mb" in rec:
-        lines.append(f"  Ağ-trafiği      : {rec['net_mb']} MiB (proxy-sayaç)")
-    lines.append(f"  Zincir-yeri     : prev={rec.get('prev', '')[:16]}… → h={rec.get('h', '')[:16]}…")
+        head = "Network traffic" if en else "Ağ-trafiği"
+        note = "MiB (proxy counter)" if en else "MiB (proxy-sayaç)"
+        lines.append(f"  {head:<19} : {rec['net_mb']} {note}")
+    head = "Chain position" if en else "Zincir-yeri"
+    lines.append(f"  {head:<19} : prev={rec.get('prev', '')[:16]}… → h={rec.get('h', '')[:16]}…")
     # türetilebilir-bağ-yeniden-hesabı:
     if rec.get("h"):
         no_h = {k: v for k, v in rec.items() if k not in ("h", "node_sig")}
         exp = hashlib.sha256((rec.get("prev", "").encode() + jcs_bytes(no_h))).hexdigest()
-        lines.append(f"  Zincir-dürüstlüğü: h {'DOĞRULANDI' if exp == rec['h'] else 'EŞLEŞMİYOR'} "
-                     f"(sha256(prev ‖ jcs(kayıt-minus-h,node_sig)) yeniden hesaplandı)")
+        verdict = (L["ok"] if exp == rec["h"] else L["bad"])
+        formula = ("sha256(prev ‖ jcs(record-minus-h,node_sig)) recomputed"
+                   if en else "sha256(prev ‖ jcs(kayıt-minus-h,node_sig)) yeniden hesaplandı")
+        head = "Chain integrity" if en else "Zincir-dürüstlüğü"
+        lines.append(f"  {head}: h {verdict} ({formula})")
     return "\n".join(lines)
 
 def jcs_bytes(obj):
@@ -84,7 +98,7 @@ def explain_receipt(rec, L=None):
     lines = ["== dx402 receipt (counterparty claim — only derivable relations are proven) =="] if en \
         else ["== dx402-receipt (karşı-taraf beyanı — yalnız türetilebilir-ilişkiler kanıtlanır) =="]
     pid = rec.get("paymentId", "")
-    canon = "(canonical 0x+64-lower OK)" if __import__("re").fullmatch(r"0x[0-9a-f]{64}", pid) else "(NON-CANONICAL)"
+    canon = ("(canonical 0x+64-lower OK)" if en else "(kanonik 0x+64-lower ✓)") if __import__("re").fullmatch(r"0x[0-9a-f]{64}", pid) else ("(NON-CANONICAL)" if en else "(KANONİK-DEĞİL)")
     lines.append(f"  {'Payment id' if en else 'Ödeme-kimliği':<16}: {pid[:26]}… {canon}")
     ch = rec.get("contentHash", "")
     if en:

@@ -1,0 +1,13 @@
+{
+ "seq": 3,
+ "op": "anchor",
+ "prev": "d034e3199877455c6b5c1e5c9d6e0f0a1b2c3d4e5f60718293a4b5c6d7e8f901",
+ "anchor_version": "TAMGA_EXTERNAL_ANCHOR_V1",
+ "foreign_registry": "apodix/epoch",
+ "foreign_fact": "0x02362521254a8ca4f75097267655f6aeb8524217a25c261f60538edc367136e2",
+ "foreign_digest": "0xabababababababababababababababababababababababababababababababab",
+ "foreign_source": "https://explorer.testnet.apodix.vauban.tech/v1/anchors/proof/0x0236",
+ "verified_at": "2026-09-10T07:32:08Z",
+ "tool": "verifier_epoque.py + tools/keccak256.py (dual-impl)",
+ "h": "5a07d7731b3a38c011965c87ee2a96c049a981561a78ed7e8bc72ff0ae835d6d"
+}

@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (38 controls; 39 with RUN_SLOW=1)
+tests/run_all.sh — Tamga Protocol acceptance suite (39 controls; 40 with RUN_SLOW=1)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -200,6 +200,10 @@ PY
   # ---- kontrol-38: corpus-fuzz binder (unicode-ayrışma + deterministik-üreticiler) ----
   bash tests/run_corpus_fuzz.sh > /dev/null 2>&1
   kontrol $? "corpus-fuzz: unicode-corpus-ayrışık + audit-üreticileri-deterministik + surrogate-üretici"
+
+  # ---- kontrol-39: AT-017 anchor-design-vector (F1; const-YOK, şekil-matematiği-donuk) ----
+  bash tests/at017_anchor_design.sh > /dev/null 2>&1
+  kontrol $? "AT-017: anchor-design-vector (F1 şekli D5-uyumlu; §4.4-parite-beyanlı; const-YOK)"
 
   rm -rf "$SB"
   echo ""

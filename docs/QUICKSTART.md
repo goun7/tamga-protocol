@@ -13,6 +13,10 @@ tamga --help                      # command overview (no engine needed)
 The 67 MB wasmtime engine is **not** in the wheel. It is downloaded once,
 SHA256-pinned, on your first `tamga run` — verification commands never need it.
 
+Air-gapped host? Pre-place the pinned binary at either of the two accepted
+locations and the downloader is skipped entirely (code path: `tamga_bootstrap`):
+`~/.cache/tamga/bin/wasmtime` or `<site-packages>/tools/bin/wasmtime`.
+
 ## 1. Generate an agent seed (printed once, never stored)
 
 ```bash

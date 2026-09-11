@@ -1,3 +1,31 @@
+# Release notes — v0.2.1
+
+Release date: 2026-09-11 · Tag: `v0.2.1` · Branch: `main`
+
+## What is in this release
+
+**v0.2.1 — license-metadata fix + quickstart wizard release.** Two changes, one
+already shipped in code and one that is metadata-only:
+
+- **License metadata corrected: MIT → Apache-2.0.** The repository `LICENSE` file
+  has been Apache-2.0 since the first public release; `pyproject.toml` carried a
+  stale `MIT` string, and PyPI 0.2.0 inherited it. The mismatch was caught by
+  smartflowproai-lang in the x402 conformance-corpus thread
+  ([#3396, 2026-09-11](https://github.com/x402-foundation/x402/issues/3396#issuecomment-5635445291))
+  — fixed forward-only in 0.2.1; the 0.2.0 artifacts keep their historical
+  metadata (we don't rewrite history).
+- **Quickstart wizard on PyPI** (code shipped in 0.2.0, surfaced here as the
+  user-facing path): `pip install tamga-protocol && tamga quickstart <dir>` —
+  one command produces the first package end-to-end: embedded tc-a1 template
+  agent → fresh ed25519 key (D3 seed) → sign → validate → grant → FIRST RUN →
+  ledger-verify. Verified end-to-end from a clean venv against live PyPI
+  (5 steps green, `spec_version` 0.2.0, engine auto-fetched).
+
+Verification: fast suite 42/42, slow suite 45/45 (RUN_SLOW), CI green; live
+PyPI E2E re-run on the published 0.2.1 wheel before tagging.
+
+---
+
 # Release notes — v0.2.0 (FINAL)
 
 Release date: 2026-09-11 · Tag: `v0.2.0` · Branch: `main`

@@ -169,7 +169,7 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical architecture: formats, chain, cosign, reason codes, limits |
 | [docs/DESIGN-PARTNERS.md](docs/DESIGN-PARTNERS.md) | Design-partner program (v0.1→v0.2): free migration + a seat in the freeze loop |
 | [RFC-008-external-receipt-DRAFT.md](docs/RFC-008-external-receipt-DRAFT.md) | DRAFT (pilot-pending): external-receipt binding schema — x402 and other rails, three open questions the pilot day will close |
-| [RELEASE.md](RELEASE.md) | v0.2.0 FINAL release notes (const flip, RFC-007) + rc archive: highlights, verification, honest limits |
+| [RELEASE.md](RELEASE.md) | v0.2.1 license-metadata fix + quickstart E2E · v0.2.0 FINAL release notes (const flip, RFC-007) + rc archive: highlights, verification, honest limits |
 | [PLAIN-TURKISH.md](docs/PLAIN-TURKISH.md) | plain-language explainer (Turkish + short English summary) — no code reading required |
 | [docs/RFC-001-manifest.md](docs/RFC-001-manifest.md) | Package manifest schema contract (v0.1-FINAL, frozen, English translation) |
 | [docs/RFC-002-runner.md](docs/RFC-002-runner.md) | Runner API + snapshot transport contract (v0.1-FINAL, frozen, English translation) |

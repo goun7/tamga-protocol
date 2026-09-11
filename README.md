@@ -169,6 +169,7 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical architecture: formats, chain, cosign, reason codes, limits |
 | [docs/DESIGN-PARTNERS.md](docs/DESIGN-PARTNERS.md) | Design-partner program (v0.1→v0.2): free migration + a seat in the freeze loop |
 | [RFC-008-external-receipt-DRAFT.md](docs/RFC-008-external-receipt-DRAFT.md) | DRAFT (pilot-pending): external-receipt binding schema — x402 and other rails, three open questions the pilot day will close |
+| [RFC-009-external-chain-anchor-DRAFT.md](docs/RFC-009-external-chain-anchor-DRAFT.md) | DRAFT (pilot-pending): external chain anchors — our ledger citing foreign-registry facts (epoch-10 evidence, frozen D5 math via AT-017; op/const gated behind the pilot) |
 | [RELEASE.md](RELEASE.md) | v0.2.2 wheel-side explain + keccak fix · v0.2.1 license fix + quickstart E2E · v0.2.0 FINAL const flip + rc archive |
 | [PLAIN-TURKISH.md](docs/PLAIN-TURKISH.md) | plain-language explainer (Turkish + short English summary) — no code reading required |
 | [docs/RFC-001-manifest.md](docs/RFC-001-manifest.md) | Package manifest schema contract (v0.1-FINAL, frozen, English translation) |

@@ -11,13 +11,13 @@ bash tests/setup.sh && pip install -r requirements.txt   # bir-kerelik: pinned w
 bash tests/run_all.sh
 ```
 
-Beklenen kuyruk: `RESULT: 31 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-09**.
+Beklenen kuyruk: `RESULT: 40 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-11** (40/40).
 Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 
-Yavaş ek-kontrol (çapraz-host, simnet fixtürleri — CI'da yok):
+Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 32 kontrol
+RUN_SLOW=1 bash tests/run_all.sh     # → 43 kontrol (43/43, 2026-09-11'de doğrulandı)
 ```
 
 ## 2. Hiçbir şey kurmadan zincir doğrulayın (yalnız-stdlib)

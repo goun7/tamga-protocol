@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 35/35 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 40/40 controls, ~20 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)
@@ -19,7 +19,9 @@ Local-only adversarial tools (not CI-hosted: they depend on gitignored simnet no
 fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip rollback
 attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
 runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
-the c30 cross-host control (now 31/31 baseline + c30 slow control).
+the c30 cross-host control, AT-019 (published-wheel nacl-blocked verification) and
+AT-020 (self-pilot: three-leg delivered/ran/satisfied proof) — 40/40 fast baseline,
+43/43 with RUN_SLOW=1.
 ## Control families
 
 | Family | What it proves |

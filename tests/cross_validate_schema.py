@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """RFC-001 schema cross-validation (closes the validator TODO — Audit-1 note).
 
-Method: decision-level equivalence. For each sample (6 real vectors + 36 mutations):
-  A) jsonschema (draft 2020-12, specs/manifest-0.1.0.schema.json) — is it valid?
+Method: decision-level equivalence. For each sample (7 real vectors + 36 mutations):
+  A) jsonschema (draft 2020-12, specs/manifest-0.2.0.schema.json) — is it valid?
   B) tamga_validator.py (stdlib schema block) — is it a schema-family RED (otherwise ACCEPT /
      hash/imza ailesi RED mi)?
 Claim: A-invalid ⇔ B-schema-RED. A divergence = drift: one of the two implementations deviates from RFC-001.
-Faz-B (RFC-007): 9 draft-phase probes — specs/manifest-0.2.0-draft.schema.json additive
-contract (0.1.0 manifests stay valid; runtime.net validates under draft only; tc-a6's
-spec_version flip is the documented v0.2 gate, not drift).
+v0.2.0-flip (2026-09-11, kurucu-ONAYLI): frozen-ref = yükseltilmiş-0.2.0 şeması (floor 0.2.0);
+m02 ters-döndü (0.1.0 downgrade probu), tc-a7 gerçek-vektör olarak katıldı, tc-a6 exception'ı
+öldü (üst-sınır artık açık). Faz-C (RFC-008/M6): 0.3.0-draft additive-contract 0.2.0 tabanından
+türetilir — 0.1.0 history'dir.
 
 Run: .venv-jsonschema/bin/python tests/cross_validate_schema.py
 Evidence: .evidence/VALIDASYON/<date>/schema-crossvalidation.log
@@ -24,7 +25,7 @@ except ImportError:
     print("ERROR: jsonschema missing — run with .venv-jsonschema/bin/python")
     sys.exit(2)
 
-SCHEMA = json.loads((ROOT / "specs/manifest-0.1.0.schema.json").read_text(encoding="utf-8"))
+SCHEMA = json.loads((ROOT / "specs/manifest-0.2.0.schema.json").read_text(encoding="utf-8"))
 VEC = ROOT / "tests/vectors"
 SB = ROOT / "tests/simnet/.schemacheck"
 OUT = []
@@ -75,7 +76,7 @@ def mutants(base: dict):
         out.append((name, m))
 
     add("m01-spec-yok", lambda m: m.pop("spec_version"))
-    add("m02-spec-0.2.0", lambda m: m.update(spec_version="0.2.0"))
+    add("m02-spec-0.1.0-downgrade", lambda m: m.update(spec_version="0.1.0"))  # v0.2.0-flip: floor kesildi
     add("m03-bilinmeyen-kok", lambda m: m.update(hack=1))
     add("m04-package-yok", lambda m: m.pop("package"))
     add("m05-ad-buyuk", lambda m: m["package"].update(name="BadName"))
@@ -141,7 +142,7 @@ def main():
 
     ok = 0; total = 0
     log("## Real vectors")
-    for tc in ["tc-a1", "tc-a2", "tc-a3", "tc-a4", "tc-a5", "tc-a6"]:
+    for tc in ["tc-a1", "tc-a2", "tc-a3", "tc-a4", "tc-a5", "tc-a6", "tc-a7"]:
         total += 1
         m = json.loads((VEC / tc / "tamga.json").read_text(encoding="utf-8"))
         if "payment" not in m:
@@ -155,14 +156,13 @@ def main():
         ok += check(name, m)
     log("")
 
-    # ---- Faz-B: v0.2 DRAFT additive contract (RFC-007) --------------------
-    # Dondur-ikili (0.1.0 schema + validator) yukarıdaki her vektöre aynı kararı
-    # vermeye devam eder; 0.2.0 DRAFT şema EKLEYİCİDİR: her 0.1.0 manifest'i
-    # onun altında da geçerli kalır, runtime.net'li manifest YALNIZ draft'ta
-    # geçerlidir (üst-sınır sapması belgelenmiş v0.2 kapısı — validator const'ı
-    # kurucu sürüm-flip'ine kadar 0.1.0 kalır; bu drift değil tasarımdır).
-    log("## v0.2 draft additive contract (RFC-007)")
-    draft = json.loads((ROOT / "specs/manifest-0.2.0-draft.schema.json").read_text(encoding="utf-8"))
+    # ---- Faz-C: v0.2.0 promoted floor + 0.3.0-draft additive contract (RFC-008/M6) ----
+    # v0.2.0-flip (2026-09-11): frozen-ref = promoted-0.2.0 şeması (const 0.2.0). Her
+    # canlı-vektör yukarıdaki ikili-kararıyla AYNI kalır (tc-a7 hariç — o 0.1.0 taşıdığı
+    # için promoted-frozen'da RED'dir; validator'la aynı fikirde). 0.3.0-draft EKLEYİCİDİR:
+    # her 0.2.0 manifest'i onun altında da geçerli kalır; external_receipt yalnız 0.3.0'da.
+    log("## v0.3.0-draft additive contract (RFC-008/M6; base = promoted 0.2.0)")
+    draft = json.loads((ROOT / "specs/manifest-0.3.0-draft.schema.json").read_text(encoding="utf-8"))
     draft_state = {"ok": 0, "total": 0}
 
     def draft_check(name, manifest, expect_draft_valid):
@@ -174,19 +174,18 @@ def main():
         log(f"[{'AGREE' if agree else '!!DRIFT!!'}] {name:24s} draft={'valid' if valid else 'INVALID':8s} "
             f"(beklenen={'valid' if expect_draft_valid else 'INVALID'})")
 
-    for tc in ["tc-a1", "tc-a2", "tc-a3", "tc-a4", "tc-a5", "tc-a6"]:
+    for tc in ["tc-a1", "tc-a2", "tc-a3", "tc-a4", "tc-a5", "tc-a6", "tc-a7"]:
         m = json.loads((VEC / tc / "tamga.json").read_text(encoding="utf-8"))
         if "payment" not in m:
             m["payment"] = {"schemes": ["tamga-sim/1"]}
-        # beklenti = donuk-şema-kararı: draft EKLEYİCİ → hiçbir donmuş-vektör
-        # karar-sınıfı değiştiremez. TEK-istisna tc-a6: o vektör spec_version
-        # "0.2.0" taşır — donuk-çift onu RED'ler (üst-sınır), draft KABUL eder;
-        # bu-flip belgelenen v0.2 kapısının kendisidir, drift-değil.
+        # beklenti = promoted-frozen-kararı: 0.3.0-draft EKLEYİCİ → hiçbir 0.2.0-geçerli
+        # vektör karar-sınıfı değiştiremez; 0.2.0-RED'ler (a3 unknown-field, a4 root-cap,
+        # a2 wasm-hash, a5 imza, a7 0.1.0-floor) şema-tarafında da RED kalmalı.
+        # NOT: a2/a5 imza-RED'leri jsonschema-cesidinden DEĞİL (o validator-tarafı RED);
+        # şema-tarafı beklentisi içerik-uyumuyla türetilir.
         frozen_valid = not list(Draft202012Validator(SCHEMA).iter_errors(m))
         expect = frozen_valid
-        if tc == "tc-a6":
-            expect = m.get("spec_version") in draft["properties"]["spec_version"]["enum"]
-        draft_check(f"{tc}/under-draft", m, expect)
+        draft_check(f"{tc}/under-0.3.0-draft", m, expect)
     v2 = json.loads(json.dumps(base))
     v2["spec_version"] = "0.2.0"
     v2["runtime"]["net"] = {"egress": ["127.0.0.1:1"], "max_bytes_per_run": 1048576, "timeout_s": 10}
@@ -198,16 +197,19 @@ def main():
     v2_big["runtime"]["net"]["max_bytes_per_run"] = 8388609
     draft_check("v0.2-cap-overflow", v2_big, False)
 
-    # --- geçiş-matrisi (P2, 2026-09-09): yükseltme-DOWNgrade-yönleri ---
-    log("## spec_version geçiş matrisi (yükseltme + downgrade)")
+    # --- geçiş-matrisi (P2, 2026-09-09; 0.2.0-flip-tazeleme): yükseltme-downgrade-yönleri ---
+    log("## spec_version geçiş matrisi (yükseltme + downgrade; 0.2.0-flip sonrası)")
     a1 = json.loads((VEC / "tc-a1" / "tamga.json").read_text(encoding="utf-8"))
     a1_v2 = json.loads(json.dumps(a1))
     a1_v2["spec_version"] = "0.2.0"
     a1_v2["runtime"]["net"] = {"egress": ["127.0.0.1:1"], "max_bytes_per_run": 1048576, "timeout_s": 10}
+    a1_v1 = json.loads(json.dumps(a1))
+    a1_v1["spec_version"] = "0.1.0"   # legacy-downgrade probu
+    legacy = json.loads((ROOT / "specs/manifest-0.1.0.schema.json").read_text(encoding="utf-8"))
     matrix = [
-        ("down:0.2.0→frozen-schema", a1_v2, SCHEMA, False),
-        ("up:0.1.0→draft-schema", a1, draft, True),
-        ("down:0.2.0→draft-schema", a1_v2, draft, True),
+        ("down:0.1.0→promoted-0.2.0", a1_v1, SCHEMA, False),
+        ("up:0.2.0→0.3.0-draft", a1_v2, draft, True),
+        ("down:0.3.0→promoted-0.2.0", json.loads((VEC / "m6-external-receipt" / "ok-external-receipt.json").read_text(encoding="utf-8")), SCHEMA, False),
     ]
     for name, m, schema, expect in matrix:
         valid = not list(Draft202012Validator(schema).iter_errors(m))
@@ -216,9 +218,6 @@ def main():
         ok += 1 if agree else 0
         log(f"[{'AGREE' if agree else '!!DRIFT!!'}] {name:28s} {'valid' if valid else 'RED':8s} "
             f"(beklenen={'valid' if expect else 'RED'})")
-    v2_big = json.loads(json.dumps(v2))
-    v2_big["runtime"]["net"]["max_bytes_per_run"] = 8388609
-    draft_check("v0.2-cap-overflow", v2_big, False)
     total += draft_state["total"]; ok += draft_state["ok"]
 
     # --- v0.3.0-draft satiri (M6, 2026-09-10): RFC-008 external_receipt dilimi ---
@@ -226,10 +225,10 @@ def main():
     a1_v3 = json.loads(json.dumps(a1))
     a1_v3["spec_version"] = "0.3.0"
     matrix3 = [
-        ("up:0.1.0→v0.3.0-draft", a1, draft3, True),
-        ("down:0.2.0→v0.3.0-draft", a1_v2, draft3, True),
+        ("up:0.2.0→v0.3.0-draft", a1_v2, draft3, True),
+        ("up:0.1.0-legacy→v0.3.0-draft", a1_v1, draft3, False),
         ("ext-receipt:0.3.0→v0.3.0-draft", json.loads((VEC / "m6-external-receipt" / "ok-external-receipt.json").read_text(encoding="utf-8")), draft3, True),
-        ("down:0.3.0→v0.2.0-draft", json.loads((VEC / "m6-external-receipt" / "ok-external-receipt.json").read_text(encoding="utf-8")), draft, False),
+        ("down:0.3.0→v0.2.0-draft-LEGACY", json.loads((VEC / "m6-external-receipt" / "ok-external-receipt.json").read_text(encoding="utf-8")), legacy, False),
     ]
     log("## v0.3.0-draft gecis-satiri (M6 additive-contract)")
     for name, m, schema, expect in matrix3:

@@ -68,7 +68,7 @@ def validate(pkg: pathlib.Path, known_prior_hashes=()):
         if k not in TOP: bad(f"(root).{k}", "unknown field (D3: strict rejection)")
     for k in ("spec_version", "package", "runtime", "memory", "capabilities", "signature"):
         if k not in m: bad(k, "required field missing")
-    if m.get("spec_version") != "0.1.0": bad("spec_version", "const ihlali (0.1.0)")
+    if m.get("spec_version") != "0.2.0": bad("spec_version", "const ihlali (0.2.0)")  # v0.2.0-flip 2026-09-11 (kurucu-ONAYLI; additive: 0.1.0 artık üst-sınır-RED)
 
     p = m.get("package")
     if isinstance(p, dict):

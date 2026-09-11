@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1.0",
+  "spec_version": "0.2.0",
   "package": {
     "name": "tamga-net-demo",
     "version": "0.1.0",
@@ -32,7 +32,7 @@
   },
   "signature": {
     "algo": "ed25519",
-    "key": "986b7477239efcb3c19193773bfa7d8b6f752eef2dc656a3c02a070b7bd39a63",
-    "sig": "f0370e24c576fc9d6becb3d6ec3d0f40576693080d7f9135771dde436b9c8f93c9de0772ec0bf4d84e81c2d9f0a7ec7ef8fa7c49660b28779fd75636cc8b4002"
+    "key": "8f6e44601df69d0c4908bd1134e41c5e3304749c6cdd84593fb26512e9fb6ceb",
+    "sig": "61767ceb1614fbf57c4361821ad05d964dab0f38f5253a99fe29b4312b24f08fcec9f52e8dd5ce8386c63202e38b56f2de92ce0aa713eef2075f8a736e2d390b"
   }
 }

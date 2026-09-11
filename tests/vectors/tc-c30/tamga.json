@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1.0",
+  "spec_version": "0.2.0",
   "package": {
     "name": "tamga-c30-ornek",
     "version": "0.1.0",
@@ -32,7 +32,7 @@
   },
   "signature": {
     "algo": "ed25519",
-    "key": "637c85ab48839c4392b52f6d4871f8c79e2b2dbc87fca538e13b2f194feee177",
-    "sig": "624a10b9f959e76b4e3712950abb07dd60f00f4a21aa53f3e3c44dd28ca0ab83ae23139b2924c71d9e7479001d7cc2617a36fece181efe4be1ec16e083577d0d"
+    "key": "8f6e44601df69d0c4908bd1134e41c5e3304749c6cdd84593fb26512e9fb6ceb",
+    "sig": "accd3b33381a9f029cebfdf036f60dd7ae508881a5ddaa820e342415d6827e1e515aafae1fbff16fea37125d7b0d78244ebe732dfdc54829de1eb9e6401d4c09"
   }
 }

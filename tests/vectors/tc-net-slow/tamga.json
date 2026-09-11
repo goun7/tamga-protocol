@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1.0",
+  "spec_version": "0.2.0",
   "package": {
     "name": "tamga-net-slow",
     "version": "0.1.0",
@@ -32,7 +32,7 @@
   },
   "signature": {
     "algo": "ed25519",
-    "key": "2d28005e1a173f9680c2a48d36489c750d4aef1e97bc5562a603b5788663bdbe",
-    "sig": "d33401262855a85d80bde8a811023d6db662c4c7097e4ceb8a7930f8485b067e59a42424ce8af1e13b9a6d42849d0e6132bf159dd61cb4968d03340afb82640c"
+    "key": "8f6e44601df69d0c4908bd1134e41c5e3304749c6cdd84593fb26512e9fb6ceb",
+    "sig": "19883f854f136a69b9cea231e154a86ccbaf82a4eb97ef9bf027acc2fae56628fc5aa41610c727ccab3e3adac0bff8aff6e312e0573d26c429df27e06aa55707"
   }
 }

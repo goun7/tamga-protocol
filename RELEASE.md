@@ -1,3 +1,34 @@
+# Release notes — v0.2.0 (FINAL)
+
+Release date: 2026-09-11 · Tag: `v0.2.0` · Branch: `main`
+
+## What is in this release
+
+**v0.2.0 FINAL — the founder-approved `spec_version` const flip.** The validator now
+pins `spec_version: "0.2.0"` (0.1.0 manifests become legacy → `RED unsupported_spec_version`).
+The flip was executed per the pre-written `FAZ-KAPISI-FLIP-RUNBOOK`: with external pilot
+counterparties silent, the runbook's own fallback clause ("pilot gelmezse kurucu kararı
+pilot'suz-flip masaya") was invoked with fresh-green gates: AT-020 self-pilot three-leg
+proof, crossval 60/60, suite 41 fast + 44 slow, CI green.
+
+### Flip mechanics (all reversible via git; none normative beyond the const)
+
+- `tamga_validator.py` const `0.1.0` → `0.2.0` (single line, dated comment)
+- All 20 repo fixtures migrated 0.1.0 → 0.2.0 and re-signed with the operator key
+  (`tools/migrate_v020_flip.py`); adversarial vectors keep their DESIGNED RED reasons
+  (tc-a2 forged signature → `code_hash_mismatch`, tc-a4 `root` capability, tc-a3
+  `admin_backdoor`, tc-a5 forged signature → `signature_invalid`)
+- New vector **tc-a7**: the 0.1.0 downgrade probe (post-flip upper-bound RED)
+- Schema promotion: `specs/manifest-0.2.0.schema.json` (const `"0.2.0"`, additive
+  runtime.net over v0.1); `manifest-0.2.0-draft.schema.json` retired to history;
+  0.3.0-draft enum re-based to `["0.2.0","0.3.0"]`
+- Cross-validation re-based on the promoted schema: **60/60 AGREE** (m02 mutation
+  reversed to a downgrade probe; tc-a6 exception closed — upper bound now open)
+- Suite: fast 41/41 (AT-001a now expects 2 ACCEPT + 5 RED) · slow 44/44
+  (RUN_SLOW: c30 + AT-019 + AT-020)
+
+---
+
 # Release notes — v0.2.0-rc.2
 
 Release date: 2026-09-11 · Tag: `v0.2.0-rc.2` · Branch: `main`

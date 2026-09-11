@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/goun7/tamga-protocol/main/specs/manifest-0.3.0-draft.schema.json",
-  "title": "Tamga Protocol manifest - v0.3.0 DRAFT (RFC-008 external-receipt + M6 schema slice; additive, PILOT-PENDING)",
+  "$id": "https://raw.githubusercontent.com/goun7/tamga-protocol/main/specs/manifest-0.2.0.schema.json",
+  "title": "Tamga Protocol manifest — v0.2.0 (RFC-007; promoted 2026-09-11, founder-approved flip)",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,10 +14,7 @@
   ],
   "properties": {
     "spec_version": {
-      "enum": [
-        "0.2.0",
-        "0.3.0"
-      ]
+      "const": "0.2.0"
     },
     "package": {
       "type": "object",
@@ -201,54 +198,7 @@
           "pattern": "^[a-f0-9]{128}$"
         }
       }
-    },
-    "external_receipt": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "rail",
-        "receipt_id",
-        "content_hash"
-      ],
-      "properties": {
-        "rail": {
-          "type": "string",
-          "pattern": "^[a-z0-9-]{1,24}$"
-        },
-        "receipt_id": {
-          "type": "string",
-          "pattern": "^0x[0-9a-f]{64}$"
-        },
-        "content_hash": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "alg",
-            "hex"
-          ],
-          "properties": {
-            "alg": {
-              "enum": [
-                "sha256",
-                "keccak256"
-              ]
-            },
-            "hex": {
-              "type": "string",
-              "pattern": "^0x[0-9a-f]{64}$"
-            }
-          }
-        },
-        "receipt_uri": {
-          "type": "string",
-          "pattern": "^https://"
-        },
-        "retention_note": {
-          "type": "string",
-          "maxLength": 256
-        }
-      }
     }
   },
-  "description": "RFC-007 v0.2 draft: adds runtime.net (R1, manifest-embedded net declaration, founder-approved 2026-09-07). The v0.1 manifest stays frozen — this draft is ADDITIVE: every 0.1.0 manifest is a valid 0.2.0 manifest. Ledger-side v0.2 additions (delivery_hash {alg,hex} D10; D12 conditional unity) live in RFC-003 §10/§11, not here — receipts are chain records, not manifest fields. — v0.2.0-flip (2026-09-11): spec_version floor raised to 0.2.0; 0.1.0 is legacy history."
+  "description": "RFC-007 v0.2 FINAL: runtime.net embedded declaration, additive over v0.1 with the spec_version floor CUT to 0.2.0 by the founder flip (2026-09-11). Every v0.1.0 manifest is history; the validator const now enforces 0.2.0. Ledger-side v0.2 additions (delivery_hash {alg,hex} D10; D12 conditional unity) live in RFC-003 §10/§11, not here."
 }

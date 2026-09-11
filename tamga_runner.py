@@ -1066,7 +1066,7 @@ commands:
                                   memory operations on the node state (flags, not subcommands)
 
 setup: bash tests/setup.sh installs the pinned wasmtime engine.
-version: 0.1.0-alpha
+version: 0.2.0 (spec_version-flip 2026-09-11, kurucu-ONAYLI)
 exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-18).
 """
 if __name__ == "__main__":

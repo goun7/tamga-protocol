@@ -11,13 +11,13 @@ bash tests/setup.sh && pip install -r requirements.txt   # bir-kerelik: pinned w
 bash tests/run_all.sh
 ```
 
-Beklenen kuyruk: `RESULT: 40 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-11** (40/40).
+Beklenen kuyruk: `RESULT: 41 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-11** (41/41; v0.2.0-flip-sonrası).
 Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 43 kontrol (43/43, 2026-09-11'de doğrulandı)
+RUN_SLOW=1 bash tests/run_all.sh     # → 44 kontrol (44/44 flip-sonrası; PyPI 0.2.0-final-yayınına-dek 43/44)
 ```
 
 ## 2. Hiçbir şey kurmadan zincir doğrulayın (yalnız-stdlib)
@@ -43,7 +43,7 @@ python3 tamga_bundle.py tests/vectors/tc-net-demo -o /tmp/kanit
 # → /tmp/kanit/tc-net-demo-bundle.json + .md (kayıtlar bayt-eşit kopyalanır)
 ```
 
-## 4. Şemayı çapraz-doğrulayın (59/59)
+## 4. Şemayı çapraz-doğrulayın (60/60)
 
 ```bash
 python3 -m venv .venv-jsonschema && . .venv-jsonschema/bin/activate

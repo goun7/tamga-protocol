@@ -26,7 +26,7 @@ ok $? "M6: sentetik-vektorler (1-VALID + 4-RED beklenigi-gibi)"
 
 "$VENV" - > "$LOG.2" 2>&1 <<'PYEOF'
 import json, jsonschema, pathlib
-s2 = json.load(open("specs/manifest-0.2.0-draft.schema.json"))
+s2 = json.load(open("specs/manifest-0.2.0.schema.json"))
 s3 = json.load(open("specs/manifest-0.3.0-draft.schema.json"))
 v2 = jsonschema.Draft202012Validator(s2)
 v3 = jsonschema.Draft202012Validator(s3)
@@ -52,7 +52,7 @@ ok $? "M6: additive-contract (VALID-koruma + RED-koruma)"
 "$VENV" - > "$LOG.3" 2>&1 <<'PYEOF'
 import json, jsonschema
 s3 = json.load(open("specs/manifest-0.3.0-draft.schema.json"))
-s2 = json.load(open("specs/manifest-0.2.0-draft.schema.json"))
+s2 = json.load(open("specs/manifest-0.2.0.schema.json"))
 v2 = jsonschema.Draft202012Validator(s2)
 ok_ext = json.load(open("tests/vectors/m6-external-receipt/ok-external-receipt.json"))
 errs = list(v2.iter_errors(ok_ext))

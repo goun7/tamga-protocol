@@ -109,7 +109,7 @@ git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate   # or: pip install --break-system-packages -r requirements.txt
 pip install -r requirements.txt
 bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
-bash tests/run_all.sh          # 40/40 controls — ~20 s (43 with RUN_SLOW=1)
+bash tests/run_all.sh          # 41/41 controls — ~20 s (44 with RUN_SLOW=1)
 
 # your first agent (copy the sample vector as the package — see docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice
@@ -134,11 +134,11 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 ## One-command regression
 
 ```bash
-bash tests/run_all.sh        # 40/40 controls — families below, ~20 s on a laptop (43 with RUN_SLOW=1)
+bash tests/run_all.sh        # 41/41 controls — families below, ~20 s on a laptop (44 with RUN_SLOW=1)
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
 (AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory
-import (AT-005), manifest-schema cross-validation (59/59 incl. the v0.2 draft additive contract + spec_version transition matrix), plus tokenomics/economy invariants. Details:
+import (AT-005), manifest-schema cross-validation (60/60 incl. the promoted v0.2 schema + spec_version transition matrix), plus tokenomics/economy invariants. Details:
 [docs/TESTS.md](docs/TESTS.md). CI runs the full suite on every push (ubuntu-latest,
 wasmtime v48.0.1).
 
@@ -176,7 +176,7 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [docs/AUDIT-GATE.md](docs/AUDIT-GATE.md) | The 8-step gate every change passes |
 | [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md) | 30-second demo: expected flow |
 | [docs/ERC-8004-MAPPING.md](docs/ERC-8004-MAPPING.md) | ERC-8004 ↔ Tamga mapping (Phase-3 design note) |
-| [specs/manifest-0.1.0.schema.json](specs/manifest-0.1.0.schema.json) | Package manifest JSON Schema |
+| [specs/manifest-0.2.0.schema.json](specs/manifest-0.2.0.schema.json) | Package manifest JSON Schema (v0.2; 0.1.0 legacy frozen) |
 | [SECURITY.md](SECURITY.md) | Vulnerability disclosure + reporting forms |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 

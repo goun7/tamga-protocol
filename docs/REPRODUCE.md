@@ -23,13 +23,13 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 40 PASS, 0 FAIL`. Last verified here: **2026-09-11** (40/40). The evidence log lands in
+Expected tail: `RESULT: 41 PASS, 0 FAIL`. Last verified here: **2026-09-11** (41/41; post-v0.2.0-flip). The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`.
 
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 43 controls (43/43 verified 2026-09-11)
+RUN_SLOW=1 bash tests/run_all.sh     # → 44 controls (44/44 post-flip; 43/44 until the PyPI 0.2.0-final publish lands)
 ```
 
 ## 2. Verify a chain without installing anything (stdlib-only)
@@ -56,7 +56,7 @@ Four checks (mini-verifier, pairing hash, explain chain-integrity, nacl-blocker
 proof) run with `import nacl` actively forbidden — the counterparty path really
 is stdlib-only, and this command is the proof.
 
-## 4. Cross-validate the schema (59/59)
+## 4. Cross-validate the schema (60/60)
 
 ```bash
 python3 -m venv .venv-jsonschema && . .venv-jsonschema/bin/activate

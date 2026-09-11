@@ -34,9 +34,10 @@ bekle_red() { kontrol "$@"; }  # semantic alias for expected-RED greps (grep -q 
 {
   echo "# run_all — $(date -Iseconds)"
 
-  echo "--- AT-001a: manifest validation vectors (expecting 1 ACCEPT + 5 RED)"
+  echo "--- AT-001a: manifest validation vectors (expecting 2 ACCEPT + 5 RED; v0.2.0-flip 2026-09-11)"
   python3 tamga_validator.py validate tests/vectors/tc-a1 | grep -q '^ACCEPT'; kontrol $? "tc-a1 ACCEPT"
-  for tc in tc-a2 tc-a3 tc-a4 tc-a5 tc-a6; do
+  python3 tamga_validator.py validate tests/vectors/tc-a6 | grep -q '^ACCEPT'; kontrol $? "tc-a6 ACCEPT (v0.2.0 üst-sınır flip-SONRASI açık)"
+  for tc in tc-a2 tc-a3 tc-a4 tc-a5 tc-a7; do
     if python3 tamga_validator.py validate "tests/vectors/$tc" | grep -q '^RED'; then kontrol 0 "$tc RED"; else kontrol 1 "$tc RED"; fi
   done
 

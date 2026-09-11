@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: tamga-protocol
-Version: 0.2.0rc2
+Version: 0.2.0
 Summary: Self-custodial hash-chained work-receipt ledger for autonomous AI agents (RFC-002/003/007)
 Author: Tamga Protocol
 License: MIT

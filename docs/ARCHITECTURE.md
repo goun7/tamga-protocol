@@ -23,7 +23,7 @@ A node that receives a snapshot must already hold the matching `tamga.json` +
 
 | Artifact | Format | Notes |
 |---|---|---|
-| Manifest | `tamga.json`, schema `specs/manifest-0.1.0.schema.json` — contract: [docs/RFC-001-manifest.md](RFC-001-manifest.md) (v0.1-FINAL) | `spec_version` pinned `"0.1.0"`; signature over JCS with `sig` emptied |
+| Manifest | `tamga.json`, schema `specs/manifest-0.2.0.schema.json` — contract: [docs/RFC-001-manifest.md](RFC-001-manifest.md) (v0.1-FINAL) + RFC-007 v0.2 | `spec_version` pinned `"0.2.0"` (founder flip 2026-09-11); signature over JCS with `sig` emptied |
 | Ledger | `tamga-sim/1` JSONL | each record: `seq` (1-based) + `prev` + `h = sha256(prev \| jcs(record))` |
 | Snapshot | `tamga-snapshot/1` binary envelope | header (plaintext metadata incl. `agent_id`, `pkg_name`) + encrypted body |
 

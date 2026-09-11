@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tamga-protocol"
-version = "0.2.0rc2"
+version = "0.2.0"
 description = "Self-custodial hash-chained work-receipt ledger for autonomous AI agents (RFC-002/003/007)"
 readme = "docs/QUICKSTART.md"
 requires-python = ">=3.10"

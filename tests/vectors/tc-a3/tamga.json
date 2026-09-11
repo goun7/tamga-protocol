@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1.0",
+  "spec_version": "0.2.0",
   "package": {
     "name": "tamga-ornek-ajani",
     "version": "0.1.0",
@@ -33,7 +33,7 @@
   "signature": {
     "algo": "ed25519",
     "key": "8f6e44601df69d0c4908bd1134e41c5e3304749c6cdd84593fb26512e9fb6ceb",
-    "sig": "06660f1c6ac91fee8444404d80e650443fb774ea00327141cada00f169cefca0bba3299055860250e198d575830161505a06567f4c9e3e533fed2e7ed9053400"
+    "sig": "d6e91a1cfdb9dfdd6eb1d19dca1168a8c97efa832005d72da000a2135658b9f0fee86be78d6819f455a5c1a8f066c1f30e4b51456302e8052b1de039e1817806"
   },
   "admin_backdoor": true
 }

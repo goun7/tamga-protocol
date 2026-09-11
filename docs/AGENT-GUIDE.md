@@ -32,7 +32,7 @@ pip install pynacl     # the only runtime dependency
 cargo build --release --target wasm32-wasip2
 
 # 2) manifest — copy tests/vectors/tc-a1/tamga.json, change package.name
-#    schema: specs/manifest-0.1.0.schema.json (RFC-001 v0.1-FINAL)
+#    schema: specs/manifest-0.2.0.schema.json (RFC-001 v0.1-FINAL + RFC-007 v0.2)
 
 # 3) sign and validate
 python3 tamga_validator.py keygen tests/keys/alice
@@ -52,7 +52,7 @@ The `run` output includes `session`, `wall_ms`, `cpu_saat`, `ram_gb_sn`, `io_mb`
 
 | Field | Rule | Limit |
 |---|---|---|
-| `spec_version` | `"0.1.0"` pinned | anything else → RED |
+| `spec_version` | `"0.2.0"` pinned (v0.2.0-flip 2026-09-11; 0.1.0 legacy → RED) | anything else → RED |
 | `package.name` | `[a-z0-9][a-z0-9-]{2,31}` | canonical owner |
 | `package.code.wasm_sha256` | 64-hex | must match the file exactly |
 | `package.code.target` | `"wasi-0.3/component"` pinned | — |

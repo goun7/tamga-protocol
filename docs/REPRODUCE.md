@@ -10,10 +10,13 @@ pip install tamga-protocol        # published: pypi.org/project/tamga-protocol
 tamga --version && tamga doctor   # engine-free paths report SAĞLIKLI
 ```
 
-Verification commands (`ledger-verify`, `verify-mini`, `bundle`, `explain`) work
+Verification commands (`ledger-verify`, `verify-mini`, `bundle`) work
 without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`.
-Last verified from the published wheel: **2026-09-10** (end-to-end log:
-`.evidence/QUICKSTART-PYPI/2026-09-10/`).
+(`explain` ships in the repository as `tools/explain.py` — run it from a clone,
+`python3 tools/explain.py --charge ledger.jsonl 2`; it is not yet in the
+published wheel.)
+Last verified from the published wheel (0.2.1): **2026-09-11** — quickstart
+E2E + ledger-verify + verify-mini + bundle, all green from a clean venv.
 
 ## 1. The full acceptance suite (40 controls, ~20 s)
 

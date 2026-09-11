@@ -29,3 +29,8 @@ private/
 tests/simnet/.tf/
 kanit/
 .mergen-id
+
+# python release artifacts (never enter the repo)
+build/
+dist/
+*.egg-info/

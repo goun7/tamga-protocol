@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (40 controls; 42 with RUN_SLOW=1 — incl. AT-019 wheel no-engine check)
+tests/run_all.sh — Tamga Protocol acceptance suite (40 controls; 43 with RUN_SLOW=1 — AT-019 wheel + AT-020 self-pilot)
 
 usage: bash tests/run_all.sh            # fast suite (~10 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -114,11 +114,15 @@ PY
     echo "--- AT-001c essence: 31s wall measurement (slow)"
     W=$(python3 tamga_runner.py run tests/simnet/node-C/pkg-c30 --seed "$(cat tests/simnet/seedC.hex)" | python3 -c 'import sys,json;print(json.load(sys.stdin).get("wall_ms",0))')
     if [ "$W" -ge 30000 ] 2>/dev/null; then kontrol 0 "c30 wall_ms=$W ≥ 30000"; else kontrol 1 "c30 wall_ms=$W < 30000"; fi
+    fi
 
   # ---- kontrol-41 (slow): AT-019 published-wheel nacl-blocked real verification ----
   bash tests/at019_wheel_noengine.sh > /dev/null 2>&1
   kontrol $? "AT-019: published-wheel nacl-blocked verification (no-deps install; restricted-host story)"
-    fi
+
+  # ---- kontrol-42 (slow): AT-020 SELF-PILOT ucd-bacakli-uctan-uca-teslimat (dis-taraf-YOK) ----
+  bash tests/at020_self_pilot.sh > /dev/null 2>&1
+  kontrol $? "AT-020: self-pilot uc-bacak-delivered/ran/satisfied + 2 tamper-negatif (dis-taraf-gerekmez)"
   fi
 
   # ---- kontrol-18: AT-005 memory import (multi-format, idempotent, oversize RED) ----

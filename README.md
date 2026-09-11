@@ -170,6 +170,7 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [docs/DESIGN-PARTNERS.md](docs/DESIGN-PARTNERS.md) | Design-partner program (v0.1→v0.2): free migration + a seat in the freeze loop |
 | [RFC-008-external-receipt-DRAFT.md](docs/RFC-008-external-receipt-DRAFT.md) | DRAFT (pilot-pending): external-receipt binding schema — x402 and other rails, three open questions the pilot day will close |
 | [RFC-009-external-chain-anchor-DRAFT.md](docs/RFC-009-external-chain-anchor-DRAFT.md) | DRAFT (pilot-pending): external chain anchors — our ledger citing foreign-registry facts (epoch-10 evidence, frozen D5 math via AT-017; op/const gated behind the pilot) |
+| [RFC-007-schema-revision-v02.md](docs/RFC-007-schema-revision-v02.md) | IMPLEMENTED: the v0.2 schema revision as a public record — R1 runtime.net migration, R2 labeled delivery_hash (safal207 fix), R3 D12 conditional unity; each with its acceptance-test evidence and founder-gated items labeled (R4 stays pilot-gated) |
 | [RELEASE.md](RELEASE.md) | v0.2.2 wheel-side explain + keccak fix · v0.2.1 license fix + quickstart E2E · v0.2.0 FINAL const flip + rc archive |
 | [PLAIN-TURKISH.md](docs/PLAIN-TURKISH.md) | plain-language explainer (Turkish + short English summary) — no code reading required |
 | [docs/RFC-001-manifest.md](docs/RFC-001-manifest.md) | Package manifest schema contract (v0.1-FINAL, frozen, English translation) |

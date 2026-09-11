@@ -1,0 +1,14 @@
+Epoch-10 replay (2026-09-10) - the promised flip
+=================================================
+Their tool  : verifier_epoque.py (one file, stdlib) - same command as the indeterminate round
+Manifest    : epoch 10, 57 facts
+Root recompute (their tool): 0x997c497ef5fe81b98290e990cd8f62e674bd55db8ab3c3ea85d3931b1e6ff71d
+Manifest root: conforms | ON-CHAIN root (eth_call, Sepolia): identical
+Inclusion   : fact 0x0236...36e2 - 6-level proof, VERIFIEE (position 55/57)
+Their verdict: VERT (green) - with the standing caveat: inclusion, not STARK validity
+
+Our independent double-check (added for this flip):
+Algorithm : theirs (OpenZeppelin StandardMerkleTree, leaf=k256(k256(bytes32)), sorted pairs)
+Hash impl : OURS (tools/keccak256.py - pure python, 3 KAT vectors)
+Result    : recomputed root 0x997c497e...71d equals manifest root - MATCH
+Files     : fact-proof.json, epoch-manifest-10.json, verifier_epoque.py (frozen copies)

@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-40%2F40%20PASS-brightgreen)](#one-command-regression)
+[![Tests](https://img.shields.io/badge/tests-41%2F41%20PASS-brightgreen)](#one-command-regression)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Phase%202%20--%20pilot-orange)](#roadmap)
 [![Reproduce](https://img.shields.io/badge/docs-reproduce%20it%20yourself-blue)](docs/REPRODUCE.md) — last full suite run: 2026-09-10
@@ -165,7 +165,7 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical architecture: formats, chain, cosign, reason codes, limits |
 | [docs/DESIGN-PARTNERS.md](docs/DESIGN-PARTNERS.md) | Design-partner program (v0.1→v0.2): free migration + a seat in the freeze loop |
 | [RFC-008-external-receipt-DRAFT.md](docs/RFC-008-external-receipt-DRAFT.md) | DRAFT (pilot-pending): external-receipt binding schema — x402 and other rails, three open questions the pilot day will close |
-| [RELEASE.md](RELEASE.md) | v0.2.0-rc.1 release notes (declared egress, RFC-007) + v0.1 archive: highlights, verification, honest limits |
+| [RELEASE.md](RELEASE.md) | v0.2.0 FINAL release notes (const flip, RFC-007) + rc archive: highlights, verification, honest limits |
 | [PLAIN-TURKISH.md](docs/PLAIN-TURKISH.md) | plain-language explainer (Turkish + short English summary) — no code reading required |
 | [docs/RFC-001-manifest.md](docs/RFC-001-manifest.md) | Package manifest schema contract (v0.1-FINAL, frozen, English translation) |
 | [docs/RFC-002-runner.md](docs/RFC-002-runner.md) | Runner API + snapshot transport contract (v0.1-FINAL, frozen, English translation) |

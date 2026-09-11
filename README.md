@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-41%2F41%20PASS-brightgreen)](#one-command-regression)
+[![Tests](https://img.shields.io/badge/tests-42%2F42%20PASS-brightgreen)](#one-command-regression)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Phase%202%20--%20pilot-orange)](#roadmap)
 [![Reproduce](https://img.shields.io/badge/docs-reproduce%20it%20yourself-blue)](docs/REPRODUCE.md) — last full suite run: 2026-09-10
@@ -105,11 +105,15 @@ the raw session: [docs/assets/demo.cast](docs/assets/demo.cast).
 ## Quick start
 
 ```bash
+# fastest path (pip-installed, 1 command — template agent + fresh key + sign + FIRST RUN + verify):
+pip install tamga-protocol && tamga quickstart my-first-agent
+
+# from source:
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate   # or: pip install --break-system-packages -r requirements.txt
 pip install -r requirements.txt
 bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
-bash tests/run_all.sh          # 41/41 controls — ~20 s (44 with RUN_SLOW=1)
+bash tests/run_all.sh          # 42/42 controls — ~20 s (45 with RUN_SLOW=1)
 
 # your first agent (copy the sample vector as the package — see docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice
@@ -134,7 +138,7 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 ## One-command regression
 
 ```bash
-bash tests/run_all.sh        # 41/41 controls — families below, ~20 s on a laptop (44 with RUN_SLOW=1)
+bash tests/run_all.sh        # 42/42 controls — families below, ~20 s on a laptop (45 with RUN_SLOW=1)
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
 (AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory

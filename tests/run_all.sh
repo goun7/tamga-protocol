@@ -9,9 +9,9 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (40 controls; 43 with RUN_SLOW=1 — AT-019 wheel + AT-020 self-pilot)
+tests/run_all.sh — Tamga Protocol acceptance suite (42 controls; 45 with RUN_SLOW=1 — AT-019 wheel + AT-020 self-pilot)
 
-usage: bash tests/run_all.sh            # fast suite (~10 s)
+usage: bash tests/run_all.sh            # fast suite (~20 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
        bash tests/run_all.sh --help     # this text
 
@@ -125,6 +125,10 @@ PY
   bash tests/at020_self_pilot.sh > /dev/null 2>&1
   kontrol $? "AT-020: self-pilot uc-bacak-delivered/ran/satisfied + 2 tamper-negatif (dis-taraf-gerekmez)"
   fi
+
+  # ---- kontrol-43: AT-021 quickstart wizard (ilk-paket-tek-komut; B1) ----
+  bash tests/at021_quickstart.sh > /dev/null 2>&1
+  kontrol $? "AT-021: quickstart (tam-akis + sozlesme + 3-negatif: isim/dolu-hedef/tekrar)"
 
   # ---- kontrol-18: AT-005 memory import (multi-format, idempotent, oversize RED) ----
   bash tests/at005_memory_import.sh > /dev/null 2>&1

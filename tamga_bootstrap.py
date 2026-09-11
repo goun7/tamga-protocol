@@ -111,7 +111,7 @@ def main(argv=None) -> int:
         print(r.USAGE)
         print("\n  doctor                        kurulum-sağlığı (engine-süz; sorunu kendin gör)")
         return 0 if argv else 1
-    if argv[0] == "run":  # motor-gereken-tek-yolçap
+    if argv[0] in ("run", "quickstart"):  # motor-gereken-yolçaplar (quickstart İLK-RUN içerir)
         import tamga_runner as r
         if not pathlib.Path(r.WASMTIME).exists():
             r.WASMTIME = ensure_wasmtime()
@@ -164,8 +164,9 @@ def main(argv=None) -> int:
         print("  verdict      :", "SAĞLIKLI — tüm engine-süz yolçapları hazır" if ok
               else "SORUNLU — [FAIL] satırlarını giderin")
         return 0 if ok else 1
-    cmds = {"keygen": r.cmd_keygen, "run": r.cmd_run, "export": r.cmd_export,
-            "import": r.cmd_import, "ledger": r.cmd_ledger, "memory": r.cmd_memory,
+    cmds = {"keygen": r.cmd_keygen, "quickstart": r.cmd_quickstart, "run": r.cmd_run,
+            "export": r.cmd_export, "import": r.cmd_import, "ledger": r.cmd_ledger,
+            "memory": r.cmd_memory,
             "grant": r.cmd_grant, "ledger-verify": r.cmd_ledger_verify,
             "keygen-node": r.cmd_keygen_node, "migrate-net": r.cmd_migrate_net}
     if argv[0] not in cmds:

@@ -347,6 +347,119 @@ def cmd_keygen(a):
     return out(True, op="keygen", agent_id=agent_id, seed_hex=seed.hex(),
                note="D3: seed not written to disk; store it safely")
 
+def cmd_quickstart(a):
+    """tamga quickstart <dir> — first-package wizard: template agent + fresh key +
+    sign + validate + FIRST RUN + ledger-verify, one command, zero interaction.
+
+    B1 roadmap item (founder-approved 2026-09-11). Onboarding sürtünmesini tek
+    komuta indirir: yeni kullanıcı dokümante adımları takip etmek yerine tek
+    satırda 'run + charge + zincir' deneyimini yaşar. Kanıt-kültürü: her adımın
+    JSON-çıktısı AT-021 altında taze koşumla doğrulanır (tests/at021_quickstart.sh).
+    """
+    if not a or a[0] in ("-h", "--help"):
+        print('usage: tamga quickstart <dir> [--name <package-name>] [--seed <hex>]')
+        print('       creates <dir>/tamga.json + agent.wasm, signs, validates, runs, verifies')
+        return 0 if a else 1
+    target = pathlib.Path(a[0]).expanduser().resolve()
+    name = "tamga-hosgeldin"
+    seed_hex = None
+    i = 1
+    while i < len(a):
+        if a[i] == "--name" and i + 1 < len(a):
+            name = a[i + 1]; i += 2
+        elif a[i] == "--seed" and i + 1 < len(a):
+            seed_hex = a[i + 1]; i += 2
+        else:
+            return out(False, op="quickstart", reason=f"unknown flag: {a[i]}")
+
+    import re as _re
+    if not _re.fullmatch(r"[a-z0-9][a-z0-9-]{2,31}", name):
+        return out(False, op="quickstart",
+                   reason="name-invalid: [a-z0-9][a-z0-9-]{2,31} kuralına uymalı")
+
+    # 1) template-agent — repo'dan (geliştirme) veya wheel'den (kurulum: templates/ paketi) gömülü-kopya
+    root_here = pathlib.Path(__file__).resolve().parent
+    for cand in (root_here / "tests" / "vectors" / "tc-a1",          # repo-checkout
+                 root_here / "templates",                             # pip-install (templates pkg)
+                 root_here.parent / "tests" / "vectors" / "tc-a1"):    # cwd-relative fallback
+        if (cand / "agent.wasm").exists():
+            tpl = cand; break
+    else:
+        return out(False, op="quickstart",
+                   reason="template-missing: tc-a1 template agent bulunamadı (kurulum bozuk?)")
+
+    if target.exists() and any(target.iterdir()):
+        return out(False, op="quickstart",
+                   reason=f"target-not-empty: {target} boş olmalı (üzerine yazma kültürü yok)")
+    target.mkdir(parents=True, exist_ok=True)
+
+    steps = []
+    def step(ok_label, detail):
+        steps.append({"step": len(steps) + 1, "what": ok_label, "detail": detail})
+
+    # 2) taze-anahtar (D3: seed yalnız-stdouts)
+    seed = bytes.fromhex(seed_hex) if seed_hex else os.urandom(32)
+    if len(seed) != 32:
+        return out(False, op="quickstart", reason="seed must be 32 bytes")
+    sk = SigningKey(seed)
+    agent_id = sk.verify_key.encode().hex()
+
+    # 3) manifest (tc-a1 şablonundan; isim + hash taze)
+    wasm_bytes = (tpl / "agent.wasm").read_bytes()
+    m = json.loads((tpl / "tamga.json").read_text(encoding="utf-8"))
+    m["package"]["name"] = name
+    m["package"]["code"]["wasm_sha256"] = hashlib.sha256(wasm_bytes).hexdigest()
+    m["signature"] = {"algo": "ed25519", "key": agent_id, "sig": ""}
+    import tamga_validator as _tv
+    m["signature"]["sig"] = sk.sign(_tv.jcs(m)).signature.hex()
+    (target / "agent.wasm").write_bytes(wasm_bytes)
+    (target / "tamga.json").write_text(json.dumps(m, indent=2, ensure_ascii=False) + "\n",
+                                        encoding="utf-8")
+    step("paket-olusturuldu", f"{target}/tamga.json + agent.wasm (template: tc-a1)")
+
+    # 4) validate
+    rc, msg = tv.validate(target)
+    if rc != 0:
+        return out(False, op="quickstart", reason="validate-RED: " + msg, steps=steps)
+    step("manifest-ACCEPT", "imza + şema + hash-doyası doğrulandı")
+
+    # 5) İLK-RUN (grant → run; motor bootstrap'i run kendi yapar)
+    import contextlib, io as _io
+    with contextlib.redirect_stdout(_io.StringIO()):
+        g_rc = cmd_grant([str(target), "0.01", "quickstart-hibe"])
+    if g_rc != 0:
+        return out(False, op="quickstart", reason="grant-fail", steps=steps)
+    step("hibe-yazildi", "grant 0.01 tamga-sim (ilk-ücret-çekmesi-icin)")
+    # İLK-RUN — aynı-process (bootstrap quickstart'ta ensure_wasmtime'dan-sonra
+    # r.WASMTIME'ı GÜNCELLEMİŞ-OLABİLİR; subprocess o yolu göremezdi)
+    with contextlib.redirect_stdout(_io.StringIO()) as run_buf:
+        r_rc = cmd_run([str(target), "--seed", seed.hex()])
+    try:
+        run_out = json.loads(run_buf.getvalue())
+    except Exception:
+        return out(False, op="quickstart", reason="run-fail",
+                   run_stdout=run_buf.getvalue()[:400], steps=steps)
+    if r_rc != 0 or not run_out.get("ok"):
+        return out(False, op="quickstart",
+                   reason="run-RED: " + str(run_out.get("reason")), steps=steps)
+    step("ilk-kosum-tamam", f"fee={run_out.get('fee_sim')} wall_ms={run_out.get('wall_ms')}")
+
+    # 6) ledger-verify
+    with contextlib.redirect_stdout(_io.StringIO()):
+        v_rc = cmd_ledger_verify([str(target)])
+    if v_rc != 0:
+        return out(False, op="quickstart", reason="ledger-verify-RED", steps=steps)
+    step("zincir-dogrulandi", "ledger-verify: tüm kayıtlar yeniden-hesaplandı")
+
+    return out(True, op="quickstart", dir=str(target), package=name,
+               agent_id=agent_id, seed_hex=seed.hex(), steps=steps,
+               next_steps=[
+                 "seed_hex'i saklayın (tekrar basılmaz): export/transfer için gerekir",
+                 f"python3 tamga_runner.py ledger {target} — zinciri görün",
+                 f"python3 tamga_runner.py export {target} -o snapshot.tsg --seed <hex>",
+               ],
+               note="quickstart: D3 seed not written to disk; store it safely")
+
 def cmd_run(a):
     pkg = pathlib.Path(a[0])
     try:
@@ -1050,6 +1163,7 @@ USAGE = """tamga_runner.py — Tamga Protocol agent runner (RFC-002)
 
 commands:
   keygen                          generate an ed25519 agent seed (printed once, never stored)
+  quickstart <dir> [--name n]     first-package wizard: template agent + sign + run + verify
   keygen-node                     generate a node keystore + node identity
   grant <pkg> <amount> <label>    record a grant in the package ledger
                                   flags: run/grant --node-key <f>; run --supersedes <n> --link <id>;
@@ -1070,11 +1184,10 @@ version: 0.2.0 (spec_version-flip 2026-09-11, kurucu-ONAYLI)
 exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-18).
 """
 if __name__ == "__main__":
-    cmds = {"keygen": cmd_keygen, "run": cmd_run, "export": cmd_export,
-            "import": cmd_import, "ledger": cmd_ledger, "memory": cmd_memory,
-            "grant": cmd_grant, "ledger-verify": cmd_ledger_verify,
-            "keygen-node": cmd_keygen_node,
-            "migrate-net": cmd_migrate_net}
+    cmds = {"keygen": cmd_keygen, "quickstart": cmd_quickstart, "run": cmd_run,
+            "export": cmd_export, "import": cmd_import, "ledger": cmd_ledger,
+            "memory": cmd_memory, "grant": cmd_grant, "ledger-verify": cmd_ledger_verify,
+            "keygen-node": cmd_keygen_node, "migrate-net": cmd_migrate_net}
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):
         print(USAGE)
         sys.exit(0 if len(sys.argv) >= 2 else 1)  # bare invocation = usage error

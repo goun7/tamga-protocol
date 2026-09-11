@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 41/41 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 42/42 controls, ~20 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)
@@ -20,8 +20,8 @@ fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip roll
 attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
 runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
 the c30 cross-host control, AT-019 (published-wheel nacl-blocked verification) and
-AT-020 (self-pilot: three-leg delivered/ran/satisfied proof) — 41/41 fast baseline,
-44/44 with RUN_SLOW=1.
+AT-020 (self-pilot) + AT-021 (quickstart wizard) — 42/42 fast baseline,
+45/45 with RUN_SLOW=1.
 ## Control families
 
 | Family | What it proves |
@@ -49,6 +49,7 @@ AT-020 (self-pilot: three-leg delivered/ran/satisfied proof) — 41/41 fast base
 | AT-014 — mini verifier (Audit-13, B2) | standalone stdlib-only chain verifier (`tamga_verify_mini.py`, also `tamga verify-mini`): byte-identical decision + tip with the runner on the same ledger, amount-flip tamper → RED, 50 MB line-bomb rejected without absorption (Audit-11 parity), `--expect-tip` binding, runs from any cwd on a bare ledger file — a counterparty can verify without installing our runner |
 | AT-013 — pip installation sanity (Audit-12) | isolated-venv proof that `pip install .` yields a working `tamga` console script; `keygen` and `ledger-verify` run engine-FREE (the 67 MB wasmtime binary is never in the wheel — it is digest-pinned and downloaded once, only on first `run`); uninstall removes the entry point |
 | AT-012 — dx402 pairing verification (RFC-007 track, x402 #3379) | offline-first family against the archived canonical-spelling live evidence: paymentId derivation (keccak chain‖tx), CIDv1/raw/sha2-256 roundtrip byte-equal to the pointer fragment (4510B), EIP-712 ecrecover == declared signer (PASS with `eth_account`, explicit SKIP without), honest contentHash-vs-served labeling (SKIP, plaintext sealed to payer — assumed equality is never claimed), and the `--pair-charge` cross-party bridge (equal hash → PASS, differing → RED) |
+| AT-021 — quickstart wizard (B1) | `tamga quickstart <dir>` — one command produces the first package end-to-end: embedded tc-a1 template agent → fresh ed25519 key (D3: seed stdout-only) → manifest build + sign → validate ACCEPT → grant + FIRST RUN (engine auto-resolves on wheel installs) → ledger-verify; the output contract (5 steps, spec 0.2.0, deterministic-seed → deterministic agent_id, on-disk tamga.json/agent.wasm/ledger.jsonl/state.json) is asserted; negatives: invalid name RED, non-empty target RED (no-overwrite culture), repeat-target RED |
 | Cosign / snapshot negatives | L1 policy enforcement, revocation-list rejections |
 | Tokenomics + economy invariants | fee curve, threshold and fairness invariants hold under the deterministic simulator |
 

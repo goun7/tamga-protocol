@@ -161,6 +161,16 @@ def main(argv=None) -> int:
             print("  bundle       : [OK] (engine-süz kanıt paketi hazır)")
         except Exception as e:
             print(f"  bundle       : [FAIL] {e}"); ok = False
+        try:
+            import tamga_explain  # noqa: F401
+            print("  explain      : [OK] (engine-süz, nacl-süz insan-dilli özet)")
+        except Exception as e:
+            print(f"  explain      : [FAIL] {e}"); ok = False
+        try:
+            import tamga_keccak  # noqa: F401
+            print("  keccak256    : [OK] (RFC-007 R2 --delivery-alg yolu hazır)")
+        except Exception as e:
+            print(f"  keccak256    : [FAIL] {e}"); ok = False
         print("  verdict      :", "SAĞLIKLI — tüm engine-süz yolçapları hazır" if ok
               else "SORUNLU — [FAIL] satırlarını giderin")
         return 0 if ok else 1
@@ -169,6 +179,9 @@ def main(argv=None) -> int:
             "memory": r.cmd_memory,
             "grant": r.cmd_grant, "ledger-verify": r.cmd_ledger_verify,
             "keygen-node": r.cmd_keygen_node, "migrate-net": r.cmd_migrate_net}
+    if argv[0] == "explain":  # kök-modül tamga_explain (engine-süz, nacl-süz; 0.2.2)
+        import tamga_explain
+        return int(tamga_explain.main(argv[1:]) or 0)
     if argv[0] not in cmds:
         print(f"unknown command: {argv[0]}\n\n{r.USAGE}")
         return 1

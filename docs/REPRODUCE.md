@@ -12,9 +12,9 @@ tamga --version && tamga doctor   # engine-free paths report SAĞLIKLI
 
 Verification commands (`ledger-verify`, `verify-mini`, `bundle`) work
 without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`.
-(`explain` ships in the repository as `tools/explain.py` — run it from a clone,
-`python3 tools/explain.py --charge ledger.jsonl 2`; it is not yet in the
-published wheel.)
+(`explain` ships as `tools/explain.py` in a clone today; **0.2.2** moves it into
+the wheel as `tamga explain` + root modules `tamga_explain`/`tamga_keccak` —
+also fixing the wheel-side `--delivery-alg keccak256` path.)
 Last verified from the published wheel (0.2.1): **2026-09-11** — quickstart
 E2E + ledger-verify + verify-mini + bundle, all green from a clean venv.
 

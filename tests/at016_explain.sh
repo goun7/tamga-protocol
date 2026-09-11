@@ -44,6 +44,11 @@ else
   echo "  SKIP: receipt-fixture-bu-makinede-yok" | tee -a "$LOG"; PASS=$((PASS+1))
 fi
 
+# 5) kök-modül-yolçapı (0.2.2: tamga_explain wheel-yüzeyi; alias-değil-asıl):
+python3 tamga_explain.py "$T/rec.json" > "$T/root.out" 2>&1
+ok $? "kök-modül: tamga_explain-aynı-çıktı"
+if [ "$T/tr.out" ] && cmp -s "$T/root.out" <(python3 tools/explain.py "$T/rec.json" 2>&1); then ok 0 "kök-modül == alias (bayt-eşit-çıktı)"; else ok 1 "kök-modül-çıktı-alias'tan-farklı"; fi
+
 rm -rf "$T"
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" -eq 0 ]

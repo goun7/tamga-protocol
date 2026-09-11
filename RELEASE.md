@@ -1,3 +1,34 @@
+# Release notes — v0.2.2
+
+Release date: 2026-09-11 · Tag: `v0.2.2` · Branch: `main`
+
+## What is in this release
+
+**v0.2.2 — professional surfaces: wheel-side `explain` + keccak fix + PyPI/CI parity.**
+
+- **`tamga explain` ships in the wheel** (root module `tamga_explain`; was repo-only
+  `tools/explain.py` — REPRODUCE §0 said so honestly since 0.2.1). Human-language
+  receipt/charge summaries, TR/EN, tamper verdicts (EŞLEŞMİYOR/VERIFIED), no
+  PyNaCl, no engine. `tamga doctor` now reports the `explain` + `keccak256` surfaces.
+- **Wheel-side `--delivery-alg keccak256` fixed** (2026-09-11 finding): `_digest`
+  resolved `tools/keccak256.py` by path — `tools/` is not in the wheel, so the
+  RFC-007 R2 labeled-digest path crashed on installed copies. Algorithm moved to
+  root module `tamga_keccak` (KAT self-test 3/3); `tools/keccak256.py` and
+  `tools/explain.py` are now compatibility aliases (single-owner discipline);
+  AT-016 gained a root-module-parity check (alias vs root, byte-equal output).
+- **PyPI metadata professionalized**: keywords, OS-Independent, Python 3.10–3.13
+  classifiers, Documentation/Changelog/Bug-Tracker URLs — and the classifier claim
+  is **proven by a CI matrix** (3.10/3.11/3.12/3.13, fail-fast: false), not asserted.
+- **Repo meta**: GitHub Releases for v0.2.0/v0.2.1 (Latest was stuck on v0.1.0-alpha
+  from 2026-09-05), homepage → PyPI, description carries the PyPI name, discovery
+  topics (tamper-evident, hash-chain, agent-memory, receipt-chain).
+
+Verification: fast suite 42/42 (alias+root parity, corpus binder 5/5), wheel E2E
+from a clean venv — keccak-KAT via installed runner, `--delivery-alg keccak256`
+end-to-end, `tamga explain --charge`, doctor surfaces.
+
+---
+
 # Release notes — v0.2.1
 
 Release date: 2026-09-11 · Tag: `v0.2.1` · Branch: `main`

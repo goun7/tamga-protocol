@@ -12,18 +12,23 @@ permissions:
 
 jobs:
   test:
-    name: Acceptance suite (24 controls)
+    name: Acceptance suite (${{ matrix.python }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # pyproject classifiers iddiasının kanıtı: 3.10–3.13 (0.2.2)
+        python: ["3.10", "3.11", "3.12", "3.13"]
     env:
       # simnet fixture passphrase — a public test constant, not a real secret
       TAMGA_KS_PASSPHRASE: simnet-2026
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python (3.12)
+      - name: Set up Python (${{ matrix.python }})
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "${{ matrix.python }}"
 
       - name: Dependencies (PyNaCl + jsonschema)
         run: pip install -r requirements.txt

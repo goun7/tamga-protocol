@@ -109,8 +109,8 @@ import tamga_validator            # manifest + record canonicalization (jcs(...)
 import tamga_bootstrap            # pinned wasmtime fetch for tamga run
 ```
 
-Verified 2026-09-11 against the published **0.2.0** wheel on live PyPI
-(install → run → ledger-verify → verify-mini all green on a clean venv).
+Verified 2026-09-11 against the published wheel (**0.2.0**, re-verified on **0.2.1**:
+install → quickstart → ledger-verify → verify-mini → bundle all green on a clean venv).
 
 ## What just happened
 

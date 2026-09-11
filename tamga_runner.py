@@ -255,9 +255,8 @@ def _delivery_hash_arg(a):
 def _digest(alg: str, data: bytes) -> str:
     if alg == "sha256":
         return hashlib.sha256(data).hexdigest()
-    import sys as _sys
-    _sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent / "tools"))
-    from keccak256 import keccak256           # standalone, no external deps
+    # Kök-modül (wheel'de-de-çözülür; 2026-09-11: tools/ yolu kurulumda kırılırdı)
+    from tamga_keccak import keccak256
     return keccak256(data).hex()
 
 

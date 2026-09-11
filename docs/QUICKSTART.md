@@ -109,8 +109,9 @@ import tamga_validator            # manifest + record canonicalization (jcs(...)
 import tamga_bootstrap            # pinned wasmtime fetch for tamga run
 ```
 
-Verified 2026-09-11 against the published wheel (**0.2.0**, re-verified on **0.2.1**:
-install → quickstart → ledger-verify → verify-mini → bundle all green on a clean venv).
+Verified 2026-09-11 against the published wheel on live PyPI (**0.2.2**: install →
+quickstart → ledger-verify → verify-mini → `tamga explain --charge` → bundle all
+green on a clean venv; wheel-side keccak KAT proven).
 
 ## What just happened
 

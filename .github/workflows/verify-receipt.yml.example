@@ -36,7 +36,7 @@ jobs:
       - name: Fetch mini-verifier
         run: |
           curl -sSL -o tamga_verify_mini.py \
-            https://raw.githubusercontent.com/goun7/tamga-protocol/v0.2.1/tamga_verify_mini.py
+            https://raw.githubusercontent.com/goun7/tamga-protocol/v0.2.2/tamga_verify_mini.py
           python3 -c "import hashlib,pathlib;print('sha256:',hashlib.sha256(pathlib.Path('tamga_verify_mini.py').read_bytes()).hexdigest())"
 
       - name: Verify chain

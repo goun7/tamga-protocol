@@ -10,13 +10,11 @@ pip install tamga-protocol        # published: pypi.org/project/tamga-protocol
 tamga --version && tamga doctor   # engine-free paths report SAĞLIKLI
 ```
 
-Verification commands (`ledger-verify`, `verify-mini`, `bundle`) work
+Verification commands (`ledger-verify`, `verify-mini`, `bundle`, `explain`) work
 without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`.
-(`explain` ships as `tools/explain.py` in a clone today; **0.2.2** moves it into
-the wheel as `tamga explain` + root modules `tamga_explain`/`tamga_keccak` —
-also fixing the wheel-side `--delivery-alg keccak256` path.)
-Last verified from the published wheel (0.2.1): **2026-09-11** — quickstart
-E2E + ledger-verify + verify-mini + bundle, all green from a clean venv.
+Last verified from the published wheel (**0.2.2**, live PyPI): **2026-09-11** —
+quickstart E2E + `tamga explain --charge` + wheel-side keccak KAT +
+ledger-verify + verify-mini + bundle, all green from a clean venv.
 
 ## 1. The full acceptance suite (40 controls, ~20 s)
 

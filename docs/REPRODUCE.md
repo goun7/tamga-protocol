@@ -24,13 +24,13 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 42 PASS, 0 FAIL`. Last verified here: **2026-09-11** (42/42; AT-021 quickstart included). The evidence log lands in
+Expected tail: `RESULT: 43 PASS, 0 FAIL`. Last verified here: **2026-09-12** (43/43; AT-022 composition vector included). The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`.
 
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 45 controls (45/45 post-flip)
+RUN_SLOW=1 bash tests/run_all.sh     # → 46 controls (46/46 post-flip, AT-022 included)
 ```
 
 ## 2. Verify a chain without installing anything (stdlib-only)

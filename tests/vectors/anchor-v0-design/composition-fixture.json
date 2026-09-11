@@ -1,0 +1,28 @@
+{
+ "composition_version": "TAMGA_COMPOSITION_VECTOR_V1",
+ "generated_from": "epoch-10 manifest (57 facts, frozen evidence 2026-09-10)",
+ "tamga_chain_head": "437a41bfb5a183024fd20fbd2a1bfc99bc588e669d465ce0955b3d857a7ae80f",
+ "tamga_leaf_encoded": "0x822ee70582fa2b616ee48134fc05bc99fd6bf1a8c127794202a5d9e8ab322854",
+ "leaf_encoding": "keccak256(keccak256(bytes32(digest))) \u2014 @openzeppelin/merkle-tree, sort_leaves=true, sorted_pairs=true; Tamga-digest'ler tam-64-hex (felt-normalizasyonu-gerektirmez), Apodix-felt'leri felt_vers_bytes32-ile",
+ "cross_check": {
+  "epoch_10_root_manifest": "0x997c497ef5fe81b98290e990cd8f62e674bd55db8ab3c3ea85d3931b1e6ff71d",
+  "epoch_10_root_recomputed": "0x997c497ef5fe81b98290e990cd8f62e674bd55db8ab3c3ea85d3931b1e6ff71d",
+  "epoch_10_root_match": true,
+  "fact_position": 55,
+  "fact_leaf_present": true
+ },
+ "composition": {
+  "tamga_leaf_replaces_position": 55,
+  "composition_root": "0xdc3da524fefb3f20a99361aece82da5427fb849205bb97d267a496bce9cc7cb0",
+  "note": "composition_root, origin-k\u00f6k\u00fcn\u00fc-ASLA-iddia-ETMEZ: yaln\u0131z-bizim-yol-hesab\u0131m\u0131z\u0131n-\u00e7\u0131kt\u0131s\u0131d\u0131r-sunum-paritesi-(RFC-009-\u00a73/\u00a74.4)"
+ },
+ "claims": {
+  "claim_1_projection": "pass",
+  "claim_2_presentation_only": "pass",
+  "claim_3_cross_check": "pass"
+ },
+ "honest_boundaries": [
+  "Bu-k\u00f6k-origin-registry'nin-ge\u00e7erlili\u011fini-ASLA-kan\u0131tlamaz-(presentation-only)",
+  "Zincirba\u015f\u0131-D5-ile-\u00fcretilir;-runner'da-'anchor'-op-pilot-SONRASI-(RFC-009-\u00a74)"
+ ]
+}

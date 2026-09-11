@@ -4,16 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tamga-protocol"
-version = "0.2.0"
+version = "0.2.1"
 description = "Self-custodial hash-chained work-receipt ledger for autonomous AI agents (RFC-002/003/007)"
 readme = "docs/QUICKSTART.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = { text = "Apache-2.0" }
 authors = [{ name = "Tamga Protocol" }]
 urls = { Homepage = "https://github.com/goun7/tamga-protocol" }
 dependencies = ["PyNaCl>=1.5"]
 classifiers = [
     "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: Apache Software License",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.10",
     "Topic :: Security :: Cryptography",

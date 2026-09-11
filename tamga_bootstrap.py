@@ -128,7 +128,7 @@ def main(argv=None) -> int:
             from importlib.metadata import version as _v
             print(f"tamga-protocol {_v('tamga-protocol')}")
         except Exception:
-            print("tamga-protocol 0.2.0rc1 (source tree; version from pyproject.toml)")
+            print("tamga-protocol 0.2.0rc2 (source tree; version from pyproject.toml)")
         return 0
     if argv[0] == "doctor":                 # kurulum-sağlık: sorun-kendin-sor-komutu (engine-süz)
         ok = True

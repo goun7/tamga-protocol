@@ -1,3 +1,68 @@
+# Release notes — v0.2.0-rc.2
+
+Release date: 2026-09-11 · Tag: `v0.2.0-rc.2` · Branch: `main`
+
+## What is in this release
+
+Release candidate 2 of the v0.2 line. rc.1 (published to PyPI 2026-09-10) is now
+superseded by a hardening + verification-surface release. **No normative change:
+`spec_version` stays `0.1.0` in accepted manifests** — the v0.2.0 const flip remains
+a separate founder gate, as with rc.1.
+
+## Highlights
+
+- **M6 — manifest v0.3.0 DRAFT schema** (`specs/manifest-0.3.0-draft.schema.json`):
+  the RFC-008 external-receipt slice (`external_receipt` block: rail / receipt_id /
+  content_hash{alg,hex} / receipt_uri / retention_note) as a written, additive
+  contract. AT-018 proves additivity — every 0.1.0/0.2.0 manifest stays valid, and
+  adversarial vectors (tc-a3 `admin_backdoor`, tc-a4 bogus capability) stay RED.
+  Cross-validation matrix extended to the v0.3.0-draft transition rows (59/59 AGREE).
+- **Audit-17 snapshot fuzz** (6 tamper classes fail-closed + ciphertext-region
+  privacy proof) · **Audit-18 unicode hash separation** (NFC/NFD / homoglyph / null
+  all separate identity, JCS-subset divergence documented) · **Audit-19 timing**
+  (unlock-RED-as-success band 0.92; scrypt full path).
+- **AT-015 version-pinned export vectors** (mem0 2.0.20 / letta 0.16.8 / zep 3.28.0
+  shape fixtures) · **AT-016 explain CLI** (full bilingual TR/EN charge rendering,
+  tamper-detected chain-integrity line, receipt canonical check) · **AT-017 anchor
+  design vector** (F1 external-anchor shape, D5-math frozen, const deferred).
+- **AT-019 (slow) — restriction-hardening proof:** the published wheel installs
+  `--no-deps` and `tamga_verify_mini` performs REAL chain verification in a
+  nacl-blocked environment — a counterparty on a minimal host (no pynacl, no engine)
+  can still verify receipts from `pip install tamga-protocol`.
+- **Docs:** QUICKSTART library-usage section (four engine-free modules import from
+  the wheel, zero deps) + air-gapped engine install note (two accepted pre-place
+  locations). REPRODUCE §0 — verify a chain without cloning.
+- **keccak256** (`tools/keccak256.py`) — dependency-free reference implementation,
+  3 known-answer self-tests, cross-checked against OpenZeppelin in the epoch-10
+  dual-impl proof; now documented for copy-in reuse.
+
+## Verification
+
+- Acceptance suite **40 fast controls + 2 slow = 42/42 PASS** (CI-green on every push).
+- Schema cross-validation **59/59 AGREE** (frozen 0.1.0 + 0.2.0-draft + 0.3.0-draft
+  transition matrix).
+- Links 56/0 · suite badge tests-40/40 · HEAD `40cbeb0`.
+- External-anchor evidence (epoch-10, fact 0x0236…36e2) remains VERIFIED against the
+  OpenZeppelin StandardMerkleTree root, dual keccak impl (epoch manifest frozen in
+  `.evidence/APODIX-EPOCH-10/2026-09-10/`).
+
+## Honest limits (unchanged from rc.1, plus)
+
+- `spec_version` still `0.1.0` in accepted manifests — the v0.2.0 const flip is
+  NOT part of this release (founder-normative gate).
+- `external_receipt` is a **DRAFT** manifest field: three open questions (P8-1
+  plaintext↔delivered hash roots, P8-2 retention limits, P8-3 receipt_uri auth)
+  are pilot-pending — see RFC-008 §§3,6,8 and x402 #3447.
+- The epoch-10 anchor is EXTERNAL evidence (a third registry's seal), not a Tamga
+  chain property; F1 (TAMGA_EXTERNAL_ANCHOR_V1 ledger op) remains design-only,
+  const deferred.
+
+## Known gaps / next
+
+- RFC-007 R4 (signed refusal artifact) still parked pending founder decision.
+- v0.2.0-final const flip and JCS strict-mode remain founder-normative gates.
+- A self-driven end-to-end consented-delivery proof (seller/runner/buyer all on our
+  own machinery) is the next internal milestone — see private self-pilot plan.
 # Release notes — v0.2.0-rc.1
 
 Release date: 2026-09-07 · Tag: `v0.2.0-rc.1` · Branch: `main`

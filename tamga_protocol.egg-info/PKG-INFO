@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: tamga-protocol
-Version: 0.2.0rc1
+Version: 0.2.0rc2
 Summary: Self-custodial hash-chained work-receipt ledger for autonomous AI agents (RFC-002/003/007)
 Author: Tamga Protocol
 License: MIT
@@ -29,6 +29,10 @@ tamga --help                      # command overview (no engine needed)
 
 The 67 MB wasmtime engine is **not** in the wheel. It is downloaded once,
 SHA256-pinned, on your first `tamga run` — verification commands never need it.
+
+Air-gapped host? Pre-place the pinned binary at either of the two accepted
+locations and the downloader is skipped entirely (code path: `tamga_bootstrap`):
+`~/.cache/tamga/bin/wasmtime` or `<site-packages>/tools/bin/wasmtime`.
 
 ## 1. Generate an agent seed (printed once, never stored)
 

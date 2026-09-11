@@ -12,7 +12,7 @@
 1. **stdlib-only** - the job installs nothing beyond Python; `tamga_verify_mini.py`
    is the same 90-line verifier documented in REPRODUCE (step 2).
 2. **pinned, not floating** - the example fetches the verifier from a released
-   tag (`v0.2.0rc1`) and prints its sha256 into the job log, so the verifying
+   tag (`v0.2.0-rc.2`) and prints its sha256 into the job log, so the verifying
    code is itself an audit artifact.
 3. **scheduled re-verification** - the weekly cron re-runs the check so the
    green badge in your README carries a *date*. A stale pass reads older,

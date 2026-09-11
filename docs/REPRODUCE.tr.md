@@ -3,6 +3,19 @@
 Bu depodaki her iddia, çalıştırabileceğiniz bir komutla arkalanır. CI'mıza güvenmek
 zorunda değilsiniz — klonlayın, çalıştırın, karşılaştırın.
 
+## 0. Klonlamak yok mu? Wheel'i kurun, aynı kontrolleri koşun
+
+```bash
+pip install tamga-protocol        # yayında: pypi.org/project/tamga-protocol
+tamga --version && tamga doctor   # motor-gerektirmeyen yolçaplar SAĞLIKLI raporlar
+```
+
+Doğrulama-komutları (`ledger-verify`, `verify-mini`, `bundle`, `explain`) 67 MB'lık
+motor olmadan çalışır; motor ilk `tamga run`'da bir-kereliğine, SHA256-pinli iner.
+Yayınlanan-wheel'den (**0.2.2**, canlı-PyPI) son-doğrulama: **2026-09-11** —
+quickstart-U2E + `tamga explain --charge` + wheel-tarafı keccak-KAT + ledger-verify
++ verify-mini + bundle; hepsi temiz-venv'de yeşil.
+
 ## 1. Tam kabul-süiti (40 kontrol, ~20 sn)
 
 ```bash

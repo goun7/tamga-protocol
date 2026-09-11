@@ -38,10 +38,11 @@ def derive(raw: bytes) -> dict:
     out["tip-swap"] = json.dumps(s).encode()
     s = dict(st); s["sessions"] = 99
     out["sessions-inflate"] = json.dumps(s).encode()
-    deep = st
-    for _ in range(1000):
-        deep = {"n": deep}
-    out["nested-deep"] = json.dumps(deep).encode()
+    # nested-deep: 1000-düzey-iç-içe — json.dumps özyineleme-tavanı 3.10/3.11'de
+    # RecursionError fırlatır (CI-matris-bulgusu 2026-09-11; 3.12+ C-yoluyla geçer).
+    # Dize-birleştirme-üretimi: tavan-bağımsız, deterministik, haberleşme-yok:
+    deep = json.dumps(st)
+    out["nested-deep"] = ('{"n": ' * 1000 + deep + "}" * 1000).encode()
     return out
 
 

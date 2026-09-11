@@ -48,6 +48,22 @@ alanlarını-alg+hex-ETİKETLE-bağlar (RFC-003 D5/RFC-007 D10-disiplininin-geni
 | P8-2 | ECR-lerin-retention-gerçek-sınırları ( bizim-404-vakası-öğretti: varsayım-YAPMA) | receipt.retentionUntil-alanı-makbuzla-doğrulanır |
 | P8-3 | `receipt_uri`-kamu-URL mi-auth-altında-mı — bundle-KÖPRÜ-değil-yalnız-REFERANS | #3379-kapanış-yorumu-netleştirir |
 
+## 3a. SELF-PILOT-ÖZ-CEVAPLARI (2026-09-11, AT-020) — taslak-cevaplar, kapı-YAŞAR
+
+> AT-020 (kontrol-42, slow) üç-bacaklı-teslimatı-ELDE-KANITLADI: delivered/ran/satisfied
+> (`.evidence/SELF-PILOT/2026-09-11/`). Aşağıdaki-ö-cevaplar-VERİYLE-yazıldı — kapı-yine-pilot-günü:
+> dış-rail-olmayınca-bu-kanıt-İÇ-kalırdır, x402-tarafı-eklenince-aynı-üç-soru-dış-tarla-yeniden-sorulur.
+
+| # | Soru | Öz-cevap (self-pilot-verisiyle) | Pilot-günü-ne-değişir |
+|---|---|---|---|
+| P8-1 | Üçüncü-hash (plaintext↔delivered eşliği) gerekir mi? | HAYIR-ilave-alan-gerekmez: `pilot-accept`-doc'u İKİ-hash'i-birden-taşır (`delivery_hash` + `delivered_sha256`) — alıcı-iki-kökü-aynı-beyanda-imzalar; ayrı-alan-EKLENMEZ (şema-satır-içi-çözüm) | x402-`content_hash`-(plaintext-kökü)-üçüncü-kök-olursa-beyana-EKLENİR; eşlik-yine-ASSUMED-DEĞİL-imzalı |
+| P8-2 | Retention-gerçek-sınırları | Self-pilot'ta-silinme-YOK (evidence-donuk-diskte); `retention_note`-alanı-opsiyonel-kaldı, İÇ-kanıtta-boş | Dış-rail-404-gelirse-aynı-alan-doluyor (404-vakası-dersimiz) |
+| P8-3 | `receipt_uri` kamu URL mi auth-altında mı | Self-pilot'ta-uri-YOK — İÇ-teslimatta-dış-adres-ANLAMSIZ; uri-alanı-OPTIONAL-kalmalı | Dış-pilot-URI'si-gelirse-public/auth-durumu-TEK-SEFERLİK-tespit-edilir |
+
+**Bulgu (ö-cevap-modundaki-tek-yapısal-çıkarım):** İÇ-teslimatta-happy-path "beyan-önce, URI-sonra" —
+yani-uri-OPTIONAL + retention_note-OPTIONAL. Dış-rail-katkısı-gelince-bu-üç-üde-TEK-PILOT-GÜNÜ-KAYDI
+normalize-edilir. Şema-M6-(v0.3.0-draft)-bu-üç-opsiyonelligi-zaten-yansıtıyor — değişiklik-YOK.
+
 ## 4. Pilot-sonrası-yol
 
 1. Pilot-kapanışı→§3-üç-açık-kapalı→bu-taslak-RFC-008-numarasını-ALIR

@@ -4,7 +4,9 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-40%2F40%20PASS-brightgreen)](#tek-komut-regresyon)
+[![Tests](https://img.shields.io/badge/tests-42%2F42%20PASS-brightgreen)](#tek-komut-regresyon)
+[![Lisans](https://img.shields.io/badge/lisans-Apache--2.0-informational)](LICENSE)
+[![Durum](https://img.shields.io/badge/durum-Faz%202%20--%20pilot-orange)](#yol-haritası)
 
 </div>
 
@@ -39,7 +41,8 @@ python3 tamga_runner.py ledger-verify new-pkg/                                  
 - 🪪 node-cosign: node sertifikasıyla mühürlü iş-makbuzu + iptal-listesi
 - ⌨️ `input_sha256` makbuza bağlı; `--require-proof` çıktı-kanıt-satırı koşucu-taraflı doğrulanır
 - 🔁 Aynı wasm+girdi → aynı çıktı-parmakizi (stake'li yeniden-koşum ön-koşulu)
-- 🚫 Ağ-yok, fs-yok, env-yok — default-deny; wasmtime v48 + WASI 0.3 component
+- 🚫 Default-deny kutusu: fs-preopen yok, env sıfır, ağ-yok — ağ YETENEK olarak beyan
+  edilirse vekil-tek-kenarından çıkar (RFC-005 beyanlı-egress; her istek kanıt-log'unda)
 
 Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Rehber: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md)
 
@@ -54,11 +57,18 @@ Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Rehber: [docs/AGENT-G
 ## Hızlı başlangıç
 
 ```bash
+# en hızlı yol (pip-kurulumlu, tek komut — şablon-ajan + taze-anahtar + imza + İLK KOŞUM + doğrulama):
+pip install tamga-protocol && tamga quickstart ilk-ajanim
+
+# kaynaktan:
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 pip install -r requirements.txt
 bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
 bash tests/run_all.sh    # 42/42 kontrol — ~20 sn (RUN_SLOW=1 ile 45)
 ```
+
+Kanıt-özet araçları: `tamga ledger-verify` · `tamga verify-mini` (stdlib-yalnız) ·
+`tamga bundle` (kanıt-paketi) · `tamga explain` (insan-dilli makbuz özeti; TR/EN).
 Komut-seti ve ilk-ajan akışı: [README.md#quick-start](README.md#quick-start) ve
 [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 

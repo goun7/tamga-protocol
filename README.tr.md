@@ -70,7 +70,8 @@ bash tests/run_all.sh    # 42/42 kontrol — ~20 sn (RUN_SLOW=1 ile 45)
 Kanıt-özet araçları: `tamga ledger-verify` · `tamga verify-mini` (stdlib-yalnız) ·
 `tamga bundle` (kanıt-paketi) · `tamga explain` (insan-dilli makbuz özeti; TR/EN).
 Komut-seti ve ilk-ajan akışı: [README.md#quick-start](README.md#quick-start) ve
-[docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
+[docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md) — Türkçe rehber: [docs/AGENT-GUIDE.tr.md](docs/AGENT-GUIDE.tr.md).
+Belge-haritası (rol-e-göre okuma-sırası): [docs/INDEX.md](docs/INDEX.md).
 
 ## Yol haritası
 

@@ -1,0 +1,23 @@
+  RED-vec kabul: 0010-duplicate-key.json — divergent-digest-sabitlenmiş
+  RED-vec kabul: 0011-nfd-divergence.json — divergent-digest-sabitlenmiş
+  RED-vec kabul: 0012-required-field-missing.json — divergent-digest-sabitlenmiş
+  PASS: delegation-grant/0001-baseline.json jcs-bytes=True digest=True
+  PASS: delegation-grant/0002-cap-respect.json jcs-bytes=True digest=True
+  PASS: delegation-grant/0003-cap-violation.json jcs-bytes=True digest=True
+  PASS: stark/0001-baseline.json jcs-bytes=True digest=True
+  RED-vec kabul: 0002-field-name-load-bearing.json — divergent-digest-sabitlenmiş
+  RED-vec kabul: 0003-stark-proof-tamper-evidence.json — divergent-digest-sabitlenmiş
+  PASS: stark/0008-interop-shared-payment-hash.json jcs-bytes=True digest=True
+  SKIP: vector-stark-vauban-pay-v1.json (core/jcs-bytes-yok)
+RESULT: 5 PASS-byte-exact, 5 RED-vec-accepted, 1 SKIP, 11 total
+
+--- Kanıt-bağlamı (donmuş) ---
+Tarih: 2026-09-12 · Koşucu: tools/vauban_conformance.py (Tamga-stdlib-JCS: tamga_validator.jcs)
+Süit: vauban-org/x402-stark-receipts-conformance @ pin (suite-pin.txt)
+Klon: shallow (--depth 1), repo-içine-kopya-YOK (provenans-disiplini)
+Sonuç: 5 PASS-byte-exact (stark: baseline+interop; delegation-grant: 3/3)
+       5 RED-vec-accepted (divergent-digest-sabitlenmiş-FAIL-şekilleri)
+       1 SKIP (multi-axis-şema-vektörü; jcs-bytes-alanı-taşımıyor)
+Anlam: Tamga'nın-RFC-003-hash-temeli-(D5)-RFC-8785-dünya-standıyla-bayt-örtüşür;
+       Audit-18-JCS-sapma-sınıfı-notlarımızla-aynı-eksen-(NFD-divergence-RED-vec
+       Audit-18'in-kurcalama-ailesiyle-özdeş-amaçlı).

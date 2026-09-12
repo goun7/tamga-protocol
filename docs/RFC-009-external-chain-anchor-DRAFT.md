@@ -71,8 +71,14 @@ kurucu-ONAYLI): `tamga_pugio_receiver.py`** — PUGIO-köprüsünün-ürettiği-
 satır-tüm-dosyayı-RED-yapar-(fail-loud — sessiz-geçiş-doktrini). İlk-adım-ilkesi: PUGIO
 çekirdeğine/şemasına-dokunmaz, bağımlılık-eklemez. Süit-kanıtı: **AT-024**-(selftest +
 head-değişikliği-kopuk-bağı + zarf-tip + tek-RED-satırı + bilinmeyen-bridge_version —
-6/6). Köprü-matematiği-(bu-§5'in-izdüşüm-yönünden)-farklı-ve-ona-tamamlayıcıdır: izdüşüm
-zincir-ucunu-DIŞA-taşır; alıcı-DIŞTAN-gelen-çıpayı-Tamga-tarafında-doğrular.
+6/6). **(c2) `tamga_pugio_ingest.py`** — receiver'ın-2.-adımı:-81-MERGEN-tarafının-K0
+kanıt-bundle'ını-(zincir-bağı-+proof+merkle-kök+head+sayı-çapraz,-K0-envelope-spec-özel)
+pür-stdlib ile doğrular-ve-Tamga-doktriniyle-deterministik-**doğrulama-makbuzu**
+üretir-(fail-closed:-RED-bundle-makbuz-ALMAZ);-süit-kanıtı:-**AT-025**-(selftest+tam-yol+
+payload-kazıma+merkle-kök+-event-count-sahteciliği+-sürüm-kapısı-(6/6). Köprü-matematiği-
+(bu-§5'in-izdüşüm-yönünden)-farklı-ve-ona-tamamlayıcıdır: izdüşüm-zincir-ucunu-DIŞA
+taşır; alıcı-DIŞTAN-gelen-çıpayı-Tamga-tarafında-doğrular; ingest-gelen-bundle'ın-TAM
+gövdesini-doğrulayıp-makbuz-üretir.
 SONRA-(pilot-günü-kapıları): (d) runner'da-`anchor`-op-(RFC-003-v0.2-dilimi); (e) verifier-
 known-tags+const-terfisi; (f) Vauban-ile-etiket-uyumu-teyidi-(pilot-günü-4-açık-kapıdan:
 P8-1..3 + F1-etiket-uyumu).

@@ -12,11 +12,11 @@ tamga --version && tamga doctor   # engine-free paths report SAĞLIKLI
 
 Verification commands (`ledger-verify`, `verify-mini`, `bundle`, `explain`) work
 without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`.
-Last verified from the published wheel (**0.2.2**, live PyPI): **2026-09-11** —
+Last verified from the published wheel (**0.2.3**, live PyPI): **2026-09-12** —
 quickstart E2E + `tamga explain --charge` + wheel-side keccak KAT +
 ledger-verify + verify-mini + bundle, all green from a clean venv.
 
-## 1. The full acceptance suite (45 controls, ~20 s)
+## 1. The full acceptance suite (46 controls, ~20 s)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -24,7 +24,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 45 PASS, 0 FAIL`. Last verified here: **2026-09-12** (45/45; AT-022 composition + AT-023 project-head + AT-024 pugio-receiver included). The evidence log lands in
+Expected tail: `RESULT: 46 PASS, 0 FAIL`. Last verified here: **2026-09-12** (46/46; AT-022 composition + AT-023 project-head + AT-024 pugio-receiver included). The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`.
 
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot — not in CI):

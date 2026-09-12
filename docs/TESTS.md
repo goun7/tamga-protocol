@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 45/45 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 46/46 controls, ~20 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)
@@ -20,8 +20,8 @@ fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip roll
 attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
 runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
 the c30 cross-host control, AT-019 (published-wheel nacl-blocked verification) and
-AT-020 (self-pilot) + AT-021 (quickstart wizard) + AT-022 (composition vector) + AT-023 (project-head CLI) + AT-024 (PUGIO receiver) — 45/45 fast baseline,
-48/48 with RUN_SLOW=1.
+AT-020 (self-pilot) + AT-021 (quickstart wizard) + AT-022 (composition vector) + AT-023 (project-head CLI) + AT-024 (PUGIO receiver) + AT-025 (PUGIO bundle ingest) — 46/46 fast baseline,
+49/49 with RUN_SLOW=1.
 ## Control families
 
 | Family | What it proves |
@@ -55,6 +55,7 @@ AT-020 (self-pilot) + AT-021 (quickstart wizard) + AT-022 (composition vector) +
 | AT-022 — composition vector (RFC-009 batch-leaf math; op/const untouched) | frozen math only: the full epoch-10 batch (57 leaves, felt252 notation included) is independently re-folded with `tamga_keccak` and the recomputed root byte-equals the manifest root; a Tamga chain head (D5 sha256, full 64-hex — not felt-abbreviated) is encoded with the same leaf scheme (k256(k256(bytes32))), projected into the batch at fact position, and the composition root lands in the fixture; the mini-verifier presentation-only contract stays indeterminate for known tags; generator is deterministic (double-run byte-identical); honest finding recorded: leaves[55] is felt notation (leading zero omitted) — the cross-check exists precisely to catch such notation traps |
 | AT-023 — project-head CLI (`tamga project-head <pkg>`) | the composition reaches the user surface: a REAL package's ledger is replayed with the canonical D5 (prev-in-record, node_sig outside the hash, seq 1-based, "0"*64 sentinel — byte-identical to `tamga_runner._verify_chain`) and the tip is encoded with the AT-022 leaf scheme into a `TAMGA_PROJECT_HEAD_V1` JSON; honest boundary (presentation-only) is inside the output itself; broken chain → RED (reason-14 family); engine-free, stdlib-only |
 | AT-024 — PUGIO bridge receiver (`tamga_pugio_receiver.py`, RFC-009 receiver-side) | the inbound half of the anchor surface: `external_anchor` JSONL lines from the PUGIO bridge are verified with pure sha256 (`anchor_id = SHA256(head\|merkle_root\|event_count)[:32]`, bridge_version 1); selftest proves clean-PASS + single-field-corruption-RED; head-tamper breaks the anchor_id bind; wrong envelope type REDs; ONE red line fails the whole file (fail-loud — no silent passes); unknown bridge_version REDs (version gate closed); zero dependencies, PUGIO core untouched (first-step principle) |
+| AT-025 — PUGIO bundle ingest (`tamga_pugio_ingest.py`, RFC-009 receiver step-2) | the 81-MERGEN-side K0 proof-bundle reader: full-body verification (chain-bind + per-event proof + merkle root + head + event-count cross), then a deterministic Tamga verification receipt with an audit summary (charge totals, receipt/decision counts, agent set); fail-closed — a RED bundle produces NO receipt; payload tampering breaks the proof bind, a forged merkle_root REDs, a fake event_count REDs, an unknown bundle version REDs (version gate); pure stdlib, PUGIO library and secret not needed |
 | External cross-proof — Vauban JCS conformance (RFC-8785, not a suite control) | `tools/vauban_conformance.py` runs Tamga's stdlib JCS (`tamga_validator.jcs`) against the external `vauban-org/x402-stark-receipts-conformance` suite (cloned externally, pin frozen in `.evidence/VAUBAN-JCS-CONFORMANCE/2026-09-12/`): **5/5 byte-exact** (stark baseline + interop, delegation-grant 3/3), 5 RED-vec shapes accepted (divergent digests pinned), 1 multi-axis skip — our D5 hash foundation agrees at the byte level with the 8-implementation-validated RFC-8785 ecosystem |
 | Contribution upstream — external-ledger projection vectors (Vauban PR #2) | the AT-022 composition offered back upstream: [vauban-org/x402-stark-receipts-conformance#2](https://github.com/vauban-org/x402-stark-receipts-conformance/pull/2) adds `vectors/external_ledger_projection/` — 0001 PASS (chain head → epoch-batch leaf projection, composition root pinned, presentation-only boundary) + 0002 FAIL (the felt252 notation trap proven three ways: integer-decode correct, raw-bytes crash, right-pad silent membership rejection) — the #2887 "vector whenever you want" promise delivered |
 | Cosign / snapshot negatives | L1 policy enforcement, revocation-list rejections |
@@ -65,7 +66,7 @@ a "fix" that makes them pass is itself a regression and fails the suite.
 
 ## CI
 
-`.github/workflows/ci.yml` runs the full 45-control suite on a
+`.github/workflows/ci.yml` runs the full 46-control suite on a
 `["3.10","3.11","3.12","3.13"]` matrix with
 wasmtime v48.0.1 (downloaded from the pinned release tarball) on every push to `main`.
 The badge in the README links to the workflow.

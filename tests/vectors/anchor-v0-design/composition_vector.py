@@ -114,6 +114,14 @@ def main() -> int:
 
     out = {
         "composition_version": "TAMGA_COMPOSITION_VECTOR_V1",
+        "proves": (
+            "epoch-10 batch (57 leaves, felt252 notation included) independently re-folded "
+            "with stdlib keccak recomputes the manifest root byte-exact; a Tamga chain head "
+            "(D5 sha256, full 64-hex) encoded with the same leaf scheme projects into the "
+            "batch at fact position; presentation-only boundary holds for known tags"
+        ),
+        "source": "derived",
+        "captured_at": "2026-09-12",
         "generated_from": "epoch-10 manifest (57 facts, frozen evidence 2026-09-10)",
         "tamga_chain_head": head,
         "tamga_leaf_encoded": "0x" + tamga_leaf.hex(),

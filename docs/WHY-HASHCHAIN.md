@@ -50,6 +50,19 @@ Costs we accept, honestly:
   of a head in a sealed epoch is a membership claim, and membership claims are
   what trees are for. The §4.4 rule (unknown label → indeterminate, never
   absent) came from exactly this interface.
+- **The composition, proven (AT-022 + Vauban PR #2, 2026-09-12):** this is no
+  longer prose. The chain-head-as-batch-leaf projection is frozen in evidence:
+  a Tamga head (D5 sha256, full 64-hex) encodes with the epoch-batch leaf scheme
+  (`k256(k256(bytes32))`), replaces a real epoch-10 fact leaf (57 facts,
+  Sepolia-anchored), and the recomposed root lands in a pinned fixture — while
+  the *whole host batch* is independently re-folded byte-exact as the control.
+  Third axis, plainly: **the chain keeps the narrative daily; the batch
+  compresses membership to one root per epoch.** We do not convert the ledger
+  into a tree — we *project its tip* into someone else's tree when a sealed,
+  cross-party membership checkpoint is worth one anchor. The felt-notation trap
+  found on the way (leading zero omitted; integer-decode safe, raw-bytes crash,
+  right-pad silent non-membership) is pinned as a FAIL vector upstream —
+  notation is load-bearing even for digests.
 - **What we refuse:** replacing the ledger with a tree "for performance."
   Performance is a Faz-2 measurement question (overhead baselines exist), not a
   data-structure question.

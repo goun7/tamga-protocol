@@ -16,7 +16,7 @@ Yayınlanan-wheel'den (**0.2.2**, canlı-PyPI) son-doğrulama: **2026-09-11** �
 quickstart-U2E + `tamga explain --charge` + wheel-tarafı keccak-KAT + ledger-verify
 + verify-mini + bundle; hepsi temiz-venv'de yeşil.
 
-## 1. Tam kabul-süiti (43 kontrol, ~20 sn)
+## 1. Tam kabul-süiti (44 kontrol, ~20 sn)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -30,7 +30,7 @@ Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 46 kontrol (46/46 flip-sonrası, AT-022 dahil)
+RUN_SLOW=1 bash tests/run_all.sh     # → 47 kontrol (47/47, AT-022 + AT-023 dahil)
 ```
 
 ## 2. Hiçbir şey kurmadan zincir doğrulayın (yalnız-stdlib)

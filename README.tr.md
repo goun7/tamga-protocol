@@ -64,7 +64,7 @@ pip install tamga-protocol && tamga quickstart ilk-ajanim
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 pip install -r requirements.txt
 bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
-bash tests/run_all.sh    # 43/43 kontrol — ~20 sn (RUN_SLOW=1 ile 46)
+bash tests/run_all.sh    # 44/44 kontrol — ~20 sn (RUN_SLOW=1 ile 47)
 ```
 
 Kanıt-özet araçları: `tamga ledger-verify` · `tamga verify-mini` (stdlib-yalnız) ·

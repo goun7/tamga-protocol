@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (43 controls; 46 with RUN_SLOW=1 — AT-019 wheel + AT-020 self-pilot + AT-022 composition)
+tests/run_all.sh — Tamga Protocol acceptance suite (44 controls; 47 with RUN_SLOW=1 — AT-019 wheel + AT-020 self-pilot + AT-022 composition + AT-023 project-head)
 
 usage: bash tests/run_all.sh            # fast suite (~20 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -133,6 +133,10 @@ PY
   # ---- kontrol-46: AT-022 kompozisyon-vektörü (RFC-009 batch-leaf matematigi; op/const YOK) ----
   bash tests/at022_composition_vector.sh > /dev/null 2>&1
   kontrol $? "AT-022: kompozisyon-vektörü (epoch-10 kök çapraz-teyit + zincirbaşı izdüşümü + determinizm)"
+
+  # ---- kontrol-47: AT-023 project-head CLI (zincirbaşı → batch-yaprak; kullanıcı-yüzeyi) ----
+  bash tests/at023_project_head.sh > /dev/null 2>&1
+  kontrol $? "AT-023: project-head CLI (D5-parite + yaprak-şeması + -o + bozuk-zincir RED)"
 
   # ---- kontrol-18: AT-005 memory import (multi-format, idempotent, oversize RED) ----
   bash tests/at005_memory_import.sh > /dev/null 2>&1

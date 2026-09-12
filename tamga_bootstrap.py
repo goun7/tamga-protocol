@@ -182,6 +182,9 @@ def main(argv=None) -> int:
     if argv[0] == "explain":  # kök-modül tamga_explain (engine-süz, nacl-süz; 0.2.2)
         import tamga_explain
         return int(tamga_explain.main(argv[1:]) or 0)
+    if argv[0] == "project-head":  # zincirbaşı → batch-yaprak izdüşümü (RFC-009/AT-022; engine-süz)
+        import tamga_project_head
+        return int(tamga_project_head.main(argv[1:]) or 0)
     if argv[0] not in cmds:
         print(f"unknown command: {argv[0]}\n\n{r.USAGE}")
         return 1

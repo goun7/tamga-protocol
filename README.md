@@ -113,7 +113,7 @@ git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate   # or: pip install --break-system-packages -r requirements.txt
 pip install -r requirements.txt
 bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
-bash tests/run_all.sh          # 46/46 controls — ~20 s (49 with RUN_SLOW=1)
+bash tests/run_all.sh          # 46/46 controls — ~20 s (50 with RUN_SLOW=1)
 
 # your first agent (copy the sample vector as the package — see docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice
@@ -130,6 +130,8 @@ python3 tamga_runner.py export <pkg> -o snapshot.tsg --seed "$AGENT_SEED"
 python3 tamga_runner.py import snapshot.tsg <new-pkg>
 python3 tamga_runner.py ledger-verify <new-pkg>
 python3 tamga_bootstrap.py project-head <pkg>   # chain-head → batch-leaf projection (RFC-009; presentation-only)
+python3 tamga_pugio_receiver.py foreign_anchors.jsonl   # verify external anchor lines IN (RFC-009 receiver; fail-loud)
+python3 tamga_pugio_ingest.py foreign_bundle.json        # K0 bundle full-body verify → deterministic receipt (no receipt on RED)
 python3 tamga_runner.py memory <pkg> --search <query>
 python3 tamga_runner.py memory <pkg> --import-json lessons.json   # ADD-only memory bridge
 # bringing memory from another store? multi-format converter (mem0/letta/zep/jsonl):
@@ -139,7 +141,7 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 ## One-command regression
 
 ```bash
-bash tests/run_all.sh        # 46/46 controls — families below, ~20 s on a laptop (49 with RUN_SLOW=1)
+bash tests/run_all.sh        # 46/46 controls — families below, ~20 s on a laptop (50 with RUN_SLOW=1)
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
 (AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory

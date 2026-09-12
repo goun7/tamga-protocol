@@ -21,7 +21,7 @@ gives the intended reading paths — pick by role; within each path, order matte
 ## The verifier path (auditors, skeptics)
 
 1. [REPRODUCE.md](REPRODUCE.md) — full acceptance suite + `tamga_verify_mini.py` (stdlib-only: trust nothing, run everything)
-2. [TESTS.md](TESTS.md) — the 46-control family table (49 with `RUN_SLOW=1`), what each proves
+2. [TESTS.md](TESTS.md) — the 46-control family table (50 with `RUN_SLOW=1`), what each proves
 3. [AUDIT-GATE.md](AUDIT-GATE.md) — audit-round discipline
 4. [RFC-007-schema-revision-v02.md](RFC-007-schema-revision-v02.md) — the implemented v0.2 deltas (R1–R3) with their AT evidence
 5. [PAIRING-FIXTURE.md](PAIRING-FIXTURE.md) — the cross-ledger evidence chain, every field labeled `simulated|observed|derived`

@@ -30,7 +30,7 @@ Expected tail: `RESULT: 46 PASS, 0 FAIL`. Last verified here: **2026-09-12** (46
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 46 controls (46/46 post-flip, AT-022 included)
+RUN_SLOW=1 bash tests/run_all.sh     # → 50 controls (50/50; AT-022/023/024/025 + AT-026 wheel-tam-modül)
 ```
 
 ## 2. Verify a chain without installing anything (stdlib-only)

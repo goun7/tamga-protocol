@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tamga-protocol"
-version = "0.2.3"
+version = "0.2.4"
 description = "Self-custodial hash-chained work-receipt ledger for autonomous AI agents (RFC-002/003/007)"
 readme = "docs/QUICKSTART.md"
 requires-python = ">=3.10"
@@ -32,7 +32,7 @@ tamga = "tamga_bootstrap:main"
 
 [tool.setuptools]
 packages = ["templates"]
-py-modules = ["tamga_runner", "tamga_validator", "tamga_netproxy", "tamga_net_shim", "tamga_bootstrap", "tamga_verify_mini", "tamga_bundle", "tamga_explain", "tamga_keccak", "tamga_project_head", "tamga_pugio_receiver"]
+py-modules = ["tamga_runner", "tamga_validator", "tamga_netproxy", "tamga_net_shim", "tamga_bootstrap", "tamga_verify_mini", "tamga_bundle", "tamga_explain", "tamga_keccak", "tamga_project_head", "tamga_pugio_receiver", "tamga_pugio_ingest"]
 include-package-data = false
 
 [tool.setuptools.package-data]

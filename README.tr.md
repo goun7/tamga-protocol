@@ -33,6 +33,8 @@ python3 tamga_runner.py export pkg/ -o snapshot.tsg --seed $SEED                
 python3 tamga_runner.py import snapshot.tsg new-pkg/                            # yeni host'ta dirildi
 python3 tamga_runner.py ledger-verify new-pkg/                                  # ok: true
 python3 tamga_bootstrap.py project-head new-pkg/                                # zincirbaşı → dış-batch yaprak-izdüşümü
+python3 tamga_pugio_receiver.py dis_cipalar.jsonl     # dış çıpa satırlarını DOĞRULA (fail-loud)
+python3 tamga_pugio_ingest.py dis_bundle.json          # K0 bundle gövde-doğrulama → makbuz (RED'de makbuz YOK)
 ```
 
 ## Temel güvenceler
@@ -65,7 +67,7 @@ pip install tamga-protocol && tamga quickstart ilk-ajanim
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 pip install -r requirements.txt
 bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
-bash tests/run_all.sh    # 46/46 kontrol — ~20 sn (RUN_SLOW=1 ile 49)
+bash tests/run_all.sh    # 46/46 kontrol — ~20 sn (RUN_SLOW=1 ile 50)
 ```
 
 Kanıt-özet araçları: `tamga ledger-verify` · `tamga verify-mini` (stdlib-yalnız) ·

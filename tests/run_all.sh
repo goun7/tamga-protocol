@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (46 controls; 49 with RUN_SLOW=1 — AT-019 wheel + AT-020 self-pilot + AT-022 composition + AT-023 project-head + AT-024 pugio-receiver)
+tests/run_all.sh — Tamga Protocol acceptance suite (46 controls; 50 with RUN_SLOW=1 — AT-019 wheel + AT-020 self-pilot + AT-022 composition + AT-023 project-head + AT-024 pugio-receiver + AT-026 wheel-tam-modül)
 
 usage: bash tests/run_all.sh            # fast suite (~20 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -145,6 +145,12 @@ PY
   # ---- kontrol-49: AT-025 PUGIO K0-bundle ingest (81-MERGEN tarafı; RFC-009 receiver-2.-adım) ----
   bash tests/at025_pugio_ingest.sh > /dev/null 2>&1
   kontrol $? "AT-025: PUGIO-bundle-ingest (tam-yol makbuz + payload/merkle/count kazıma RED + sürüm-kapısı)"
+
+  # ---- kontrol-50 (slow): AT-026 wheel paket-tamlık (repo↔py-modules↔wheel üç-yönlü + tam-kurulum import) ----
+  if [ "${RUN_SLOW:-0}" = "1" ]; then
+    bash tests/at026_wheel_tam_modul.sh > /dev/null 2>&1
+    kontrol $? "AT-026: wheel-tam-modül (0.2.3-ingest-dersi; üç-yönlü-eşitlik + kurulum-import)"
+  fi
 
   # ---- kontrol-18: AT-005 memory import (multi-format, idempotent, oversize RED) ----
   bash tests/at005_memory_import.sh > /dev/null 2>&1

@@ -8,6 +8,19 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 Nothing unreleased; next planned: see the roadmap gates in README.
 
+## [0.2.4] — 2026-09-13
+
+### Fixed
+- **`tamga_pugio_ingest` ships in the wheel** — 0.2.3 shipped the module in the repo
+  but left it out of `py-modules`, so a PyPI user could not import the AT-025 surface
+  (install-break). Found by the new AT-026 while writing it; fixed before release.
+
+### Added
+- **AT-026 — wheel tam-modül** (slow control 50): packaging-completeness contract —
+  repo-root ↔ `py-modules` ↔ wheel contents three-way equality, clean-dist build, and a
+  full-install import gate for every module. Negative-proof verified: re-simulating the
+  0.2.3 omission REDs the control.
+
 ## [0.2.3] — 2026-09-12
 
 ### Added
@@ -84,7 +97,8 @@ Nothing unreleased; next planned: see the roadmap gates in README.
 First public shape: simnet genesis — primitives (keygen/manifest/snapshot/ledger),
 10 audit rounds, acceptance suite skeleton.
 
-[Unreleased]: https://github.com/goun7/tamga-protocol/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/goun7/tamga-protocol/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/goun7/tamga-protocol/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/goun7/tamga-protocol/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/goun7/tamga-protocol/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/goun7/tamga-protocol/compare/v0.2.0...v0.2.1

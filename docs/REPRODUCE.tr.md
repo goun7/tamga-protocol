@@ -30,7 +30,7 @@ Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 49 kontrol (49/49, AT-022 + AT-023 + AT-024 + AT-025 dahil)
+RUN_SLOW=1 bash tests/run_all.sh     # → 50 kontrol (50/50, AT-022 + AT-023 + AT-024 + AT-025 + AT-026 dahil)
 ```
 
 ## 2. Hiçbir şey kurmadan zincir doğrulayın (yalnız-stdlib)

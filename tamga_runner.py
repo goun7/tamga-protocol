@@ -1177,6 +1177,8 @@ commands:
   ledger-verify <pkg>             recompute and verify the hash chain
   memory <pkg> [--search q] [--import-json f] [--export-json f]
                                   memory operations on the node state (flags, not subcommands)
+  project-head <pkg> [-o f]       chain-head → batch-leaf projection (RFC-009/AT-022;
+                                  engine-free) — outputs TAMGA_PROJECT_HEAD_V1 JSON
 
 setup: bash tests/setup.sh installs the pinned wasmtime engine.
 version: 0.2.0 (spec_version-flip 2026-09-11, kurucu-ONAYLI)

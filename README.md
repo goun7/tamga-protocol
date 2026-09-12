@@ -129,6 +129,7 @@ python3 tamga_runner.py export <pkg> -o snapshot.tsg --seed "$AGENT_SEED"
 # import requires the target pkg pre-provisioned (tamga.json + agent.wasm): code travels separately
 python3 tamga_runner.py import snapshot.tsg <new-pkg>
 python3 tamga_runner.py ledger-verify <new-pkg>
+python3 tamga_bootstrap.py project-head <pkg>   # chain-head → batch-leaf projection (RFC-009; presentation-only)
 python3 tamga_runner.py memory <pkg> --search <query>
 python3 tamga_runner.py memory <pkg> --import-json lessons.json   # ADD-only memory bridge
 # bringing memory from another store? multi-format converter (mem0/letta/zep/jsonl):

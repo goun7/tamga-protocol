@@ -81,11 +81,14 @@ python3 tamga_runner.py run <pkg> --seed "$AGENT_SEED" \
 python3 tamga_runner.py grant <pkg> 0.01 "dev-funding"   # test balance
 python3 tamga_runner.py ledger <pkg>                     # balance summary
 python3 tamga_runner.py ledger-verify <pkg>              # chain verification
+python3 tamga_bootstrap.py project-head <pkg>             # chain-head → batch-leaf projection
 ```
 
 A chain-less package verifies as `ok=true, lines=0` (an empty chain is legal); a broken
 chain → reason 14. Every record is `seq` + `prev` + `h = sha256(prev | jcs(record))` —
-changing any byte breaks the chain.
+changing any byte breaks the chain. `project-head` (AT-023) replays the same chain and
+encodes the tip with the RFC-009 batch-leaf scheme — presentation-only: the output asserts
+the projection math, never a foreign registry's validity.
 
 ## 7. Migration (the heart of the project)
 

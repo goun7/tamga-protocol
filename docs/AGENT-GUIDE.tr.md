@@ -85,10 +85,13 @@ python3 tamga_runner.py run <pkg> --seed "$AGENT_SEED" \
 python3 tamga_runner.py grant <pkg> 0.01 "dev-funding"   # test-bakiyesi
 python3 tamga_runner.py ledger <pkg>                     # bakiye-özeti
 python3 tamga_runner.py ledger-verify <pkg>              # zincir-doğrulaması
+python3 tamga_bootstrap.py project-head <pkg>            # zincirbaşı → batch-yaprak izdüşümü
 ```
 
 Zincirsiz-paket `ok=true, lines=0` ile-geçer (boş-zincir-yasal); kırık-zincir → neden 14.
 Her-kayıt `seq` + `prev` + `h = sha256(prev | jcs(record))` — tek-bayt-değişiklik-zinciri-kırar.
+`project-head` (AT-023) aynı-zinciri-yeniden-oynar-ve-ucu-RFC-009-batch-yaprak-şemasıyla
+kodlar — sunum-paritesi: çıktı-izdüşüm-matematiğini-iddia-eder,-yabancı-registry-geçerliliğini ASLA.
 
 ## 7. Göç (projenin-kalbi)
 

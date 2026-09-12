@@ -32,6 +32,7 @@ python3 tamga_runner.py run pkg/ --seed $SEED --input job.json --require-proof  
 python3 tamga_runner.py export pkg/ -o snapshot.tsg --seed $SEED                # makine öldü
 python3 tamga_runner.py import snapshot.tsg new-pkg/                            # yeni host'ta dirildi
 python3 tamga_runner.py ledger-verify new-pkg/                                  # ok: true
+python3 tamga_bootstrap.py project-head new-pkg/                                # zincirbaşı → dış-batch yaprak-izdüşümü
 ```
 
 ## Temel güvenceler

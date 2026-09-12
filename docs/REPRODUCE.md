@@ -16,7 +16,7 @@ Last verified from the published wheel (**0.2.2**, live PyPI): **2026-09-11** â€
 quickstart E2E + `tamga explain --charge` + wheel-side keccak KAT +
 ledger-verify + verify-mini + bundle, all green from a clean venv.
 
-## 1. The full acceptance suite (44 controls, ~20 s)
+## 1. The full acceptance suite (45 controls, ~20 s)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -24,7 +24,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 44 PASS, 0 FAIL`. Last verified here: **2026-09-12** (44/44; AT-022 composition + AT-023 project-head included). The evidence log lands in
+Expected tail: `RESULT: 45 PASS, 0 FAIL`. Last verified here: **2026-09-12** (45/45; AT-022 composition + AT-023 project-head + AT-024 pugio-receiver included). The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`.
 
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot â€” not in CI):

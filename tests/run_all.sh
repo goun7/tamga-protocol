@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (44 controls; 47 with RUN_SLOW=1 — AT-019 wheel + AT-020 self-pilot + AT-022 composition + AT-023 project-head)
+tests/run_all.sh — Tamga Protocol acceptance suite (45 controls; 48 with RUN_SLOW=1 — AT-019 wheel + AT-020 self-pilot + AT-022 composition + AT-023 project-head + AT-024 pugio-receiver)
 
 usage: bash tests/run_all.sh            # fast suite (~20 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -137,6 +137,10 @@ PY
   # ---- kontrol-47: AT-023 project-head CLI (zincirbaşı → batch-yaprak; kullanıcı-yüzeyi) ----
   bash tests/at023_project_head.sh > /dev/null 2>&1
   kontrol $? "AT-023: project-head CLI (D5-parite + yaprak-şeması + -o + bozuk-zincir RED)"
+
+  # ---- kontrol-48: AT-024 PUGIO köprüsü alıcısı (external_anchor doğrulama; RFC-009 receiver-tarafı) ----
+  bash tests/at024_pugio_receiver.sh > /dev/null 2>&1
+  kontrol $? "AT-024: PUGIO-köprüsü (selftest + kopuk-bağ + zarf-tip + fail-loud + sürüm-kapısı)"
 
   # ---- kontrol-18: AT-005 memory import (multi-format, idempotent, oversize RED) ----
   bash tests/at005_memory_import.sh > /dev/null 2>&1

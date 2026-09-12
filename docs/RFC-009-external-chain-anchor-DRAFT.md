@@ -64,9 +64,17 @@ AT-017-3-ile-kilitlidir.
 ## 4. NE-ŞİMDİ / NE-SONRA
 
 ŞİMDİ-(bu-doküman): (a) kamu-yüzeyli-tasarım-notu-(özel-F1-doc'tan-terfi; içerik-birebir);
-(b) donmuş-matematik-ve-kanıt-linkleri-(aşağıda).
-SONRA-(pilot-günü-kapıları): (c) runner'da-`anchor`-op-(RFC-003-v0.2-dilimi); (d) verifier-
-known-tags+const-terfisi; (e) Vauban-ile-etiket-uyumu-teyidi-(pilot-günü-4-açık-kapıdan:
+(b) donmuş-matematik-ve-kanıt-linkleri-(aşağıda); (c) **receiver-tarafı-(2026-09-12,
+kurucu-ONAYLI): `tamga_pugio_receiver.py`** — PUGIO-köprüsünün-ürettiği-kanıt-bundle
+`external_anchor` JSONL satırlarını-alır-ve-yalnız-sha256-ile-doğrular
+(`anchor_id = SHA256(head|merkle_root|event_count)[:32]`, bridge_version-1); tek-bir-RED
+satır-tüm-dosyayı-RED-yapar-(fail-loud — sessiz-geçiş-doktrini). İlk-adım-ilkesi: PUGIO
+çekirdeğine/şemasına-dokunmaz, bağımlılık-eklemez. Süit-kanıtı: **AT-024**-(selftest +
+head-değişikliği-kopuk-bağı + zarf-tip + tek-RED-satırı + bilinmeyen-bridge_version —
+6/6). Köprü-matematiği-(bu-§5'in-izdüşüm-yönünden)-farklı-ve-ona-tamamlayıcıdır: izdüşüm
+zincir-ucunu-DIŞA-taşır; alıcı-DIŞTAN-gelen-çıpayı-Tamga-tarafında-doğrular.
+SONRA-(pilot-günü-kapıları): (d) runner'da-`anchor`-op-(RFC-003-v0.2-dilimi); (e) verifier-
+known-tags+const-terfisi; (f) Vauban-ile-etiket-uyumu-teyidi-(pilot-günü-4-açık-kapıdan:
 P8-1..3 + F1-etiket-uyumu).
 
 ## 5. Kanıt-linkleri

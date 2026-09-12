@@ -1,3 +1,43 @@
+# Release notes — v0.2.3
+
+Release date: 2026-09-12 · Tag: `v0.2.3` · Branch: `main`
+
+## What is in this release
+
+**v0.2.3 — the composition surface reaches the user: project-head CLI + PUGIO
+receiver pair + CHANGELOG.**
+
+- **`tamga project-head <pkg>` (AT-023)** — chain-head → batch-leaf projection on the
+  user surface: replays a REAL ledger with the canonical D5 (byte-identical to
+  `tamga_runner._verify_chain`: prev-in-record, node_sig outside the hash, 1-based seq,
+  `"0"*64` sentinel) and encodes the tip with the RFC-009 batch-leaf scheme into a
+  `TAMGA_PROJECT_HEAD_V1` JSON; the presentation-only boundary travels INSIDE the
+  output; broken chain → RED (reason-14 family). Engine-free, stdlib-only.
+- **`tamga_pugio_receiver.py` (AT-024)** — the inbound half of the anchor surface
+  (RFC-009 receiver-side): verifies `external_anchor` JSONL lines from the PUGIO
+  bridge with pure sha256 (`anchor_id = SHA256(head|merkle_root|event_count)[:32]`);
+  one red line fails the whole file (fail-loud); version gate closed.
+- **`tamga_pugio_ingest.py` (AT-025)** — receiver step-2 (81-MERGEN-side K0 bundle
+  reader): full-body verification (chain-bind + per-event proof + merkle root + head +
+  event-count cross), then a deterministic Tamga verification receipt with an audit
+  summary; fail-closed — a RED bundle produces NO receipt.
+- **`CHANGELOG.md` born** — the public change history (0.1.0-alpha → today) in
+  Keep-a-Changelog format; PyPI Changelog URL now points here.
+- **Docs surface:** RFC-009 §4 receiver clauses ((c) + (c2)); AT-023/024/025 family
+  rows; four Mermaid diagrams in ARCHITECTURE; WHY-HASHCHAIN third axis; demo
+  extended to 8 steps (verify-mini/bundle/project-head live) with a regenerated cast;
+  suite counts honest everywhere including the shields badges (a drift the sweep
+  itself caught post-hoc — badges must sync with the suite, lesson recorded).
+
+Verification: fast suite 46/46, slow suite 49/49 (RUN_SLOW; AT-025's first slow pass);
+wheel E2E from a clean venv (doctor SAĞLAM; project-head live; pugio imports);
+**live-verified from PyPI**: `pip install tamga-protocol==0.2.3` → quickstart →
+project-head → `TAMGA_PROJECT_HEAD_V1`. Upstream the same day: Vauban conformance
+PR #2 (external-ledger projection vectors) + stdlib-only runner.py (9th
+implementation, row-parity 13/7/0/6).
+
+---
+
 # Release notes — v0.2.2
 
 Release date: 2026-09-11 · Tag: `v0.2.2` · Branch: `main`

@@ -19,9 +19,10 @@ Local-only adversarial tools (not CI-hosted: they depend on gitignored simnet no
 fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip rollback
 attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
 runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
-the c30 cross-host control, AT-019 (published-wheel nacl-blocked verification) and
-AT-020 (self-pilot) + AT-021 (quickstart wizard) + AT-022 (composition vector) + AT-023 (project-head CLI) + AT-024 (PUGIO receiver) + AT-025 (PUGIO bundle ingest) — 46/46 fast baseline,
-50/50 with RUN_SLOW=1 (AT-026 wheel-tam-modül added 2026-09-13).
+the c30 cross-host wall control, AT-019 (published-wheel nacl-blocked verification),
+AT-020 (self-pilot) and AT-026 (wheel tam-modül) — AT-021/022/023/024/025 run
+unconditionally in the 46-control fast baseline. 46/46 fast, 50/50 with RUN_SLOW=1.
+
 ## Control families
 
 | Family | What it proves |

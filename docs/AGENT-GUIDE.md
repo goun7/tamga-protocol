@@ -104,7 +104,26 @@ python3 tamga_runner.py import snapshot.tsg <new-pkg>
 - If you operate a node and want chain claims cosigned: `import --cosign-policy L1
   --node-trust <file>` (node key: `keygen-node <dir>`; default policy is L0).
 
-## 8. Memory bridge
+## 8. External anchors — receiving from foreign rails (RFC-009 receiver side)
+
+Two standalone verifiers, both stdlib-only, both fail-loud:
+
+```bash
+python3 tamga_pugio_receiver.py <external_anchor.jsonl>
+# verifies PUGIO-bridge anchor lines: anchor_id = SHA256(head|merkle_root|event_count)[:32]
+# one RED line fails the whole file (fail-loud); unknown bridge_version → RED
+
+python3 tamga_pugio_ingest.py <bundle.json> > receipt.jsonl
+# receiver step-2: full-body K0 bundle verification (chain-bind + per-event proof +
+# merkle root + head + event-count cross) → deterministic Tamga verification receipt
+# (verifier: 81-mergen-ingest/v1; verdict SAĞLAM or RED); a RED bundle produces NO receipt.
+```
+
+The boundary travels in the verdict: these verify *presentation* (the anchor math and
+the bundle body), never a foreign registry's validity — that belongs to the origin.
+Evidence family: AT-024 (receiver) / AT-025 (ingest), controls 47–48 in the slow suite.
+
+## 9. Memory bridge
 
 ### tamga-memory/1 import format (--import-json)
 
@@ -139,7 +158,7 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 python3 tamga_runner.py memory <pkg> --import-json converted.json
 ```
 
-## 8a. When something doesn't work
+## 10. When something doesn't work
 
 ```bash
 tamga doctor    # install health: python / pynacl / wasmtime / verify-mini / bundle
@@ -148,7 +167,7 @@ tamga doctor    # install health: python / pynacl / wasmtime / verify-mini / bun
 Engine-free paths (verify-mini, bundle, ledger-verify) work without wasmtime;
 only the first `tamga run` triggers the pinned engine download.
 
-## 8b. Standalone verification & evidence bundles (2026-09-08)
+## 11. Standalone verification & evidence bundles (2026-09-08)
 
 **Verify without installing the runner** (counterparty path, stdlib-only):
 
@@ -169,7 +188,7 @@ per-job stdout/delivery digests, and the verify instructions. The counterparty
 extracts `.chain.records` and runs the mini verifier — no Tamga install required.
 A broken chain still produces a bundle (verdict `broken@N`, rc=1): it is evidence too.
 
-## 9. Pre-PR checklist
+## 12. Pre-PR checklist
 
 - [ ] `tamga_validator.py validate <pkg>` → ACCEPT
 - [ ] `run` → ok; `fee_sim` sane; `stdout_sha256` produced
@@ -179,7 +198,7 @@ A broken chain still produces a bundle (verdict `broken@N`, rc=1): it is evidenc
 - [ ] limits fit your scenario (over-generous limits spend the agent's own budget)
 - [ ] capabilities = smallest set (if you don't need fs/net, don't declare them)
 
-## 10. Honest limits (v0)
+## 13. Honest limits (v0)
 
 - **simnet:** amounts are `*_sim`; real-value movement is Phase 4 (double-gated).
 - **Single machine:** without cosign, an embedded chain on a fresh node is agent-attested.

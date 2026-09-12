@@ -24,7 +24,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # bir-kerelik: pinned w
 bash tests/run_all.sh
 ```
 
-Beklenen kuyruk: `RESULT: 43 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-12** (43/43; AT-022 kompozisyon-vektörü dahil).
+Beklenen kuyruk: `RESULT: 46 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-13** (46/46; AT-022 kompozisyon + AT-023 project-head + AT-024 pugio-alıcı dahil).
 Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):

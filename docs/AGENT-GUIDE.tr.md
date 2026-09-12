@@ -107,7 +107,26 @@ python3 tamga_runner.py import snapshot.tsg <new-pkg>
 - Node-işletiyorsanız ve zincir-iddiaları-cosign-istiyorsanız: `import --cosign-policy L1
   --node-trust <dosya>` (node-anahtarı: `keygen-node <dizin>`; varsayılan-politika L0).
 
-## 8. Hafıza-köprüsü
+## 8. Dış-çapalar — yabancı-raylardan-alma (RFC-009 alıcı-tarafı)
+
+İki-bağımsız-doğrulayıcı;-ikisi-de-stdlib-saf;-ikisi-de-fail-loud:
+
+```bash
+python3 tamga_pugio_receiver.py <external_anchor.jsonl>
+# PUGIO-köprüsü-çıpa-satırlarını-doğrular: anchor_id = SHA256(head|merkle_root|event_count)[:32]
+# tek-RED-satırı-tüm-dosyayı-RED-ler (fail-loud); bilinmeyen-bridge_version → RED
+
+python3 tamga_pugio_ingest.py <bundle.json> > receipt.jsonl
+# alıcı-adım-2: K0-bundle tam-gövde-doğrulaması (zincir-bağı + olay-başı-kanıt +
+# merkle-kökü + başlık + olay-sayı-çaprazı) → deterministik-Tamga-doğrulama-makbuzu
+# (doğrulayıcı: 81-mergen-ingest/v1; karar-SAĞLAM-ya-da-RED); RED-bundle MAKBUZ ÜRETMEZ.
+```
+
+Sınır-kararın-içinde-taşınır: bunlar sunum-paritesini-doğrular (çıpa-matematiği-ve
+bundle-gövdesi), yabancı-registry-geçerliliğini ASLA — o-origin'in-sözleşmesine-ait.
+Kanıt-ailesi: AT-024 (alıcı) / AT-025 (ingest); yavaş-süitte-47-48.-kontroller.
+
+## 9. Hafıza-köprüsü
 
 ### tamga-memory/1 ithalat-formatı (--import-json)
 
@@ -142,7 +161,7 @@ python3 tools/memory_import.py --from export.json --format auto -o cevrilmis.jso
 python3 tamga_runner.py memory <pkg> --import-json cevrilmis.json
 ```
 
-## 9. Bir-şey-çalışmadığında
+## 10. Bir-şey-çalışmadığında
 
 - `validate` RED verirse: hata-mesajındaki-neden-kodu [RFC-002](RFC-002-runner.md)'deki
   RED-taksonomisidir — kuru-tahmin-değil, çıktıyla-yasal-rehber.
@@ -150,7 +169,7 @@ python3 tamga_runner.py memory <pkg> --import-json cevrilmis.json
 - Zincir-iddiasını-bağımsız-doğrulamak-isterseniz: `tamga verify-mini` (standart-
   kütüphane-yalnız; [REPRODUCE.tr.md](REPRODUCE.tr.md) §0).
 
-## 10. Ağ-yetenekleri (beyanlı-egress)
+## 11. Ağ-yetenekleri (beyanlı-egress)
 
 Ağ-varsayılan-değil, **YETENEKTİR**: manifest/net.json'da-beyan-edilirse-vekil-tek-kenarından
 çıkar (her-istek-kanıt-günlüğünde); beyansız-paketler-eski-düz-metin-davranışta-kalır.

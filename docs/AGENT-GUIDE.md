@@ -121,7 +121,7 @@ python3 tamga_pugio_ingest.py <bundle.json> > receipt.jsonl
 
 The boundary travels in the verdict: these verify *presentation* (the anchor math and
 the bundle body), never a foreign registry's validity — that belongs to the origin.
-Evidence family: AT-024 (receiver) / AT-025 (ingest), controls 47–48 in the slow suite.
+Evidence family: AT-024 (receiver) / AT-025 (ingest), controls 48–49 (run unconditionally; slow suite reaches 50 via AT-026).
 
 ## 9. Memory bridge
 

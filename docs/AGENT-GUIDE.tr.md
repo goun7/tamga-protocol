@@ -124,7 +124,7 @@ python3 tamga_pugio_ingest.py <bundle.json> > receipt.jsonl
 
 Sınır-kararın-içinde-taşınır: bunlar sunum-paritesini-doğrular (çıpa-matematiği-ve
 bundle-gövdesi), yabancı-registry-geçerliliğini ASLA — o-origin'in-sözleşmesine-ait.
-Kanıt-ailesi: AT-024 (alıcı) / AT-025 (ingest); yavaş-süitte-47-48.-kontroller.
+Kanıt-ailesi: AT-024 (alıcı) / AT-025 (ingest); kontroller-48-49 (koşulsuz-koşar; yavaş-süit-AT-026-ile-50'ye-ulaşır).
 
 ## 9. Hafıza-köprüsü
 

@@ -19,6 +19,21 @@
 A node that receives a snapshot must already hold the matching `tamga.json` +
 `agent.wasm` — the snapshot binds to the code via `wasm_sha256` and rejects mismatch.
 
+```mermaid
+flowchart LR
+    subgraph N1["node A"]
+        PKG1["tamga.json + agent.wasm<br/>(installed)"] --- ST1["state: identity+memory+ledger"]
+    end
+    SNAP["snapshot.tsg<br/>XChaCha20-Poly1305 / scrypt"] 
+    subgraph N2["node B"]
+        PKG2["tamga.json + agent.wasm<br/>(pre-installed)"] --- ST2["state revived"]
+    end
+    ST1 -- "export --seed" --> SNAP -- "import (passphrase)" --> ST2
+    SNAP -. "binds via wasm_sha256; mismatch → reject" .- PKG2
+    style N1 fill:#f8f4e6,stroke:#333
+    style N2 fill:#e8f0e8,stroke:#333
+```
+
 ## 2. Formats
 
 | Artifact | Format | Notes |
@@ -30,6 +45,25 @@ A node that receives a snapshot must already hold the matching `tamga.json` +
 Record types: `charge` (work + metering evidence), `grant` (funding), `fee` (spending — planned: v0.1 emits `charge` and `grant`; the `fee` type is reserved for the spending leg).
 
 ## 3. Runtime model
+
+```mermaid
+flowchart LR
+    subgraph BOX["wasmtime v48.0.1 (pinned) — WASI 0.3 component"]
+        A["agent.wasm"]
+    end
+    subgraph HOST["runner (host side)"]
+        R["tamga_runner"]
+        P["net proxy — 127.0.0.1 loopback<br/>(only if net declared)"]
+    end
+    E(("declared endpoints<br/>allow-list only"))
+    A -- "stdin: TAMGA-STDIN-1 frame" --> R
+    A -- "stdout + TAMGA-NET-1 lines" --> R
+    R -- "CONNECT tunnel" --> P
+    P -- "declared egress only" --> E
+    P -- "net_denied (soft) / byte-cap: RED 11" --> R
+    style BOX fill:#f8f4e6,stroke:#333
+    style HOST fill:#e8f0e8,stroke:#333
+```
 
 - Engine: **wasmtime v48.0.1** (pinned binary, `tools/bin/wasmtime`), target
   **WASI 0.3 / component** (ratified 2026-09).
@@ -67,6 +101,18 @@ boundary is the one-line-JSON receipt on stdout — RFC-002 §3):
 
 ## 4. Work receipts and proof
 
+```mermaid
+flowchart LR
+    subgraph CHAIN["hash-chained ledger (D5)"]
+        r1["charge seq=1<br/>h = sha256(prev ‖ jcs(body))"] --> r2["charge seq=2"] --> r3["charge seq=N"]
+    end
+    IN["input bytes (≤1 MiB)"] -- "sha256 → input_sha256" --> r3
+    OUT["agent stdout"] -- "sha256 → stdout_sha256" --> r3
+    OUT -- "TAMGA:fnv1a64 stamp (--require-proof)" --> V["runner verifies stamp<br/>before signing"]
+    M["metering: wall_ms · cpu · RAM·s · io_mb"] --> r3
+    style CHAIN fill:#f8f4e6,stroke:#333
+```
+
 - Every run appends a `charge` with metering evidence and `stdout_sha256`.
 - `--input <file>` (≤1 MiB): input bytes hash into `input_sha256`, bound in the
   receipt; oversize → RED before execution. The runner stages input via a temp file
@@ -89,6 +135,27 @@ boundary is the one-line-JSON receipt on stdout — RFC-002 §3):
   (canonical version is Turkish).
 - Known open problem (documented, not hidden): on a fresh node, an embedded chain is
   self-attested unless cosign is enforced.
+
+**External anchor / batch-leaf projection (RFC-009 DRAFT, AT-017 + AT-022):**
+
+```mermaid
+flowchart LR
+    subgraph T["Tamga ledger (D5 sha256)"]
+        H["chain head<br/>(full 64-hex)"]
+    end
+    L["leaf encode:<br/>k256(k256(bytes32(digest)))"]
+    subgraph B["foreign registry batch (epoch-10, 57 facts)"]
+        F1["fact leaves…"] --- RT["merkle root<br/>(on-chain anchored)"]
+    end
+    H --> L -- "replaces fact-leaf at position" --> B
+    RT -- "presentation-only:<br/>origin validity NEVER claimed" --> V["verifier verdict:<br/>indeterminate (known tag)"]
+    style T fill:#f8f4e6,stroke:#333
+    style B fill:#e8f0e8,stroke:#333
+```
+
+The chain head is a digest like any other; composition into a foreign batch is
+shape-compatible and frozen in evidence (epoch-10 batch independently re-folded
+byte-exact; the felt252 notation trap is pinned in the AT-022 family).
 
 ## 6. Memory: ADD-only context graph
 

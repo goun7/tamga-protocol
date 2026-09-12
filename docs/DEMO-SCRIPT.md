@@ -4,7 +4,7 @@
 > (A recorded session ships at [docs/assets/demo.cast](assets/demo.cast).)
 > Hashes/IDs change every run — the *shape* below is the invariant.
 
-## Expected flow (verified 2026-09-08)
+## Expected flow (verified 2026-09-12; cast regenerated from live output — 8 steps)
 
 | Step | What happens | Expected output |
 |---|---|---|

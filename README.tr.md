@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-42%2F42%20PASS-brightgreen)](#tek-komut-regresyon)
+[![Tests](https://img.shields.io/badge/tests-46%2F46%20PASS-brightgreen)](#tek-komut-regresyon)
 [![Lisans](https://img.shields.io/badge/lisans-Apache--2.0-informational)](LICENSE)
 [![Durum](https://img.shields.io/badge/durum-Faz%202%20--%20pilot-orange)](#yol-haritası)
 

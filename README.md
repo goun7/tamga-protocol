@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-42%2F42%20PASS-brightgreen)](#one-command-regression)
+[![Tests](https://img.shields.io/badge/tests-46%2F46%20PASS-brightgreen)](#one-command-regression)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Phase%202%20--%20pilot-orange)](#roadmap)
 [![Reproduce](https://img.shields.io/badge/docs-reproduce%20it%20yourself-blue)](docs/REPRODUCE.md) — last full suite run: 2026-09-11

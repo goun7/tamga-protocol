@@ -43,5 +43,14 @@ python3 tamga_runner.py import "$W/ajan.tsg" "$W/node2/pkg" | python3 -c 'import
 echo "# 5) The receipt chain is verified on the destination node"
 python3 tamga_runner.py ledger-verify "$W/node2/pkg" | python3 -c 'import sys,json;print("  ledger-verify ok:", json.load(sys.stdin)["ok"])'
 python3 tamga_runner.py memory "$W/node2/pkg" --search "node1" | python3 -c 'import sys,json;d=json.load(sys.stdin);print("  memory recall:", d["hits"] if "hits" in d else d)'
-rm -rf "$W"
-echo "# demo done — in 30 seconds: born → input-bound work → died → traveled → revived → verified"
+
+echo "# 6) The counterparty needs NO install: 200-line stdlib-only verify (B2)"
+python3 tamga_verify_mini.py "$W/node2/pkg/ledger.jsonl" | python3 -c 'import sys,json;d=json.load(sys.stdin);print("  verify-mini ok:", d["ok"], "| lines:", d.get("lines", "?"), "| stdlib-only, no install")'
+
+echo "# 7) One-command evidence bundle, hand-to-counterparty (B4)"
+python3 tamga_bundle.py "$W/node2/pkg" -o "$W/ev" | tail -1
+ls "$W/ev" | sed 's/^/  /'
+
+echo "# 8) The bridge outward: chain head as a leaf of a foreign batch (AT-022)"
+python3 tamga_bootstrap.py project-head "$W/node1/pkg" | python3 -c 'import sys,json;d=json.load(sys.stdin);print("  chain head:", d["chain_head"][:16] + "…", "| leaf:", d["leaf_encoded"][:16] + "…", "|", d["projection_version"])'
+echo "# demo done — born → input-bound work → died → traveled → revived → verified → stdlib-verified → bundled → projected"

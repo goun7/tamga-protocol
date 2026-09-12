@@ -42,6 +42,9 @@
 
 ## Bekleyen-taraf
 
-- smartflowproai: index-taslağı-(~1-hafta-içinde-söz-verildi) → bizim-tur: satır-satır-kesim.
+- ~~smartflowproai: index-taslağı~~ → **GELDİ-ve-KESİLDİ (2026-09-12)**: 16-vektör
+  (10-observed/6-simulated/0-derived);-biçim-4/4-uyum;-kesim-yanıtı-gönderildi
+  (#issuecomment-5646802316;-kurucu-ONAYLI);-`derived`-sütununa-2-vektör-teklifi-(AT-022
+  kompozisyon-+-AT-007/012-pairing)-masada;-ilk-10-observed-full-URL-asimetrisi-kayıtlarda.
 - Vaat-edilen-şekil: `captured_at`+`last_verified_at` tazelik-çifti;-`disclosure: host withheld`;
 - `simulated`-canlı-karşıtı-notu;-lisans-Apache-2.0-ayrı-korpus-repo-(onlar-ev-sahibi).

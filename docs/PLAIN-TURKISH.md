@@ -36,7 +36,9 @@ Bugün bir yapay zekâ ajanı sizin adınıza bir şey yaptığında (satın alm
 run — inputs, outputs, fees, and the network permissions it acted under — lands as a
 hash-chained record that any third party can verify offline with a single command, without
 trusting the agent's owner. The agent carries its encrypted ledger between hosts as one
-snapshot. Status: working prototype, simulation only (no real money), 26-control acceptance
-suite, schema cross-validation 55/55, two external-verification tracks live on the x402
-standard discussion. The core discipline: **every claim ships with the evidence that produced
+snapshot. Status: working prototype, simulation only (no real money), 46-control fast /
+50-control slow acceptance suite, two external-verification tracks live on the x402
+standard discussion, and the anchor surface is now two-sided: a chain head projects
+into a foreign registry batch (project-head), and foreign anchor lines / proof
+bundles verify on our side (PUGIO receiver + ingest — installable from PyPI). The core discipline: **every claim ships with the evidence that produced
 it.**

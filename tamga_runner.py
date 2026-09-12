@@ -31,7 +31,7 @@ def _fnv1a64(b):
 MAX_NODES = 10000                         # Audit-2 F13
 FEE_MEDIAN_N = 5                          # OQ-8: pilot median-window (founder decision 2026-09-05)
 # slice-4 (E-6): RFC-002 formula verbatim — fee = cpu_h*price + ram_gb_s*price + io_mb*price
-SIM_PRICE = {"cpu_saati": 0.002, "ram_gb_sn": 0.0005, "io_mb": 0.001}   # TODO: RFC-003 pinler
+SIM_PRICE = {"cpu_saati": 0.002, "ram_gb_sn": 0.0005, "io_mb": 0.001}   # simnet constants; pinned in RFC-003 §7 (conformance row) — real prices are the Phase-2 pilot gate
 WASMTIME = str(pathlib.Path(__file__).resolve().parent / "tools" / "bin" / "wasmtime")
 
 def out(ok, **kw):

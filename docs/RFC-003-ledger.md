@@ -65,6 +65,7 @@ No normative divergence was found while this document was in DRAFT; the implemen
 | §4 reason 14 (15: not produced today — the B9 note) | 14=chain broken (broken@N / node_sig_invalid@N), plus the cosign-L1 REDs | one-to-one; addition: 14 is now also thrown at import for the **embedded chain** (RFC-002 E-10a) |
 | — (not in the RFC) | `ledger_tip` in the state; chain membership verified at import (F21) | normative source: RFC-002 E-9a |
 | — (not in the RFC) | the embedded `ledger_records` is verified before installation | normative source: RFC-002 E-10a |
+| D2 `fiyat` (formula stays symbolic in the RFC) | `SIM_PRICE = {"cpu_saati": 0.002, "ram_gb_sn": 0.0005, "io_mb": 0.001}` in `tamga_runner.py` (simnet constants, Slice-4 E-6) | **simnet-priced, not normative**: real prices are the pilot's Phase-2 topic; the constants live in the code with this note as their pinned reference — D2's `fiyat` is deliberately left symbolic here because pricing is a gate, not a spec property |
 
 Rule: this note does not modify the RFC; the differences are normative in the RFC-002 §9 errata. At founder approval the "naming correction" and Open Question 4 are folded into the main text, then the RFC freezes.
 

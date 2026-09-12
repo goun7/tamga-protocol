@@ -13,13 +13,14 @@ trap 'rm -rf "$WORK"' EXIT
 
 # 1) wheel-kurulum (no-deps: pynacl-olmadan — sinirli-host-senaryosu):
 python3 -m venv "$WORK/venv" > /dev/null 2>&1
-"$WORK/venv/bin/pip" install --quiet --no-deps dist/tamga_protocol-*.whl > /dev/null 2>&1
+WHEEL=$(ls -t dist/tamga_protocol-*.whl | head -1)
+"$WORK/venv/bin/pip" install --quiet --no-deps "$WHEEL" > /dev/null 2>&1
 ok $? "wheel: --no-deps-kurulum (pynacl-siz)"
 
 # 2) tamga-run ile-canli-ledger-uretimi (bu-adim-pynacl-ister — ana-venv'de):
 PASS=0
 python3 -m venv "$WORK/full" > /dev/null 2>&1
-"$WORK/full/bin/pip" install --quiet dist/tamga_protocol-*.whl pynacl > /dev/null 2>&1
+"$WORK/full/bin/pip" install --quiet "$WHEEL" pynacl > /dev/null 2>&1
 cp -r tests/vectors/tc-net-demo "$WORK/pkg"
 export TAMGA_KS_PASSPHRASE=at019-test
 "$WORK/full/bin/tamga" keygen > "$WORK/kg.json" 2>&1 && \

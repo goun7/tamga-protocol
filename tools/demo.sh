@@ -53,4 +53,5 @@ ls "$W/ev" | sed 's/^/  /'
 
 echo "# 8) The bridge outward: chain head as a leaf of a foreign batch (AT-022)"
 python3 tamga_bootstrap.py project-head "$W/node1/pkg" | python3 -c 'import sys,json;d=json.load(sys.stdin);print("  chain head:", d["chain_head"][:16] + "…", "| leaf:", d["leaf_encoded"][:16] + "…", "|", d["projection_version"])'
+rm -rf "$W"
 echo "# demo done — born → input-bound work → died → traveled → revived → verified → stdlib-verified → bundled → projected"

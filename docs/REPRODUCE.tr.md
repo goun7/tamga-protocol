@@ -16,7 +16,7 @@ Yayınlanan-wheel'den (**0.2.2**, canlı-PyPI) son-doğrulama: **2026-09-11** �
 quickstart-U2E + `tamga explain --charge` + wheel-tarafı keccak-KAT + ledger-verify
 + verify-mini + bundle; hepsi temiz-venv'de yeşil.
 
-## 1. Tam kabul-süiti (40 kontrol, ~20 sn)
+## 1. Tam kabul-süiti (43 kontrol, ~20 sn)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol

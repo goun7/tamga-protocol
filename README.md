@@ -143,7 +143,7 @@ bash tests/run_all.sh        # 43/43 controls — families below, ~20 s on a lap
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
 (AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory
 import (AT-005), manifest-schema cross-validation (60/60 incl. the promoted v0.2 schema + spec_version transition matrix), plus tokenomics/economy invariants. Details:
-[docs/TESTS.md](docs/TESTS.md). CI runs the full suite on every push (ubuntu-latest,
+[docs/TESTS.md](docs/TESTS.md). CI runs the full suite on every push (4-Python-version matrix,
 wasmtime v48.0.1).
 
 ## 30-second live demo

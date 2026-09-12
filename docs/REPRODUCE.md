@@ -16,7 +16,7 @@ Last verified from the published wheel (**0.2.2**, live PyPI): **2026-09-11** â€
 quickstart E2E + `tamga explain --charge` + wheel-side keccak KAT +
 ledger-verify + verify-mini + bundle, all green from a clean venv.
 
-## 1. The full acceptance suite (40 controls, ~20 s)
+## 1. The full acceptance suite (43 controls, ~20 s)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol

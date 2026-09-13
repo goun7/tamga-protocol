@@ -37,8 +37,14 @@ def verify_anchor_line(line: str) -> tuple[bool, str]:
         return False, f"FAIL: JSON bozuk ({e})"
     if not isinstance(a, dict):
         return False, "FAIL: satır nesne değil"
-    if a.get("type") != "external_anchor" or a.get("source") != "pugio":
-        return False, "FAIL: zarf-tipi/kaynak uyuşmuyor"
+    if a.get("type") != "external_anchor":
+        return False, "FAIL: zarf-tipi uyuşmuyor"
+    # Kaynak-çift-ad-okuma (K0 §5 read-compat, 2026-09-13 SESTER-göçü): üretici
+    # DONUK `source: "sikke"` yayar (63-Sester/sester/bridges.py — marka ≠ kablo-
+    # kimliği); eski "pugio" çıktıları geri-uyum için okunur. Sessiz-geçiş yok:
+    # bilinmeyen-kaynak RED (AT-024 kontrol-4b tızağı bu sözleşmeyi korur).
+    if a.get("source") not in ("sikke", "pugio"):
+        return False, "FAIL: kaynak uyuşmuyor (beklenen: sikke|pugio)"
     if a.get("bridge_version") != BRIDGE_VERSION:
         return False, f"FAIL: bilinmeyen bridge_version ({a.get('bridge_version')})"
     try:

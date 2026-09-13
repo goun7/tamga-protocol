@@ -178,7 +178,7 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [RFC-006-agent-net-shim.md](docs/RFC-006-agent-net-shim.md) | IMPLEMENTED: agent-side network shim (D13) — TAMGA-NET-1 single-edge protocol, capability-sniff two-mode stdin discipline, evidence integrity (request lines verbatim), honest v1 limits (no streaming; header secrecy is the agent's own responsibility) |
 | [INDEX.md](docs/INDEX.md) | Reading order by role — decider / implementer / verifier / integrator paths through all 27 docs, plus the status vocabulary (FINAL / DRAFT pilot-pending / DESIGN NOTE) |
 | [NODE-DISCOVERY.md](docs/NODE-DISCOVERY.md) | Phase-3 design note: node discovery via ERC-8004 (identity/reputation/validation registries) — manifest↔registration-v1 mapping, trust-list migration, honest gates (Draft-status, TEE, micropayment measurement); trigger-gated, no code |
-| [RELEASE.md](RELEASE.md) | v0.2.3 project-head + PUGIO receiver · v0.2.2 wheel-side explain + keccak fix · v0.2.1 license fix · v0.2.0 FINAL const flip |
+| [RELEASE.md](RELEASE.md) | v0.2.4 ingest-in-wheel + AT-026 packaging control · v0.2.3 project-head + PUGIO receiver · v0.2.2 wheel-side explain + keccak fix · v0.2.1 license fix · v0.2.0 FINAL const flip |
 | [PLAIN-TURKISH.md](docs/PLAIN-TURKISH.md) | plain-language explainer (Turkish + short English summary) — no code reading required |
 | [docs/RFC-001-manifest.md](docs/RFC-001-manifest.md) | Package manifest schema contract (v0.1-FINAL, frozen, English translation) |
 | [docs/RFC-002-runner.md](docs/RFC-002-runner.md) | Runner API + snapshot transport contract (v0.1-FINAL, frozen, English translation) |

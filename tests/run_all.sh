@@ -127,6 +127,9 @@ PY
   fi
 
   # ---- kontrol-43: AT-021 quickstart wizard (ilk-paket-tek-komut; B1) ----
+  # NOT (taze-göz-denetimi D4): 44/45-ID'leri tarihsel-atlanmıştır; yorum-etiketleri
+  # KARARARIDIR — dış-başvurular (TESTS/AGENT-GUIDE/RFC'ler) bu-ID'lerle eşleşir,
+  # fiilî-koşum-sırası-DEĞİL. Yeniden-numaralandırma dış-başvuruları kırardı.
   bash tests/at021_quickstart.sh > /dev/null 2>&1
   kontrol $? "AT-021: quickstart (tam-akis + sozlesme + 3-negatif: isim/dolu-hedef/tekrar)"
 

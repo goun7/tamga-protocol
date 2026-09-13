@@ -111,7 +111,9 @@ import tamga_bootstrap            # pinned wasmtime fetch for tamga run
 
 Verified 2026-09-12 against the published wheel on live PyPI (**0.2.3**: install →
 quickstart → ledger-verify → verify-mini → `tamga explain --charge` → bundle all
-green on a clean venv; wheel-side keccak KAT proven).
+green on a clean venv; wheel-side keccak KAT proven). Note: the PUGIO ingest
+surface needs **0.2.4+** (0.2.3 shipped the file in the repo but not in the
+wheel — the packaging lesson that became AT-026).
 
 ## What just happened
 

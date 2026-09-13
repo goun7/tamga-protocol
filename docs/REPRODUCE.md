@@ -12,7 +12,7 @@ tamga --version && tamga doctor   # engine-free paths report SAĞLIKLI
 
 Verification commands (`ledger-verify`, `verify-mini`, `bundle`, `explain`) work
 without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`.
-Last verified from the published wheel (**0.2.3**, live PyPI): **2026-09-12** —
+Last verified from the published wheel (**0.2.4**, live PyPI): **2026-09-13** —
 quickstart E2E + `tamga explain --charge` + wheel-side keccak KAT +
 ledger-verify + verify-mini + bundle, all green from a clean venv.
 

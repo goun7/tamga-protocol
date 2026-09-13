@@ -12,7 +12,7 @@ tamga --version && tamga doctor   # motor-gerektirmeyen yolçaplar SAĞLIKLI rap
 
 Doğrulama-komutları (`ledger-verify`, `verify-mini`, `bundle`, `explain`) 67 MB'lık
 motor olmadan çalışır; motor ilk `tamga run`'da bir-kereliğine, SHA256-pinli iner.
-Yayınlanan-wheel'den (**0.2.3**, canlı-PyPI) son-doğrulama: **2026-09-12** —
+Yayınlanan-wheel'den (**0.2.4**, canlı-PyPI) son-doğrulama: **2026-09-13** —
 quickstart-U2E + `tamga explain --charge` + wheel-tarafı keccak-KAT + ledger-verify
 + verify-mini + bundle; hepsi temiz-venv'de yeşil.
 

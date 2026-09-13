@@ -56,7 +56,10 @@ ERC-8004 Validation hooks (stake-backed re-execution, TEE oracles).
   metering evidence.
 - **Billing-fairness tension (OQ-8):** wall-clock metering under host load can swing
   the same job's fee by orders of magnitude; median-of-N window billing is the Phase-2
-  proposal.
+  proposal. The pilot reading contract — unit scale, raw-vs-median counterparty
+  consistency, source-side fee perception — is documented in
+  [RFC-003 §7a](RFC-003-ledger.md), so the first real pilot data (#3379 park)
+  drops straight onto a fixed table.
 - **TEE oracle:** node-cosign attestation field (Phase 3).
 - **Reputation:** the hash-chained charge history is the verifiable substrate under any
   reputation signal; forging it requires seed ownership (closed by cosign L1/L2).

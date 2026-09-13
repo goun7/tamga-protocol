@@ -69,6 +69,22 @@ No normative divergence was found while this document was in DRAFT; the implemen
 
 Rule: this note does not modify the RFC; the differences are normative in the RFC-002 §9 errata. At founder approval the "naming correction" and Open Question 4 are folded into the main text, then the RFC freezes.
 
+### 7a. Price-reading table (2026-09-13, önerge-3 — cost-factor documentation, still a gate)
+
+D2's position is unchanged: pricing is a pilot gate, not a spec property — the constants below are
+simnet symbols. What this table adds is a *reading* contract, so the first real pilot data
+(issue #3379 park) can be dropped against it without an interpretive argument. Three items:
+
+| Reading item | What it says | Where the truth lives |
+|---|---|---|
+| **Source-side fee perception** | The resource owner's honest frame: `fee = cpu_h·0.002 + ram_gb·s·0.0005 + io_mb·0.001` is *symbolic*; no real-cost claim is made. Measured-work units (cpu-hours / GB·s / io-MB) neighbor the closed-enum capacity-attest axis (`gpu-hours\|storage\|api-credits\|bandwidth`, #3379) without colliding with it. | `SIM_PRICE` in `tamga_runner.py` (Slice-4 E-6), pinned by the D2 row above |
+| **Counterparty consistency** | Two fee values live in every charge record: `fee_birebir` = the raw, formula-verbatim fee, and `fee_sim` = the median of the last `FEE_MEDIAN_N = 5` charges — the customer's bill carries the median, so a single job's wall-load noise (~172× swing, OQ-8) never hits the bill. Binocular honesty: the raw value is never hidden from the receipt. | `fee_birebir` / `fee_sim` fields, `charge` records; median window `OQ-8` (founder decision 2026-09-05) |
+| **Unit scale** | `cpu_saati` = CPU-hours (metered), `ram_gb_sn` = GB·seconds, `io_mb` = MB of I/O. Same fixed scale on both sides of the comparison — pilot data pasted against this table needs no unit conversion. | receipt fields `cpu_saat` / `ram_gb_sn` / `io_mb` (§4 metering) |
+
+When real pilot prices arrive they land as a *new* row in the §7 conformance table (implementation
+side), never silently into `SIM_PRICE` — the constants change only with a founder decision, and the
+simnet line stays as the pinned reference of what was believed at the time.
+
 
 ## 9 — D9 (Slice-11): Input binding and the output proof line (2026-09-05)
 

@@ -47,7 +47,7 @@ python3 tamga_pugio_receiver.py "$W/yanlis-tip.jsonl" > "$W/yt.out" 2>&1
 [ $? -ne 0 ] && grep -q "zarf-tipi" "$W/yt.out"
 ok $? "yanlış-zarf-tipi → RED"
 
-# 4b) kaynak-çift-ad-okuma sözleşmesi (K0 §5 read-compat, 2026-09-13 SESTER-göçü):
+# 4b) kaynak-çift-ad-okuma sözleşmesi (K0 §5 read-compat, 2026-09-13 kimlik-göçü):
 # donuk-birincil "sikke" KABUL + tarihsel "pugio" KABUL + bilinmeyen-kaynak RED.
 # Bu kontrol bilinçli-genişletme-sözleşmesinin yürürlük noktasıdır: kabul-listesi
 # burada değiştirilmeden verify-anchor kaynağı gevşetilemez (fail-loud dilation).
@@ -69,16 +69,16 @@ python3 tamga_pugio_receiver.py "$W/taninmayan.jsonl" > "$W/tk.out" 2>&1
 [ $? -ne 0 ] && grep -q "kaynak" "$W/tk.out"
 ok $? "bilinmeyen-kaynak → RED (kaynak-kapısı-kapalı)"
 
-# 4c) SESTER-üretim-şeması-çaprazı (canlı-çapraz-kanıt 2026-09-13'ün gömülü-hali):
-# gerçek producer (63-Sester/sester/bridges.py tamga_anchor_json) satır-şemasını
+# 4c) K0-üretim-şeması-çaprazı (canlı-çapraz-kanıt 2026-09-13'ün gömülü-hali):
+# gerçek K0-üreticisi (tamga_anchor_json tarifi) satır-şemasını
 # birebir taklit eden bir zarf — source=sikke + pugio_bundle_version alanı dahil —
 # KABUL görmeli. Ağ-bağımlılık YOK: şema 2026-09-13'te canlı-doğrulandı
-# (SESTER-producer'dan-üretilen-satır bu-alıcıda-SAĞLAM); bu-vektör o-tarifin
+# (gerçek-üretici-tarifinden-üretilen-satır bu-alıcıda-SAĞLAM); bu-vektör o-tarifin
 # deterministik-izi.
 python3 - <<PYEOF
 import hashlib, json, pathlib
 head = hashlib.sha256(b"h1").hexdigest(); merkle = hashlib.sha256(b"m1").hexdigest()
-# SESTER üretim-tarifi (bridges.py tamga_anchor): anchor_id = SHA256(head|merkle|count)[:32]
+# K0 üretim-tarifi (tamga_anchor): anchor_id = SHA256(head|merkle|count)[:32]
 a = {"type": "external_anchor", "bridge_version": 1, "source": "sikke",
      "pugio_bundle_version": "K0/1", "agent": "at024-sester-capraz",
      "anchor_id": hashlib.sha256(f"{head}|{merkle}|3".encode()).hexdigest()[:32],
@@ -88,7 +88,7 @@ pathlib.Path("$W/sester-sema.jsonl").write_text(
 PYEOF
 python3 tamga_pugio_receiver.py "$W/sester-sema.jsonl" > "$W/ss.out" 2>&1
 [ $? -eq 0 ] && grep -q "SAĞLAM" "$W/ss.out"
-ok $? "SESTER-üretim-şeması-çaprazı (sikke+pugio_bundle_version) → KABUL"
+ok $? "K0-üretim-şeması-çaprazı (sikke+pugio_bundle_version) → KABUL"
 
 # 5) tek-satırlık-dosyada-tek-RED: süreç-exit-1 (fail-loud, sessiz-geçiş yok)
 printf '%s\n' '{"type": "external_anchor", "source": "pugio", "bridge_version": 1, "anchor_id": "x", "head": "a", "merkle_root": "b", "event_count": 1}' '{"type": "external_anchor", "source": "pugio", "bridge_version": 1, "anchor_id": "y", "head": "c", "merkle_root": "d", "event_count": 2}' > "$W/karisik.jsonl"

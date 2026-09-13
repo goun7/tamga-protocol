@@ -1,6 +1,6 @@
 # docs/ — Reading Order & Index
 
-27 documents, one design culture: **every claim is backed by a command**. This index
+28 documents, one design culture: **every claim is backed by a command**. This index
 gives the intended reading paths — pick by role; within each path, order matters
 (each document assumes the ones above it).
 
@@ -25,6 +25,7 @@ gives the intended reading paths — pick by role; within each path, order matte
 3. [AUDIT-GATE.md](AUDIT-GATE.md) — audit-round discipline
 4. [RFC-007-schema-revision-v02.md](RFC-007-schema-revision-v02.md) — the implemented v0.2 deltas (R1–R3) with their AT evidence
 5. [PAIRING-FIXTURE.md](PAIRING-FIXTURE.md) — the cross-ledger evidence chain, every field labeled `simulated|observed|derived`
+6. [VERIFY-EPOCH-ANCHOR.md](VERIFY-EPOCH-ANCHOR.md) — verify a foreign epoch seal yourself (inclusion + on-chain root; the epoch-13 replay recipe)
 
 ## The integrator path (x402 / ERC-8004 / external rails)
 

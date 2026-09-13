@@ -21,6 +21,15 @@ Nothing unreleased; next planned: see the roadmap gates in README.
   full-install import gate for every module. Negative-proof verified: re-simulating the
   0.2.3 omission REDs the control.
 
+### Outside-world
+- **Epoch-13 seal-flip replay: GREEN** (2026-09-13) — the fact `0x0236…36e2` we had honestly
+  reported *indeterminate* on 09-09 ("epoch not sealed yet") sealed into Apodix epoch 13
+  (Sepolia block 11693440, root `0xaaf21f36…c458e`). Replayed with our own stack (pure-python
+  `tools/keccak256.py`, own RPC choice): leaf recompute → root match; `epoch(13).factsRoot`
+  on-chain match; factsCount 60 == leaf_count. Public promise kept in x402
+  [#3389 (issuecomment-5653083752)](https://github.com/x402-foundation/x402/issues/3389#issuecomment-5653083752).
+  Guide: `docs/VERIFY-EPOCH-ANCHOR.md`.
+
 ## [0.2.3] — 2026-09-12
 
 ### Added

@@ -14,7 +14,9 @@ tests/simnet/.dbg*/
 *.stdout
 !docs/pairing/delivery.stdout
 .DS_Store
+# internal process dirs never enter the repo
 docs/aegis/
+docs/superpowers/
 task_plan.md
 findings.md
 progress.md
@@ -27,8 +29,10 @@ cikti-*.json
 private/
 .evidence/
 tests/simnet/.tf/
+tests/simnet/.demo/
 kanit/
 .mergen-id
+.venv-jsonschema/
 
 # python release artifacts (never enter the repo)
 build/

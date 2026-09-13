@@ -47,6 +47,22 @@ python3 tamga_pugio_receiver.py "$W/yanlis-tip.jsonl" > "$W/yt.out" 2>&1
 [ $? -ne 0 ] && grep -q "zarf-tipi" "$W/yt.out"
 ok $? "yanlış-zarf-tipi → RED"
 
+# 4b) bilinmeyen-KAYNAK → RED (zarf-tipi DOĞRU, kaynak-lise-dışı: 'sikke' gibi
+# bir dış-ajan-göçü asla sessizce kabul edilmesin — 2026-09-13 çapraz-ajan
+# kirliliği vakasından doğan kalıcı-negatif: doğrulama-kapısı belgesiz-gevşetilirse
+# bu kontrol süit-turunda RED düşer)
+python3 - <<PYEOF
+import hashlib, json, pathlib
+head = hashlib.sha256(b"sik").hexdigest(); merkle = hashlib.sha256(b"sk").hexdigest()
+a = {"type": "external_anchor", "bridge_version": 1, "source": "sikke",
+     "anchor_id": hashlib.sha256(f"{head}|{merkle}|1".encode()).hexdigest()[:32],
+     "head": head, "merkle_root": merkle, "event_count": 1}
+pathlib.Path("$W/sikke.jsonl").write_text(json.dumps(a, sort_keys=True, separators=(",", ":")) + "\n")
+PYEOF
+python3 tamga_pugio_receiver.py "$W/sikke.jsonl" > "$W/sk.out" 2>&1
+[ $? -ne 0 ] && grep -q "kaynak" "$W/sk.out"
+ok $? "bilinmeyen-kaynak (sikke) → RED (kaynak-kapısı-kapalı)"
+
 # 5) tek-satırlık-dosyada-tek-RED: süreç-exit-1 (fail-loud, sessiz-geçiş yok)
 printf '%s\n' '{"type": "external_anchor", "source": "pugio", "bridge_version": 1, "anchor_id": "x", "head": "a", "merkle_root": "b", "event_count": 1}' '{"type": "external_anchor", "source": "pugio", "bridge_version": 1, "anchor_id": "y", "head": "c", "merkle_root": "d", "event_count": 2}' > "$W/karisik.jsonl"
 python3 tamga_pugio_receiver.py "$W/karisik.jsonl" > "$W/kx.out" 2>&1

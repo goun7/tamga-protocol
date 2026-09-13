@@ -2,6 +2,8 @@
 
 <img src="docs/assets/banner.svg" width="660" alt="Tamga Protocol — portable identity, encrypted memory, verifiable work receipts"/>
 
+<p><img src="docs/assets/logo.svg" width="88" alt="Tamga mark"/></p>
+
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-47%2F47%20PASS-brightgreen)](#one-command-regression)

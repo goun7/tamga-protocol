@@ -16,7 +16,7 @@ Last verified from the published wheel (**0.2.4**, live PyPI): **2026-09-13** �
 quickstart E2E + `tamga explain --charge` + wheel-side keccak KAT +
 ledger-verify + verify-mini + bundle, all green from a clean venv.
 
-## 1. The full acceptance suite (46 controls, ~20 s)
+## 1. The full acceptance suite (47 controls, ~20 s)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -24,14 +24,14 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 46 PASS, 0 FAIL`. Last verified here: **2026-09-13** (46/46 across four
+Expected tail: `RESULT: 47 PASS, 0 FAIL`. Last verified here: **2026-09-13** (47/47 across four
 runs this day; slow round 50/50 — run_all-040339; the evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`).
 
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-completeness — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 50 controls (50/50 on this host)
+RUN_SLOW=1 bash tests/run_all.sh     # → 51 controls (51/51 on this host)
 ```
 
 Prerequisites the slow controls declare honestly (a fresh clone is NOT a bug — it is a missing

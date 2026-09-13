@@ -171,6 +171,11 @@ def main(argv=None) -> int:
             print("  keccak256    : [OK] (RFC-007 R2 --delivery-alg yolu hazır)")
         except Exception as e:
             print(f"  keccak256    : [FAIL] {e}"); ok = False
+        try:
+            import tamga_epoch_verify  # noqa: F401
+            print("  epoch-verify : [OK] (engine-süz dış-mühür doğrulaması; AT-027)")
+        except Exception as e:
+            print(f"  epoch-verify : [FAIL] {e}"); ok = False
         print("  verdict      :", "SAĞLIKLI — tüm engine-süz yolçapları hazır" if ok
               else "SORUNLU — [FAIL] satırlarını giderin")
         return 0 if ok else 1
@@ -185,6 +190,9 @@ def main(argv=None) -> int:
     if argv[0] == "project-head":  # zincirbaşı → batch-yaprak izdüşümü (RFC-009/AT-022; engine-süz)
         import tamga_project_head
         return int(tamga_project_head.main(argv[1:]) or 0)
+    if argv[0] == "epoch-verify":  # dış epoch-mührünü doğrula (RFC-009/AT-027; engine-süz; üç-sonuç: GREEN/RED/İNDETERMİNE)
+        import tamga_epoch_verify
+        return int(tamga_epoch_verify.main(argv[1:]) or 0)
     if argv[0] not in cmds:
         print(f"unknown command: {argv[0]}\n\n{r.USAGE}")
         return 1

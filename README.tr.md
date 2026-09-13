@@ -4,7 +4,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-46%2F46%20PASS-brightgreen)](#tek-komut-regresyon)
+[![Tests](https://img.shields.io/badge/tests-47%2F47%20PASS-brightgreen)](#tek-komut-regresyon)
 [![Lisans](https://img.shields.io/badge/lisans-Apache--2.0-informational)](LICENSE)
 [![Durum](https://img.shields.io/badge/durum-Faz%202%20--%20pilot-orange)](#yol-haritası)
 
@@ -53,7 +53,7 @@ Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Rehber: [docs/AGENT-G
 ## Derin teknik özet — güvenceler (kanıtlarıyla)
 
 Her güvence burada *iddia + kanıt-yeri* çifti olarak durur; süit, her iddiayı kontrol-alkışlı
-negatif vektörlerle çalıştırır (`bash tests/run_all.sh` → 46/46):
+negatif vektörlerle çalıştırır (`bash tests/run_all.sh` → 47/47):
 
 | Güvence | Ne kanıtlar | Kanıt-yeri |
 |---|---|---|
@@ -109,7 +109,7 @@ dış batch'e izdüşürülür → dış çıpayı bizim tarafımızda alınmı�
 tek komutla: `bash tools/demo.sh` · Ham kayıt: [docs/assets/demo.cast](docs/assets/demo.cast)
 · Beklenen akış: [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md).
 
-**Tek-komut regresyon:** `bash tests/run_all.sh` — 46/46 kontrol (~20 sn; `RUN_SLOW=1` ile
+**Tek-komut regresyon:** `bash tests/run_all.sh` — 47/47 kontrol (~20 sn; `RUN_SLOW=1` ile
 50). Kontrol-aileleri: snapshot yaşam-döngüsü + advers-negatifler (AT-001), determinizm/yeniden
 koşum (AT-002), defter-saldırı vektörleri (AT-003), girdiye-bağlı makbuzlar (AT-004), çok-biçimli
 hafıza-ithalatı (AT-005), manifest-şema çapraz-doğrulaması (0.2.0 terfi matrisiyle 60/60) ve
@@ -154,7 +154,7 @@ pip install tamga-protocol && tamga quickstart ilk-ajanim
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 pip install -r requirements.txt
 bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
-bash tests/run_all.sh    # 46/46 kontrol — ~20 sn (RUN_SLOW=1 ile 50)
+bash tests/run_all.sh    # 47/47 kontrol — ~20 sn (RUN_SLOW=1 ile 51)
 ```
 
 Kanıt-özet araçları: `tamga ledger-verify` · `tamga verify-mini` (stdlib-yalnız) ·

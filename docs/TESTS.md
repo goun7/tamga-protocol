@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 46/46 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 47/47 controls, ~20 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)
@@ -20,8 +20,8 @@ fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip roll
 attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
 runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
 the c30 cross-host wall control, AT-019 (published-wheel nacl-blocked verification),
-AT-020 (self-pilot) and AT-026 (wheel tam-modül) — AT-021/022/023/024/025 run
-unconditionally in the 46-control fast baseline. 46/46 fast, 50/50 with RUN_SLOW=1.
+AT-020 (self-pilot) and AT-026 (wheel tam-modül) — AT-021/022/023/024/025/027 run
+unconditionally in the 47-control fast baseline. 47/47 fast, 51/51 with RUN_SLOW=1. AT-027 (epoch-verify) joined the fast baseline 2026-09-13 (kontrol-51 slot; offline-deterministic).
 
 ## Control families
 
@@ -58,6 +58,7 @@ unconditionally in the 46-control fast baseline. 46/46 fast, 50/50 with RUN_SLOW
 | AT-024 — PUGIO bridge receiver (`tamga_pugio_receiver.py`, RFC-009 receiver-side) | the inbound half of the anchor surface: `external_anchor` JSONL lines from the PUGIO bridge are verified with pure sha256 (`anchor_id = SHA256(head\|merkle_root\|event_count)[:32]`, bridge_version 1); selftest proves clean-PASS + single-field-corruption-RED; head-tamper breaks the anchor_id bind; wrong envelope type REDs; ONE red line fails the whole file (fail-loud — no silent passes); unknown bridge_version REDs (version gate closed); zero dependencies, PUGIO core untouched (first-step principle) |
 | AT-025 — PUGIO bundle ingest (`tamga_pugio_ingest.py`, RFC-009 receiver step-2) | the 81-MERGEN-side K0 proof-bundle reader: full-body verification (chain-bind + per-event proof + merkle root + head + event-count cross), then a deterministic Tamga verification receipt with an audit summary (charge totals, receipt/decision counts, agent set); fail-closed — a RED bundle produces NO receipt; payload tampering breaks the proof bind, a forged merkle_root REDs, a fake event_count REDs, an unknown bundle version REDs (version gate); fresh-eyes negatives (2026-09-13): an EMPTY 0-event envelope REDs (no receipt — the empty-proof illusion closed), a non-dict bundle REDs without traceback, a 10**400 integer ts REDs (OverflowError caught — RED message, not a crash); pure stdlib, PUGIO library and secret not needed |
 | AT-026 — wheel tam-modül (`tests/at026_wheel_tam_modul.sh`, slow control 50) | packaging completeness contract, born from a real catch: 0.2.3 shipped `tamga_pugio_ingest.py` in the repo but NOT in `py-modules` — a PyPI user could not import the AT-025 surface (install-break class). The control enforces three-way equality (repo-root `tamga_*.py` ↔ `pyproject py-modules` ↔ built wheel contents), an ISOLATED-dist wheel build (never deletes an existing `dist/` — the AT-019 interaction was a fresh-eyes catch), and a full-install import gate for every module; a missing `build` package declares itself as a message-SKIP (fresh-clone honesty); negative-proof verified: re-simulating the 0.2.3 omission REDs the control |
+| AT-027 — epoch-verify CLI (`tamga_epoch_verify.py` / `tamga epoch-verify`, kontrol-51) | the generalized foreign-proof surface (RFC-009 outward): verifies a public epoch-seal proof payload (explorer `GET /v1/anchors/proof/<fact>`) — leaf = keccak256(keccak256(bytes32(fact))), sorted-pairs walk (OpenZeppelin recipe), optional on-chain anchor via `epoch(uint64)` eth_call at YOUR OWN rpc choice; born from the epoch-13 seal-flip replay (2026-09-13, GREEN both legs, promise kept in x402 #3389 issuecomment-5653083752); offline-deterministic fixture: a synthetic 64-leaf OZ-sorted tree with a position-55 proof; three-verdict contract: GREEN (rc 0) / RED (rc 1 — root-tamper, proof-truncation, wrong-fact, missing-field, non-object payload all message-RED without traceback) / İNDETERMİNE (rc 2 — dead RPC: "could not look" is never green); honest-limits line inside the module: inclusion+anchor prove the seal, not the fact's own content |
 | External cross-proof — Vauban JCS conformance (RFC-8785, not a suite control) | `tools/vauban_conformance.py` runs Tamga's stdlib JCS (`tamga_validator.jcs`) against the external `vauban-org/x402-stark-receipts-conformance` suite (cloned externally, pin frozen in `.evidence/VAUBAN-JCS-CONFORMANCE/2026-09-12/`): **5/5 byte-exact** (stark baseline + interop, delegation-grant 3/3), 5 RED-vec shapes accepted (divergent digests pinned), 1 multi-axis skip — our D5 hash foundation agrees at the byte level with the 8-implementation-validated RFC-8785 ecosystem |
 | Contribution upstream — external-ledger projection vectors (Vauban PR #2) | the AT-022 composition offered back upstream: [vauban-org/x402-stark-receipts-conformance#2](https://github.com/vauban-org/x402-stark-receipts-conformance/pull/2) adds `vectors/external_ledger_projection/` — 0001 PASS (chain head → epoch-batch leaf projection, composition root pinned, presentation-only boundary) + 0002 FAIL (the felt252 notation trap proven three ways: integer-decode correct, raw-bytes crash, right-pad silent membership rejection) — the #2887 "vector whenever you want" promise delivered |
 | Cosign / snapshot negatives | L1 policy enforcement, revocation-list rejections |

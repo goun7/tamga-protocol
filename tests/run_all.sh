@@ -9,7 +9,7 @@ export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (46 controls; 50 with RUN_SLOW=1 — slow-gated: c30 cross-host wall + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-tam-modül)
+tests/run_all.sh — Tamga Protocol acceptance suite (47 controls; 51 with RUN_SLOW=1 — slow-gated: c30 cross-host wall + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-tam-modül)
 
 usage: bash tests/run_all.sh            # fast suite (~20 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -148,6 +148,10 @@ PY
   # ---- kontrol-49: AT-025 PUGIO K0-bundle ingest (81-MERGEN tarafı; RFC-009 receiver-2.-adım) ----
   bash tests/at025_pugio_ingest.sh > /dev/null 2>&1
   kontrol $? "AT-025: PUGIO-bundle-ingest (tam-yol makbuz + payload/merkle/count kazıma RED + sürüm-kapısı)"
+
+  # ---- kontrol-51: AT-027 epoch-mührü doğrulama CLI (dış-kanıt yüzeyi; offline-deterministik) ----
+  bash tests/at027_epoch_verify.sh > /dev/null 2>&1
+  kontrol $? "AT-027: epoch-verify (dahil-etme GREEN + kök/kanıt/fact kazıma RED + ölü-RPC İNDETERMİNE)"
 
   # ---- kontrol-50 (slow): AT-026 wheel paket-tamlık (repo↔py-modules↔wheel üç-yönlü + tam-kurulum import) ----
   if [ "${RUN_SLOW:-0}" = "1" ]; then

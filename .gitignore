@@ -38,3 +38,6 @@ kanit/
 build/
 dist/
 *.egg-info/
+
+# AGENT-MESH yerel araçları (kurumsal-makine yapılandırması; PyPI yüzeyine girmemeli)
+tools/git_hooks/

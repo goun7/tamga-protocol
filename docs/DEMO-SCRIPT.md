@@ -4,7 +4,7 @@
 > (A recorded session ships at [docs/assets/demo.cast](assets/demo.cast).)
 > Hashes/IDs change every run — the *shape* below is the invariant.
 
-## Expected flow (verified 2026-09-12; cast regenerated from live output — 8 steps)
+## Expected flow (verified 2026-09-13; 9 steps — the bridge is now two-sided)
 
 | Step | What happens | Expected output |
 |---|---|---|
@@ -15,7 +15,8 @@
 | 5 | `ledger-verify` + `memory --search "node1"` | `ledger-verify ok: True` · `memory recall: born on node1` |
 | 6 | `python3 tamga_verify_mini.py <pkg>/ledger.jsonl` | `{"ok": true, ...}` — stdlib-only, no install (B2) |
 | 7 | `python3 tamga_bundle.py <pkg> -o /tmp/ev` | `/tmp/ev/<pkg>-bundle.json + .md` — hand-to-counterparty (B4) |
-| 8 | `python3 tests/vectors/anchor-v0-design/composition_vector.py` | chain head minted (D5) → encoded as a batch leaf → projected into the real epoch-10 batch; composition root printed (AT-022) |
+| 8 | `python3 tamga_bootstrap.py project-head <pkg>` | chain head minted (D5) → encoded as a batch leaf (`TAMGA_PROJECT_HEAD_V1`); composition root printed (AT-022/023) |
+| 9 | `python3 tamga_pugio_receiver.py foreign_anchor.jsonl` | a synthetic foreign anchor line verifies on OUR side — `SONUÇ: SAĞLAM` (AT-024, the receiver half of RFC-009; the demo's bridge story becomes two-sided) |
 
 ## Narration frame (if you're presenting)
 

@@ -53,5 +53,18 @@ ls "$W/ev" | sed 's/^/  /'
 
 echo "# 8) The bridge outward: chain head as a leaf of a foreign batch (AT-022)"
 python3 tamga_bootstrap.py project-head "$W/node1/pkg" | python3 -c 'import sys,json;d=json.load(sys.stdin);print("  chain head:", d["chain_head"][:16] + "…", "| leaf:", d["leaf_encoded"][:16] + "…", "|", d["projection_version"])'
+
+echo "# 9) The bridge inward: a foreign anchor line verifies on OUR side (AT-024 — receiver half, RFC-009)"
+python3 - "$W" > /dev/null <<'PYEOF'
+import hashlib, json, pathlib, sys
+w = pathlib.Path(sys.argv[1])
+head = hashlib.sha256(b"demo-foreign-head").hexdigest()
+merkle = hashlib.sha256(b"demo-foreign-merkle").hexdigest()
+a = {"type": "external_anchor", "bridge_version": 1, "source": "pugio", "agent": "demo",
+     "anchor_id": hashlib.sha256(f"{head}|{merkle}|3".encode()).hexdigest()[:32],
+     "head": head, "merkle_root": merkle, "event_count": 3}
+(w / "foreign_anchor.jsonl").write_text(json.dumps(a, sort_keys=True, separators=(",", ":")) + "\n")
+PYEOF
+python3 tamga_pugio_receiver.py "$W/foreign_anchor.jsonl" | tail -1 | sed 's/^/  /'
 rm -rf "$W"
-echo "# demo done — born → input-bound work → died → traveled → revived → verified → stdlib-verified → bundled → projected"
+echo "# demo done — born → input-bound work → died → traveled → revived → verified → stdlib-verified → bundled → projected → foreign anchor received"

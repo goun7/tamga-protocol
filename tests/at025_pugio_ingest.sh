@@ -89,5 +89,37 @@ python3 tamga_pugio_ingest.py "$W/bad4.json" > "$W/bad4.out" 2>&1
 [ $? -ne 0 ] && grep -q "sürüm" "$W/bad4.out"
 ok $? "bilinmeyen-bundle-sürümü → RED (sürüm-kapısı)"
 
+# 7) boş-bundle: 0-olay kanıt-zarfı → makbuz ÜRETİLMEZ (taze-göz-bulgusu, 2026-09-13)
+python3 - <<PYEOF
+import json, pathlib
+g = "0" * 64
+b = {"pugio_bundle_version": 1, "events": [], "head": g,
+     "merkle_root": g, "event_count": 0}
+pathlib.Path("$W/empty.json").write_text(json.dumps(b))
+PYEOF
+python3 tamga_pugio_ingest.py "$W/empty.json" > "$W/empty.out" 2>&1
+[ $? -ne 0 ] && grep -q "boş-bundle" "$W/empty.out" && ! grep -q "SAĞLAM" "$W/empty.out"
+ok $? "boş-bundle (0-olay) → RED, makbuz ÜRETİLMEZ (boş-kanıt-yanılsaması-kapalı)"
+
+# 8) non-dict-bundle (JSON-dizisi) → RED, traceback YOK (taze-göz O3)
+printf '[1]' > "$W/nondict.json"
+python3 tamga_pugio_ingest.py "$W/nondict.json" > "$W/nondict.out" 2>&1
+[ $? -ne 0 ] && grep -q "RED" "$W/nondict.out" && ! grep -q "Traceback" "$W/nondict.out"
+ok $? "non-dict-bundle → RED (traceback-YOK; fail-loud-sözleşmesi)"
+
+# 9) dev-tam sayı (10**400 ts) → RED, traceback YOK (taze-göz O3)
+python3 - <<PYEOF
+import json, pathlib
+g = "0" * 64
+ev = {"seq": 1, "ts": 10**400, "event_type": "charge_receipt", "agent_id": "a",
+      "host": "h", "amount": 1, "payload": "p", "prev_proof": g, "proof": "x"}
+b = {"pugio_bundle_version": 1, "events": [ev], "head": "y",
+     "merkle_root": "z", "event_count": 1}
+pathlib.Path("$W/devint.json").write_text(json.dumps(b))
+PYEOF
+python3 tamga_pugio_ingest.py "$W/devint.json" > "$W/devint.out" 2>&1
+[ $? -ne 0 ] && grep -q "RED" "$W/devint.out" && ! grep -q "Traceback" "$W/devint.out"
+ok $? "dev-tam-sayı-ts → RED (float-taşması-yakalandı; traceback-YOK)"
+
 echo "RESULT: $PASS PASS, $FAIL FAIL - log: $LOG"
 [ "$FAIL" -eq 0 ]

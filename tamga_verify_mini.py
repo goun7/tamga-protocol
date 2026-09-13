@@ -12,7 +12,7 @@ Doğrulama kuralı — tamga_runner._verify_chain ile BİREBİR (tek-gerçek):
 MAX_LINE_BYTES = 1 MiB (Audit-11 panzehiri — burada da geçerli).
 
 Kullanım:
-  python3 tamga_verify_mini.py <ledger.jsonl> [--expect-tip <hex>]
+  python3 tamga_verify_mini.py <ledger.jsonl> [--expect-tip=<hex>]
 
 Çıkış: JSON-satır {"ok": bool, "lines": n, "head": hex|"", "reason": str}
 rc: 0-doğrulandı · 1-kırık · 2-kullanım-hatası
@@ -41,6 +41,10 @@ def verify(ledger_path: str):
                     rec = json.loads(line)
                 except Exception:
                     return "", f"broken@{n} (unparseable line)"
+                if not isinstance(rec, dict):
+                    # parite: tamga_runner._verify_chain aynı-girdiyi broken-RED'ye çevirir —
+                    # mini de öyle davranır (2026-09-13 taze-göz-paritesi-bulgusu)
+                    return "", f"broken@{n} (record is not a JSON object)"
                 no_h = {k: v for k, v in rec.items() if k not in ("h", "node_sig")}
                 exp = hashlib.sha256((rec.get("prev", "") + jcs(no_h).decode("utf-8")).encode("utf-8")).hexdigest()
                 if rec.get("prev") != prev_h or rec.get("h") != exp or rec.get("seq") != n:
@@ -61,7 +65,7 @@ def main(argv):
         return 2
     tip, reason = verify(args[0])
     ok = tip != ""
-    res = {"ok": ok, "lines": 0 if not ok else (int(reason.split("@")[1]) if reason.startswith("broken@") and False else None), "head": tip, "reason": reason}
+    res = {"ok": ok, "lines": None, "head": tip, "reason": reason}
     # satır-sayısı-ok-ken-yeniden-say (küçük-dosyalar-için-netlik):
     if ok:
         with open(args[0], "r", encoding="utf-8") as f:

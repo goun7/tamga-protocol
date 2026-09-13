@@ -44,7 +44,12 @@ def verify_anchor_line(line: str) -> tuple[bool, str]:
     try:
         head = str(a["head"])
         merkle = str(a["merkle_root"])
-        count = int(a["event_count"])
+        ec = a["event_count"]
+        # tam-sayı-sıkılığı (taze-göz D5): float-kesme ve dizgi-kodlama-hoşgörüsü
+        # kapatılır — yalnız gerçek tam-sayı INT kabul; 3.9 → RED, "3" → RED.
+        if not isinstance(ec, int) or isinstance(ec, bool):
+            return False, "FAIL: event_count tam-sayı olmalı (float/str değil)"
+        count = ec
     except (KeyError, TypeError, ValueError) as e:
         return False, f"FAIL: zorunlu-alan eksik/bozuk ({e})"
     if len(head) != 64 or len(merkle) != 64:

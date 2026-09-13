@@ -19,7 +19,7 @@ portability invariant — it is why a receiving node can verify what it is about
 ## 2. Prerequisites
 
 ```bash
-python3 --version      # proven on 3.14; 3.11+ expected
+python3 --version      # proven on 3.14; supported per pyproject: 3.10+ (classifiers 3.10–3.13)
 pip install pynacl     # the only runtime dependency
 # runner engine: wasmtime v48.0.1 (pinned) — install with: bash tests/setup.sh
 # agent target:  WASI 0.3 / component  (Rust: wasm32-wasip2)

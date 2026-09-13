@@ -34,12 +34,24 @@ ok $? "py-modules okundu ($(wc -l < "$WORK/piproj.txt") modül)"
 diff "$WORK/repo.txt" "$WORK/piproj.txt" > "$WORK/d1.txt" 2>&1
 ok $? "repo-kökü == py-modules (eksik/çok: $(wc -l < "$WORK/d1.txt") satır)"
 
-# 4) wheel üret (temiz dist zorunlu — çift-wheel glob tuzağı dersi):
-rm -rf dist && python3 -m build --wheel --sdist > "$WORK/build.log" 2>&1
-ok $? "wheel+sdist üretildi (temiz dist/)"
+# Önkoşul-kapısı (taze-klon-dersi, 2026-09-13): 'python3 -m build' gerekir —
+# requirements'ta yok (yalnız kurulum-önerisi). Yoksa YORUMSUZ kırmızı olur;
+# mesajlı-SKIP + açık önkoşul REPRODUCE'un "taze-klonda-başarısızlık-BUG"
+# ölçütüyle dürüsttür. dist/ silinmez (AT-019 önceden-üremiş wheel'i
+# kullanabilir): üretim İZOLE dist-alt-dizinine yapılır.
+if ! python3 -c "import build" 2>/dev/null; then
+  echo "  [SKIP] AT-026: 'build' paketi yok — önkoşul: python3 -m pip install build" | tee -a "$LOG"
+  echo "AT-026 RESULT: $PASS PASS, $FAIL FAIL, 1 SKIP"
+  exit 0
+fi
+
+# 4) wheel üret (İZOLE dist — çift-wheel glob tuzağı dersi; AT-019'ın wheel'ine dokunmaz)
+DISTISOL="$WORK/dist_isol"; mkdir -p "$DISTISOL"
+python3 -m build --wheel --sdist --outdir "$DISTISOL" > "$WORK/build.log" 2>&1
+ok $? "wheel+sdist üretildi (izole çıktı-dizini)"
 
 # 5) ÜÇ-yönlü eşitlik #2: py-modules ↔ wheel içeriği
-WHEEL=$(ls -t dist/tamga_protocol-*.whl | head -1)
+WHEEL=$(ls -t "$DISTISOL"/tamga_protocol-*.whl | head -1)
 python3 - "$WHEEL" "$WORK/piproj.txt" << 'PY' > "$WORK/missing.txt"
 import sys, zipfile
 wheel, listfile = sys.argv[1], sys.argv[2]

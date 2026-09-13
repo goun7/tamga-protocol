@@ -27,11 +27,20 @@ bash tests/run_all.sh
 Expected tail: `RESULT: 46 PASS, 0 FAIL`. Last verified here: **2026-09-12** (46/46; AT-022 composition + AT-023 project-head + AT-024 pugio-receiver included). The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`.
 
-Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot — not in CI):
+Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-completeness — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 50 controls (50/50; AT-022/023/024/025 + AT-026 wheel-tam-modül)
+RUN_SLOW=1 bash tests/run_all.sh     # → 50 controls (50/50 on this host)
 ```
+
+Prerequisites the slow controls declare honestly (a fresh clone is NOT a bug — it is a missing
+precondition and each one says so):
+- c30 (the 31 s cross-host wall control) needs the gitignored local simnet fixtures
+  (`tests/simnet/node-C/` + `seedC.hex`) — without them it prints `[SKIP]` and the run reads 49/49.
+- AT-019 builds/uses the wheel from `dist/` (gitignored) — if no wheel exists and the `build`
+  package is importable it builds one on the spot; if neither, it prints `[SKIP]`.
+- AT-026 needs `python3 -m build` (`pip install build`); it builds into an isolated temp dir
+  (never deletes an existing `dist/`).
 
 ## 2. Verify a chain without installing anything (stdlib-only)
 

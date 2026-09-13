@@ -30,8 +30,16 @@ Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 50 kontrol (50/50, AT-022 + AT-023 + AT-024 + AT-025 + AT-026 dahil)
+RUN_SLOW=1 bash tests/run_all.sh     # → 50 kontrol (bu makinede 50/50)
 ```
+
+Yavaş-kontrollerin dürüst-önkoşulları (taze-klonda BUG değil — eksik-önkoşul; her biri söyler):
+- c30 (31-sn çapraz-host duvar-kontrolü) gitignored yerel simnet-fixtürleri ister
+  (`tests/simnet/node-C/` + `seedC.hex`) — yoksa `[SKIP]` basar ve koşum 49/49 okunur.
+- AT-019 `dist/` wheel'ini (gitignored) kurar/kullanır — wheel yoksa ve `build` paketi
+  importlanabiliyorsa anında üretir; ikisi de yoksa `[SKIP]` basar.
+- AT-026 `python3 -m build` ister (`pip install build`); üretimi İZOLE geçici-dizine yapar
+  (mevcut `dist/`'i asla silmez).
 
 ## 2. Hiçbir şey kurmadan zincir doğrulayın (yalnız-stdlib)
 

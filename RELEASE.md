@@ -1,3 +1,34 @@
+# Release notes — v0.2.4
+
+Release date: 2026-09-13 · Tag: pending founder (code complete: 7a7fd6d) · Branch: `main`
+
+## What is in this release
+
+**v0.2.4 — the packaging honesty patch: ingest ships in the wheel.**
+
+- **`tamga_pugio_ingest` ships in the wheel** — 0.2.3 shipped the module in the repo
+  but left it out of `py-modules`, so a PyPI user could not import the AT-025 surface
+  (install-break class). Found by the new AT-026 while writing it; fixed before release.
+- **AT-026 — wheel tam-modül** (slow control 50): packaging-completeness contract —
+  repo-root ↔ `py-modules` ↔ wheel contents three-way equality, isolated-dist build
+  (never deletes an existing `dist/` — the AT-019 interaction caught by the fresh-eyes
+  audit), and a full-install import gate for every module. Negative-proof verified:
+  re-simulating the 0.2.3 omission REDs the control.
+- **Fresh-clone honesty (audit):** AT-019/AT-026 now declare their prerequisites with a
+  message instead of failing silently-red — REPRODUCE{,.tr} documents them (wheel via
+  `python3 -m build`; the c30 fixture stays a loud SKIP at 49/49).
+- **Fail-loud RED completeness (audit):** `tamga_pugio_ingest` non-dict bundles, huge
+  integers, and empty event-sets return RED (no receipt, no traceback); an empty K0
+  envelope produces NO receipt; `tamga_project_head` rejects non-object lines as
+  reason-14 RED; `tamga_verify_mini` treats non-object records as `broken@N` — now
+  byte-identical in DECISION with `tamga_runner._verify_chain` on that edge (audit O5).
+
+Verification: fast suite 46/46, slow suite 50/50 (run_all-024057); fresh-clone
+post-setup run: 49 PASS / 0 FAIL / 1 SKIP (c30 fixtures, message-declared);
+links 92/0; wheel 0.2.4 contents: 12 modules + templates trio, ingest confirmed.
+
+---
+
 # Release notes — v0.2.3
 
 Release date: 2026-09-12 · Tag: `v0.2.3` · Branch: `main`

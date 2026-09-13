@@ -2,9 +2,10 @@
 """tamga_pugio_ingest — 81-MERGEN-tarafı PUGIO K0-kanıt-bundle'ı okuyucu (S4-kapanış).
 
 IS_PLANI §7 S4 kalan-adım: "81-MERGEN tarafının aynı şemayı okuması".
-Bu araç PUGIO kanıt-bundle'ını (docs/K0_SHARED_ENVELOPE_SPEC.md §4) PUGIO
-kütüphanesi ve secret'ı OLMADAN, pür stdlib ile doğrular ve Tamga-doktriniyle
-**doğrulama-makbuzu** üretir:
+Bu araç PUGIO kanıt-bundle'ını (K0 Shared-Envelope-Spec §2-§4 — merkezi-spec
+81-MERGEN repo'sunda; bu-repo'da-matematik-aşağıda-docstring'de-kendi-kelimeleriyle)
+PUGIO kütüphanesi ve secret'ı OLMADAN, pür stdlib ile doğrular ve
+Tamga-doktriniyle **doğrulama-makbuzu** üretir:
 
   1) K0 §2 zincir:  sha256(canonical(prev_proof dahil)) == proof  (her olay)
   2) K0 §2 bağ:     events[i].prev_proof == events[i-1].proof (ilk: GENESIS)
@@ -64,9 +65,16 @@ def verify_bundle(bundle: dict) -> tuple[bool, str, dict]:
     try:
         if int(bundle.get("pugio_bundle_version", 0)) != BUNDLE_VERSION:
             return False, "bundle-sürümü bilinmiyor", {}
+        if not isinstance(bundle, dict):
+            return False, "bundle nesne değil", {}
         events = bundle.get("events")
         if not isinstance(events, list):
             return False, "events liste değil", {}
+        if not events:
+            # fail-closed: boş-kanıt-zarfına makbuz ÜRETİLMEZ (0-olay "SAĞLAM" yanılsaması
+            # 2026-09-13 taze-göz-bulgusuyla kapatıldı; K0-üreticisi hiçbir zaman 0-olay
+            # bundle göndermez — alan boşsa bu bir hata-zarfıdır)
+            return False, "boş-bundle: 0-olay kanıt-zarfı makbuz üretmez", {}
         prev = GENESIS
         proofs: list[str] = []
         expected_seq = None
@@ -100,7 +108,7 @@ def verify_bundle(bundle: dict) -> tuple[bool, str, dict]:
         audit = {"charge_total": round(charge_total, 6), "receipts": receipts,
                  "decisions": decisions, "agents": sorted(agents)}
         return True, f"SAĞLAM: {len(events)} olay, head={prev[:12]}…", audit
-    except (KeyError, TypeError, ValueError) as e:
+    except (KeyError, TypeError, ValueError, AttributeError, OverflowError) as e:
         return False, f"bundle-bozuk: {e}", {}
 
 

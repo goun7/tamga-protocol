@@ -8,12 +8,28 @@ mkdir -p "$(dirname "$LOG")"
 ok() { if [ "$1" -eq 0 ]; then PASS=$((PASS+1)); echo "  PASS: $2" | tee -a "$LOG"; else FAIL=$((FAIL+1)); echo "  FAIL: $2" | tee -a "$LOG"; fi; }
 cd "$(cd "$(dirname "$0")/.." && pwd)"
 
+# Önkoşul-kapısı (taze-klon-dersi, 2026-09-13): dist/ .gitignore'dadır —
+# wheel yoksa bu kontrol YORUMSUZ kırmızı olur. Taze-klonda önkoşul:
+#   python3 -m pip install --quiet build && python3 -m build --wheel
+# (REPRODUCE.md'in slow bölümünde belgeli). Önceden kurulmuş wheel varsa kullanılır.
+WHEEL=$(ls -t dist/tamga_protocol-*.whl 2>/dev/null | head -1)
+if [ -z "$WHEEL" ]; then
+  if python3 -c "import build" 2>/dev/null && python3 -m build --wheel > /dev/null 2>&1; then
+    WHEEL=$(ls -t dist/tamga_protocol-*.whl 2>/dev/null | head -1)
+  fi
+fi
+if [ -z "$WHEEL" ]; then
+  echo "  [SKIP] AT-019: dist/ wheel yok (gitignored) ve 'build' paketi/sdistan üretim yapılamadı — önkoşul: python3 -m pip install build && python3 -m build" | tee -a "$LOG"
+  echo "AT-019 RESULT: $PASS PASS, $FAIL FAIL, 1 SKIP"
+  exit 0
+fi
+
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
 # 1) wheel-kurulum (no-deps: pynacl-olmadan — sinirli-host-senaryosu):
 python3 -m venv "$WORK/venv" > /dev/null 2>&1
-WHEEL=$(ls -t dist/tamga_protocol-*.whl | head -1)
+# WHEEL önkoşul-kapısında belirlendi (yukarıda)
 "$WORK/venv/bin/pip" install --quiet --no-deps "$WHEEL" > /dev/null 2>&1
 ok $? "wheel: --no-deps-kurulum (pynacl-siz)"
 

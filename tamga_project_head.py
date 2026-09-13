@@ -45,6 +45,8 @@ def chain_head(pkg: pathlib.Path) -> tuple[str, int]:
             continue
         n += 1
         rec = json.loads(line)
+        if not isinstance(rec, dict):
+            raise ValueError(f"kayıt nesne değil (satır {n}) — reason-14 ailesi")
         no_h = {k: v for k, v in rec.items() if k != "h" and k != "node_sig"}
         j = jcs(no_h)
         j = j.encode() if isinstance(j, str) else j
@@ -79,7 +81,7 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     try:
         head, n = chain_head(pathlib.Path(a.pkg))
-    except ValueError as e:
+    except (ValueError, AttributeError, TypeError, KeyError) as e:
         print(f"RED: {e}", file=sys.stderr)
         return 1
     out = project(head)

@@ -20,7 +20,7 @@ koşmak-üzere-olduğunu-doğrulayabildiği-için.
 ## 2. Önkoşullar
 
 ```bash
-python3 --version      # 3.14'te kanıtlı; 3.11+ beklenir
+python3 --version      # 3.14'te kanıtlı; pyproject desteği: 3.10+ (classifiers 3.10–3.13)
 pip install tamga-protocol   # PyPI'dan (tek bağımlılık pynacl; wheel'de hazır)
 # motor: wasmtime v48.0.1 (pinli) — ilk kurulum: tamga doctor / tests/setup.sh
 ```

@@ -42,8 +42,13 @@ Nothing unreleased; next planned: see the roadmap gates in README.
   pin frozen); upstream-contribution row (Vauban PR #2).
 
 ### Changed
-- Acceptance suite: 43 → 45 fast controls (48 with `RUN_SLOW=1`) — AT-023 (control 47)
-  and AT-024 (control 48) wired in; counts synced across TESTS/README{,.tr}/REPRODUCE{,.tr}.
+- Acceptance suite: 43 → 45 fast controls (48 with `RUN_SLOW=1`) at the TAG moment —
+  AT-023 (control 47) and AT-024 (control 48) wired in; counts synced across
+  TESTS/README{,.tr}/REPRODUCE{,.tr}. Later the SAME release day, AT-025
+  (`tamga_pugio_ingest`, 1681fd8) raised it to **46 fast / 49 slow before the PyPI
+  wheel was rebuilt** — RELEASE.md's 46/49 is the day-end truth; this entry records
+  the tag-moment truth. (Both are honest; the two numbers froze in place when the
+  0.2.3 wheel shipped with ingest missing from py-modules — the 0.2.4 story.)
 - Audit-19 timing band 0.7–1.4 → 0.6–1.6 (founder-approved): the claim is same-work
   measurement, not absolute ms; under full-suite load ±20% drift is normal (measurement
   evidence stays in the log).
@@ -81,7 +86,7 @@ Nothing unreleased; next planned: see the roadmap gates in README.
 - keccak256 delivery-alg path (RFC-007 R2); AT-010 labeled delivery-hash controls.
 - AT-009 manifest-net (migrate-net one-way, D12a jcs-canonical binding).
 
-## [0.2.0] — 2026-09-08
+## [0.2.0] — 2026-09-08 (spec flip) / tagged + released 2026-09-11
 
 ### Changed
 - **spec_version flip** (founder-approved): manifest schema `0.1` → `0.2`;

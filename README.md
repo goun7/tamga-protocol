@@ -99,8 +99,9 @@ attack simulations). Disclosure process: [SECURITY.md](SECURITY.md).
 
 The animated walkthrough: mint identity → do input-bound work on node1 → the
 node "dies" → the agent revives on node2 with its memory intact → the receipt
-ledger verifies. Play it yourself in one command: `bash tools/demo.sh`, or watch
-the raw session: [docs/assets/demo.cast](docs/assets/demo.cast).
+ledger verifies → the chain head projects into a foreign batch → a foreign
+anchor verifies on our side. Play it yourself in one command: `bash tools/demo.sh`,
+or watch the raw session: [docs/assets/demo.cast](docs/assets/demo.cast).
 
 ## Quick start
 
@@ -152,7 +153,7 @@ wasmtime v48.0.1).
 ## 30-second live demo
 
 ```bash
-bash tools/demo.sh   # born → input-bound work → dies → travels → revives → receipt verified
+bash tools/demo.sh   # born → input-bound work → dies → travels → revives → verified → projected → foreign anchor received
 ```
 Recorded session: [docs/assets/demo.cast](docs/assets/demo.cast) (play with `asciinema`) —
 expected flow: [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md).

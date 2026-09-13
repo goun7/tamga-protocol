@@ -24,8 +24,9 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 46 PASS, 0 FAIL`. Last verified here: **2026-09-12** (46/46; AT-022 composition + AT-023 project-head + AT-024 pugio-receiver included). The evidence log lands in
-`.evidence/REGRESYON/<date>/run_all-*.log`.
+Expected tail: `RESULT: 46 PASS, 0 FAIL`. Last verified here: **2026-09-13** (46/46 across four
+runs this day; slow round 50/50 — run_all-040339; the evidence log lands in
+`.evidence/REGRESYON/<date>/run_all-*.log`).
 
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-completeness — not in CI):
 

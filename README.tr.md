@@ -147,6 +147,15 @@ yol-haritasındadır; çok-biçimli dönüştürücü bugün var: `tools/memory_
 > **Dil-notu:** derin tasarım-belgeleri (RFC-001…005, tam denetim-raporu, tokenomics) şu an
 > **Türkçe** kanoniktir; İngilizce çeviriler ilerler ve burada kademeli yayımlanır.
 
+## 30-saniyelik demo
+
+![demo](docs/assets/demo.gif)
+
+Animasyonlu-anlatım: kimlik-mint → node1'de girdiye-bağlı-iş → node "öler" → ajan node2'de
+hafızası-bozulmadan-dirilir → makbuz-defteri doğrulanır → zincir-ucu yabancı bir parteye
+yansıtılır → tarafımızda yabancı çıpa doğrulanır. Kendin-oyna: `bash tools/demo.sh`, ya da
+ham-oturumu-izle: [docs/assets/demo.cast](docs/assets/demo.cast).
+
 ## Hızlı başlangıç
 
 ```bash
@@ -155,16 +164,56 @@ pip install tamga-protocol && tamga quickstart ilk-ajanim
 
 # kaynaktan:
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
 bash tests/run_all.sh    # 50/50 kontrol — ~20 sn (RUN_SLOW=1 ile 55)
+
+# ilk ajanın (örnek-vektörü-paket olarak kopyala — docs/AGENT-GUIDE §3):
+python3 tamga_validator.py keygen tests/keys/alice
+python3 tamga_validator.py sign  <pkg>/tamga.json <pkg>/agent.wasm tests/keys/alice/seed.hex
+python3 tamga_validator.py validate <pkg>             # ACCEPT'e dek
+
+# koşum (ajan kimlik-anahtarı diske hiç-değmez — yalnız stdout'a basılır):
+AGENT_SEED=$(python3 tamga_runner.py keygen | python3 -c 'import sys,json;print(json.load(sys.stdin)["seed_hex"])')
+export TAMGA_KS_PASSPHRASE="..."                      # senin-seçimin
+python3 tamga_runner.py run    <pkg> --seed "$AGENT_SEED" --note "ilk koşum"
+python3 tamga_runner.py run    <pkg> --seed "$AGENT_SEED" --input is.json --require-proof
+python3 tamga_runner.py export <pkg> -o anlik.tsg --seed "$AGENT_SEED"
+python3 tamga_runner.py import anlik.tsg <yeni-pkg>   # kod AYRICA yolculuk eder — hedef paket ön-teminli olmalı
+python3 tamga_runner.py ledger-verify <yeni-pkg>
+python3 tamga_bootstrap.py project-head <pkg>         # zincir-ucu → parti-yaprak yansıtma (RFC-009; gösterim-only)
+python3 tamga_pugio_receiver.py disicapalar.jsonl     # dış çıpa satırlarını İÇERİDE doğrula (RFC-009 alıcısı; fail-loud)
+python3 tamga_pugio_ingest.py dis_bundle.json         # K0 bundle tam-gövde doğrulama → deterministik makbuz (RED'de makbuz YOK)
+python3 tamga_bootstrap.py epoch-verify kanit.json    # YABANCI epoch-mührü dahil-etme-kanıtı — Yeşil rc0 / Kırmızı rc1 / İNDETERMİNE rc2; ölü-RPC asla-yeşil-okunmaz (--rpc zincir-ayağını ekler)
+python3 tamga_bootstrap.py liveness-probe             # RPC-tazeliği YALNIZ blok-no-farkıyla — sunucu-duvar-saati HİÇ okunmaz (#2887 dersi); --json makine-satırı
+python3 tamga_bootstrap.py attest-verify claim.json   # YABANCI teslim-attestation doğrulaması: stdlib-only secp256k1+EIP-191 — vericinin-kendi hükmünü 7/7 koprodukte eder (AT-030)
+python3 tamga_bootstrap.py verify-cr doc.json --expect sha256:...  # CR-v0.1 kanonik-digest'i bizim-kanonik-yoldan yeniden-hesapla; çıplak-çağrı = hüküm-değil, ÖLÇÜM
+python3 tamga_runner.py memory <pkg> --search <sorgu>
+python3 tamga_runner.py memory <pkg> --import-json dersler.json    # yalnız-ekleyen bellek-köprüsü
+
+# belleğini başka bir depodan mı taşıyorsun? çok-formatlı dönüştürücü (mem0/letta/zep/jsonl):
+python3 tools/memory_import.py --from export.json --format auto -o converted.json
 ```
+
+## Belleğini-sok-buraya
+
+Var-olan ajan-hafızını JSON-satırlarıyla sok (`--import-json`): birleştirme
+yalnız-ekleyen ve idempotent — aynı-kaynağı-tekrar-sokmak mevcut-olanı-atlar.
+Kaynak-depo salt-okunur-açılır; ara-veri RAM'de kalır.
+Dış-hafıza-depoları için dışa-aktarım adaptörleri Faz-2 yol haritasında.
 
 Kanıt-özet araçları: `tamga ledger-verify` · `tamga verify-mini` (stdlib-yalnız) ·
 `tamga bundle` (kanıt-paketi) · `tamga explain` (insan-dilli makbuz özeti; TR/EN).
-Komut-seti ve ilk-ajan akışı: [README.md#quick-start](README.md#quick-start) ve
+Komut-seti ve ilk-ajan akışı:
 [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md) — Türkçe rehber: [docs/AGENT-GUIDE.tr.md](docs/AGENT-GUIDE.tr.md).
 Belge-haritası (rol-e-göre okuma-sırası): [docs/INDEX.md](docs/INDEX.md).
+
+## Katkıda-bulunma
+
+Değişiklik-beri-kapısı 8-adımlı denetim-merasiminden geçer (docs/AUDIT-GATE.md); her-push'te
+4-Python-sürüm matrisinde tam-süit koşar. Hata-bildirimi: SECURITY.md. Ayrıntı: CONTRIBUTING.md —
+köşeli-parantezli "good first issue"lara bak; belirsizlikte İNDETERMİNE davranışımız kurallardır.
 
 ## Yol haritası
 

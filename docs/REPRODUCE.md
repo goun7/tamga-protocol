@@ -45,7 +45,7 @@ installed from live PyPI by the stranger ritual (`bash tools/fresh_audit.sh`) �
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-completeness — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 54 controls (54/54 on this host)
+RUN_SLOW=1 bash tests/run_all.sh     # → 54 controls (55/55 on this host)
 ```
 
 Prerequisites the slow controls declare honestly (a fresh clone is NOT a bug — it is a missing

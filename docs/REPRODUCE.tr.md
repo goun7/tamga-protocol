@@ -41,7 +41,7 @@ Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 54 kontrol (bu makinede 54/54)
+RUN_SLOW=1 bash tests/run_all.sh     # → 54 kontrol (bu makinede 55/55)
 ```
 
 Yavaş-kontrollerin dürüst-önkoşulları (taze-klonda BUG değil — eksik-önkoşul; her biri söyler):

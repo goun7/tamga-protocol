@@ -27,6 +27,13 @@ pip install tamga-protocol   # PyPI'dan (tek bağımlılık pynacl; wheel'de haz
 
 ## 3. İlk-ajanınız (komik-kolay yol)
 
+> *Toolchain-dürüstlüğü (2026-09-15, AT-032): pinlenmiş-toolchain'le
+> (`tests/agent-src/rust-toolchain.toml`, 1.98.1) çift-derleme bayt-bayt-aynıdır — ama commit'li
+> `templates/agent.wasm` pin-öncesi-türetilmiştir ve bugünkü-derlemeden rustc **patch-sürümü
+> codegen-drift**'i kadar farklıdır (+2 bayt, CODE-bölümü; kaynak-değişmemiş). Protokol-doğrulaması
+> kaynak→binary-özdeşliğine-hiç-bağımlı-olmadı: manifest GÖNDERİLEN-hash'i-pinner. Garantili-olan:
+> aynı-toolchain-determinizmi (AT-032 yavaş-kontrolü, cargo-varsa her süitte-yeniden-doğrular).
+
 ```bash
 tamga quickstart ilk-ajanim      # şablon-ajan + taze-anahtar + imza + İLK KOŞUM + doğrulama
 ```

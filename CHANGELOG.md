@@ -7,6 +7,9 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 ## [Unreleased]
 
 ### Added
+- AT-032 builder-determinism control (kontrol-55, slow) + `tests/agent-src/rust-toolchain.toml` pin:
+  same-toolchain double build proved byte-identical; Sept-11 template drift classified as rustc
+  patch-version codegen (NOT non-determinism, NOT source drift). Honest-limit note in AGENT-GUIDE §3 EN+TR.
 - `tamga_cr_verify` / `tamga verify-cr` — AT-029 harness'inin TEK-SAHİP varisi: aday-üretimi
   (`--candidates`) + tek-belge CR-v0.1 kanonik-digest doğrulaması (`--expect` ile üç-sonuç,
   onsuz ölçüm-kipi). `tools/cr_crossproof.py` SİLİNDİ (taşıma; shim yok — 0.2.9 probe-deseni).

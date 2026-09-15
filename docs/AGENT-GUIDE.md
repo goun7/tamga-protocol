@@ -31,6 +31,14 @@ pip install pynacl     # the only runtime dependency
 # 1) code — minimal WASI component (example: tests/agent-src/, Rust)
 cargo build --release --target wasm32-wasip2
 
+> *Toolchain honesty (2026-09-15, AT-032): with the pinned toolchain
+> (`tests/agent-src/rust-toolchain.toml`, 1.98.1) double builds are byte-identical — but the
+> committed `templates/agent.wasm` predates the pin and differs from a today-build by rustc
+> **patch-version codegen drift** (+2 bytes, CODE section; source unchanged). Protocol
+> verification never depended on source→binary identity: the manifest pins the SHIPPED hash
+> (validate checks binary↔pinned directly). What IS guaranteed: same-toolchain determinism
+> (AT-032 slow control re-checks it on every suite run where cargo exists).
+
 # 2) manifest — copy tests/vectors/tc-a1/tamga.json, change package.name
 #    schema: specs/manifest-0.2.0.schema.json (RFC-001 v0.1-FINAL + RFC-007 v0.2)
 

@@ -1169,7 +1169,7 @@ engine-free commands (run right after pip install; no wasmtime download needed):
   project-head <pkg> [-o f]       chain head → batch-leaf projection TAMGA_PROJECT_HEAD_V1
                                   (RFC-009; composition-ready digest, presentation-only claim)
   epoch-verify <proof.json>       verify a foreign epoch-seal inclusion proof — three verdicts:
-                                  GREEN rc0 / RED rc1 / INDETERMİNE rc2 (a dead RPC is never green)
+                                  GREEN rc0 / RED rc1 / İNDETERMİNE rc2 (a dead RPC is never green)
   ledger <pkg>                    print the ledger
   ledger-verify <pkg>             recompute and verify the hash chain
 
@@ -1195,7 +1195,7 @@ receiver libraries (import as modules; wire contracts in RFC-009):
   tamga_pugio_receiver / tamga_pugio_ingest — external-anchor + K0 proof-bundle ingestion
 
 version: 0.2.4 · spec_version 0.2.0 (const-flip founder-approved 2026-09-11; next-release gate)
-exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-18) · 2 INDETERMİNE (epoch-verify).
+exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-18) · 2 İNDETERMİNE (epoch-verify).
 """
 if __name__ == "__main__":
     cmds = {"keygen": cmd_keygen, "quickstart": cmd_quickstart, "run": cmd_run,

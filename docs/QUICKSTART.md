@@ -94,7 +94,7 @@ tamga verify-mini ./my-pkg/ledger.jsonl   # stdlib-only, no engine, no Tamga ins
 tamga bundle ./my-pkg -o evidence/        # one-file proof package (JSON + human summary)
 tamga epoch-verify proof.json --rpc       # OUTWARD: verify someone ELSE's epoch-seal inclusion
                                           # proof (explorer JSON); GREEN rc0 / RED rc1 /
-                                          # INDETERMİNE rc2 — a dead RPC never reads green
+                                          # İNDETERMİNE rc2 — a dead RPC never reads green
 ```
 
 The bundle carries the chain records, the manifest re-hash, and per-job

@@ -135,7 +135,7 @@ python3 tamga_runner.py ledger-verify <new-pkg>
 python3 tamga_bootstrap.py project-head <pkg>   # chain-head → batch-leaf projection (RFC-009; presentation-only)
 python3 tamga_pugio_receiver.py foreign_anchors.jsonl   # verify external anchor lines IN (RFC-009 receiver; fail-loud)
 python3 tamga_pugio_ingest.py foreign_bundle.json        # K0 bundle full-body verify → deterministic receipt (no receipt on RED)
-python3 tamga_bootstrap.py epoch-verify proof.json       # verify a FOREIGN epoch-seal inclusion proof — GREEN rc0 / RED rc1 / INDETERMİNE rc2; a dead RPC never reads green (--rpc adds the on-chain leg)
+python3 tamga_bootstrap.py epoch-verify proof.json       # verify a FOREIGN epoch-seal inclusion proof — GREEN rc0 / RED rc1 / İNDETERMİNE rc2; a dead RPC never reads green (--rpc adds the on-chain leg)
 python3 tamga_runner.py memory <pkg> --search <query>
 python3 tamga_runner.py memory <pkg> --import-json lessons.json   # ADD-only memory bridge
 # bringing memory from another store? multi-format converter (mem0/letta/zep/jsonl):

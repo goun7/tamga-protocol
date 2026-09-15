@@ -60,7 +60,6 @@ python3 tests/vendor-cr/python/conformance_runner.py "$T/tampered.json" \
 RC=$?
 if [ "$RC" -ne 0 ] && grep -q "FAIL" "$T/tam.out"; then ok 0 "negatif: digest-kazıması hakemce RED (rc$RC)"; else ok 1 "kazıma-yakalanmadı (rc$RC) — HAKEM-GÜVENSİZ"; fi
 
-rm -rf "$T"
 # ---- konsol-kipi (tamga verify-cr): tek-belge GREEN/RED + sıfır-arg-rc1 (E-14 ailesi) ----
 printf '{"a":1,"b":[2,{"z":9,"a":0}]}' > "$T/doc.json"
 EXP=$(python3 -c "import sys; sys.path.insert(0,'.'); from tamga_verify_mini import jcs; import hashlib,json; print('sha256:'+hashlib.sha256(jcs(json.load(open('$T/doc.json')))).hexdigest())")
@@ -74,5 +73,6 @@ python3 -m tamga_cr_verify > "$T/zero.out" 2>&1
 [ $? -eq 1 ] && grep -q kullanim "$T/zero.out"
 ok $? "konsol: sıfır-arg → kullanım-RED rc1 (argparse rc2'siyle karışmaz)"
 
+rm -rf "$T"
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" -eq 0 ]

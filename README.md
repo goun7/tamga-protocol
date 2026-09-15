@@ -202,8 +202,8 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 
 > **Language note (honesty fix, 2026-09-16):** the English documents in this repo are the
-> living, binding text. Eight Turkish twins now exist side-by-side (docs/*.tr.md — README,
-> AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK, RFC-001/2/3); on divergence,
+> living, binding text. Nine Turkish twins now exist side-by-side ([README.tr.md](README.tr.md)
+> + docs/*.tr.md: AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK, RFC-001/2/3); on divergence,
 > English governs and each twin says so at its top. Earlier private Turkish drafts are NOT
 > referenced as canonical — an uncheckable canonical is not a canonical.
 > Türkçe README: [README.tr.md](README.tr.md).

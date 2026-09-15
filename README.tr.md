@@ -145,7 +145,7 @@ yol-haritasındadır; çok-biçimli dönüştürücü bugün var: `tools/memory_
 | [SECURITY.md](SECURITY.md) · [CONTRIBUTING.md](CONTRIBUTING.md) | İhlal-bildirim + katkı disiplini (değişim = test + kanıt) |
 
 > **Dil-notu (dürüstlük-düzeltmesi, 2026-09-16):** repodaki İngilizce metinler yaşayan ve
-> bağlayıcı metindir; sekiz Türkçe-ikiz (docs/*.tr.md: README, AGENT-GUIDE, REPRODUCE,
+> bağlayıcı metindir; dokuz Türkçe-ikiz (README.tr.md + docs/*.tr.md: AGENT-GUIDE, REPRODUCE,
 > ARCHITECTURE, TESTS, RELATED-WORK, RFC-001/2/3) yan-yana durur — ayrışmada İngilizce
 > bağlar ve her-ikiz-başında-bunu-söyler. Özel-Türkçe taslaklar kanonik olarak ANILMAZ:
 > doğrulanamayan-kanonik, kanonik-değildir.

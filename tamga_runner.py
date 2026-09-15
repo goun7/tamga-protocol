@@ -454,8 +454,8 @@ def cmd_quickstart(a):
                agent_id=agent_id, seed_hex=seed.hex(), steps=steps,
                next_steps=[
                  "seed_hex'i saklayın (tekrar basılmaz): export/transfer için gerekir",
-                 f"python3 tamga_runner.py ledger {target} — zinciri görün",
-                 f"python3 tamga_runner.py export {target} -o snapshot.tsg --seed <hex>",
+                 f"tamga ledger {target} — zinciri görün (clone: python3 -m tamga_runner ledger)",
+                 f"tamga export {target} -o snapshot.tsg --seed <hex> (clone: -m tamga_runner)",
                ],
                note="quickstart: D3 seed not written to disk; store it safely")
 

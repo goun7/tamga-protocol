@@ -201,11 +201,13 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [SECURITY.md](SECURITY.md) | Vulnerability disclosure + reporting forms |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 
-> **Language note (honesty fix, 2026-09-16):** the English documents in this repo are the
-> living, binding text. Nine Turkish twins now exist side-by-side ([README.tr.md](README.tr.md)
-> + docs/*.tr.md: AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK, RFC-001/2/3); on divergence,
-> English governs and each twin says so at its top. Earlier private Turkish drafts are NOT
-> referenced as canonical — an uncheckable canonical is not a canonical.
+> **Language note (honesty fix, 2026-09-16):** each document has ONE binding original and the
+> twin says which at its top. RFC-001…004: English is the living binding text, with Turkish
+> twins (`docs/*.tr.md`) beside them. RFC-005/006: born Turkish — the Turkish file IS the
+> original (no twin; an English translation is on the docs backlog). All other twins
+> (README.tr, AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK) are translations of
+> their English originals. Earlier private Turkish drafts are never cited as canonical —
+> an uncheckable canonical is not a canonical.
 > Türkçe README: [README.tr.md](README.tr.md).
 
 ## Roadmap

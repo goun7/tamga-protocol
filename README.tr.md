@@ -144,11 +144,12 @@ yol-haritasındadır; çok-biçimli dönüştürücü bugün var: `tools/memory_
 | [docs/NODE-DISCOVERY.md](docs/NODE-DISCOVERY.md) | Faz-3 tasarım-notu: ERC-8004 üzerinden node keşfi (tetik-kapılı, kod yok) |
 | [SECURITY.md](SECURITY.md) · [CONTRIBUTING.md](CONTRIBUTING.md) | İhlal-bildirim + katkı disiplini (değişim = test + kanıt) |
 
-> **Dil-notu (dürüstlük-düzeltmesi, 2026-09-16):** repodaki İngilizce metinler yaşayan ve
-> bağlayıcı metindir; dokuz Türkçe-ikiz (README.tr.md + docs/*.tr.md: AGENT-GUIDE, REPRODUCE,
-> ARCHITECTURE, TESTS, RELATED-WORK, RFC-001/2/3) yan-yana durur — ayrışmada İngilizce
-> bağlar ve her-ikiz-başında-bunu-söyler. Özel-Türkçe taslaklar kanonik olarak ANILMAZ:
-> doğrulanamayan-kanonik, kanonik-değildir.
+> **Dil-notu (dürüstlük-düzeltmesi, 2026-09-16):** her-belgenin TEK bağlayıcı-orijinali vardır
+> ve ikiz-bunu-başında-söyler. RFC-001…004: yaşayan-bağlayıcı-metin İngilizce, TR-ikizleri
+> (`docs/*.tr.md`) yanlarında. RFC-005/006: Türkçe-doğdular — Türkçe-dosya ORİJİNALİN
+> TA KENDİSİDİR (ikiz yok; İngilizce-çeviri belge-kuyruğunda). Diğer ikizler (README.tr,
+> AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK) İngilizce-orijinallerin çevirisidir.
+> Özel-Türkçe taslaklar kanonik olarak ANILMAZ: doğrulanamayan-kanonik, kanonik-değildir.
 
 ## 30-saniyelik demo
 

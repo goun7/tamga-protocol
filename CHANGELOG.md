@@ -11,6 +11,12 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
   identical-copy `.tr.md` twins of Turkish-BORN originals (RFC-005/006, VERIFY-EPOCH-ANCHOR) —
   deleted, and the class is now law: no TR twin of a TR original, no hand-maintained twin
   counters in READMEs, INDEX twin-list is disk-derived; K4 direction-honesty added the same night (`.en.md` only beside Turkish-born originals, never co-racing a `.tr.md`). Negative self-tested. Suite 51/56.
+- AT-030 extended: vendor-set `completeness-claims.jsonl` — 8 claims freshly produced by the
+  issuer's OWN signing path (buildFixture, deterministic: two node runs byte-identical; sha-pinned).
+  Our stdlib verifier: 8/8 GREEN + claimId self-consistency. The foreign lane now proves acceptance
+  on both fixed vectors (7/7) AND live-generated claims (8/8).
+- Reverse-direction twins: RFC-005/006 + VERIFY-EPOCH-ANCHOR (Turkish-BORN originals) gained
+  `.en.md` English siblings — Turkish governs; AT-033 K4 machine-checks twin direction.
 - Six real surface twins (WHY-HASHCHAIN, DESIGN-PARTNERS, NODE-DISCOVERY, AUDIT-GATE,
   DEMO-SCRIPT, RFC-004) + migration/RELATED parity; RFC-005/006 EN translation recorded as
   the honest open debt (they were born Turkish; per-document language status now in README).

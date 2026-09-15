@@ -12,11 +12,14 @@ tamga --version && tamga doctor   # motor-gerektirmeyen yolçaplar SAĞLIKLI rap
 
 Doğrulama-komutları (`ledger-verify`, `verify-mini`, `bundle`, `explain`) 67 MB'lık
 motor olmadan çalışır; motor ilk `tamga run`'da bir-kereliğine, SHA256-pinli iner.
-Yayınlanan-wheel'den (**0.2.6**, canlı-PyPI) son-doğrulama: **2026-09-15** —
+Yayınlanan-wheel'den (**0.2.7**, canlı-PyPI) son-doğrulama: **2026-09-15** —
 quickstart-U2E + `tamga explain --charge` + wheel-tarafı keccak-KAT + ledger-verify
-+ verify-mini + bundle + `epoch-verify --selftest`; hepsi temiz-venv'de yeşil.
-(0.2.4→0.2.5 `epoch-verify`'yi wheel'e koydu; 0.2.5→0.2.6 `explain` kotu-girdiyi mesaj-RED'e
-cevirdi — ikisi-de canli-wheel-kurulup-yabanci-gözüyle-kullanilince-bulundu.)
++ verify-mini + bundle + `epoch-verify --selftest` + canlı epoch-15 iki-bacak doğrulaması
++ tüm-CLI boş-argman matrisi (8-komut: mesaj-RED, traceback-yok, vakum-yeşil-yok);
+hepsi canlı-index'ten-sürüm-no-ile-kurulan temiz-venv'de yeşil.
+(0.2.4→0.2.5 `epoch-verify`'yi wheel'e koydu; 0.2.5→0.2.6 `explain` kötü-girdiyi mesaj-RED'e
+çevirdi; 0.2.6→0.2.7 bu-kuralı TÜM-CLI'a genişletti (E-14, reason_code 19) + CR-v0.1
+cross-proof-kontrolünü taşıdı — üçü-de canlı-wheel-kurulup-yabancı-gözüyle-kullanılınca-bulundu.)
 
 ## 1. Tam kabul-süiti (48 kontrol, ~20 sn)
 
@@ -26,7 +29,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # bir-kerelik: pinned w
 bash tests/run_all.sh
 ```
 
-Beklenen kuyruk: `RESULT: 48 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-15** (48/48; taze kontroller dahil — AT-029 CR cross-proof baseline'a katıldı; yavaş-tur aynı gün yeniden-pişirildi).
+Beklenen kuyruk: `RESULT: 48 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-15** — yayınlanan-tekerlekle, **0.2.7** canlı PyPI'den (48/48; taze kontroller dahil — AT-029 CR cross-proof baseline'a katıldı; yavaş-tur aynı gün yeniden-pişirildi).
 Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):

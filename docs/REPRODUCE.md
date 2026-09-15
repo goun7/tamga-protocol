@@ -12,11 +12,14 @@ tamga --version && tamga doctor   # engine-free paths report SAĞLIKLI
 
 Verification commands (`ledger-verify`, `verify-mini`, `bundle`, `explain`) work
 without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`.
-Last verified from the published wheel (**0.2.6**, live PyPI): **2026-09-15** —
+Last verified from the published wheel (**0.2.7**, live PyPI): **2026-09-15** —
 quickstart E2E + `tamga explain --charge` + wheel-side keccak KAT +
-ledger-verify + verify-mini + bundle + `epoch-verify --selftest`, all green from a clean venv.
+ledger-verify + verify-mini + bundle + `epoch-verify --selftest` + live epoch-15 two-leg
+verification + the whole-CLI zero-argument matrix (8 commands: message-RED, no traceback,
+no vacuous green), all green from a clean venv installed by version from the live index.
 (0.2.4→0.2.5 shipped `epoch-verify` in the wheel; 0.2.5→0.2.6 hardened `explain` bad-input to
-message-RED — both found by installing the live wheel and using it as a stranger would.)
+message-RED; 0.2.6→0.2.7 extended that rule to the whole CLI (E-14, reason_code 19) and shipped
+the CR v0.1 cross-proof control — all three found by installing the live wheel and using it as a stranger would.)
 
 ## 1. The full acceptance suite (48 controls, ~20 s)
 
@@ -26,7 +29,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 48 PASS, 0 FAIL`. Last verified here: **2026-09-15** (48/48 fresh-controls
+Expected tail: `RESULT: 48 PASS, 0 FAIL`. Last verified here: **2026-09-15** with the published wheel — **0.2.7** from live PyPI (48/48 fresh-controls
 included — AT-029 CR cross-proof joins the baseline; slow round re-pinned same day; the evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`).
 

@@ -6,6 +6,15 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
+### Added
+- AT-033 twin-hygiene control (kontrol-55, fast): the night's doc-generation produced two
+  identical-copy `.tr.md` twins of Turkish-BORN originals (RFC-005/006, VERIFY-EPOCH-ANCHOR) —
+  deleted, and the class is now law: no TR twin of a TR original, no hand-maintained twin
+  counters in READMEs, INDEX twin-list is disk-derived. Negative self-tested. Suite 51/56.
+- Six real surface twins (WHY-HASHCHAIN, DESIGN-PARTNERS, NODE-DISCOVERY, AUDIT-GATE,
+  DEMO-SCRIPT, RFC-004) + migration/RELATED parity; RFC-005/006 EN translation recorded as
+  the honest open debt (they were born Turkish; per-document language status now in README).
+
 ## [0.2.10] — 2026-09-16
 
 ### Added

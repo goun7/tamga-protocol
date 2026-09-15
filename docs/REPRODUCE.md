@@ -31,7 +31,7 @@ it as a stranger would (doctor, zero-arg matrix, selftests, the E-15 wrong-chain
 when the engine is cached). CI runs it on the 20th of each month
 (`.github/workflows/fresh-audit.yml`, own badge, İNDETERMİNE-aware). First pass: 9/9 on 0.2.8.
 
-## 1. The full acceptance suite (50 controls, ~20 s)
+## 1. The full acceptance suite (51 controls, ~20 s)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -39,7 +39,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 50 PASS, 0 FAIL` (55 with `RUN_SLOW=1`). Last verified here: **2026-09-16** on **0.2.10**: full suite re-proved on HEAD (55/55 slow, idle machine), and the published wheel was
+Expected tail: `RESULT: 51 PASS, 0 FAIL` (56 with `RUN_SLOW=1`). Last verified here: **2026-09-16** on **0.2.10**: full suite re-proved on HEAD (55/55 slow, idle machine), and the published wheel was
 installed from live PyPI by the stranger ritual (`bash tools/fresh_audit.sh`) — 10/10 including the console
 `tamga liveness-probe` dead-port check. The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`).
@@ -47,13 +47,13 @@ installed from live PyPI by the stranger ritual (`bash tools/fresh_audit.sh`) �
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-completeness — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 54 controls (55/55 on this host)
+RUN_SLOW=1 bash tests/run_all.sh     # → 55 controls (56/56 on this host)
 ```
 
 Prerequisites the slow controls declare honestly (a fresh clone is NOT a bug — it is a missing
 precondition and each one says so):
 - c30 (the 31 s cross-host wall control) needs the gitignored local simnet fixtures
-  (`tests/simnet/node-C/` + `seedC.hex`) — without them it prints `[SKIP]` and the run reads 50/50.
+  (`tests/simnet/node-C/` + `seedC.hex`) — without them it prints `[SKIP]` and the run reads 51/51.
 - AT-019 builds/uses the wheel from `dist/` (gitignored) — if no wheel exists and the `build`
   package is importable it builds one on the spot; if neither, it prints `[SKIP]`.
 - AT-026 needs `python3 -m build` (`pip install build`); it builds into an isolated temp dir

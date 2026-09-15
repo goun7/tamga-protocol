@@ -1,3 +1,17 @@
+# Release notes — v0.2.6
+
+Release date: 2026-09-15 · Tag: v0.2.6 · Branch: `main`
+
+## What is in this release
+
+Same-day patch on v0.2.5, found by using the v0.2.5 wheel as a stranger: `tamga explain`
+fed a directory (misused flag order) crashed with a raw traceback. The whole bad-input
+family (dir / missing / malformed JSON / scalar-or-list root / out-of-range or non-integer
+seq) now answers `explain: <reason>` at rc1 — no tracebacks, the AT-025 rule. AT-016
+grows the negatives-family as one aggregate control; canonical suite stays 47/47.
+
+---
+
 # Release notes — v0.2.5
 
 Release date: 2026-09-15 · Tag: v0.2.5 · Branch: `main`

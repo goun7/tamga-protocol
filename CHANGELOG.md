@@ -8,6 +8,20 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 Nothing unreleased; next planned: see the roadmap gates in README.
 
+## [0.2.6] — 2026-09-15
+
+Patch on top of 0.2.5, same day — found by using the 0.2.5 wheel as a stranger.
+
+### Fixed
+- `tamga explain` crash-class hardening: a directory, missing file, malformed JSON, JSON
+  scalar/list root, or out-of-range/malformed `--charge` seq now print an `explain: ` message
+  and exit 1 — previously an uncaught Python traceback (AT-025 precedent applied; the
+  fresh-user audit's `explain <dir> --charge` misuse exposed it live).
+
+### Tests
+- AT-016 carries the 7-case negatives-family as one aggregate control (canonical 47 count
+  untouched); the suite total was re-proved 47/47.
+
 ## [0.2.5] — 2026-09-15
 
 Wheel = HEAD. No wire contract, no ledger format, no spec_version change.

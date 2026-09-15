@@ -136,7 +136,7 @@ python3 tamga_bootstrap.py project-head <pkg>   # chain-head → batch-leaf proj
 python3 tamga_pugio_receiver.py foreign_anchors.jsonl   # verify external anchor lines IN (RFC-009 receiver; fail-loud)
 python3 tamga_pugio_ingest.py foreign_bundle.json        # K0 bundle full-body verify → deterministic receipt (no receipt on RED)
 python3 tamga_bootstrap.py epoch-verify proof.json       # verify a FOREIGN epoch-seal inclusion proof — GREEN rc0 / RED rc1 / İNDETERMİNE rc2; a dead RPC never reads green (--rpc adds the on-chain leg)
-python3 tamga_bootstrap.py liveness-probe              # RPC freshness by block-NUMBER span only — server wall-clock NEVER read (#2887 lesson); --json machine line, INDETERMINE on any gap
+python3 tamga_bootstrap.py liveness-probe              # RPC freshness by block-NUMBER span only — server wall-clock NEVER read (#2887 lesson); stdout is always the machine JSON line (verdict echoes on stderr); İNDETERMİNE on any gap
 python3 tamga_bootstrap.py attest-verify claim.json          # verify a FOREIGN delivery-attestation (CAPACITY_ATTEST_V1): stdlib-only secp256k1+EIP-191 — reproduces the issuer's own verdict 7/7 (AT-030)
 python3 tamga_bootstrap.py verify-cr doc.json --expect sha256:... # recompute a CR-v0.1 canonical digest through our canonical path; bare call = measurement, not verdict
 python3 tamga_runner.py memory <pkg> --search <query>

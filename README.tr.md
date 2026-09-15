@@ -189,7 +189,7 @@ python3 tamga_bootstrap.py project-head <pkg>         # zincir-ucu → parti-yap
 python3 tamga_pugio_receiver.py disicapalar.jsonl     # dış çıpa satırlarını İÇERİDE doğrula (RFC-009 alıcısı; fail-loud)
 python3 tamga_pugio_ingest.py dis_bundle.json         # K0 bundle tam-gövde doğrulama → deterministik makbuz (RED'de makbuz YOK)
 python3 tamga_bootstrap.py epoch-verify kanit.json    # YABANCI epoch-mührü dahil-etme-kanıtı — Yeşil rc0 / Kırmızı rc1 / İNDETERMİNE rc2; ölü-RPC asla-yeşil-okunmaz (--rpc zincir-ayağını ekler)
-python3 tamga_bootstrap.py liveness-probe             # RPC-tazeliği YALNIZ blok-no-farkıyla — sunucu-duvar-saati HİÇ okunmaz (#2887 dersi); --json makine-satırı
+python3 tamga_bootstrap.py liveness-probe             # RPC-tazeliği YALNIZ blok-no-farkıyla — sunucu-duvar-saati HİÇ okunmaz (#2887 dersi); stdout HER-ZAMAN makine-JSON satırı (hüküm stderr'e yankılanır)
 python3 tamga_bootstrap.py attest-verify claim.json   # YABANCI teslim-attestation doğrulaması: stdlib-only secp256k1+EIP-191 — vericinin-kendi hükmünü 7/7 koprodukte eder (AT-030)
 python3 tamga_bootstrap.py verify-cr doc.json --expect sha256:...  # CR-v0.1 kanonik-digest'i bizim-kanonik-yoldan yeniden-hesapla; çıplak-çağrı = hüküm-değil, ÖLÇÜM
 python3 tamga_runner.py memory <pkg> --search <sorgu>

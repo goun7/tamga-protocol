@@ -5,13 +5,20 @@
 # one-shot sandbox every run; it never breaks persistent fixtures.
 set -u
 cd "$(dirname "$0")/.."
+TAMGA_RUN_ALL_ABS="$(realpath "$0")"; export TAMGA_RUN_ALL_ABS
 export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
-# concurrency guard (D1 closed 2026-09-15): the suite shares sandbox dirs — two parallel
-# instances produced 4 false FAILs the same day this was observed. One mutex, fail-loud.
+# concurrency guard (D1 closed 2026-09-15, hardened same-day): the suite shares sandbox
+# dirs — parallel instances produce false FAILs (observed). One mutex, fail-loud.
+# Command-form flock (not exec-fd form): util-linux marks its fd close-on-exec, so test
+# servers spawned by controls can never hold the lock past the suite's own lifetime —
+# an inherited-fd deadlock was caught by the FIRST live refusal the guard printed.
 LOCKF="${TMPDIR:-/tmp}/tamga-run-all.lock"
-if command -v flock >/dev/null 2>&1; then
-  exec 9>"$LOCKF"
-  flock -n 9 || { echo "run_all.sh: another suite run holds the lock ($LOCKF) —eşzamanlı-koşum yakalandı: diğer run bitsin ya da sırayla koş"; exit 1; }
+if [ -z "${TAMGA_SUITE_LOCKED:-}" ] && command -v flock >/dev/null 2>&1; then
+  if ! flock -n -o "$LOCKF" -c true; then
+    echo "run_all.sh: another suite run holds the lock ($LOCKF) — eşzamanlı koşum yakalandı: diğer run bitsin ya da sırayla koş"; exit 1
+  fi
+  export TAMGA_SUITE_LOCKED=1
+  exec flock -o "$LOCKF" bash "$TAMGA_RUN_ALL_ABS" "$@"
 fi
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then

@@ -23,6 +23,24 @@ python3 -m tamga_attest_verify "$D/prod1.json" > "$D/prod.out" 2>&1; RC=$?
 [ $RC -eq 0 ] && grep -q '"verdict": "GREEN"' "$D/prod.out"
 ok $? "AT-030 üretim-claim: bağımsız-GREEN (nested-object preimage derin-sıralamada)"
 
+# 2b) completeness-fixture üretimi 8 claim (taze-imzalı-vektör-olmayan-set; sha-pin; satır-sabit)
+sha256sum tests/vendor-capacity-attest/completeness-claims.jsonl | grep -q "^b8dae2d9ea4b83ef" \
+  && [ "$(python3 - <<'PY'
+import json, hashlib, sys
+sys.path.insert(0, ".")
+from tamga_attest_verify import _canonical_preimage, verify_capacity_attest
+n = g = 0
+for line in open("tests/vendor-capacity-attest/completeness-claims.jsonl"):
+    c = json.loads(line); n += 1
+    okid, reason, _ = verify_capacity_attest(c)
+    # claimId öz-tutarlılık: preimage→sha256 == claim.claimId
+    cid = "0x" + hashlib.sha256(_canonical_preimage(c)).hexdigest()
+    g += bool(okid) and cid == c.get("claimId")
+print(f"{g}/{n}")
+PY
+)" = "8/8" ]
+ok $? "AT-030 completeness-set: 8/8 GREEN + claimId öz-tutarlı (üreticinin-canlı-imza-yolunda, sabit-vektör-değil)"
+
 # 3) unknown-registry → İNDETERMİNE rc2 (sonuç-esirgeme; RFC-009-desen)
 head -1 tests/vendor-capacity-attest/production-claim.jsonl > "$D/u.json"
 python3 -m tamga_attest_verify "$D/u.json" --registry HOLISTIS_X9 > "$D/unk.out" 2>&1

@@ -44,12 +44,13 @@ def out(ok, **kw):
 # invocation is a message, not a traceback. Both dispatch paths (console `tamga` →
 # tamga_bootstrap; repo-script `python3 tamga_runner.py`) share this single choke point.
 REQUIRED_ARGS = {"run": 1, "quickstart": 1, "export": 1, "memory": 1, "keygen-node": 1,
-                 "ledger": 1, "ledger-verify": 1, "grant": 2, "attest-verify": 1}
+                 "ledger": 1, "ledger-verify": 1, "grant": 2, "attest-verify": 1, "verify-cr": 1}
 USAGE_HINT = {"run": "tamga run <pkg> --seed <hex>", "quickstart": "tamga quickstart <dir> [--name n]",
               "export": "tamga export <pkg> -o <out.tsg> --seed <hex>", "memory": "tamga memory <pkg> <op> ...",
               "keygen-node": "tamga keygen-node <dir>", "ledger": "tamga ledger <pkg>",
               "ledger-verify": "tamga ledger-verify <pkg>", "grant": "tamga grant <pkg> <amount>",
-               "attest-verify": "tamga attest-verify <claim.json> [--registry R]"}
+               "attest-verify": "tamga attest-verify <claim.json> [--registry R]",
+               "verify-cr": "tamga verify-cr <doc.json> [--expect sha256:...]"}
 
 def usage_guard(cmd, a):
     """None = geç; int = kullanım-hatası rc'si (message-RED, traceback YOK)."""
@@ -1208,6 +1209,9 @@ engine-free commands (run right after pip install; no wasmtime download needed):
                                   CAPACITY_ATTEST_V1 = secp256k1+EIP-191+canonical-JSON,
                                   ALL stdlib-only — fewer deps than the issuer itself uses);
                                   unknown registry tag = İNDETERMİNE, never a silent pass
+  verify-cr <doc.json>            recompute a Computation-Receipts v0.1 canonical digest
+                                  through OUR canonical path (tamga_verify_mini.jcs); --expect
+                                  = three-verdict check, without it = measurement, not verdict
   ledger <pkg>                    print the ledger
   ledger-verify <pkg>             recompute and verify the hash chain
 

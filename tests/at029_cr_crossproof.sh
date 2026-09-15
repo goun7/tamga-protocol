@@ -28,8 +28,8 @@ PYEOF
 ok "$(cat "$T/pin.ok" 2>/dev/null || echo 1)" "vendor-hash-pin'leri sağlam (vektör+runner byte-identical)"
 
 # 2) aday-üretimi + hakem-notu: tamga jcs-yolu → 8/8 (rc0 + özeti-satırda-gör)
-python3 tools/cr_crossproof.py > "$T/cand.json" 2>"$LOG.gen"
-ok $? "aday-üretildi (tools/cr_crossproof.py, stdlib+tamga.jcs)"
+python3 -m tamga_cr_verify --candidates > "$T/cand.json" 2>"$LOG.gen"
+ok $? "aday-üretildi (tamga_cr_verify --candidates, stdlib+tamga.jcs)"
 python3 tests/vendor-cr/python/conformance_runner.py "$T/cand.json" \
   --require canonicalisation > "$T/grade.out" 2>&1
 RC=$?
@@ -61,5 +61,18 @@ RC=$?
 if [ "$RC" -ne 0 ] && grep -q "FAIL" "$T/tam.out"; then ok 0 "negatif: digest-kazıması hakemce RED (rc$RC)"; else ok 1 "kazıma-yakalanmadı (rc$RC) — HAKEM-GÜVENSİZ"; fi
 
 rm -rf "$T"
+# ---- konsol-kipi (tamga verify-cr): tek-belge GREEN/RED + sıfır-arg-rc1 (E-14 ailesi) ----
+printf '{"a":1,"b":[2,{"z":9,"a":0}]}' > "$T/doc.json"
+EXP=$(python3 -c "import sys; sys.path.insert(0,'.'); from tamga_verify_mini import jcs; import hashlib,json; print('sha256:'+hashlib.sha256(jcs(json.load(open('$T/doc.json')))).hexdigest())")
+python3 -m tamga_cr_verify "$T/doc.json" --expect "$EXP" > "$T/ok.out" 2>&1
+[ $? -eq 0 ] && grep -q '"verdict": "GREEN"' "$T/ok.out"
+ok $? "konsol: tek-belge roundtrip → GREEN (aynı kanonik-kas, epoch-yolu)"
+python3 -m tamga_cr_verify "$T/doc.json" --expect sha256:deadbeef > "$T/bad.out" 2>&1
+[ $? -eq 1 ] && grep -q '"verdict": "RED"' "$T/bad.out"
+ok $? "konsol: yanlış-beklenen → mesajlı-RED rc1"
+python3 -m tamga_cr_verify > "$T/zero.out" 2>&1
+[ $? -eq 1 ] && grep -q kullanim "$T/zero.out"
+ok $? "konsol: sıfır-arg → kullanım-RED rc1 (argparse rc2'siyle karışmaz)"
+
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" -eq 0 ]

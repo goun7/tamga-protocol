@@ -112,6 +112,7 @@ def main(argv=None) -> int:
         print("\n  doctor                        kurulum-sağlığı (engine-süz; sorunu kendin gör)")
         print("  liveness-probe                RPC-tazelik-sondası (engine-süz; number-span=saat; ağ-çağrısı YAPAR)")
         print("  attest-verify <claim.json>    DIŞ delivery-attestation doğrulaması (engine-süz; registry-dispatch)")
+        print("  verify-cr <doc.json>          CR-v0.1 kanonik-digest yeniden-hesabı (engine-süz)")
         return 0 if argv else 1
     if argv[0] in ("run", "quickstart"):  # motor-gereken-yolçaplar (quickstart İLK-RUN içerir)
         import tamga_runner as r
@@ -191,6 +192,11 @@ def main(argv=None) -> int:
             print("  attest       : [OK] (DIŞ delivery-attestation doğrulayıcısı; stdlib-only; AT-030)")
         except Exception as e:
             print(f"  attest       : [FAIL] {e}"); ok = False
+        try:
+            import tamga_cr_verify  # noqa: F401
+            print("  verify-cr    : [OK] (CR-v0.1 kanonik-digest yolu; AT-029 varis-modülü)")
+        except Exception as e:
+            print(f"  verify-cr    : [FAIL] {e}"); ok = False
         print("  verdict      :", "SAĞLIKLI — tüm engine-süz yolçapları hazır" if ok
               else "SORUNLU — [FAIL] satırlarını giderin")
         return 0 if ok else 1
@@ -214,6 +220,9 @@ def main(argv=None) -> int:
     if argv[0] == "attest-verify":  # DIŞ attestation — stdlib-only secp256k1+EIP-191 (AT-030; RFC-009-kardeşi)
         import tamga_attest_verify
         return int(tamga_attest_verify.main(argv[1:]) or 0)
+    if argv[0] == "verify-cr":  # CR-v0.1 kanonik-digest — AT-029 varisi; tek-sahip: modül (tools/cr_crossproof.py SİLİNDİ)
+        import tamga_cr_verify
+        return int(tamga_cr_verify.main(argv[1:]) or 0)
     if argv[0] not in cmds:
         print(f"unknown command: {argv[0]}\n\n{r.USAGE}")
         return 1

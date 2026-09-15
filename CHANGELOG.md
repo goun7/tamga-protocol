@@ -7,6 +7,9 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 ## [Unreleased]
 
 ### Added
+- `tamga_cr_verify` / `tamga verify-cr` — AT-029 harness'inin TEK-SAHİP varisi: aday-üretimi
+  (`--candidates`) + tek-belge CR-v0.1 kanonik-digest doğrulaması (`--expect` ile üç-sonuç,
+  onsuz ölçüm-kipi). `tools/cr_crossproof.py` SİLİNDİ (taşıma; shim yok — 0.2.9 probe-deseni).
 - `tamga_attest_verify` / `tamga attest-verify` — FOREIGN delivery-attestation verifier, stdlib-only:
   pure-Python secp256k1 ecrecover + EIP-191 + deep-sorted canonical JSON, registry-dispatch
   (CAPACITY_ATTEST_V1). Reproduces the issuer's own ethers verdict 7/7 on vendored fixture vectors

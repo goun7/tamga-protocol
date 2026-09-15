@@ -1,3 +1,44 @@
+# Release notes — v0.2.7
+
+Release date: 2026-09-15 · Tag: v0.2.7 · Branch: `main`
+
+## What is in this release
+
+Two slices, one release, found the same way every previous one was: by using the tool
+as a stranger and by keeping a public word.
+
+1. **E-14 — CLI hardening (the 0.2.6 wheel was still crash-prone for zero-arg misuse).**
+   The all-commands empty-argument matrix caught 5 commands answering with IndexError
+   tracebacks (`grant`, `run`, `export`, `memory`, `keygen-node`) and 2 answering with
+   VACUOUS `ok=true` (`ledger`, `ledger-verify` — a nonexistent path even verified as a
+   "valid empty chain"). Now: one shared `usage_guard` choke point on both dispatch
+   paths, firing BEFORE the engine resolver (a usage error can never trigger the one-time
+   wasmtime download); new RED reason_code **19 `pkg_dizin_degil`** — "could not look"
+   is never green, the epoch-verify INDETERMINE rule applied to our own chain surface.
+   Legal pre-genesis semantics for real chain-less directories are unchanged (documented
+   side by side in AGENT-GUIDE EN/TR). Negative family pinned inside AT-021.
+2. **AT-029 — CR v0.1 canonicalisation cross-proof** (in-toto PR-592, promise kept the
+   same day it was made): Tamga's own canonical function — the very `jcs()` that every
+   epoch-anchor digest runs through — reproduces all 8 published canonicalisation-layer
+   vectors of Anomly's CR v0.1 spec, graded by the upstream neutral conformance runner
+   vendored byte-identical (Apache-2.0; sha256 pins re-verified inside the control, so
+   upstream drift turns us RED loudly, never silently). Scope honesty is asserted, not
+   implied: canonicalisation layer only — Tamga is not a CR certifier, and the
+   receipt/verdict half is neither claimed nor faked. A digest-tamper negative proves
+   the referee bites.
+
+Suite: **48/48 fast, 52/52 slow** (AT-029 joined the fast baseline; E-14 pinned as an
+aggregated family inside AT-021), links 125/0, CI green on both slices.
+
+## Notes
+
+- The wheel is again byte-built from this tag and re-tested in a clean venv before this
+  file claimed anything (see docs/REPRODUCE.md last-verified line, updated same day).
+- Honest bookkeeping: the CHANGELOG entry for AT-029 silently no-oped in `ea54de7`
+  (a guard condition I wrote wrong); discovered in this tur and restored in full here.
+
+---
+
 # Release notes — v0.2.6
 
 Release date: 2026-09-15 · Tag: v0.2.6 · Branch: `main`

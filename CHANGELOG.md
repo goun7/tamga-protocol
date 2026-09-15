@@ -6,6 +6,10 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
+Nothing unreleased; next planned: see the roadmap gates in README.
+
+## [0.2.7] — 2026-09-15
+
 ### Added
 - AT-029 — CR v0.1 canonicalisation cross-proof (in-toto PR-592 exchange, `ea54de7`):
   Tamga's `jcs()` — the epoch-anchor digest function itself — reproduces Anomly's

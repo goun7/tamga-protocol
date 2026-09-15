@@ -49,7 +49,7 @@ python3 tools/verify_pairing_fixture.py docs/pairing
 
 The verifier enforces the labeling discipline too: a value-field without a `source`
 label is a RED, as is any tampered byte (tested by AT-007 in `tests/run_all.sh`,
-20/20 controls, CI-green on every push).
+the suite's tail line reports the live count, CI-green on every push).
 
 ## Honest limits (mirroring the issue discussion)
 

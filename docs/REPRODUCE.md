@@ -12,9 +12,11 @@ tamga --version && tamga doctor   # engine-free paths report SAĞLIKLI
 
 Verification commands (`ledger-verify`, `verify-mini`, `bundle`, `explain`) work
 without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`.
-Last verified from the published wheel (**0.2.4**, live PyPI): **2026-09-13** —
+Last verified from the published wheel (**0.2.6**, live PyPI): **2026-09-15** —
 quickstart E2E + `tamga explain --charge` + wheel-side keccak KAT +
-ledger-verify + verify-mini + bundle, all green from a clean venv.
+ledger-verify + verify-mini + bundle + `epoch-verify --selftest`, all green from a clean venv.
+(0.2.4→0.2.5 shipped `epoch-verify` in the wheel; 0.2.5→0.2.6 hardened `explain` bad-input to
+message-RED — both found by installing the live wheel and using it as a stranger would.)
 
 ## 1. The full acceptance suite (47 controls, ~20 s)
 

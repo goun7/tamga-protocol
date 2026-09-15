@@ -72,7 +72,7 @@ a "fix" that makes them pass is itself a regression and fails the suite.
 
 ## CI
 
-`.github/workflows/ci.yml` runs the full 46-control suite on a
+`.github/workflows/ci.yml` runs the full 47-control suite on a
 `["3.10","3.11","3.12","3.13"]` matrix with
 wasmtime v48.0.1 (downloaded from the pinned release tarball) on every push to `main`.
 The badge in the README links to the workflow.

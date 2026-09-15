@@ -39,7 +39,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 51 PASS, 0 FAIL` (56 with `RUN_SLOW=1`). Last verified here: **2026-09-16** on **0.2.10**: full suite re-proved on HEAD (55/55 slow, idle machine), and the published wheel was
+Expected tail: `RESULT: 51 PASS, 0 FAIL` (56 with `RUN_SLOW=1`). Last verified here: **2026-09-16** on **0.2.10**: full suite re-proved on HEAD (56/56 slow, idle machine), and the published wheel was
 installed from live PyPI by the stranger ritual (`bash tools/fresh_audit.sh`) — 10/10 including the console
 `tamga liveness-probe` dead-port check. The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`).

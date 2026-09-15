@@ -1,8 +1,8 @@
 # RFC-004: Context Graph and Encrypted Snapshot Contract (tamga-snapshot/1 v1)
 
-> Canonical version of this document is Turkish (internal). This is the official English translation — normative content is identical.
+> **Language status (honesty fix, 2026-09-16):** this English text is the LIVING, BINDING document. The in-repo Turkish twin (`.tr.md`) is a translation — on divergence, English governs. (Pre-final spec drafts circulated in Turkish privately; that text was never published here, so it is deliberately NOT referenced as canonical: an uncheckable canonical is not a canonical.)
 
-*Translator's note: field names, state-format keys, and example values are reproduced verbatim from the canonical Turkish original. Evidence log references point to the local, untracked `.evidence/` run-log directory; internal documents are referred to descriptively (internal decision log). the "predecessor prototype" denotes an internal system preceding Tamga; its lessons (G13, G17, L1, L2, the contradiction scan) are recorded in internal documents (decision log).*
+*Translator's note: field names, state-format keys, and example values are reproduced verbatim from the pre-final Turkish draft. Evidence log references point to the local, untracked `.evidence/` run-log directory; internal documents are referred to descriptively (internal decision log). the "predecessor prototype" denotes an internal system preceding Tamga; its lessons (G13, G17, L1, L2, the contradiction scan) are recorded in internal documents (decision log).*
 
 - **Status:** **v0.1-FINAL — FROZEN (2026-09-05, founder-approved).** A change requires a new RFC + a version bump.
 - **Dependencies:** RFC-001 §9-1 (the open question: the seed/context-graph schema), RFC-002 §4 (the snapshot format), the predecessor-prototype integration notes L1, roadmap Phase 1 (the Slice-2 evidence: `.evidence/ (local, untracked)`) — the referenced documents are internal (decision log).

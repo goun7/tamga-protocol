@@ -135,7 +135,7 @@ yol-haritasındadır; çok-biçimli dönüştürücü bugün var: `tools/memory_
 | [RFC-009-external-chain-anchor-DRAFT.md](docs/RFC-009-external-chain-anchor-DRAFT.md) | TASLAK (pilot-öncesi): dış zincir-çıpaları — defterimizin dış kayıt-faktlarına atıf yapması (epoch-13 kanıtı; const pilot kapısında) |
 | [RFC-005-declared-egress.md](docs/RFC-005-declared-egress.md) | UYGULANDI: beyanlı-egress (vekil-modeli) — default-deny/gerçek-ajan çelişkisi ve çözümü; D12 bağı; SSRF/DNS-rebinding önlemleri |
 | [RFC-006-agent-net-shim.md](docs/RFC-006-agent-net-shim.md) | UYGULANDI: ajan-tarafı ağ-shim'i (D13) — tek-kenar protokol, iki-modlu stdin disiplini, dürüst v1 sınırları |
-| [RFC-001](docs/RFC-001-manifest.md) · [RFC-002](docs/RFC-002-runner.md) · [RFC-003](docs/RFC-003-ledger.md) · [RFC-004](docs/RFC-004-context-graph.md) | Temel sözleşmeler (v0.1-FINAL donmuş; Türkçe kanonik) |
+| [RFC-001](docs/RFC-001-manifest.md) · [RFC-002](docs/RFC-002-runner.md) · [RFC-003](docs/RFC-003-ledger.md) · [RFC-004](docs/RFC-004-context-graph.md) | Temel sözleşmeler (v0.1-FINAL donmuş; bağlayıcı-metin İngilizce, RFC-001/2/3'ün TR-ikizi repoda) |
 | [specs/manifest-0.2.0.schema.json](specs/manifest-0.2.0.schema.json) | Paket-manifesti JSON-şeması (v0.2; 0.1.0 yasal-donmuş) |
 | [docs/INDEX.md](docs/INDEX.md) | Role-göre okuma-sırası (karar-veren/yazan/doğrulayan/entegratör) + durum-sözlüğü |
 | [RELEASE.md](RELEASE.md) · [CHANGELOG.md](CHANGELOG.md) | Sürüm-yüzeyleri ve değişim-günlüğü (0.2.9: `tamga liveness-probe` console; 0.2.8: E-15 zincir-bağı + liveness-probe; 0.2.7: tüm-CLI usage-guard + CR-v0.1 cross-proof; 0.2.6: aynı-gün yama — explain crash-family; 0.2.5: taze-kullanıcı denetimi — epoch-verify wheel'de; 0.2.4: ingest wheel'de + AT-026) |
@@ -144,8 +144,11 @@ yol-haritasındadır; çok-biçimli dönüştürücü bugün var: `tools/memory_
 | [docs/NODE-DISCOVERY.md](docs/NODE-DISCOVERY.md) | Faz-3 tasarım-notu: ERC-8004 üzerinden node keşfi (tetik-kapılı, kod yok) |
 | [SECURITY.md](SECURITY.md) · [CONTRIBUTING.md](CONTRIBUTING.md) | İhlal-bildirim + katkı disiplini (değişim = test + kanıt) |
 
-> **Dil-notu:** derin tasarım-belgeleri (RFC-001…005, tam denetim-raporu, tokenomics) şu an
-> **Türkçe** kanoniktir; İngilizce çeviriler ilerler ve burada kademeli yayımlanır.
+> **Dil-notu (dürüstlük-düzeltmesi, 2026-09-16):** repodaki İngilizce metinler yaşayan ve
+> bağlayıcı metindir; sekiz Türkçe-ikiz (docs/*.tr.md: README, AGENT-GUIDE, REPRODUCE,
+> ARCHITECTURE, TESTS, RELATED-WORK, RFC-001/2/3) yan-yana durur — ayrışmada İngilizce
+> bağlar ve her-ikiz-başında-bunu-söyler. Özel-Türkçe taslaklar kanonik olarak ANILMAZ:
+> doğrulanamayan-kanonik, kanonik-değildir.
 
 ## 30-saniyelik demo
 

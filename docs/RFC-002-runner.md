@@ -1,12 +1,12 @@
 # RFC-002: Runner API and Snapshot Transport
 
-> Canonical version of this document is Turkish (internal). This is the official English translation — normative content is identical.
+> **Language status (honesty fix, 2026-09-16):** this English text is the LIVING, BINDING document. The in-repo Turkish twin (`.tr.md`) is a translation — on divergence, English governs. (Pre-final spec drafts circulated in Turkish privately; that text was never published here, so it is deliberately NOT referenced as canonical: an uncheckable canonical is not a canonical.)
 
 *Translator's note on E-3: the frozen original lists reason 10 as `memory_limit` — a drafting-time
 inconsistency; the shipped runner (and the public reason-code table in ARCHITECTURE.md) uses reason 10
 for `input_invalid` (memory exhaustion maps to `runtime_limit`/reason 11). Preserved verbatim for contract fidelity.*
 
-*Translator's note: code blocks are reproduced verbatim from the canonical Turkish original — commands, flags, field names, and example values (including the example package name `tamga-ornek-ajani`) are unchanged; only Turkish comments were translated. Evidence paths in the Errata refer to the local, untracked `.evidence/` run-log directory.*
+*Translator's note: code blocks are reproduced verbatim from the pre-final Turkish draft — commands, flags, field names, and example values (including the example package name `tamga-ornek-ajani`) are unchanged; only Turkish comments were translated. Evidence paths in the Errata refer to the local, untracked `.evidence/` run-log directory.*
 
 - **Status:** **v0.1-FINAL — FROZEN (2026-09-02, founder-approved).** A change requires a new RFC + a version bump.
 - **Dependencies:** primitive definition §3 (transport integrity), security model §5 (at-rest/in-use separation); acceptance tests AT-001b/c/d/e; RFC-001 (manifest, v0.1-FINAL) — the referenced documents are internal (decision log).
@@ -148,7 +148,7 @@ Rule: every command writes **a single line of JSON to stdout**: `{"ok":true,"op"
    the schema.
 
 (E-13 was pre-announced by translator's notes added at translation time; the
-canonical Turkish document carries the same correction in its decision log.)
+pre-final Turkish draft carries the same correction in its decision log.)
 
 ## §9 Errata — E-14 (2026-09-15, fresh-user audit matrix)
 

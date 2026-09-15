@@ -17,6 +17,7 @@ gives the intended reading paths — pick by role; within each path, order matte
 3. [RFC-001-manifest.md](RFC-001-manifest.md) → [RFC-002-runner.md](RFC-002-runner.md) → [RFC-003-ledger.md](RFC-003-ledger.md) — the frozen v0.1 core: what a package is, how it runs, how the ledger math binds
 4. [RFC-005-declared-egress.md](RFC-005-declared-egress.md) + [RFC-006-agent-net-shim.md](RFC-006-agent-net-shim.md) — networking as a *declared capability* (the default-deny vs real-agent resolution)
 5. [PLAIN-TURKISH.md](PLAIN-TURKISH.md) / [README.tr.md](../README.tr.md) — Türkçe özet yüzeyler
+   Türkçe-ikizler (EN-orijinallerle ikiz-parite; normatif-metin İngilizce, TR çeviri-ikizdir): [AGENT-GUIDE.tr.md](https://github.com/goun7/tamga-protocol/blob/main/docs/AGENT-GUIDE.tr.md) · [ARCHITECTURE.tr.md](https://github.com/goun7/tamga-protocol/blob/main/docs/ARCHITECTURE.tr.md) · [RELATED-WORK.tr.md](https://github.com/goun7/tamga-protocol/blob/main/docs/RELATED-WORK.tr.md) · [REPRODUCE.tr.md](https://github.com/goun7/tamga-protocol/blob/main/docs/REPRODUCE.tr.md) · [RFC-001-manifest.tr.md](https://github.com/goun7/tamga-protocol/blob/main/docs/RFC-001-manifest.tr.md) · [RFC-002-runner.tr.md](https://github.com/goun7/tamga-protocol/blob/main/docs/RFC-002-runner.tr.md) · [RFC-003-ledger.tr.md](https://github.com/goun7/tamga-protocol/blob/main/docs/RFC-003-ledger.tr.md) · [TESTS.tr.md](https://github.com/goun7/tamga-protocol/blob/main/docs/TESTS.tr.md)
 
 ## The verifier path (auditors, skeptics)
 

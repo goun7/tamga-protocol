@@ -201,9 +201,12 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 | [SECURITY.md](SECURITY.md) | Vulnerability disclosure + reporting forms |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 
-> **Language note:** deep design documents (RFC-001…005, the full audit report,
-> tokenomics) are currently canonical in **Turkish**; English translations are in
-> progress and will be published here progressively. Turkish README: [README.tr.md](README.tr.md).
+> **Language note (honesty fix, 2026-09-16):** the English documents in this repo are the
+> living, binding text. Eight Turkish twins now exist side-by-side (docs/*.tr.md — README,
+> AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK, RFC-001/2/3); on divergence,
+> English governs and each twin says so at its top. Earlier private Turkish drafts are NOT
+> referenced as canonical — an uncheckable canonical is not a canonical.
+> Türkçe README: [README.tr.md](README.tr.md).
 
 ## Roadmap
 

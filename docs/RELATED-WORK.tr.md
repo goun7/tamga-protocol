@@ -1,0 +1,61 @@
+> Çeviri notu: İngilizce-orijinali ile ikizdir (kaynak: docs/RELATED-WORK.md); teknik-kanıt-dili İngilizce kalır. Kaynak değişirse bu ikiz güncellenmeli.
+
+# İlgili Çalışmalar — Tamga'nın 2026 yazını ve ekosistemi içindeki konumu
+
+> Amaç: bu dosyadaki her iddia tıklayıp doğrulanabilir. Buradaki bir nitelendirme
+> yanlışsa çözümü pull request'tir, tartışma değil. Son tarama: **2026-09-15 (gece geçişi 2 — arXiv penceresi 12–16 Eyl, dizin kenarı 14-Eyl 17:53Z; yeniden tarama 16-Eyl sabahı planlı)**
+> (arXiv API, gönderim tarihine göre azalan; npm kaydı; kamuya açık GitHub başlıkları).
+
+## 1. Doğrulanabilir / yönetilen ajan belleği (akademik)
+
+| Çalışma | Gerçekte ne | Tamga ile dürüst ilişkisi |
+|---|---|---|
+| **SuperLocalMemory 4.0** — [arXiv 2608.08253v2](https://arxiv.org/abs/2608.08253) | Yerel-öncelikli yönetilen bellek işletim sistemi: hash-chain denetim izi, doğrulanmış silme, hata-enjeksiyonu paketi (2,199/2,200 özellik). v2 **kendi v1 ek-yük sayısını geri çekiyor** ("ayırdıkları iki yol birbirine kıyaslanabilir değil") ve kuralımızı neredeyse birebir söylüyor: *uygulanmış, erişilebilir ve etkili olmak üç ayrı sorudur ve üçüncüsü, sınanan mekanizmadan bağımsız bir oracle gerektirir.* | En yakın akademik komşu. Bu geri-çekme, doktrinlerimizden ikisi için son dönemin en güçlü argümanı: yalnızca kıyaslanabilir ölçümler yayımla ve iddialarını yabancı bir kodun notlandırmasını sağla (AT-029 çapraz-kanıtımız tam da bunun için var). Onlara kıyaslanabilir bir governed-write benchmark koşmuyoruz ve bunu açıkça söylüyoruz. |
+| **VerMem** — [arXiv 2608.03137](https://arxiv.org/abs/2608.03137) | "Doğrulanabilir Bellek" (Verifiable Memory) anlamı: eğitim **sırasında** yerel+küresel doğrulayıcılar üzerinden RL kredi-ataması; doğrulayıcılar çıkarım sırasında kullanılmaz. | Kabul ettiğimiz bir adlandırma çakışması: bizim "doğrulanabilir"imiz kriptografik/denetim-yoludur (sonradan, üçüncü tarafça denetlenebilir), gradyan-yolu değil. Terim artık tartışmalı; belgelerimiz belirsizliği her zaman sıfatı göstererek değil, doğrulayıcının CLI yüzeyini göstererek giderir. |
+| **Portable Agent Memory** — [arXiv 2605.11032](https://arxiv.org/abs/2605.11032) | Çalışma-zamanı-arası bellek aktarımı için Apache-2.0 protokolü: Merkle-DAG köken-bilgisi (provenance), yetenek-kapsamlı ifşa, enjeksiyona-dirençli yeniden-kurulum; 54 test, zincir yok. | Bizim memory-import + K0 paketlerimizle aynı sorun uzayı, farklı güven çıpası: bu, yükün (payload) iç DAG'ını doğrular; biz ek olarak harici bir hash-chain defterine bağlanır + üç karalı, isteğe bağlı yabancı-mühür ayağıyla yalnız-standart-kütüphane (stdlib-only) doğrulayıcı sunarız. Hiçbiri diğerini kapsamaz; iki biçim arası bir dönüştürücü meşru bir dış katkı olurdu (bugün yol haritamızda değil — sıfır-sermaye disiplini). |
+| **Chat-of-Thoughts monitoring evasion** — [arXiv 2609.15989](https://arxiv.org/abs/2609.15989) | CoT-gözetiminin atlatılabildiğini gösteriyor; kendinden-bildirilen izler kanıt değildir. | x402 yazışmalarımızda "makbuz ≠ tutanak" için akademik dayanak olarak alıntılanır: önemli olan kayıt, üçüncü bir tarafın yeniden yürütebileceği kayıttır, modelin anlatısı değil. |
+| **PMPA — kalıcı bellek zehirleme (persistent memory poisoning)** — [arXiv 2609.13889](https://arxiv.org/abs/2609.13889) (12 Eyl, kod: hsh754/PMPA) | Dış kaynaklara gömülü talimatlar, çatının oturumlar-arası belleğine yazılır ve SONRAKTAN etkinleşir — saldırı yüzeyi kalıcılığın ta kendisi. | Bellek YAZMA kabulü için somut gerekçe (defterimiz ekleme-kapılı; içe-aktarma yalnız-ekleme + idempotent + boyut-aşımı-RED) ve bir ajanın neleri hatırlamasına izin verildiğinin girdi-kanıtına bağlanması için. Saldırıları yazılabilir sınırsız bellek varsayar; bizim modelimiz her kabulü bir defter satırı yapar. |
+| **Grounding Agent Memory** — [arXiv 2609.11060](https://arxiv.org/abs/2609.11060) | Aday bellekleri, ortamın en-küçük-yetkili salt-okunur probuna karşı yeniden doğrulayan küratör; yeniden-eğitim yok. | Aynı felsefe, bellek tazeliğine doğrultulmuş: bir bellek iddiası dünyaya karşı YENİDEN denetlenebilir olmalı — "uygulanmış, erişilebilir, etkili" üçlisinin yankısı. |
+| **AIM** — [arXiv 2609.12320](https://arxiv.org/abs/2609.12320) | Çok-ajanlı/çok-kullanıcılı sistemler için gizlilik-duyarlı birlikte-işler bellek. | En yakın gizlilik-birlikte-işler komşusu; kriptografik denetim yolu yok (kapsamları gereği) — bizim farklılaştırıcımız doğrulayıcı, onlarınki ise sınıflandırma katmanı olarak kalıyor. |
+
+## 1b. Yeniden-yürütülebilir yürütme kanıtı — bize en yakın şerit (gece taraması 2026-09-15)
+
+| Çalışma | Gerçekte ne | Tamga ile dürüst ilişkisi |
+|---|---|---|
+| **NovaFabric** — [arXiv 2609.12582](https://arxiv.org/abs/2609.12582) (11 Eyl, tek yazar) | Ajan mantığına DOKUNMADAN bir yürümeyi 15 varlıklı bir "Run Capsule"da kaydeder: DSSE mührü + RFC-3161 zaman damgası + Merkle günlüğü + sansür-belgelemesi (redaction attestation); dört modlu "yeniden-oynatma protokolü". Kendi beyanıyla *entegrasyon, yeni kriptografi değil* (OpenTelemetry + in-toto + W3C PROV). Kendi değerlendirmesi: mock'lu yeniden-oynatma her model çağrısını KAPSÜLDEN yanıtlıyor (10/10 ama modellere göre çevrimdışı); yalnızca **2/10 araç-kullanan iş yükü tamamlandı — "boşluk, eksik araç-yanıtı ikamesi"**; beyan-edilen-akış bütünlüğü 0.652; üçüncü-taraf doğrulama "belirtildi, değerlendirilmedi". | Makbuz şeridimize en yakın eşzamanlı çalışma; dikkatli okununca: RECORD'u yeniden oynatır (mühürlü bir iz; model yanıtları önbellekten sunulur), biz HESAPLAMAYI yeniden oynatırız (sabitlenmiş wasmtime v48.0.1, deterministik yeniden-yürütme — kendi sayılarının ifşa ettiği araç-yanıtı sorunu deterministik iş yüklerinde yapısal olarak yoktur, gerisinde ise beyan+vekil+bağlama ile karşılanır (RFC-005A/006, D12)). Onlar kapsül taşır, doğrulayıcı taşımaz ("standard tooling, specified, not evaluated"); biz doğrulayıcıyı ürün olarak taşırız (stdlib-only, üç hüküm). 2/10 konusundaki dürüstlük, kendimizi notlandırdığımız kültürün aynısı. Aynı yön, farklı mekanizma: alan, kurcalamaya-kanıtlı yürütme kanıtına yakınsıyor — bizim nişimiz (MOTOR yeniden-yürütmesi + bağımlılıksız doğrulayıcı) hâlâ boş. |
+| **EBL-Core** — [arXiv 2609.11596](https://arxiv.org/abs/2609.11596) | Niyet→yürütme-yetkisi uygunluk sözleşmesi: şema + test vektörleri + yüksek-riskli eylemler için koşabilir doğrulama eklentisi. | Üç-hükmü sözleşmemizin kardeş çalışması, bağımsız yazılmış; vektör paketi bir interop çapraz-koşu adayı (AT-029/030 gibi) — not edildi, henüz koşulmadı (sırada). |
+| **Makbuz-tabanlı ajan QA denetimi** — [arXiv 2609.15319](https://arxiv.org/abs/2609.15319) | Sınır (frontier) QA'yı ifade-düzeyi makbuzlarla denetler (donmuş Zenodo kanıt arşivi); temiz puanların altında "kendinden-emin yanlış" bulur. | Kanıt-birimi seçimimizin akademik yeniden-ifadesi: toplu puan değil, iddia düzeyinde MAKBUZ. |
+| **"Makine Hızında Yönetim"** — [arXiv 2609.13466](https://arxiv.org/abs/2609.13466) | **"Belgeleme açığını"** (attestation deficit) adlandırır: politika var, uyumun kurcalamaya-kanıtlı yürütme kanıtı yok. | Terim, içine inşa ettiğimiz boşluğu tarif ediyor; şartname notu (T2) için alıntılanmaya değer bir çerçeveleme. |
+| **Anket: Agent Traces to Trust** — [arXiv 2606.04990v5](https://arxiv.org/abs/2606.04990) (rev. 10 Eyl) | Alan boyunca kanıt-izleme / yürütme-köken-bilgisi haritası çıkarıyor. | Takip edilecek durağan harita; v5 güncel. |
+
+## 2. x402-komşusu kurucu kümesi (sektör, canlı başlıklar)
+
+| Aktör | Artefakt (2026-09-15 itibarıyla) | Yaptığımız bağımsız kontrol |
+|---|---|---|
+| **holistis / tokenizen** — `capacity-attest@0.6.0` (npm, MCP kaydı) | Mutabakat-sonrası alıcı-tarafı teslim iddiaları (teslim: evet/hayır/kısmi + evidenceHash), Base ana ağında EAS + ERC-8004 `giveFeedback`, tasarım gereği skor yok / emanet (escrow) yok | npm'den kurup bu makinede kendi fixture'larının kontrol koşumunu çalıştırdık: **8/8 kontrol geçiyor, iki negatif kontrol dahil** (sahte imzalayan reddedildi; oynanmış bayt → claimId uyuşmazlığı). Sonra bir adım daha: kendi stdlib-only doğrulayıcımız (`tamga attest-verify`; saf-Python secp256k1+EIP-191+canonical-JSON — onların kullandığından daha az bağımlılıkla) onların `verifyClaim` hükmünü **kendi fixture vektörlerinde 7/7** yeniden üretir ve gerçek üretim iddialarını bağımsız olarak GREEN'ler (vendored: `tests/vendor-capacity-attest/`, AT-030). `docs/SECURITY-REVIEW-2026-09-11.md` dosyaları README'den bağlantılanır ama npm tarball'u yalnızca `dist/` taşır — inceleme GitHub'da denetlenebilir, paketten çevrimdışı olarak değil. Aynı gün takip: yayımcı, #2887'de (17:28Z) işaretledikleri npm/kaynak uyuşmazlığının 0.6.0'da çözüldüğünü onayladı — **AT-030 vektörlerimizin tam olarak üzerinden yakalandığı sürüm**; çapraz koşularımız, yayımlanan artefaktın gönderildiği hâliyle geçerlidir. |
+| **StelarDigital** | RFC-6962 toplu makbuzlar + EAS çıpalama, stdlib-only doğrulayıcı duruşu; ÜÇ yabancı vektör setini kamuya açık biçimde koştular (12/12, dürüst bir "canlı kanıt doğrulanmadı" satırıyla 9/9); #2887'de bizim 0.7% ek-yük rakamımızı adıyla andılar | Onların "vektörleri yazardan başkası koştursun" duruşu, bizim AT-029 vendored-hakem tasarımımızla aynı doktrin; bağımsız varılmış. |
+| **giskard09** | `delivery-receipt-anchor`: JCS öncül-görüntüleri (`action_ref`), sabit-mi-yoksa-sıra-bağımsız-mı anahtar-sıralama sorusunu kamuya açık olarak gündeme getirdi | Karşılık olarak bizim veri noktamız (AT-029): iki bağımsız JCS uygulaması bayt-bayt örtüşüyor; ve AGENT-GUIDE §14'ümüz artık her katmanımızın hangi sınıfa ait olduğunu beyan ediyor. |
+| **babyblueviper1 / stillmarcus24** | Eylem-öncesi hüküm kapısı (261 imzalı hüküm); dört-durumlu sözcük dağarcığı önerisi (AGREE/DISAGREE/INDETERMINATE/**NOT_EVALUATED** + bağımsızlık sınıfı) | Kendi doktrinimizin yarısını karşıladı — ve 19:53Z'de bağımsız olarak aynı YANITI yayımladılar: `epistemic_basis`, imzalı öncül-görüntüye (preimage) bağlanmış EKLENİR (ADDITIVE) bir alan (asla yeniden-adlandırılmış bir hüküm değil), artı hiçbir hüküm cismi var olmadan önce gürültülü-hatalı (fail-loud) `AIProviderUnavailable`. İki üretim uygulayıcısı artık "sözcük dağarcığı yeniden-adlandırması değil, alan" üzerinde yakınsıyor; prob'umuz, "hiç bakamadım", "baktım, karara bağlayamadım"dan düz-metin çözümlemesi olmadan ayırt edilebilsin diye makine-okunur bir `evaluated` alanı taşıyor — iki tarafı da AT-028 ile sabitleyen hâliyle `main`e indi; bir sonraki sürümle wheel içinde gelecek (iddianın zamanı bilinçli: bu sayfa main-doğrusunu wheel-yayımlanmıştan ayırır). |
+
+## 3. Tamga'nın iddia ettikleri — yukarıdakilerin hiçbirinin sağladığı değil
+
+1. **Teslim değil, yürütme**: sabitlenmiş bir yürütme profiliyle WASI yeniden-yürütme makbuzları
+   (CR-v0.1-sınıfı bir hesaplama makbuzu); ödeme/teslim günlükleri değil. Yukarıdaki tüm komşu
+   çalışmalar *bir şeyin teslim edildiğini ya da gözlendiğini* kanıtlar; hiçbiri *hesaplamanın ne
+   yaptığını* yeniden yürütmez.
+2. **Yalnız-standart-kütüphane, motordan-bağımsız doğrulama yolu**: `tamga verify-mini`, `epoch-verify`,
+   `liveness-probe` — tümü sıfır üçüncü-taraf bağımlılıkla koşar — capacity-attest'in
+   ethers/MCP-SDK bağımlılık ağacının tersine (onların tasarımı için iyi, farklı bir güven yüzeyi).
+3. **İçe uygulanan üç-hüküm sözleşmesi**: `evaluated` üst-bayrağıyla (meta-flag) GREEN/RED/İNDETERMİNE,
+   sabitlenmiş-sınıf/sıra-bağımsız beyanlar ve ilk koşularında kendi hatalarını yakalamış aylık
+   yabancı-geçiş (stranger-pass) CI ritüeli. Çekimserlik yarısı estetik değildir: ajanlar,
+   garanti-boş araç çıktısından sonra yanıtların 14.1%'inde araçlarının asla döndürmediği
+   değerleri iddia ediyor ([arXiv 2609.14758](https://arxiv.org/abs/2609.14758)) — "veri yok",
+   İNDETERMİNE olarak okunmalı; asla kendinden-emin bir GREEN olarak.
+
+## 4. Bizde OLMAYANLAR (dürüst kalan)
+
+- Üretimde pilot yok (iç skor kartımızdaki 10 puanlık boşluk; yukarıdakilerden hiçbiri bunu bizim adımıza çözmez).
+- Barındırılan keşif (discovery) API'si yok (tasarım gereği — sağlayıcı değil, okuyucu; §4.x-kapılı liveness çalışması, beklediğimiz tek zincir yüzeyi).
+- ERC-8004 / kayıt (registry) entegrasyonu yok (bilinçli: biz atıf yaparız, onlar çözer).
+- Tek doğrulayıcı ailesi, tek dil (Python stdlib); capacity-attest, bizim ulaşmadığımız Node/MCP topraklarını kapsıyor.

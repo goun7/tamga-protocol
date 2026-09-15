@@ -1,8 +1,8 @@
 # RFC-003: Ledger Record and Metering Contract (tamga-sim/1)
 
-> Canonical version of this document is Turkish (internal). This is the official English translation — normative content is identical.
+> **Language status (honesty fix, 2026-09-16):** this English text is the LIVING, BINDING document. The in-repo Turkish twin (`.tr.md`) is a translation — on divergence, English governs. (Pre-final spec drafts circulated in Turkish privately; that text was never published here, so it is deliberately NOT referenced as canonical: an uncheckable canonical is not a canonical.)
 
-*Translator's note: code blocks, JSON keys, field names, formulas, and example values (including the example package name `tamga-ornek-ajani` and the fee-formula literals `ucret`/`fiyat`) are reproduced verbatim from the canonical Turkish original. Evidence log references point to the local, untracked `.evidence/` run-log directory; internal documents are referred to descriptively (internal decision log). the "predecessor prototype" (an internal system preceding Tamga) denotes the system whose recorded lessons this contract absorbs.*
+*Translator's note: code blocks, JSON keys, field names, formulas, and example values (including the example package name `tamga-ornek-ajani` and the fee-formula literals `ucret`/`fiyat`) are reproduced verbatim from the pre-final Turkish draft. Evidence log references point to the local, untracked `.evidence/` run-log directory; internal documents are referred to descriptively (internal decision log). the "predecessor prototype" (an internal system preceding Tamga) denotes the system whose recorded lessons this contract absorbs.*
 
 - **Status:** **v0.1-FINAL — FROZEN (2026-09-05, founder-approved).** A change requires a new RFC + a version bump.
 - **Dependencies:** RFC-002 (E-5/E-6: the run and the metering), acceptance test AT-001c, tokenomics (unit economics), roadmap Phase 1 (Slice 4) — the referenced documents are internal (decision log).

@@ -1,8 +1,8 @@
 # RFC-001: Agent Package Manifest Schema
 
-> Canonical version of this document is Turkish (internal). This is the official English translation — normative content is identical.
+> **Language status (honesty fix, 2026-09-16):** this English text is the LIVING, BINDING document. The in-repo Turkish twin (`.tr.md`) is a translation — on divergence, English governs. (Pre-final spec drafts circulated in Turkish privately; that text was never published here, so it is deliberately NOT referenced as canonical: an uncheckable canonical is not a canonical.)
 
-*Translator's note: "Tamga" is the project's name for the primitive. Code blocks are reproduced verbatim from the canonical Turkish original — identifiers, field names, patterns, and example values (including the example package name `tamga-ornek-ajani`, Turkish for "example agent") are unchanged.*
+*Translator's note: "Tamga" is the project's name for the primitive. Code blocks are reproduced verbatim from the pre-final Turkish draft — identifiers, field names, patterns, and example values (including the example package name `tamga-ornek-ajani`, Turkish for "example agent") are unchanged.*
 
 - **Status:** **v0.1-FINAL — FROZEN (2026-09-02, founder-approved).** A change requires a new RFC + a version bump.
 - **Dependencies:** primitive definition §3, neutrality §6; acceptance-test suite, AT-001a; roadmap Phase 0 — the referenced documents are internal (decision log).

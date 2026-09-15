@@ -1,3 +1,26 @@
+# Release notes — v0.2.8
+
+Release date: 2026-09-15 · Tag: v0.2.8 · Branch: `main`
+
+## What is in this release
+
+1. **E-15 — chain-binding preflight on `epoch-verify`'s anchor leg.** The x402 #2887
+   convergence today ("identity/chain binding is checked should be a testable field, not an
+   assumption") described a gap we actually had: `--rpc` was trusted to serve the claimed
+   chain. Live demo the same evening: a mainnet endpoint answering a Sepolia contract returned
+   `0x` — İNDETERMİNE *by luck*. Now `eth_chainId` is asked first (default expectation
+   Sepolia = the default contract's chain; `--expect-chainid N`; `0` = explicit skip that
+   prints an honesty note). Wrong-chain and skip-mode pinned as AT-027 cases 8/9 (RFC-009 §3).
+2. **`tools/liveness_probe.py` + AT-028 (kontrol-53).** Freshness by block-NUMBER span —
+   server timestamps are deliberately never read (#2887's clock lesson, encoded as a contract:
+   the offline mock answers with a contradictory timestamp and the verdict must ignore it).
+   Five-case decision matrix is offline-deterministic; the tool itself was live-green against
+   public Sepolia and mainnet today, refused-port İNDETERMİNE.
+
+Suite: **49/49 fast, 53/53 slow**, links 125/0, CI green on the slice commit.
+
+---
+
 # Release notes — v0.2.7
 
 Release date: 2026-09-15 · Tag: v0.2.7 · Branch: `main`

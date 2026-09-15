@@ -6,6 +6,12 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
+Nothing unreleased; next planned: see the roadmap gates in README.
+
+## [0.2.8] — 2026-09-15
+
+Third same-day release — each one a found-and-fixed class, none a padding.
+
 ### Added
 - E-15 — chain-binding preflight on the `epoch-verify` anchor leg (`eth_chainId` before the
   `epoch(uint64)` call; `--expect-chainid`, default Sepolia, `0` = skip with a printed honesty

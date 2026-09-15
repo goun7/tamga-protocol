@@ -4,7 +4,7 @@ No commit lands without passing the gate; if the gate is red, there is no commit
 fix, re-run, repeat:
 
 1. `python3 -m py_compile` — every touched `.py`
-2. `bash tests/run_all.sh` → 50 PASS fast (55 with RUN_SLOW=1); the authoritative tail line
+2. `bash tests/run_all.sh` → 51 PASS fast (56 with RUN_SLOW=1); the authoritative tail line
    carries the count — never hard-code it as a separate claim (see the counter rule below)
 3. Negative vectors: AT-001f (3 expected-RED + 1 precondition control) + AT-003 (6/6) — expected-RED fixtures stay red
 4. Schema cross-validation: 34/34

@@ -1,3 +1,37 @@
+# Release notes — v0.2.10
+
+Release date: 2026-09-16 · Tag: v0.2.10 · Branch: `main`
+
+**v0.2.10 — the foreign-evidence release: we now ship verifiers for OTHER people's proofs,
+and the migration story is demonstrated on code we did not author.**
+
+## What is in this release
+
+- `tamga attest-verify` (`tamga_attest_verify`): validates FOREIGN delivery-attestations
+  (`CAPACITY_ATTEST_V1`) with a stdlib-only pure-Python stack — secp256k1 ecrecover, EIP-191,
+  deep-sorted canonical JSON with the issuer's exact 11-key/whitespace contract. Reproduces
+  capacity-attest@0.6.0's own `verifyClaim` verdict 7/7 on vendored fixture vectors (including
+  both negatives), and independently GREENs their real production claim. Unknown registry tag →
+  İNDETERMİNE, never absent. Control: AT-030 (kontrol-54).
+- `tamga verify-cr` (`tamga_cr_verify`): one-owner successor of the AT-029 cross-proof harness —
+  candidate generation (`--candidates`) plus single-document CR-v0.1 canonical-digest checking
+  (three-verdict with `--expect`; bare call is measurement, not verdict). Old tool file deleted;
+  no shim (single-source-of-truth discipline).
+- `evaluated` meta-flag on `tamga liveness-probe` JSON output: `false` = the probe never got to
+  look, `true` + İNDETERMİNE = it looked and could not settle — the machine-readable answer to
+  x402 #2887's NOT_EVALUATED debate, without renaming the sacred three verdicts (AT-028).
+- AT-032 (kontrol-55, slow): builder-determinism control — same-toolchain double build is
+  byte-identical; the Sept-11 template drift is classified as rustc patch-version codegen,
+  documented as an honest limit in AGENT-GUIDE §3 (EN+TR) + `rust-toolchain.toml` pin.
+- Docs: `docs/MIGRATION-DEMO.md` + `scripts/migrate_ext_b3sum.sh` — published third-party CLI
+  (b3sum v1.8.7) migrated end-to-end into the envelope with 3 labeled patches, fail-loud
+  threadless-sandbox finding, byte parity bare==envelope, overhead table (native 9.7 / bare
+  26.0 / envelope-net 37.6 ms, median-15).
+- Language honesty: "canonical Turkish (internal)" claims removed from RFC-001…004 — the living
+  English text is binding; eight Turkish twins (docs/*.tr.md) stand beside their originals.
+
+Suite at release: 55/55 (RUN_SLOW=1, idle machine) · links 129/0 · fresh-venv audit ritual green.
+
 # Release notes — v0.2.9
 
 Release date: 2026-09-15 · Tag: v0.2.9 · Branch: `main`

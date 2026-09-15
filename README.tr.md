@@ -138,7 +138,7 @@ yol-haritasındadır; çok-biçimli dönüştürücü bugün var: `tools/memory_
 | [RFC-001](docs/RFC-001-manifest.md) · [RFC-002](docs/RFC-002-runner.md) · [RFC-003](docs/RFC-003-ledger.md) · [RFC-004](docs/RFC-004-context-graph.md) | Temel sözleşmeler (v0.1-FINAL donmuş; bağlayıcı-metin İngilizce, RFC-001/2/3'ün TR-ikizi repoda) |
 | [specs/manifest-0.2.0.schema.json](specs/manifest-0.2.0.schema.json) | Paket-manifesti JSON-şeması (v0.2; 0.1.0 yasal-donmuş) |
 | [docs/INDEX.md](docs/INDEX.md) | Role-göre okuma-sırası (karar-veren/yazan/doğrulayan/entegratör) + durum-sözlüğü |
-| [RELEASE.md](RELEASE.md) · [CHANGELOG.md](CHANGELOG.md) | Sürüm-yüzeyleri ve değişim-günlüğü (0.2.9: `tamga liveness-probe` console; 0.2.8: E-15 zincir-bağı + liveness-probe; 0.2.7: tüm-CLI usage-guard + CR-v0.1 cross-proof; 0.2.6: aynı-gün yama — explain crash-family; 0.2.5: taze-kullanıcı denetimi — epoch-verify wheel'de; 0.2.4: ingest wheel'de + AT-026) |
+| [RELEASE.md](RELEASE.md) · [CHANGELOG.md](CHANGELOG.md) | Sürüm-yüzeyleri ve değişim-günlüğü (0.2.10: yabancı-attestation doğrulayıcı + verify-cr + migration-demo · 0.2.9: `tamga liveness-probe` console; 0.2.8: E-15 zincir-bağı + liveness-probe; 0.2.7: tüm-CLI usage-guard + CR-v0.1 cross-proof; 0.2.6: aynı-gün yama — explain crash-family; 0.2.5: taze-kullanıcı denetimi — epoch-verify wheel'de; 0.2.4: ingest wheel'de + AT-026) |
 | [docs/PLAIN-TURKISH.md](docs/PLAIN-TURKISH.md) | Kodsuz-dil anlatımı (Türkçe + kısa EN özet) |
 | [docs/AGENT-GUIDE.tr.md](docs/AGENT-GUIDE.tr.md) | Ajan-geliştirici rehberi (zihin-modeli → ilk koşum → göç) — tam Türkçe |
 | [docs/NODE-DISCOVERY.md](docs/NODE-DISCOVERY.md) | Faz-3 tasarım-notu: ERC-8004 üzerinden node keşfi (tetik-kapılı, kod yok) |

@@ -6,6 +6,8 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
+## [0.2.10] — 2026-09-16
+
 ### Added
 - Expansion slice C: `docs/MIGRATION-DEMO.md` + `scripts/migrate_ext_b3sum.sh` — a PUBLISHED
   third-party CLI (BLAKE3-team b3sum v1.8.7, MIT OR Apache-2.0) migrated end-to-end into the

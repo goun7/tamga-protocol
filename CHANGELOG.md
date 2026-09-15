@@ -7,6 +7,14 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 ## [Unreleased]
 
 ### Added
+- Expansion slice C: `docs/MIGRATION-DEMO.md` + `scripts/migrate_ext_b3sum.sh` — a PUBLISHED
+  third-party CLI (BLAKE3-team b3sum v1.8.7, MIT OR Apache-2.0) migrated end-to-end into the
+  Tamga envelope on this machine: wasip2 rustc emits the component directly (no wasm-tools);
+  stock b3sum FAILS LOUD under the threadless sandbox (ENOTSUP/os-58 — never silent degradation);
+  3 labeled `[tamga-migration-patch]` points, hash logic untouched; bare-wasm stdout == envelope
+  stdout byte-for-byte on fresh 1 MB random input; overhead table native 9.7 / bare 26.0 /
+  envelope-net 37.6 ms (median-15, startup subtracted). "Migration is the heart" (RFC-008) is now
+  demonstrated on code we did not author. Pilot gap NOT closed by this — and not claimed to be.
 - AT-032 builder-determinism control (kontrol-55, slow) + `tests/agent-src/rust-toolchain.toml` pin:
   same-toolchain double build proved byte-identical; Sept-11 template drift classified as rustc
   patch-version codegen (NOT non-determinism, NOT source drift). Honest-limit note in AGENT-GUIDE §3 EN+TR.

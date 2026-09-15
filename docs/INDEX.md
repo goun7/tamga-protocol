@@ -27,6 +27,7 @@ gives the intended reading paths — pick by role; within each path, order matte
 5. [PAIRING-FIXTURE.md](PAIRING-FIXTURE.md) — the cross-ledger evidence chain, every field labeled `simulated|observed|derived`
 6. [VERIFY-EPOCH-ANCHOR.md](VERIFY-EPOCH-ANCHOR.md) — verify a foreign epoch seal yourself (inclusion + on-chain root; the epoch-13 replay recipe)
 7. [RELATED-WORK.md](RELATED-WORK.md) — the 2026 landscape: neighboring papers (arXiv, click-checkable) and builders (capacity-attest, delivery-receipt cluster), with the independent runs we performed and the honest remainder we lack
+8. [MIGRATION-DEMO.md](MIGRATION-DEMO.md) — a stranger publisher's real CLI (b3sum v1.8.7) migrated into the envelope: three honest steps, measured overhead table, reproducible recipe (`scripts/migrate_ext_b3sum.sh`)
 
 ## The integrator path (x402 / ERC-8004 / external rails)
 

@@ -1,7 +1,7 @@
 # Related Work — where Tamga sits in the 2026 literature and ecosystem
 
 > Purpose: every claim in this file is click-checkable. If a characterization here is
-> wrong, the fix is a pull request, not a debate. Last sweep: **2026-09-15**
+> wrong, the fix is a pull request, not a debate. Last sweep: **2026-09-15 (night pass 2 — arXiv window 12–16 Sep, index edge 14-Sep 17:53Z; re-scan planned 16-Sep morning)**
 > (arXiv API, descending by submission date; npm registry; public GitHub threads).
 
 ## 1. Verifiable / governed agent memory (academic)
@@ -12,6 +12,19 @@
 | **VerMem** — [arXiv 2608.03137](https://arxiv.org/abs/2608.03137) | "Verifiable Memory" meaning: RL credit-assignment via local+global verifiers **during training**; verifiers are not used at inference. | Naming collision we acknowledge: our "verifiable" is cryptographic/audit-path (post-hoc, third-party-checkable), not gradient-path. The term is now contested; our docs always disambiguate by showing the verifier CLI surface, not the adjective. |
 | **Portable Agent Memory** — [arXiv 2605.11032](https://arxiv.org/abs/2605.11032) | Apache-2.0 protocol for cross-runtime memory transfer: Merkle-DAG provenance, capability-scoped disclosure, injection-resistant rehydration; 54 tests, no chain. | Same problem space as our memory-import + K0 bundles, different trust anchor: it verifies the payload's internal DAG; we additionally bind to an external hash-chain ledger + optional foreign-seal leg with three verdicts, stdlib-only verifier. Neither subsumes the other; a converter between the two formats would be a legitimate external contribution (not on our roadmap today — zero-capital discipline). |
 | **Chat-of-Thoughts monitoring evasion** — [arXiv 2609.15989](https://arxiv.org/abs/2609.15989) | Shows CoT-monitoring can be evaded; self-reported traces are not evidence. | Cited in our x402 correspondence as the academic grounding for "receipt ≠ transcript": the record that matters is the one a third party can re-execute, not the model's account. |
+| **PMPA — persistent memory poisoning** — [arXiv 2609.13889](https://arxiv.org/abs/2609.13889) (12 Sep, code: hsh754/PMPA) | Instructions embedded in external sources get written into the framework's cross-session memory and activate LATER — persistence is the attack surface. | The concrete case for memory WRITE admission (our ledger is append-gated; import is ADD-only + idempotent + oversize-RED) and for input-evidence binding on what an agent is allowed to remember. Their attack assumes writable unbounded memory; our model makes every admission a ledger line. |
+| **Grounding Agent Memory** — [arXiv 2609.11060](https://arxiv.org/abs/2609.11060) | Curator that re-verifies candidate memories against a least-privilege read-only probe of the environment, no retraining. | Same philosophy pointed at memory freshness: a memory claim should be RE-checkable against the world, echoing "implemented, reachable, effective". |
+| **AIM** — [arXiv 2609.12320](https://arxiv.org/abs/2609.12320) | Privacy-aware interoperable memory for multi-agent/multi-user systems. | Nearest privacy-interop neighbor; no cryptographic audit path (by their scope) — our differentiator stays the verifier, their differentiator stays the classification layer. |
+
+## 1b. Replayable execution evidence — the lane nearest ours (night sweep 2026-09-15)
+
+| Work | What it actually is | Honest relation to Tamga |
+|---|---|---|
+| **NovaFabric** — [arXiv 2609.12582](https://arxiv.org/abs/2609.12582) (11 Sep, single author) | Records a run WITHOUT touching agent logic into a 15-entity "Run Capsule": DSSE seal + RFC-3161 timestamp + Merkle log + redaction attestation; four-mode "replay protocol". Self-declared as *integration, not new cryptography* (OpenTelemetry + in-toto + W3C PROV). Own evaluation: mocked replay answers every model call FROM THE CAPSULE (10/10 but offline w.r.t. models); only **2/10 tool-using workloads completed — "the gap is missing tool-response substitution"**; declared-stream completeness 0.652; third-party verification "specified, not evaluated". | The closest concurrent work to our receipt lane, read closely: it replays the RECORD (a sealed trace, model responses served from cache), we replay the COMPUTATION (pinned wasmtime v48.0.1, deterministic re-execution — the tool-response problem their own numbers expose is structurally absent for deterministic workloads and declared+proxied+bound (RFC-005A/006, D12) for the rest). They ship a capsule and no verifier ("standard tooling, specified, not evaluated"); we ship the verifier as the product (stdlib-only, three verdicts). Their honesty about the 2/10 is the same culture we grade ourselves by. Same direction, different mechanism: field converging on tamper-evident execution evidence — our niche (ENGINE re-execution + dep-free verifier) remains unoccupied. |
+| **EBL-Core** — [arXiv 2609.11596](https://arxiv.org/abs/2609.11596) | Intent→execution-grant conformance contract: schema + test vectors + runnable validation plugin for high-risk actions. | Sibling of our three-verdict contract, independently written; its vector-pack is a candidate interop cross-run (like AT-029/030) — noted, not yet run (queue). |
+| **Receipt-based audit of agentic QA** — [arXiv 2609.15319](https://arxiv.org/abs/2609.15319) | Audits frontier QA by statement-level receipts (frozen Zenodo evidence archive); finds "confident wrong" buried under clean scores. | Academic restatement of our unit-of-evidence choice: the RECEIPT, at claim level — not the aggregate score. |
+| **"Governing at Machine Speed"** — [arXiv 2609.13466](https://arxiv.org/abs/2609.13466) | Names the **"attestation deficit"**: policy exists, tamper-evident execution proof of compliance does not. | The term describes the hole we build into; cite-worthy framing for the charter note (T2). |
+| **Survey: Agent Traces to Trust** — [arXiv 2606.04990v5](https://arxiv.org/abs/2606.04990) (rev. 10 Sep) | Maps evidence-tracing / execution-provenance across the field. | Standing map to track; v5 current. |
 
 ## 2. The x402-adjacent builder cluster (industry, live threads)
 
@@ -20,7 +33,7 @@
 | **holistis / tokenizen** — `capacity-attest@0.6.0` (npm, MCP registry) | Buyer-side delivery claims post-settlement (delivered yes/no/partial + evidenceHash), EAS + ERC-8004 `giveFeedback` on Base mainnet, no score/no escrow by design | Installed from npm and ran their fixture's control harness on this machine: **8/8 controls pass, including two negative controls** (forged signer rejected; tampered byte → claimId mismatch). Then further: our own stdlib-only verifier (`tamga attest-verify`; pure-Python secp256k1+EIP-191+canonical-JSON — fewer deps than theirs use) reproduces their `verifyClaim` verdict **7/7 on their fixture vectors** and independently GREENs their real production claim (vendored: `tests/vendor-capacity-attest/`, AT-030). Their `docs/SECURITY-REVIEW-2026-09-11.md` is linked from the README but the npm tarball ships only `dist/` — the review is checkable on GitHub, not offline from the package. Same-day follow-up: the issuer confirmed on #2887 (17:28Z) that the npm/source mismatch they'd flagged is resolved in 0.6.0 — **the exact version our AT-030 vectors were captured from**; our cross-runs are valid against the published artifact as shipped. |
 | **StelarDigital** | RFC-6962 batched receipts + EAS anchoring, stdlib-only verifier stance; ran THREE foreign vector sets publicly (12/12, 9/9 with an honest "no live evidence verified" line); cited our 0.7% overhead figure by name in #2887 | Their "someone other than the author runs the vectors" posture is the same doctrine as our AT-029 vendored-referee design, arrived at independently. |
 | **giskard09** | `delivery-receipt-anchor`: JCS preimages (`action_ref`), raised the pinned-vs-order-independent key-ordering question publicly | Our data point back (AT-029): two independent JCS implementations agree byte-for-byte; and our AGENT-GUIDE §14 now declares which class each of our layers belongs to. |
-| **babyblueviper1 / stillmarcus24** | Pre-action verdict gate (261 signed verdicts); four-state vocabulary proposal (AGREE/DISAGREE/INDETERMINATE/**NOT_EVALUATED** + independence class) | Met our own doctrine halfway; our probe carries a machine-readable `evaluated` field so "never got to look" is distinguishable from "looked, unsettled" without free-text parsing — landed on `main` with AT-028 pinning both sides; ships in the wheel with the next release (claim tense deliberate: this page distinguishes main-true from wheel-published). |
+| **babyblueviper1 / stillmarcus24** | Pre-action verdict gate (261 signed verdicts); four-state vocabulary proposal (AGREE/DISAGREE/INDETERMINATE/**NOT_EVALUATED** + independence class) | Met our own doctrine halfway — and at 19:53Z they shipped the same ANSWER independently: `epistemic_basis`, an ADDITIVE field bound into the signed preimage (never a renamed verdict), plus fail-loud `AIProviderUnavailable` before any verdict object exists. Two production implementers now converge on "fields, not vocabulary renames"; our probe carries a machine-readable `evaluated` field so "never got to look" is distinguishable from "looked, unsettled" without free-text parsing — landed on `main` with AT-028 pinning both sides; ships in the wheel with the next release (claim tense deliberate: this page distinguishes main-true from wheel-published). |
 
 ## 3. What Tamga claims that none of the above provides
 
@@ -31,9 +44,12 @@
 2. **Stdlib-only, engine-free verification path**: `tamga verify-mini`, `epoch-verify`,
    `liveness-probe` all run with zero third-party dependencies — contrast capacity-attest's
    ethers/MCP-SDK tree (fine for their design, different trust surface).
-3. **Three-verdict contract applied inward**: GREEN/RED/İNDETERMİNE with `evaluated`
+3. **Three-verdict contract applied inward**: GREEN/RED/İNDETERMİNE with an `evaluated`
    meta-flag, pinned-class/order-independent declarations, and a monthly stranger-pass CI
-   ritual that has caught its own bugs on first runs.
+   ritual that has caught its own bugs on first runs. The abstention half is not aesthetic:
+   agents assert values their tools never returned in 14.1% of answers after guaranteed-empty
+   tool output ([arXiv 2609.14758](https://arxiv.org/abs/2609.14758)) — "no data" must read as
+   İNDETERMİNE, never as a confident GREEN.
 
 ## 4. What we do NOT have (the honest remainder)
 

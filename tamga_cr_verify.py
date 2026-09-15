@@ -21,7 +21,6 @@ import pathlib
 import struct
 import sys
 
-import tamga_keccak  # noqa: F401  (jcs bağımlılık-zincirinde-ama-doğrudan-gereksiz; import-yanılgısını-keser)
 from tamga_verify_mini import jcs
 
 ROOT = pathlib.Path(__file__).resolve().parent

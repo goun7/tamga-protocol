@@ -8,6 +8,30 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 Nothing unreleased; next planned: see the roadmap gates in README.
 
+## [0.2.5] — 2026-09-15
+
+Wheel = HEAD. No wire contract, no ledger format, no spec_version change.
+
+### Added
+- **`tamga epoch-verify` now ships in the wheel** (it existed in 0.2.4's repo and docs but
+  not in the installed distribution — found by installing 0.2.4 from PyPI into a bare venv
+  and running it as a stranger would; the public surface we demo in x402 #3389 finally works
+  for pip users).
+
+### Fixed
+- `tamga` help listed 7 of 15 shipped commands and an outdated version line; now the full
+  inventory split engine-free vs engine (users can see what runs before any download).
+- Quickstart wizard `next_steps` printed `python3 tamga_runner.py …`, which is dead advice
+  for pip users (no such file in their cwd); now `tamga …` with the repo-clone form noted.
+- README (EN + TR) and QUICKSTART document `epoch-verify` on the command surfaces.
+- `İNDETERMİNE` spelling canon restored (self-introduced drift caught by the audit's own grep).
+
+### Infra
+- `tests/run_all.sh` carries a flock concurrency guard — parallel suite runs share sandbox
+  dirs and produced 4 false FAILs on 2026-09-15; the refused instance now exits 1 with the
+  reason. Negative-live-verified.
+- docs/TESTS.md gained the AT-016/017/018 rows (controls ran all along; the table drifted).
+
 ## [0.2.4] — 2026-09-13
 
 ### Fixed

@@ -1,6 +1,36 @@
+# Release notes — v0.2.5
+
+Release date: 2026-09-15 · Tag: v0.2.5 · Branch: `main`
+
+## What is in this release
+
+**v0.2.5 — wheel = HEAD: the fresh-user audit release.** Installed 0.2.4 from PyPI into a
+bare venv and used it as a stranger would; everything that finding exposed ships here.
+No wire contract, no ledger format, no spec_version change — `epoch-verify` and the audit
+fixes were already the repo's reality; this release makes the distribution honest about it.
+
+- **`tamga epoch-verify` ships in the wheel** — 0.2.4's wheel did not contain it (py-modules
+  listed the module, the 0.2.4 wheel predated it): a pip user following our public #3389
+  demos hit `unknown command`. AT-026's packaging parity control now runs against this build.
+- **Help surface completed**: 15 shipped commands listed (was 7), engine-free vs engine
+  split, rc2-İNDETERMİNE contract documented, version line corrected.
+- **Wizard guidance addressed to pip users** (`tamga …`, clone form noted — the old
+  `python3 tamga_runner.py …` advice was dead in a pip user's cwd).
+- **README (EN+TR) + QUICKSTART carry epoch-verify** — the outward verifier was shipped
+  and publicly demonstrated but invisible on user surfaces.
+- **Suite concurrency guard** (flock): two parallel `run_all.sh` instances had produced
+  4 false FAILs the morning of this release — refused instance now exits 1 with the reason.
+- **docs/TESTS.md**: AT-016/017/018 rows added (controls ran; the table had drifted).
+
+Verification trail: 47/47 fast ×3 runs (one race-incident investigated, not hidden),
+51 slow-gated suite pre-tag, links 125/0, CI green per push, wheel re-tested in a bare venv
+after upload (`epoch-verify --selftest` rc0).
+
+---
+
 # Release notes — v0.2.4
 
-Release date: 2026-09-13 · Tag: pending founder (code complete: 7a7fd6d) · Branch: `main`
+Release date: 2026-09-13 · Tag: v0.2.4 (0f18024, PyPI 0.2.4 live) · Branch: `main`
 
 ## What is in this release
 

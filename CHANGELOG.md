@@ -6,7 +6,29 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
-Nothing unreleased; next planned: see the roadmap gates in README.
+### Added
+- AT-029 — CR v0.1 canonicalisation cross-proof (in-toto PR-592 exchange, `ea54de7`):
+  Tamga's `jcs()` — the epoch-anchor digest function itself — reproduces Anomly's
+  published conformance vectors (8/8), graded by their neutral referee vendored
+  byte-identical with sha256 pins re-verified inside the control + digest-tamper
+  negative. Scope declared honestly: canonicalisation layer only; Tamga is not a CR
+  certifier. Suite baseline 47→48 fast, 51→52 slow; tools/cr_crossproof.py +
+  tests/vendor-cr/ (Apache-2.0, VENDOR-NOTE provenance).
+- E-14 — new RED code **19 `pkg_dizin_degil`** (RFC-002 §9): a package path that is
+  not a directory is RED, never a vacuously-valid "empty chain" — the epoch-verify
+  INDETERMINE rule applied to our own chain surface. Legal pre-genesis semantics kept
+  for existing chain-less directories.
+
+### Fixed
+- E-14 crash-family closure (fresh-user matrix on the live 0.2.6 wheel): `grant`, `run`,
+  `export`, `memory`, `keygen-node` on zero args printed IndexError tracebacks; `ledger`
+  and `ledger-verify` returned VACUOUS `ok=true` (cwd default / nonexistent path). One
+  shared `usage_guard` choke point (console + repo-script dispatch; runs BEFORE the
+  engine resolver — a usage error never triggers the one-time wasmtime download); bad
+  invocations are message-RED rc1 (AT-016 rule extended to the whole CLI). Negative
+  family pinned in AT-021 (aggregated; baseline unchanged 48/52); USAGE reason-code
+  range now 1–19; AGENT-GUIDE EN/TR wording tightened.
+
 
 ## [0.2.6] — 2026-09-15
 

@@ -60,5 +60,19 @@ else
   ok 0 "quickstart-negatif: hedef-artik-dolu RED (tekrar-yasak)"
 fi
 
+# 6) AILE-negatifi (E-14 crash-family, tek-birlesik-kontrol): argman-YOK iken
+#    traceback ya da VAKUM-ok:true OLAMAZ — mesaj-RED rc1; + 19 kodu (pkg-yok ≠ pre-genesis).
+CRASH=0
+for c in grant run export memory keygen-node ledger ledger-verify quickstart; do
+  o=$(python3 tamga_bootstrap.py "$c" 2>&1); r=$?
+  echo "$o" | grep -q Traceback && CRASH=$((CRASH+1))
+  [ "$r" -eq 1 ] || CRASH=$((CRASH+1))
+  echo "$o" | grep -q '"ok": true' && CRASH=$((CRASH+1))
+done
+python3 tamga_bootstrap.py ledger-verify /tmp/at021-yok-boyle-dizin > "$LOG.6b" 2>&1
+grep -q '"reason_code": 19' "$LOG.6b" || CRASH=$((CRASH+1))
+[ "$CRASH" -eq 0 ]
+ok $? "E-14 ailesi: 8-bosarg-manin + kayip-dizin-19 — mesaj-RED, traceback-yok, vakum-yesil-yok"
+
 echo "RESULT: $PASS PASS, $FAIL FAIL - log: $LOG"
 [ "$FAIL" -eq 0 ]

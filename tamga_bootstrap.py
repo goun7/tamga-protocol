@@ -113,6 +113,9 @@ def main(argv=None) -> int:
         return 0 if argv else 1
     if argv[0] in ("run", "quickstart"):  # motor-gereken-yolçaplar (quickstart İLK-RUN içerir)
         import tamga_runner as r
+        rc = r.usage_guard(argv[0], argv[1:])   # E-14: argman-EVVELSOR — usage-hatası 67MB indirtmez
+        if rc is not None:
+            return rc
         if not pathlib.Path(r.WASMTIME).exists():
             r.WASMTIME = ensure_wasmtime()
     import tamga_runner as r
@@ -196,6 +199,9 @@ def main(argv=None) -> int:
     if argv[0] not in cmds:
         print(f"unknown command: {argv[0]}\n\n{r.USAGE}")
         return 1
+    rc = r.usage_guard(argv[0], argv[1:])   # E-14: crash-family choke point (shared with runner __main__)
+    if rc is not None:
+        return rc
     return int(cmds[argv[0]](argv[1:]) or 0)
 
 

@@ -88,8 +88,10 @@ python3 tamga_runner.py ledger-verify <pkg>              # zincir-doğrulaması
 python3 tamga_bootstrap.py project-head <pkg>            # zincirbaşı → batch-yaprak izdüşümü
 ```
 
-Zincirsiz-paket `ok=true, lines=0` ile-geçer (boş-zincir-yasal); kırık-zincir → neden 14.
-Her-kayıt `seq` + `prev` + `h = sha256(prev | jcs(record))` — tek-bayt-değişiklik-zinciri-kırar.
+Zincirsiz-paket (VAR-olan-dizin, henüz-kayıt-yok) `ok=true, lines=0` ile-geçer (boş-zincir-yasal);
+kırık-zincir → neden 14. Dizin-OLMAYAN-yol (yazım-hatası, eksik-bağlama-noktası) `reason_code: 19`
+(`pkg_dizin_degil`) — "görememek" yeşil boş-zincir DEĞİLDİR (E-14: epoch-verify İNDETERMİNE
+kuralının-içe-uygulanması; RFC-002 §9). Her-kayıt `seq` + `prev` + `h = sha256(prev | jcs(record))` — tek-bayt-değişiklik-zinciri-kırar.
 `project-head` (AT-023) aynı-zinciri-yeniden-oynar-ve-ucu-RFC-009-batch-yaprak-şemasıyla
 kodlar — sunum-paritesi: çıktı-izdüşüm-matematiğini-iddia-eder,-yabancı-registry-geçerliliğini ASLA.
 

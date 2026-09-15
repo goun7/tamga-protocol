@@ -149,3 +149,31 @@ Rule: every command writes **a single line of JSON to stdout**: `{"ok":true,"op"
 
 (E-13 was pre-announced by translator's notes added at translation time; the
 canonical Turkish document carries the same correction in its decision log.)
+
+## §9 Errata — E-14 (2026-09-15, fresh-user audit matrix)
+
+**E-14 — crash family + vacuous-green closure; new RED code 19 = `pkg_dizin_degil`:**
+
+The all-commands empty-argument matrix (run against the live 0.2.6 wheel, 2026-09-15)
+caught two doctrinal defects that no positive-path test could see:
+
+1. **Traceback family.** `grant`, `run`, `export`, `memory`, `keygen-node` indexed
+   `a[0]`/`a[1]` without an arity check → raw IndexError on zero args. Fix: a single
+   `usage_guard` choke point in the runner, shared by BOTH dispatch paths (console
+   `tamga` → `tamga_bootstrap`; repo-script `tamga_runner.__main__`); missing args are
+   now a message-RED (rc 1, `"ok": false`, exact usage string) — never a traceback
+   (the AT-016 rule, extended from `explain` to the whole CLI surface). The guard runs
+   BEFORE the engine resolver: a usage error must never trigger the one-time wasmtime
+   download.
+2. **Vacuous green.** `ledger`/`ledger-verify` with zero args silently defaulted to
+   `"."`, and a NONEXISTENT path verified as `ok=true, head="0×64"` — conflating the
+   legitimate pre-genesis state (chain-less package; the AGENT-GUIDE "empty chain is
+   legal" note still stands for REAL directories) with "could not look". The
+   epoch-verify INDETERMINE rule now applies to our own chain surface: a package path
+   that is not a directory is RED reason_code 19 (`pkg_dizin_degil`). `tamga <cmd>`
+   (bare) remains usage-rc1; `import`/`migrate-net` already answered arity errors
+   with messages and were left untouched.
+
+Negative family pinned in AT-021 (one aggregated control; baseline stays 48 fast /
+52 slow): 8 commands × zero args → rc1 + no traceback + no `"ok": true`, plus the
+missing-dir → 19 case. USAGE exit-code line updated (reason_code 1–19).

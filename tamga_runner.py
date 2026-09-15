@@ -38,6 +38,25 @@ def out(ok, **kw):
     print(json.dumps({"ok": bool(ok), **kw}, ensure_ascii=False))
     return 0 if ok else 1
 
+# E-14 crash-family guard (fresh-user matrix 2026-09-15): commands fed ZERO args crashed with
+# IndexError tracebacks (grant/run/export/memory/keygen-node) or returned VACUOUS ok=true for a
+# cwd-default "." (ledger/ledger-verify). Doctrine: "could not look" is never green and a bad
+# invocation is a message, not a traceback. Both dispatch paths (console `tamga` →
+# tamga_bootstrap; repo-script `python3 tamga_runner.py`) share this single choke point.
+REQUIRED_ARGS = {"run": 1, "quickstart": 1, "export": 1, "memory": 1, "keygen-node": 1,
+                 "ledger": 1, "ledger-verify": 1, "grant": 2}
+USAGE_HINT = {"run": "tamga run <pkg> --seed <hex>", "quickstart": "tamga quickstart <dir> [--name n]",
+              "export": "tamga export <pkg> -o <out.tsg> --seed <hex>", "memory": "tamga memory <pkg> <op> ...",
+              "keygen-node": "tamga keygen-node <dir>", "ledger": "tamga ledger <pkg>",
+              "ledger-verify": "tamga ledger-verify <pkg>", "grant": "tamga grant <pkg> <amount>"}
+
+def usage_guard(cmd, a):
+    """None = geç; int = kullanım-hatası rc'si (message-RED, traceback YOK)."""
+    need = REQUIRED_ARGS.get(cmd, 0)
+    if len(a) < need:
+        return out(False, op=cmd, reason=f"kullanim: {USAGE_HINT[cmd]} (en-az {need} argman)")
+    return None
+
 def kdf(passphrase: bytes, salt: bytes) -> bytes:
     return hashlib.scrypt(passphrase, salt=salt, n=2**15, r=8, p=1, dklen=32, maxmem=64 * 1024 * 1024)
 
@@ -262,7 +281,13 @@ def _digest(alg: str, data: bytes) -> str:
 
 def cmd_ledger_verify(a):
     """RFC-003 D7: stream-verify the chain (F19: no full-file loading)."""
-    pkg = pathlib.Path(a[0]) if a else pathlib.Path(".")
+    if not a:
+        return out(False, op="ledger-verify", reason="kullanim: tamga ledger-verify <pkg>")
+    pkg = pathlib.Path(a[0])
+    if not pkg.is_dir():
+        # E-14 doctrine: a MISSING dir is NOT the empty-chain pre-genesis state — "could not
+        # look" never verifies green (the INDETERMINE rule applied to our own chain surface).
+        return out(False, op="ledger-verify", reason_code=19, reason=f"pkg_dizin_degil: {pkg}")
     lp = pkg / "ledger.jsonl"
     if not lp.exists():
         # Quickstart finding (2026-09-05): a chain-less pkg is not broken — an empty chain
@@ -1143,7 +1168,12 @@ def cmd_migrate_net(a):
                     "D12a meaning follows the canonical form of the active source")
 
 def cmd_ledger(a):
-    pkg = pathlib.Path(a[0]) if a else pathlib.Path(".")
+    if not a:
+        return out(False, op="ledger", reason="kullanim: tamga ledger <pkg>")
+    pkg = pathlib.Path(a[0])
+    if not pkg.is_dir():
+        # E-14: bir-şey-görememek ≠ boş-defter-okumak (yabanci-dizin sessiz-0'lar basmasın).
+        return out(False, op="ledger", reason_code=19, reason=f"pkg_dizin_degil: {pkg}")
     lp = pkg / "ledger.jsonl"
     recs = []
     if lp.exists():
@@ -1195,7 +1225,7 @@ receiver libraries (import as modules; wire contracts in RFC-009):
   tamga_pugio_receiver / tamga_pugio_ingest — external-anchor + K0 proof-bundle ingestion
 
 version: 0.2.6 · spec_version 0.2.0 (const-flip founder-approved 2026-09-11; next-release gate)
-exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-18) · 2 İNDETERMİNE (epoch-verify).
+exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-19) · 2 İNDETERMİNE (epoch-verify).
 """
 if __name__ == "__main__":
     cmds = {"keygen": cmd_keygen, "quickstart": cmd_quickstart, "run": cmd_run,
@@ -1208,4 +1238,7 @@ if __name__ == "__main__":
     if sys.argv[1] not in cmds:
         print(f"unknown command: {sys.argv[1]}\n\n{USAGE}")
         sys.exit(1)
-    sys.exit(cmds[sys.argv[1]](sys.argv[2:]))
+    rc = usage_guard(sys.argv[1], sys.argv[2:])
+    if rc is not None:
+        sys.exit(rc)
+    sys.exit(cmds[sys.argv[1]](sys.argv[2:]) or 0)

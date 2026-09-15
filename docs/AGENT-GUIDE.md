@@ -84,8 +84,11 @@ python3 tamga_runner.py ledger-verify <pkg>              # chain verification
 python3 tamga_bootstrap.py project-head <pkg>             # chain-head → batch-leaf projection
 ```
 
-A chain-less package verifies as `ok=true, lines=0` (an empty chain is legal); a broken
-chain → reason 14. Every record is `seq` + `prev` + `h = sha256(prev | jcs(record))` —
+A chain-less package verifies as `ok=true, lines=0` (an empty chain is legal, for a package
+directory that EXISTS but has no records yet); a broken chain → reason 14. A path that is not
+a directory (a typo, a missing mount) is `reason_code: 19` (`pkg_dizin_degil`) — "could not
+look" is never a green empty-chain (E-14: the epoch-verify INDETERMINE rule applied inward;
+see RFC-002 §9). Every record is `seq` + `prev` + `h = sha256(prev | jcs(record))` —
 changing any byte breaks the chain. `project-head` (AT-023) replays the same chain and
 encodes the tip with the RFC-009 batch-leaf scheme — presentation-only: the output asserts
 the projection math, never a foreign registry's validity.

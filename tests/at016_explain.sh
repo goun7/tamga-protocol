@@ -49,6 +49,20 @@ python3 tamga_explain.py "$T/rec.json" > "$T/root.out" 2>&1
 ok $? "kök-modül: tamga_explain-aynı-çıktı"
 if [ "$T/tr.out" ] && cmp -s "$T/root.out" <(python3 tools/explain.py "$T/rec.json" 2>&1); then ok 0 "kök-modül == alias (bayt-eşit-çıktı)"; else ok 1 "kök-modül-çıktı-alias'tan-farklı"; fi
 
+# 6) negatives-family (fresh-eyes 2026-09-15: taze-venv denetiminde kotaru-bozuk-girdi
+#    traceback kacagi bulundu — mesaj-RED olmaliydi, AT-025 emsali; aile TEK kontrol:
+#    kanon 47 korunur, dilation ici-genislemesi sayacla-degil-icerikle-olur)
+echo 'notjson' > "$T/bad.json"; echo '[1,2]' > "$T/list.json"
+NEG_RC=0
+for args in "\"$T\"" "\"$T/yok.json\"" "\"$T/bad.json\"" "\"$T/list.json\"" \
+            "--charge \"$T/rec.json\" 99" "--charge \"$T/rec.json\"" "--charge \"$T/rec.json\" x"; do
+  out=$(eval python3 tamga_explain.py $args 2>&1); rc=$?
+  if [ "$rc" -ne 1 ] || ! grep -q "^explain: " <<<"$out" || grep -q "Traceback" <<<"$out"; then
+    echo "  NEG-FAIL: [$args] rc=$rc out=$(head -1 <<<"$out")" | tee -a "$LOG"; NEG_RC=1
+  fi
+done
+ok $NEG_RC "negatives-family: 7-kotu-girdi (mesaj-RED, traceback-YOK)"
+
 rm -rf "$T"
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" -eq 0 ]

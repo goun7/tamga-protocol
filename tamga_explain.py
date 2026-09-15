@@ -121,19 +121,42 @@ def explain_receipt(rec, L=None):
         lines.append(f"  Bekleme         : retentionUntil={rec.get('retentionUntil', '?')} (epoch-saniye)")
     return "\n".join(lines)
 
+def _red(msg):
+    print("explain: " + msg)
+    return 1
+
 def main(argv):
     if not argv:
         print(__doc__)
         return 2
     L = LABELS_EN if "--en" in argv else None
     argv = [a for a in argv if a != "--en"]
+    if not argv:
+        return _red("dosya-girdisi gerekli ('--en' tek-basina-girdi-degil)")
     if argv[0] == "--charge":
-        lines = (pathlib.Path(argv[1]).read_text(encoding="utf-8")).splitlines()
-        rec = json.loads(lines[int(argv[2]) - 1])
+        if len(argv) != 3:
+            return _red("kullanım: --charge <ledger.jsonl> <seq> (seq 1-tabanli)")
+        try:
+            lines = (pathlib.Path(argv[1]).read_text(encoding="utf-8")).splitlines()
+            idx = int(argv[2]) - 1
+            if idx < 0 or idx >= len(lines):
+                return _red(f"seq {argv[2]} zincirde-yok (1..{len(lines)})")
+            rec = json.loads(lines[idx])
+        except (OSError, ValueError, IndexError) as e:
+            return _red(f"kayit-okunamadi: {type(e).__name__}: {e}")
+        if not isinstance(rec, dict):
+            return _red("kayit-sozluk-degil (JSON-liste/skalar makbuz-olamaz)")
         print(explain_charge(rec, L=L))
         return 0
-    raw = json.loads(pathlib.Path(argv[0]).read_text(encoding="utf-8"))
+    try:
+        raw = json.loads(pathlib.Path(argv[0]).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        return _red(f"dosya-okunamadi: {type(e).__name__}: {e}")
+    if not isinstance(raw, dict):
+        return _red("kayit-sozluk-degil (JSON-liste/skalar makbuz-olamaz)")
     rec = raw.get("receipt", raw)
+    if not isinstance(rec, dict):
+        return _red("'receipt' alani-sozluk-degil")
     if "paymentId" in rec or "contentHash" in rec:
         print(explain_receipt(rec, L=L))
     elif "op" in rec:

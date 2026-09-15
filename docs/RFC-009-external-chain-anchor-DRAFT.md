@@ -61,6 +61,15 @@ Bilinirlik-listesi: `KNOWN_FOREIGN_TAGS`-(bugün: `TAMGA_CHAIN_HEAD_V1`, `APODIX
 terfisi-additive). Bu-davranış-kanonik-BEYANLI-davranıştır: tamga_verify_mini'da-canlıdır-ve
 AT-017-3-ile-kilitlidir.
 
+**E-15 (2026-09-15) — zincir-bağı ön-sorgusu (epoch-verify CLI, çapa-bacağı):** doğrulanan
+zincir-kökü, okunan-zincire-aiddir — kimlik-bağı-test-edilebilir-alan-olmalıdır, değişmez-varsayım
+değil (x402 #2887 #issuecomment-5680705648 sınıfının bizim-yüzeyimizdeki-hali: çağıranın-verdiği
+`--rpc`'nin-iddia-edilen-zincir-olduğu-nereden-biliniyor?). `read_onchain_epoch` artık **önce**
+`eth_chainId` sorar; `--expect-chainid` (default 11155111 = sepolia — DEFAULT_CONTRACT'ın-zinciri)
+ile-eşleşmezse İNDETERMİNE "yanlış-zincir" (rc2 — kırmızı-da-yeşil-değil: hüküm-üretmemişdir).
+`--expect-chainid 0` bilinçli-atlamadır ve stdout'ta-görünür-dürüst-not-basar ("hangi-zincir"
+sorusu sansürlenmez, yanıtsız-bırakılır). Negatifler: AT-027 vaka-8/9 (sahte-zincir-mock + skip-not).
+
 ## 4. NE-ŞİMDİ / NE-SONRA
 
 ŞİMDİ-(bu-doküman): (a) kamu-yüzeyli-tasarım-notu-(özel-F1-doc'tan-terfi; içerik-birebir);

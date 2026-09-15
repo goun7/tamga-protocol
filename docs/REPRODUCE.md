@@ -21,7 +21,7 @@ no vacuous green), all green from a clean venv installed by version from the liv
 message-RED; 0.2.6→0.2.7 extended that rule to the whole CLI (E-14, reason_code 19) and shipped
 the CR v0.1 cross-proof control — all three found by installing the live wheel and using it as a stranger would.)
 
-## 1. The full acceptance suite (48 controls, ~20 s)
+## 1. The full acceptance suite (49 controls, ~20 s)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -29,14 +29,14 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 48 PASS, 0 FAIL`. Last verified here: **2026-09-15** with the published wheel — **0.2.7** from live PyPI (48/48 fresh-controls
+Expected tail: `RESULT: 49 PASS, 0 FAIL`. Last verified here: **2026-09-15** with the published wheel — **0.2.7** from live PyPI (48/48 at release; 49/49 since — AT-028 joined)
 included — AT-029 CR cross-proof joins the baseline; slow round re-pinned same day; the evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`).
 
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-completeness — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 52 controls (52/52 on this host)
+RUN_SLOW=1 bash tests/run_all.sh     # → 53 controls (53/53 on this host)
 ```
 
 Prerequisites the slow controls declare honestly (a fresh clone is NOT a bug — it is a missing

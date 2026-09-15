@@ -74,12 +74,18 @@ print("count :", int(ret[64:128], 16))
 
 Kendi RPC'ni SEÇ (publicnode, alchemy, kendi node'un) — mührü doğrulayan, sana cevabı
 veren değil. Kök, Adım 2'nin sonucuyla birebir eşleşmeli; `factsCount == leaf_count` da
-eşleşmeli.
+eşleşmeli. **Ama seçtiğin RPC'nin İDDİA-EDİLEN zincir olduğunu da doğrula:** RPC'ne bir
+`eth_chainId` at, beklediğin zincirle eşleşmiyorsa okuduğun kök BAŞKA bir dünyanın köküdür
+(sepolia `0xaa36a7`=11155111; x402 #2887'deki payee-mismatch sınıfının zincir-versiyonu).
+CLI bu-bağı artık varsayılan-yapar: `--rpc` verildiğinde `--expect-chainid` (default sepolia)
+önsorgusu koşar; `--expect-chainid 0` bilinçli-atlamadır ve dürüst-notu basar.
 
 ## Yeşil demek için
 
 - Adım 2 `True` **ve** Adım 3 kökü eşit **ve** sayılar eşit → **GREEN** (dahil-etme + çapa).
 - RPC cevap vermezse **İNDETERMİNE** de — "bakamadım" ile "yeşil" asla karıştırılmaz.
+- RPC cevap verir ama zincir-bağı tutmazsa (chainId ≠ beklenen) **İNDETERMİNE** — *yanlış-yerde
+  bakmak*, doğru-yerde-bakamamakla aynı-sonuçtur: hüküm-yok.
 - Kök tutmazsa veya kanıt yürümezse **RED**.
 
 ## Bu sayfanın ölçülü-sözü (dürüst-sınırlar)

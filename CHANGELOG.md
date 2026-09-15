@@ -6,6 +6,17 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
+### Added
+- E-15 — chain-binding preflight on the `epoch-verify` anchor leg (`eth_chainId` before the
+  `epoch(uint64)` call; `--expect-chainid`, default Sepolia, `0` = skip with a printed honesty
+  note; wrong-chain mock + skip-note pinned as AT-027 cases 8/9, RFC-009 §3). Born from the
+  x402 #2887 testable-binding convergence (issuecomment-5680705648): our own failure mode
+  observed live on 2026-09-15 — a mainnet RPC answered the Sepolia contract with `0x`
+  (İNDETERMİNE by luck); luck is now policy.
+- tools/liveness_probe.py — single-command liveness probe (block-NUMBER span, server clock
+  never read) + AT-028 offline five-case decision matrix (kontrol-53). Suite 48→49 fast,
+  52→53 slow — 49/49 and 53/53 re-proved 2026-09-15.
+
 Nothing unreleased; next planned: see the roadmap gates in README.
 
 ## [0.2.7] — 2026-09-15

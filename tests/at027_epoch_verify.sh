@@ -110,5 +110,36 @@ python3 tamga_epoch_verify.py "$W/temiz.json" --rpc "http://127.0.0.1:9/olur" --
 [ $? -eq 2 ] && grep -q "İNDETERMİNE" "$W/olur.out"
 ok $? "ölü-RPC → İNDETERMİNE rc-2 (üç-sonuç-sözleşmesi)"
 
+# 8) ZİNCİR-BAĞI (x402 #2887 5680705648 dersi, 2026-09-15): çağıranın-RPC'si iddia-edilen
+#    zincir OLAMAZ — "hash-eşleşmesi kimlik-eşleşmesi değildir" ailesinin epoch-verify yüzü.
+#    Her-sorguya chainId=0x1 dönen sahte-RPC, sepolia-beklentisiyle rc-2 + yanlış-zincir vermeli.
+cat > "$W/wc_mock.py" <<'PYEOF'
+import http.server, json, sys
+class H(http.server.BaseHTTPRequestHandler):
+    def do_POST(self):
+        b = json.dumps({"jsonrpc": "2.0", "id": 1, "result": "0x1"}).encode()
+        self.send_response(200); self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
+    def log_message(self, *a): pass
+http.server.HTTPServer(("127.0.0.1", int(sys.argv[1])), H).serve_forever()
+PYEOF
+PORT=$((40270 + RANDOM % 30))
+python3 "$W/wc_mock.py" "$PORT" & SRV=$!
+for i in 1 2 3 4 5 6 7 8 9 10; do python3 -c "import socket,sys;s=socket.socket();sys.exit(s.connect_ex(('127.0.0.1',$PORT)))" 2>/dev/null && break; sleep 0.2; done
+python3 tamga_epoch_verify.py "$W/temiz.json" --rpc "http://127.0.0.1:$PORT" --contract 0x0000000000000000000000000000000000000000 > "$W/wc.out" 2>&1
+RC=$?
+kill "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null
+[ "$RC" -eq 2 ] && grep -q "yanlış-zincir" "$W/wc.out" && ! grep -q "Traceback" "$W/wc.out"
+ok $? "sahte-zincir(chainId=1) → İNDETERMİNE rc-2 yanlış-zincir (zincir-bağı politikası)"
+
+# 9) --expect-chainid 0 bilinçli-atlama: dürüst-not basılır, karar yine ağ-gerçeğine bağlı
+python3 "$W/wc_mock.py" "$PORT" & SRV=$!
+for i in 1 2 3 4 5 6 7 8 9 10; do python3 -c "import socket,sys;s=socket.socket();sys.exit(s.connect_ex(('127.0.0.1',$PORT)))" 2>/dev/null && break; sleep 0.2; done
+python3 tamga_epoch_verify.py "$W/temiz.json" --rpc "http://127.0.0.1:$PORT" --expect-chainid 0 --contract 0x0000000000000000000000000000000000000000 > "$W/skip.out" 2>&1
+RC=$?
+kill "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null
+[ "$RC" -eq 2 ] && grep -q "ATLANDI" "$W/skip.out" && ! grep -q "Traceback" "$W/skip.out"
+ok $? "bağı-atlama → rc-2 + görünür-dürüst-not ('hangi zincir' yanıtsız bırakılır, sansürlenmez)"
+
 echo "RESULT: $PASS PASS, $FAIL FAIL - log: $LOG"
 [ "$FAIL" -eq 0 ]

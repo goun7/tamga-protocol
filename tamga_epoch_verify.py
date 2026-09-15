@@ -33,6 +33,7 @@ import tamga_keccak
 
 DEFAULT_RPC = "https://ethereum-sepolia-rpc.publicnode.com"
 DEFAULT_CONTRACT = "0x48421a2e448cb2E3fA66af2E047F86ee755cFB14"
+DEFAULT_CHAIN_ID = 11155111  # sepolia — DEFAULT_CONTRACT orada; eşleme-varsayılana bağlanır
 
 EXIT_OK, EXIT_RED, EXIT_INDETERMINATE = 0, 1, 2
 
@@ -64,8 +65,30 @@ def _selector(signature: str) -> str:
     return "0x" + tamga_keccak.keccak256(signature.encode()).hex()[:8]
 
 
-def read_onchain_epoch(rpc: str, contract: str, epoch_id: int) -> tuple[str, int]:
-    """Çapa bacağı: epoch(uint64) → (factsRoot, factsCount). RPC hatası → raise (INDETERMINATE)."""
+def _rpc_result(rpc: str, method: str, params: list):
+    """Tek-atımlık JSON-RPC: result-yoksa raise (İNDETERMİNE sözleşmesi)."""
+    corps = {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}
+    req = urllib.request.Request(
+        rpc, data=json.dumps(corps).encode(),
+        headers={"content-type": "application/json", "user-agent": "tamga-epoch-verify/1"})
+    rep = json.load(urllib.request.urlopen(req, timeout=60))
+    if "result" not in rep or not rep["result"]:
+        raise RuntimeError(f"RPC beklenmedik yanıt ({method}): {str(rep.get('error', rep))[:160]}")
+    return rep["result"]
+
+
+def read_onchain_epoch(rpc: str, contract: str, epoch_id: int,
+                       expect_chainid: int | None = None) -> tuple[str, int]:
+    """Çapa bacağı: epoch(uint64) → (factsRoot, factsCount). RPC hatası → raise (INDETERMINATE).
+
+    #2887 (2026-09-15) testable-binding dersi: çağıranın-verdiği-RPC'ye-güven,
+    "hash-eşleşmesi-kimlik-eşleşmesi-değildir" ailesinin bizdeki-hali — eth_chainId ön-sorgusu
+    politikadır, şans-değil: beklenti-dışı-zincirde sözleşme-olsa-bile BAŞKA-veri okumuş oluruz.
+    """
+    if expect_chainid is not None:
+        got = int(_rpc_result(rpc, "eth_chainId", []), 16)
+        if got != expect_chainid:
+            raise RuntimeError(f"yanlış-zincir: RPC chainId={got}, beklenen={expect_chainid}")
     data = _selector("epoch(uint64)") + f"{epoch_id:064x}"
     corps = {"jsonrpc": "2.0", "id": 1, "method": "eth_call",
              "params": [{"to": contract, "data": data}, "latest"]}
@@ -105,6 +128,9 @@ def main(argv=None) -> int:
     ap.add_argument("--rpc", help=f"zincir-bacağını da koş (default: {DEFAULT_RPC})",
                     nargs="?", const=DEFAULT_RPC)
     ap.add_argument("--contract", default=DEFAULT_CONTRACT, help="epoch sözleşmesi (default: %(default)s)")
+    ap.add_argument("--expect-chainid", type=int, default=DEFAULT_CHAIN_ID,
+                    help="zincir-bağı ön-sorgusu (eth_chainId); 0 = atla (dürüst-not basılır) "
+                         f"(default: {DEFAULT_CHAIN_ID} = sepolia)")
     ap.add_argument("--selftest", action="store_true", help="iç-özünü-kanıtı (ağ YOK)")
     a = ap.parse_args(argv)
 
@@ -133,8 +159,12 @@ def main(argv=None) -> int:
 
     # bacak-2 (yalnız --rpc ile): zincir-üstü kök
     if a.rpc:
+        expect = a.expect_chainid if a.expect_chainid else None
+        if expect is None:
+            print("[not] zincir-bağı (eth_chainId) ATLANDI — 'hangi zincir' sorusu yanıtsız "
+                  "(#2887 dersi: bu-kaydı bilinçli-atlama, unutma değil)")
         try:
-            root, count = read_onchain_epoch(a.rpc, a.contract, int(d["epoch_id"]))
+            root, count = read_onchain_epoch(a.rpc, a.contract, int(d["epoch_id"]), expect)
         except Exception as exc:  # noqa: BLE001 — INDETERMINATE sözleşmesi geniş
             print(f"[İNDETERMİNE] RPC yanıt vermedi ({exc}) — bakamadım ile yeşil karıştırılmaz")
             return EXIT_INDETERMINATE

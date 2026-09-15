@@ -21,6 +21,12 @@ hepsi canlı-index'ten-sürüm-no-ile-kurulan temiz-venv'de yeşil.
 çevirdi; 0.2.6→0.2.7 bu-kuralı TÜM-CLI'a genişletti (E-14, reason_code 19) + CR-v0.1
 cross-proof-kontrolünü taşıdı — üçü-de canlı-wheel-kurulup-yabancı-gözüyle-kullanılınca-bulundu.)
 
+## 0b. Aylık-yabancı-ritüeli (2026-09-15+)
+
+`bash tools/fresh_audit.sh` — CANLI PyPI tekerleğini uçucu-venv'e kurar ve yabancı gibi-kullanır
+(doctor, boş-argman matrisi, öz-testler, E-15 yanlış-zincir sondası, engine-önbelleği-varsa E2E).
+CI her-ayın-20'sinde koşar (kendi-rutubeli, İNDETERMİNE-duyarlı). İlk-geçiş: 0.2.8'de 9/9.
+
 ## 1. Tam kabul-süiti (49 kontrol, ~20 sn)
 
 ```bash

@@ -22,6 +22,13 @@ message-RED; 0.2.6→0.2.7 extended that rule to the whole CLI (E-14, reason_cod
 the CR v0.1 cross-proof control; 0.2.7→0.2.8 turned chain-identity from luck into policy (E-15
 eth_chainId preflight — the wheel itself was caught reading a mainnet endpoint for a Sepolia contract, INDETERMINE by accident, now by design) and added the liveness probe — all three found by installing the live wheel and using it as a stranger would.)
 
+## 0b. The monthly stranger ritual (2026-09-15+)
+
+`bash tools/fresh_audit.sh` — installs the LIVE PyPI wheel into a throwaway venv and uses
+it as a stranger would (doctor, zero-arg matrix, selftests, the E-15 wrong-chain probe, E2E
+when the engine is cached). CI runs it on the 20th of each month
+(`.github/workflows/fresh-audit.yml`, own badge, İNDETERMİNE-aware). First pass: 9/9 on 0.2.8.
+
 ## 1. The full acceptance suite (49 controls, ~20 s)
 
 ```bash

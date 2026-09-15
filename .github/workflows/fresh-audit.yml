@@ -1,0 +1,41 @@
+name: Fresh-Audit (monthly stranger pass)
+# tools/fresh_audit.sh'nin takvim-halkasi: "bu-ay biri kurulu-tekerlegi yabanci-gibi kullandi
+# mi?" sorusunu cevaplanabilir-hale-getiren ritüel. SUITE-BAGIMSIZ ve SUITE-YEŞİLİNİ-BLOKE-ETMEZ
+# (kendi badge'i). Üç-sonuç-badge-eslemesi: rc0 yeşil · rc1 KIRMIZI (gerçek-bulgu) · rc2
+# İNDETERMİNE = sarı-bildirim-yeşil-geçiş (bakamadım ≠ kırmızı ≠ yeşil; eşiği-atla-ama-unutma).
+on:
+  schedule:
+    - cron: "0 6 20 * *"   # her-ayın-20'si — propagasyon-pencerelerinden-uzak, sabah-kuşağı
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  fresh-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run stranger pass (live PyPI install)
+        run: |
+          set +e
+          bash tools/fresh_audit.sh
+          rc=$?
+          echo "rc=$rc" >> "$GITHUB_STEP_SUMMARY"
+          case $rc in
+            0) echo "VERDICT: GREEN — yabancı-gözü temiz" | tee -a "$GITHUB_STEP_SUMMARY" ;;
+            1) echo "VERDICT: RED — bulgu var; report.log artifact değil, log'u-oku" | tee -a "$GITHUB_STEP_SUMMARY"; exit 1 ;;
+            2) echo "::warning title=İNDETERMİNE::PyPI kurulumu yapılamadı (propagasyon/kesinti) — hüküm üretilmedi, kırmızı değil" | tee -a "$GITHUB_STEP_SUMMARY" ;;
+            *) echo "beklenmeyen-rc $rc"; exit 1 ;;
+          esac
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fresh-audit-report
+          path: .evidence/FRESH-AUDIT/
+          if-no-files-found: warn

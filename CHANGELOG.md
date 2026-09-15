@@ -7,6 +7,12 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 ## [Unreleased]
 
 ### Added
+- tools/fresh_audit.sh + .github/workflows/fresh-audit.yml — the stranger-pass RITUAL as a
+  tool: clean venv from live PyPI → doctor → E-14 zero-arg matrix → selftest → E-15 live
+  wrong-chain probe → engine-cached quickstart E2E (never forces the 67MB download; skips
+  LOUDLY). Three-verdict badge mapping (rc2 İNDETERMİNE = warning, not red). First run
+  2026-09-15: 9/9 on 0.2.8 — and it caught two of ITS OWN bugs on pass one, which is the
+  point. Monthly cron (day 20) + workflow_dispatch, independent of the suite badge.
 - AGENT-GUIDE §14 (EN) / §12 (TR) — re-execution class declaration: receipts are
   pinned-class (profile recorded in-receipt; moved stack = İNDETERMİNE, never lucky green),
   data layer is order-independent by canonical definition (byte-identity referee-graded,

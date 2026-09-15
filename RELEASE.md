@@ -28,7 +28,10 @@ and the migration story is demonstrated on code we did not author.**
   threadless-sandbox finding, byte parity bare==envelope, overhead table (native 9.7 / bare
   26.0 / envelope-net 37.6 ms, median-15).
 - Language honesty: "canonical Turkish (internal)" claims removed from RFC-001…004 — the living
-  English text is binding; eight Turkish twins (docs/*.tr.md) stand beside their originals.
+  English text is binding; Turkish twins (docs/*.tr.md) stand beside their originals.
+  *(same-day correction: the count grew with the night batch — and RFC-005/006 + VERIFY-EPOCH-ANCHOR
+  turned out to be Turkish-BORN originals with no English; an EN translation is the recorded open debt for
+  those three. AT-033 twin-hygiene now guards the whole class.)*
 
 Suite at release: 55/55 (RUN_SLOW=1, idle machine) · links 129/0 · fresh-venv audit ritual green.
 

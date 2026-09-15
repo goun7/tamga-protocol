@@ -35,7 +35,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # bir-kerelik: pinned w
 bash tests/run_all.sh
 ```
 
-Beklenen kuyruk: `RESULT: 50 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-15** — yayınlanan-tekerlekle, **0.2.9** canlı PyPI'den (yayında-48/48; AT-028 katıldı, 49/49: taze kontroller dahil — AT-029 CR cross-proof baseline'a katıldı; yavaş-tur aynı gün yeniden-pişirildi).
+Beklenen kuyruk: `RESULT: 50 PASS, 0 FAIL` (`RUN_SLOW=1` ile 55). Son burada doğrulandı: **2026-09-16** — yayınlanan-tekerlekle, **0.2.10** canlı PyPI'den (55/55 yavaş-tur boş-makinede; taze-denetim-ritüeli 10/10 — `--version 0.2.10`; sıfır-argman matrisi artık `attest-verify` + `verify-cr` yüzeylerini de kapsıyor; USAGE sürüm-dizgisi kurulu-sürümle-birebir).
 Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):

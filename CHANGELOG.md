@@ -6,6 +6,12 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
+Nothing unreleased; next planned: see the roadmap gates in README.
+
+## [0.2.9] — 2026-09-15
+
+Fourth same-day release — every one traceable to a found class, listed above.
+
 ### Added
 - tools/fresh_audit.sh + .github/workflows/fresh-audit.yml — the stranger-pass RITUAL as a
   tool: clean venv from live PyPI → doctor → E-14 zero-arg matrix → selftest → E-15 live
@@ -19,6 +25,17 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
   AT-029). Fulfills the in-toto PR-592 doc commitment (issuecomment-5679421331).
 
 Nothing unreleased; next planned: see the roadmap gates in README.
+
+### Changed
+- liveness probe promoted from repo-script to WHEEL SURFACE: `tamga_liveness` module, console
+  command `tamga liveness-probe` (defaults to live Sepolia; three verdicts; server timestamps
+  still never read). tools/liveness_probe.py removed — single owner, no shim (AT-028 now
+  exercises `python3 -m tamga_liveness`; fresh-audit gained a console dead-port check).
+- doctor now import-checks the liveness module (visible in `tamga doctor` output).
+
+### Removed
+- tools/social_preview.py (retired duplicate card-generator; anti-entropy approval 2026-09-15 —
+  sole owner is tools/gen_social_preview.py, reads live counts from TESTS.md/pyproject).
 
 ## [0.2.8] — 2026-09-15
 

@@ -1200,6 +1200,9 @@ engine-free commands (run right after pip install; no wasmtime download needed):
                                   (RFC-009; composition-ready digest, presentation-only claim)
   epoch-verify <proof.json>       verify a foreign epoch-seal inclusion proof — three verdicts:
                                   GREEN rc0 / RED rc1 / İNDETERMİNE rc2 (a dead RPC is never green)
+  liveness-probe                  RPC tazelik-sondası: block-NUMBER span = clock; server
+                                  timestamps are NEVER read (x402 #2887 lesson as contract).
+                                  Three verdicts; defaults to live Sepolia (--rpc/--max-age-blocks)
   ledger <pkg>                    print the ledger
   ledger-verify <pkg>             recompute and verify the hash chain
 
@@ -1224,7 +1227,7 @@ engine commands (first 'run' auto-downloads the SHA256-pinned wasmtime; repo clo
 receiver libraries (import as modules; wire contracts in RFC-009):
   tamga_pugio_receiver / tamga_pugio_ingest — external-anchor + K0 proof-bundle ingestion
 
-version: 0.2.8 · spec_version 0.2.0 (const-flip founder-approved 2026-09-11; next-release gate)
+version: 0.2.9 · spec_version 0.2.0 (const-flip founder-approved 2026-09-11; next-release gate)
 exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-19) · 2 İNDETERMİNE (epoch-verify).
 """
 if __name__ == "__main__":

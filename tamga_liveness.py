@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""liveness_probe.py — tek-komut canlılık-sondası (üç-sonuç sözleşmesi; founder-onaylı 2026-09-15).
+"""tamga_liveness — tek-komut canlılık-sondası (`tamga liveness-probe`; wheel-yüzeyi 0.2.9+) (üç-sonuç sözleşmesi; founder-onaylı 2026-09-15).
 
 NE ÖLÇER: seçilen RPC'de en-güncel bloğun TAZELİĞİ — block-number-farkı = saat.
 Sunucu-duvar-saati-güvenilmez (yanlış-saat-gerçeği budur; x402 #3389'daki 41-dk-STALE
@@ -73,7 +73,7 @@ def probe(rpc: str, max_age_blocks: int) -> tuple[int, dict]:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="tamga-liveness-probe", description=__doc__.split("\n\n")[0])
+    ap = argparse.ArgumentParser(prog="tamga liveness-probe", description=__doc__.split("\n\n")[0])
     ap.add_argument("--rpc", default="https://ethereum-sepolia-rpc.publicnode.com",
                     help="eth_getBlockByNumber konuşan herhangibir HTTP RPC (default: %(default)s)")
     ap.add_argument("--max-age-blocks", type=int, default=10,

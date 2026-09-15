@@ -77,6 +77,10 @@ $TAMGA epoch-verify "$DIR/proof.json" --rpc https://ethereum-rpc.publicnode.com 
   > "$DIR/wrongchain.out" 2>&1; rc=$?
 grep -q "yanlış-zincir" "$DIR/wrongchain.out" && [ "$rc" -eq 2 ]; ok $? "E-15 canlı: mainnet-ucu → rc2 yanlış-zincir (bağ-ölü-değil)"
 
+# 5b) liveness-probe CONSOLE-YÜZEYİ (0.2.9+): ölü-port → rc2 İNDETERMİNE (offline-deterministik)
+$TAMGA liveness-probe --rpc http://127.0.0.1:9/x > "$DIR/deadport.out" 2>&1; rc=$?
+[ "$rc" -eq 2 ] && grep -q "İNDETERMİNE" "$DIR/deadport.out"; ok $? "liveness-probe console: ölü-port → rc2 (wheel-yüzeyi, üç-sonuç)"
+
 # 6) quickstart E2E — engine-önbelleği varsa (indirme YOK, gürültü YOK)
 ENGINE="$HOME/.cache/tamga/bin"
 if ls "$ENGINE"/wasmtime* >/dev/null 2>&1 || [ -x tools/bin/wasmtime ]; then

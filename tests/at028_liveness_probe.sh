@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # AT-028 — liveness probe karar-matrisi (offline, CI-deterministik).
-# Araç (tools/liveness_probe.py) CANLI ağa gider (Sepolia+mainnet GREEN, ölü-RPC İNDETERMİNE
+# Araç (tamga_liveness; console `tamga liveness-probe`) CANLI ağa gider (Sepolia+mainnet GREEN, ölü-RPC İNDETERMİNE
 # 2026-09-15 el-koşumuyla tescilli); SÜİT içi kontrol ise saatleri-İNELER: script'li mock-RPC
 # üzerinden 5-hâl — GREEN / statik-zincir İNDETERMİNE / error-yanıt / çöp-yanıt (traceback YOK)
 # / genesis RED. Timestamp-GÜVENSİZLİĞi sözleşmesi: probe sunucu-duvar-saatini HİÇ okumaz —
@@ -46,7 +46,7 @@ PYEOF
 run_case() { MODE=$1; WANT_RC=$2; WANT_VERDICT=$3; PORT=$((40280+RANDOM%200));
   python3 "$D/mock.py" "$MODE" "$PORT" & SRV=$!
   for i in 1 2 3 4 5 6 7 8 9 10; do python3 -c "import socket,sys; s=socket.socket(); sys.exit(s.connect_ex(('127.0.0.1',$PORT)))" 2>/dev/null && break; sleep 0.2; done
-  OUT=$(python3 tools/liveness_probe.py --rpc "http://127.0.0.1:$PORT" --max-age-blocks 10 2>&1); RC=$?
+  OUT=$(python3 -m tamga_liveness --rpc "http://127.0.0.1:$PORT" --max-age-blocks 10 2>&1); RC=$?
   kill "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null
   echo "[$MODE rc=$RC] $OUT" >> "$LOG"
   if [ "$RC" -eq "$WANT_RC" ] && echo "$OUT" | grep -q "$WANT_VERDICT" && ! echo "$OUT" | grep -q Traceback; then

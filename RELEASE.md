@@ -1,3 +1,26 @@
+# Release notes — v0.2.9
+
+Release date: 2026-09-15 · Tag: v0.2.9 · Branch: `main`
+
+## What is in this release
+
+1. **`tamga liveness-probe` is now a console command.** The probe (block-NUMBER span = clock;
+   server timestamps never read — #2887's lesson as contract) shipped last release as a repo
+   tool; it now lives in the wheel as `tamga_liveness` and is reachable as
+   `tamga liveness-probe [--rpc URL] [--max-age-blocks K]`. Defaults to live Sepolia; three
+   verdicts (rc0 GREEN / rc1 RED / rc2 İNDETERMİNE). `tamga doctor` import-checks it;
+   AT-028 exercises the module form; the monthly fresh-audit ritual gained a console
+   dead-port check (offline-deterministic).
+2. **The stranger-pass ritual shipped** (tools/fresh_audit.sh + monthly CI loop, day 20;
+   rc2 maps to warning-not-red) and **AGENT-GUIDE §14/§12 declared the re-execution class**
+   (pinned receipts vs order-independent canonical layer — the in-toto PR-592 doc promise).
+3. **Anti-entropy**: retired tools/social_preview.py deleted (duplicate card-generator, zero
+   callers, approval 2026-09-15).
+
+Suite: **49/49 fast, 53/53 slow**, links 125/0, wheel inspected (15 modules, no engine).
+
+---
+
 # Release notes — v0.2.8
 
 Release date: 2026-09-15 · Tag: v0.2.8 · Branch: `main`

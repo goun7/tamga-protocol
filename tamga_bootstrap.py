@@ -110,6 +110,7 @@ def main(argv=None) -> int:
         import tamga_runner as r
         print(r.USAGE)
         print("\n  doctor                        kurulum-sağlığı (engine-süz; sorunu kendin gör)")
+        print("  liveness-probe                RPC-tazelik-sondası (engine-süz; number-span=saat; ağ-çağrısı YAPAR)")
         return 0 if argv else 1
     if argv[0] in ("run", "quickstart"):  # motor-gereken-yolçaplar (quickstart İLK-RUN içerir)
         import tamga_runner as r
@@ -179,6 +180,11 @@ def main(argv=None) -> int:
             print("  epoch-verify : [OK] (engine-süz dış-mühür doğrulaması; AT-027)")
         except Exception as e:
             print(f"  epoch-verify : [FAIL] {e}"); ok = False
+        try:
+            import tamga_liveness  # noqa: F401
+            print("  liveness     : [OK] (tazelik-sondası; number-span sözleşmesi; AT-028)")
+        except Exception as e:
+            print(f"  liveness     : [FAIL] {e}"); ok = False
         print("  verdict      :", "SAĞLIKLI — tüm engine-süz yolçapları hazır" if ok
               else "SORUNLU — [FAIL] satırlarını giderin")
         return 0 if ok else 1
@@ -196,6 +202,9 @@ def main(argv=None) -> int:
     if argv[0] == "epoch-verify":  # dış epoch-mührünü doğrula (RFC-009/AT-027; engine-süz; üç-sonuç: GREEN/RED/İNDETERMİNE)
         import tamga_epoch_verify
         return int(tamga_epoch_verify.main(argv[1:]) or 0)
+    if argv[0] == "liveness-probe":  # tazelik = blok-no-farkı; sunucu-saati hiç okunmaz (#2887; AT-028)
+        import tamga_liveness
+        return int(tamga_liveness.main(argv[1:]) or 0)
     if argv[0] not in cmds:
         print(f"unknown command: {argv[0]}\n\n{r.USAGE}")
         return 1

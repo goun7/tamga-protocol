@@ -12,7 +12,7 @@ tamga --version && tamga doctor   # engine-free paths report SAĞLIKLI
 
 Verification commands (`ledger-verify`, `verify-mini`, `bundle`, `explain`) work
 without the 67 MB engine; it downloads once, SHA256-pinned, on first `tamga run`.
-Last verified from the published wheel (**0.2.8**, live PyPI): **2026-09-15** —
+Last verified from the published wheel (**0.2.9**, live PyPI): **2026-09-15** —
 quickstart E2E + `tamga explain --charge` + wheel-side keccak KAT +
 ledger-verify + verify-mini + bundle + `epoch-verify --selftest` + live epoch-15 two-leg
 verification + the whole-CLI zero-argument matrix (8 commands: message-RED, no traceback,
@@ -20,7 +20,7 @@ no vacuous green), all green from a clean venv installed by version from the liv
 (0.2.4→0.2.5 shipped `epoch-verify` in the wheel; 0.2.5→0.2.6 hardened `explain` bad-input to
 message-RED; 0.2.6→0.2.7 extended that rule to the whole CLI (E-14, reason_code 19) and shipped
 the CR v0.1 cross-proof control; 0.2.7→0.2.8 turned chain-identity from luck into policy (E-15
-eth_chainId preflight — the wheel itself was caught reading a mainnet endpoint for a Sepolia contract, INDETERMINE by accident, now by design) and added the liveness probe — all three found by installing the live wheel and using it as a stranger would.)
+eth_chainId preflight — the wheel itself was caught reading a mainnet endpoint for a Sepolia contract, INDETERMINE by accident, now by design) and added the liveness probe — which 0.2.9 then promoted to the console (`tamga liveness-probe`, verified on the index-installed wheel by the monthly fresh-audit ritual itself, 10/10) — all three found by installing the live wheel and using it as a stranger would.)
 
 ## 0b. The monthly stranger ritual (2026-09-15+)
 

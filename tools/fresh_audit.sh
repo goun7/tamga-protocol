@@ -18,7 +18,7 @@ DAY=$(date +%F); DIR=".evidence/FRESH-AUDIT/$DAY"; mkdir -p "$DIR"
 V="$DIR/venv"; PASS=0; FAIL=0; SKIP=0
 log() { echo "$*" | tee -a "$DIR/report.log"; }
 ok() { if [ "$1" -eq 0 ]; then PASS=$((PASS+1)); log "  PASS: $2"; else FAIL=$((FAIL+1)); log "  FAIL: $2"; fi; }
-skip() { SKIP=$((SKIP+1)); log "  SKIP: $2"; }
+skip() { SKIP=$((SKIP+1)); log "  SKIP: $1"; }   # CI-ilk-koşum bulgusu: $2-yazılmıştı, set-u-yakaladı
 
 PY="${PYTHON:-python3}"
 rm -rf "$V"; $PY -m venv "$V" || { log "venv kurulamadı"; exit 2; }

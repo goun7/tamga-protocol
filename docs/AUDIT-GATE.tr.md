@@ -6,7 +6,7 @@ Kapıyı geçmeden hiçbir commit girmez; kapı RED ise commit de yoktur —
 düzelt, yeniden-koş, tekrarla:
 
 1. `python3 -m py_compile` — değinilen her `.py`
-2. `bash tests/run_all.sh` → hızlıda 51 PASS (RUN_SLOW=1 ile 56); yetkili alt-satır
+2. `bash tests/run_all.sh` → hızlıda 52 PASS (RUN_SLOW=1 ile 57); yetkili alt-satır
    sayıyı taşır — asla ayrı bir iddia olarak koda-gömülmez (aşağıdaki sayaç kuralına bak)
 3. Negatif vektörler: AT-001f (3 beklenen-RED + 1 önkoşul kontrolü) + AT-003 (6/6) — beklenen-RED
    fixture'lar RED kalır

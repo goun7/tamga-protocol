@@ -23,7 +23,7 @@ fi
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (51 controls; 56 with RUN_SLOW=1 — slow-gated: c30 cross-host wall + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-tam-modül + AT-032 agent-rebuild)
+tests/run_all.sh — Tamga Protocol acceptance suite (52 controls; 57 with RUN_SLOW=1 — slow-gated: c30 cross-host wall + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-tam-modül + AT-032 agent-rebuild)
 
 usage: bash tests/run_all.sh            # fast suite (~20 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -185,7 +185,11 @@ PY
   bash tests/at033_twin_hygiene.sh > /dev/null 2>&1
   kontrol $? "AT-033: twin-hygiene (K1 özdeş-kopya-ikiz + K2 TR-orijinal-kardeş-yasak + K3 disk-türer dil-notu)"
 
-  # ---- kontrol-56 (slow): AT-032 builder-determinism (aynı-pinli-toolchain çift-derleme bayt-bayt) ----
+  # ---- kontrol-56: AT-034 zero-digest-counter (red-öncesi-hash-yok; çift-yönlü sayaç) ----
+  bash tests/at034_zero_digest_counter.sh > /dev/null 2>&1
+  kontrol $? "AT-034: zero-digest-counter (zarf-eksik/bozuk-JSON/unknown-registry = 0-hash; yeşil+tamper = tam-1-hash)"
+
+  # ---- kontrol-57 (slow): AT-032 builder-determinism (aynı-pinli-toolchain çift-derleme bayt-bayt) ----
   if [ "${RUN_SLOW:-0}" = "1" ]; then
     bash tests/at032_agent_rebuild.sh > /dev/null 2>&1
     kontrol $? "AT-032: agent-rebuild (çift-derleme-bayt-bayt + rustc-patch-drift sınıf-bildirimi; cargo-yoksa-bağırarak-SKIP)"

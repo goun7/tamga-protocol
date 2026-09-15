@@ -7,6 +7,10 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 ## [Unreleased]
 
 ### Added
+- AT-034 zero-digest counter (kontrol-56, fast): refusal-before-hash proved with a call-counter
+  on the foreign lane — envelope-missing / broken-JSON / unknown-registry refusals hash 0 times;
+  green path and claimId-tamper RED hash exactly once (no premature, no redundant). Counterpart
+  to the dimension acknowledged in the #2887 cross-run reply; negative self-tested. Suite 52/57.
 - AT-033 twin-hygiene control (kontrol-55, fast): the night's doc-generation produced two
   identical-copy `.tr.md` twins of Turkish-BORN originals (RFC-005/006, VERIFY-EPOCH-ANCHOR) —
   deleted, and the class is now law: no TR twin of a TR original, no hand-maintained twin

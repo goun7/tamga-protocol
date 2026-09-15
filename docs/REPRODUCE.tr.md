@@ -27,7 +27,7 @@ cross-proof-kontrolünü taşıdı — üçü-de canlı-wheel-kurulup-yabancı-g
 (doctor, boş-argman matrisi, öz-testler, E-15 yanlış-zincir sondası, engine-önbelleği-varsa E2E).
 CI her-ayın-20'sinde koşar (kendi-rutubeli, İNDETERMİNE-duyarlı). İlk-geçiş: 0.2.8'de 9/9.
 
-## 1. Tam kabul-süiti (51 kontrol, ~20 sn)
+## 1. Tam kabul-süiti (52 kontrol, ~20 sn)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -35,18 +35,18 @@ bash tests/setup.sh && pip install -r requirements.txt   # bir-kerelik: pinned w
 bash tests/run_all.sh
 ```
 
-Beklenen kuyruk: `RESULT: 51 PASS, 0 FAIL` (`RUN_SLOW=1` ile 56). Son burada doğrulandı: **2026-09-16** — yayınlanan-tekerlekle, **0.2.10** canlı PyPI'den (55/55 yavaş-tur boş-makinede; taze-denetim-ritüeli 10/10 — `--version 0.2.10`; sıfır-argman matrisi artık `attest-verify` + `verify-cr` yüzeylerini de kapsıyor; USAGE sürüm-dizgisi kurulu-sürümle-birebir).
+Beklenen kuyruk: `RESULT: 52 PASS, 0 FAIL` (`RUN_SLOW=1` ile 57). Son burada doğrulandı: **2026-09-16** — yayınlanan-tekerlekle, **0.2.10** canlı PyPI'den (55/55 yavaş-tur boş-makinede; taze-denetim-ritüeli 10/10 — `--version 0.2.10`; sıfır-argman matrisi artık `attest-verify` + `verify-cr` yüzeylerini de kapsıyor; USAGE sürüm-dizgisi kurulu-sürümle-birebir).
 Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 55 kontrol (bu makinede 56/56)
+RUN_SLOW=1 bash tests/run_all.sh     # → 56 kontrol (bu makinede 57/57)
 ```
 
 Yavaş-kontrollerin dürüst-önkoşulları (taze-klonda BUG değil — eksik-önkoşul; her biri söyler):
 - c30 (31-sn çapraz-host duvar-kontrolü) gitignored yerel simnet-fixtürleri ister
-  (`tests/simnet/node-C/` + `seedC.hex`) — yoksa `[SKIP]` basar ve koşum 51/51 okunur.
+  (`tests/simnet/node-C/` + `seedC.hex`) — yoksa `[SKIP]` basar ve koşum 52/52 okunur.
 - AT-019 `dist/` wheel'ini (gitignored) kurar/kullanır — wheel yoksa ve `build` paketi
   importlanabiliyorsa anında üretir; ikisi de yoksa `[SKIP]` basar.
 - AT-026 `python3 -m build` ister (`pip install build`); üretimi İZOLE geçici-dizine yapar

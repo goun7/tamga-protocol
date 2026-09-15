@@ -19,7 +19,7 @@ Bugün bir yapay zekâ ajanı sizin adınıza bir şey yaptığında (satın alm
 ## Bugün neredeyiz
 
 - **Çalışan bir prototip var** — açık kaynak, herkes bakabilir (GitHub). Henüz **simülasyon** aşamasında; gerçek para dönmüyor.
-- **Kalite iddiası boş değil:** her değişiklikte otomatik koşan **51 kontrol testi** var (yavaş modda 56); ayrıca yayımlanan-paketi temiz-bir-makinede yabancı-gibi kuran taze-denetim ritüeli **10/10** aynı kararı veriyor. Her iddianın altında koşulmuş test kanıtı var.
+- **Kalite iddiası boş değil:** her değişiklikte otomatik koşan **52 kontrol testi** var (yavaş modda 57); ayrıca yayımlanan-paketi temiz-bir-makinede yabancı-gibi kuran taze-denetim ritüeli **10/10** aynı kararı veriyor. Her iddianın altında koşulmuş test kanıtı var.
 
 - **Ekosistemde dikkat çekiyor:** x402 topluluğundaki açık tartışmada dört farklı ekip bizimle müzakere ediyor; biri bizim test paketimizi bağımsız doğruladı, diğeri bizim çalışmamızı kendi ticari teklifinde kamu kanıtı olarak referans gösteriyor. Biz de onların kanıt araçlarını çevrimdışı doğruladık (sahtecilik girişinde kırmızı verdiğini bizzat test ettik).
 - **Şimdi beklenen:** bir tarafın "onaylı test teslimatı" demesi. Gerçekleşirse prototip "gerçek dünyada uçtan uca doğrulandı" statüsüne geçecek — bunun tek komutluk hazırlığı tamam.

@@ -27,11 +27,10 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
   pure-Python secp256k1 ecrecover + EIP-191 + deep-sorted canonical JSON, registry-dispatch
   (CAPACITY_ATTEST_V1). Reproduces the issuer's own ethers verdict 7/7 on vendored fixture vectors
   incl. both negative verdicts; independently GREENs their real production claim (nested-object
-  preimage). Unknown tag → İNDETERMİNE (RFC-009 pattern); AT-030 kontrol-54. Suite 50/54.
+  preimage). Unknown tag → İNDETERMİNE (RFC-009 pattern); AT-030 kontrol-54. Suite: 50 fast / 55 slow.
 - Drift findings folded in the same sweep (sweep-method lesson recorded): INDEX.md had been stuck
   at 48/52 through two sweeps; README:148 / REPRODUCE:54 / AGENT-GUIDE totals at stale 49/52/53.
   Pattern-based inventory (regex over ALL stale pairs) replaced string-pair sweeps for counts.
-### Added
 - tamga_liveness: machine-readable `evaluated` flag (false = the probe never got to look;
   true-with-İNDETERMİNE = it looked and could not settle). x402 #2887's fifth-day
   NOT_EVALUATED debate (stillmarcus24, 5684885350) met our own doctrine halfway — three

@@ -132,6 +132,8 @@ python3 tamga_pugio_ingest.py <bundle.json> > receipt.jsonl
 
 The boundary travels in the verdict: these verify *presentation* (the anchor math and
 the bundle body), never a foreign registry's validity — that belongs to the origin.
+Language-status line in `docs/INDEX.md` is MACHINE-GENERATED (`python3 tools/gen_lang_index.py`) and freshness-checked by AT-033 K5 — never hand-edit it; rerun the tool.
+
 Evidence family: AT-024 (receiver) / AT-025 (ingest), kontrol-slots 48–49 (run unconditionally; today's totals: 50 fast / 54 slow).
 
 Foreign DELIVERY attestations (another rail's signed records) are verifiable too:

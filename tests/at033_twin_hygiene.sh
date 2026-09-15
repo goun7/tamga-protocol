@@ -45,4 +45,6 @@ PY
 RC=$?
 [ $RC -ne 0 ] && cat "$D/out" && F "ikiz-hijyeni"
 grep -q "OK" "$D/out" || cat "$D/out"
-echo "AT-033 twin-hygiene: K1+K2+K3+K4 PASS ($(cat "$D/out" | grep -c OK) taranmış-set temiz)"
+# K5: INDEX Dil-durumu satırı BAYATLAMAZ — üretici-araçla-bayt-baytar--check (araç: tools/gen_lang_index.py)
+python3 tools/gen_lang_index.py --check 2>/dev/null || F "K5: INDEX dil-satırı diske-göre-bayat — python3 tools/gen_lang_index.py çalıştır"
+echo "AT-033 twin-hygiene: K1+K2+K3+K4+K5 PASS ($(cat "$D/out" | grep -c OK) taranmış-set temiz)"

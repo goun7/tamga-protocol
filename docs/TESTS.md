@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 49/49 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 50/50 controls, ~20 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)
@@ -20,8 +20,8 @@ fixtures under `tests/simnet/`): `tests/simnet/f21_truncate.py` (ledger-tip roll
 attack) and `tests/simnet/merkle_tamper.py` (merkle tampering); both exit 0 when the
 runner rejects the attack. The slow suite (`RUN_SLOW=1 bash tests/run_all.sh`) adds
 the c30 cross-host wall control, AT-019 (published-wheel nacl-blocked verification),
-AT-020 (self-pilot) and AT-026 (wheel tam-modül) — AT-021/022/023/024/025/027/028/029 run
-unconditionally in the 49-control fast baseline. 49/49 fast, 53/53 with RUN_SLOW=1. AT-027 (epoch-verify) joined the fast baseline 2026-09-13 (kontrol-51 slot; offline-deterministic).
+AT-020 (self-pilot) and AT-026 (wheel tam-modül) — AT-021/022/023/024/025/027/028/029/030 run
+unconditionally in the 50-control fast baseline. 50/50 fast, 54/54 with RUN_SLOW=1. AT-027 (epoch-verify) joined the fast baseline 2026-09-13 (kontrol-51 slot; offline-deterministic).
 
 ## Control families
 
@@ -74,7 +74,7 @@ a "fix" that makes them pass is itself a regression and fails the suite.
 
 ## CI
 
-`.github/workflows/ci.yml` runs the full 49-control suite on a
+`.github/workflows/ci.yml` runs the full 50-control suite on a
 `["3.10","3.11","3.12","3.13"]` matrix with
 wasmtime v48.0.1 (downloaded from the pinned release tarball) on every push to `main`.
 The badge in the README links to the workflow.

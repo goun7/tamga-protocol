@@ -27,7 +27,7 @@ cross-proof-kontrolünü taşıdı — üçü-de canlı-wheel-kurulup-yabancı-g
 (doctor, boş-argman matrisi, öz-testler, E-15 yanlış-zincir sondası, engine-önbelleği-varsa E2E).
 CI her-ayın-20'sinde koşar (kendi-rutubeli, İNDETERMİNE-duyarlı). İlk-geçiş: 0.2.8'de 9/9.
 
-## 1. Tam kabul-süiti (49 kontrol, ~20 sn)
+## 1. Tam kabul-süiti (50 kontrol, ~20 sn)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -35,13 +35,13 @@ bash tests/setup.sh && pip install -r requirements.txt   # bir-kerelik: pinned w
 bash tests/run_all.sh
 ```
 
-Beklenen kuyruk: `RESULT: 49 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-15** — yayınlanan-tekerlekle, **0.2.9** canlı PyPI'den (yayında-48/48; AT-028 katıldı, 49/49: taze kontroller dahil — AT-029 CR cross-proof baseline'a katıldı; yavaş-tur aynı gün yeniden-pişirildi).
+Beklenen kuyruk: `RESULT: 50 PASS, 0 FAIL`. Son burada doğrulandı: **2026-09-15** — yayınlanan-tekerlekle, **0.2.9** canlı PyPI'den (yayında-48/48; AT-028 katıldı, 49/49: taze kontroller dahil — AT-029 CR cross-proof baseline'a katıldı; yavaş-tur aynı gün yeniden-pişirildi).
 Kanıt günlüğü `.evidence/REGRESYON/<tarih>/run_all-*.log` altına düşer.
 
 Yavaş ek kontroller (çapraz-host c30 + AT-019 wheel + AT-020 self-pilot — CI'da yok):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 53 kontrol (bu makinede 53/53)
+RUN_SLOW=1 bash tests/run_all.sh     # → 54 kontrol (bu makinede 54/54)
 ```
 
 Yavaş-kontrollerin dürüst-önkoşulları (taze-klonda BUG değil — eksik-önkoşul; her biri söyler):

@@ -1,0 +1,135 @@
+{
+ "source": "capacity-attest@0.6.0 (npm), dist/discovery-fixture.js \u2014 fixed public test keys; run on 2026-09-15",
+ "license": "MIT (capacity-attest authors)",
+ "note": "content = full claim object (claimId+signature included); expect = THEIR verifyClaim verdict (run through ethers on this machine); our verifier must reproduce it INDEPENDENTLY, stdlib-only.",
+ "vectors": [
+  {
+   "name": "a1",
+   "content": {
+    "sellerAddress": "0x00000000000000000000000000000000000000aa",
+    "buyerAddress": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2",
+    "assetType": "gpu-hours",
+    "evidenceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "promisedSpec": "1x A100, 4h",
+    "delivered": "yes",
+    "settlementRef": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "timestamp": "2026-01-01T00:00:00.000Z",
+    "claimId": "0x53da0be2d690b4c891b848154bcd6dc8c01257f447e8677d5a5f03c654c7fdba",
+    "signature": "0xf915b23b2b634de655e167c0d0def2b043a2f7099d76bbb003df6aa77f0cbfb940bb74e03282682166ecb2d39af3731cb660ee4de2e71b9c91ee87909ef910aa1b"
+   },
+   "expect_ok": true,
+   "expect_reason": null,
+   "signer_hint": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2"
+  },
+  {
+   "name": "a2",
+   "content": {
+    "sellerAddress": "0x00000000000000000000000000000000000000aa",
+    "buyerAddress": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2",
+    "assetType": "gpu-hours",
+    "evidenceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "promisedSpec": "1x A100, 8h",
+    "delivered": "no",
+    "settlementRef": "0xa2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2",
+    "timestamp": "2026-02-01T00:00:00.000Z",
+    "priorClaimId": "0x53da0be2d690b4c891b848154bcd6dc8c01257f447e8677d5a5f03c654c7fdba",
+    "claimId": "0xbeb1d9144dfd08edc422ea8f1865cc128daf9caf9764cf9891b7aaf0a3d983e5",
+    "signature": "0xfe1d512780e9fc027f7e81b2227e9f39b80e3d07c7ffdde5bbf35152d6b031f4707d6f987a10a80fe27da2380cd684665c9531ac55ed1241bf31bde245ff70921c"
+   },
+   "expect_ok": true,
+   "expect_reason": null,
+   "signer_hint": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2"
+  },
+  {
+   "name": "a3",
+   "content": {
+    "sellerAddress": "0x00000000000000000000000000000000000000aa",
+    "buyerAddress": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2",
+    "assetType": "gpu-hours",
+    "evidenceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "promisedSpec": "1x A100, 2h",
+    "delivered": "yes",
+    "settlementRef": "0xa3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3a3",
+    "timestamp": "2026-03-01T00:00:00.000Z",
+    "priorClaimId": "0xbeb1d9144dfd08edc422ea8f1865cc128daf9caf9764cf9891b7aaf0a3d983e5",
+    "claimId": "0x5baa930b5265a819d14f75a4d2b1f45636cc24ad43ad0cacfd096ed2216e7afd",
+    "signature": "0xace53ba677141f2e882300d6447a7a7d5dc09ee18f8bb2388be0d4db0e1dce8b6440b5832a929aa835d3ecfa1df4a90c94c3bcccc5cc8433760d1031a65e28961c"
+   },
+   "expect_ok": true,
+   "expect_reason": null,
+   "signer_hint": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2"
+  },
+  {
+   "name": "b1",
+   "content": {
+    "sellerAddress": "0x00000000000000000000000000000000000000aa",
+    "buyerAddress": "0x75E0De31eCa89159a26b09cc3b5eF4736A4f8969",
+    "assetType": "gpu-hours",
+    "promisedSpec": "1x A100, 1h",
+    "delivered": "yes",
+    "evidenceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "settlementRef": "0xb1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1",
+    "timestamp": "2026-02-15T00:00:00.000Z",
+    "claimId": "0x84761a4a4071e115fce086b38613cab7510a411e57923e7a218a979e5c187be9",
+    "signature": "0x57cf809e5cbc1c1932b0879f2a1b3ede8deb1d23b78f7806defa69db30d41ae91fa96a9c394b27e18667b8230c8ee12a9c160fb2201b2205e9284fb6091b51e51c"
+   },
+   "expect_ok": true,
+   "expect_reason": null,
+   "signer_hint": "0x75E0De31eCa89159a26b09cc3b5eF4736A4f8969"
+  },
+  {
+   "name": "y1",
+   "content": {
+    "sellerAddress": "0x00000000000000000000000000000000000000bb",
+    "buyerAddress": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2",
+    "assetType": "gpu-hours",
+    "promisedSpec": "other seller",
+    "delivered": "yes",
+    "evidenceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "settlementRef": "0x0101010101010101010101010101010101010101010101010101010101010101",
+    "timestamp": "2026-01-15T00:00:00.000Z",
+    "claimId": "0x585c67fc87714998a519f6bb8bfe48880b9ff907f34accdfe04f274da874f657",
+    "signature": "0x9b3bb467df6997ba848259f7a4c5240ee17769452d102b8f0adc1c4b58e1f3b06a23e59456be158c685aa921d5398c35905b38b21d579a69cf47d6d3981586bc1c"
+   },
+   "expect_ok": true,
+   "expect_reason": null,
+   "signer_hint": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2"
+  },
+  {
+   "name": "forged",
+   "content": {
+    "sellerAddress": "0x00000000000000000000000000000000000000aa",
+    "buyerAddress": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2",
+    "assetType": "gpu-hours",
+    "promisedSpec": "forged",
+    "delivered": "yes",
+    "evidenceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "settlementRef": "0xdededededededededededededededededededededededededededededededede",
+    "timestamp": "2026-04-01T00:00:00.000Z",
+    "claimId": "0x69884977d423ea131f29c61bae0c598e837ba088cca75ea92b5597e05635a776",
+    "signature": "0x225b011d1f29cf284cd1ce232bac13eea9826b77f50a52ac8dcabba73747453565e51f67d525f229e8a58f8fe0a962a962a864060210ab29f1eb13dc7e3ea9001c"
+   },
+   "expect_ok": false,
+   "expect_reason": "signature_does_not_match_buyer",
+   "signer_hint": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2"
+  },
+  {
+   "name": "tampered",
+   "content": {
+    "sellerAddress": "0x00000000000000000000000000000000000000aa",
+    "buyerAddress": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2",
+    "assetType": "gpu-hours",
+    "evidenceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "promisedSpec": "1x A100, 4h",
+    "delivered": "no",
+    "settlementRef": "0xa1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+    "timestamp": "2026-01-01T00:00:00.000Z",
+    "claimId": "0x53da0be2d690b4c891b848154bcd6dc8c01257f447e8677d5a5f03c654c7fdba",
+    "signature": "0xf915b23b2b634de655e167c0d0def2b043a2f7099d76bbb003df6aa77f0cbfb940bb74e03282682166ecb2d39af3731cb660ee4de2e71b9c91ee87909ef910aa1b"
+   },
+   "expect_ok": false,
+   "expect_reason": "claimId_mismatch",
+   "signer_hint": "0x5d5c99EdF529335160FF180fA141Dd4967fc00D2"
+  }
+ ]
+}

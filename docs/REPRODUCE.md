@@ -29,7 +29,7 @@ it as a stranger would (doctor, zero-arg matrix, selftests, the E-15 wrong-chain
 when the engine is cached). CI runs it on the 20th of each month
 (`.github/workflows/fresh-audit.yml`, own badge, İNDETERMİNE-aware). First pass: 9/9 on 0.2.8.
 
-## 1. The full acceptance suite (49 controls, ~20 s)
+## 1. The full acceptance suite (50 controls, ~20 s)
 
 ```bash
 git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
@@ -37,7 +37,7 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 49 PASS, 0 FAIL`. Last verified here: **2026-09-15** on **0.2.9**: full suite re-proved on HEAD, and the published wheel was
+Expected tail: `RESULT: 50 PASS, 0 FAIL`. Last verified here: **2026-09-15** on **0.2.9**: full suite re-proved on HEAD, and the published wheel was
 installed from live PyPI by the stranger ritual (`bash tools/fresh_audit.sh`) — 10/10 including the console
 `tamga liveness-probe` dead-port check. The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`).
@@ -45,7 +45,7 @@ installed from live PyPI by the stranger ritual (`bash tools/fresh_audit.sh`) �
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-completeness — not in CI):
 
 ```bash
-RUN_SLOW=1 bash tests/run_all.sh     # → 53 controls (53/53 on this host)
+RUN_SLOW=1 bash tests/run_all.sh     # → 54 controls (54/54 on this host)
 ```
 
 Prerequisites the slow controls declare honestly (a fresh clone is NOT a bug — it is a missing

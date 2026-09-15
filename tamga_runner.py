@@ -44,11 +44,12 @@ def out(ok, **kw):
 # invocation is a message, not a traceback. Both dispatch paths (console `tamga` →
 # tamga_bootstrap; repo-script `python3 tamga_runner.py`) share this single choke point.
 REQUIRED_ARGS = {"run": 1, "quickstart": 1, "export": 1, "memory": 1, "keygen-node": 1,
-                 "ledger": 1, "ledger-verify": 1, "grant": 2}
+                 "ledger": 1, "ledger-verify": 1, "grant": 2, "attest-verify": 1}
 USAGE_HINT = {"run": "tamga run <pkg> --seed <hex>", "quickstart": "tamga quickstart <dir> [--name n]",
               "export": "tamga export <pkg> -o <out.tsg> --seed <hex>", "memory": "tamga memory <pkg> <op> ...",
               "keygen-node": "tamga keygen-node <dir>", "ledger": "tamga ledger <pkg>",
-              "ledger-verify": "tamga ledger-verify <pkg>", "grant": "tamga grant <pkg> <amount>"}
+              "ledger-verify": "tamga ledger-verify <pkg>", "grant": "tamga grant <pkg> <amount>",
+               "attest-verify": "tamga attest-verify <claim.json> [--registry R]"}
 
 def usage_guard(cmd, a):
     """None = geç; int = kullanım-hatası rc'si (message-RED, traceback YOK)."""
@@ -1203,6 +1204,10 @@ engine-free commands (run right after pip install; no wasmtime download needed):
   liveness-probe                  RPC tazelik-sondası: block-NUMBER span = clock; server
                                   timestamps are NEVER read (x402 #2887 lesson as contract).
                                   Three verdicts; defaults to live Sepolia (--rpc/--max-age-blocks)
+  attest-verify <claim.json>      verify a FOREIGN delivery-attestation (registry-dispatch:
+                                  CAPACITY_ATTEST_V1 = secp256k1+EIP-191+canonical-JSON,
+                                  ALL stdlib-only — fewer deps than the issuer itself uses);
+                                  unknown registry tag = İNDETERMİNE, never a silent pass
   ledger <pkg>                    print the ledger
   ledger-verify <pkg>             recompute and verify the hash chain
 

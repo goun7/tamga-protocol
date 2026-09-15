@@ -23,7 +23,7 @@ fi
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (49 controls; 53 with RUN_SLOW=1 — slow-gated: c30 cross-host wall + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-tam-modül)
+tests/run_all.sh — Tamga Protocol acceptance suite (50 controls; 54 with RUN_SLOW=1 — slow-gated: c30 cross-host wall + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-tam-modül)
 
 usage: bash tests/run_all.sh            # fast suite (~20 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -168,6 +168,10 @@ PY
   # ---- kontrol-51: AT-027 epoch-mührü doğrulama CLI (dış-kanıt yüzeyi; offline-deterministik) ----
   bash tests/at027_epoch_verify.sh > /dev/null 2>&1
   kontrol $? "AT-027: epoch-verify (dahil-etme GREEN + kök/kanıt/fact kazıma RED + ölü-RPC İNDETERMİNE)"
+
+  # ---- kontrol-54: AT-030 DIŞ delivery-attestation doğrulayıcısı (stdlib-only cross-verify) ----
+  bash tests/at030_attest_verify.sh > /dev/null 2>&1
+  kontrol $? "AT-030: capacity-attest 7/7 bağımsız-koşum + üretim-claim GREEN + rc2/rc1-kapıları"
 
   # ---- kontrol-53: AT-028 liveness-probe karar-matrisi (offline mock-RPC; #2887 hattının aracı) ----
   bash tests/at028_liveness_probe.sh > /dev/null 2>&1

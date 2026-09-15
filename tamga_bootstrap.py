@@ -111,6 +111,7 @@ def main(argv=None) -> int:
         print(r.USAGE)
         print("\n  doctor                        kurulum-sağlığı (engine-süz; sorunu kendin gör)")
         print("  liveness-probe                RPC-tazelik-sondası (engine-süz; number-span=saat; ağ-çağrısı YAPAR)")
+        print("  attest-verify <claim.json>    DIŞ delivery-attestation doğrulaması (engine-süz; registry-dispatch)")
         return 0 if argv else 1
     if argv[0] in ("run", "quickstart"):  # motor-gereken-yolçaplar (quickstart İLK-RUN içerir)
         import tamga_runner as r
@@ -185,6 +186,11 @@ def main(argv=None) -> int:
             print("  liveness     : [OK] (tazelik-sondası; number-span sözleşmesi; AT-028)")
         except Exception as e:
             print(f"  liveness     : [FAIL] {e}"); ok = False
+        try:
+            import tamga_attest_verify  # noqa: F401
+            print("  attest       : [OK] (DIŞ delivery-attestation doğrulayıcısı; stdlib-only; AT-030)")
+        except Exception as e:
+            print(f"  attest       : [FAIL] {e}"); ok = False
         print("  verdict      :", "SAĞLIKLI — tüm engine-süz yolçapları hazır" if ok
               else "SORUNLU — [FAIL] satırlarını giderin")
         return 0 if ok else 1
@@ -205,6 +211,9 @@ def main(argv=None) -> int:
     if argv[0] == "liveness-probe":  # tazelik = blok-no-farkı; sunucu-saati hiç okunmaz (#2887; AT-028)
         import tamga_liveness
         return int(tamga_liveness.main(argv[1:]) or 0)
+    if argv[0] == "attest-verify":  # DIŞ attestation — stdlib-only secp256k1+EIP-191 (AT-030; RFC-009-kardeşi)
+        import tamga_attest_verify
+        return int(tamga_attest_verify.main(argv[1:]) or 0)
     if argv[0] not in cmds:
         print(f"unknown command: {argv[0]}\n\n{r.USAGE}")
         return 1

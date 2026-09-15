@@ -170,6 +170,8 @@ python3 tamga_runner.py memory <pkg> --import-json cevrilmis.json
 - `import` RED verirse: yukarıdaki-koruma-redleri-masasında-eşleştirin.
 - Zincir-iddiasını-bağımsız-doğrulamak-isterseniz: `tamga verify-mini` (standart-
   kütüphane-yalnız; [REPRODUCE.tr.md](REPRODUCE.tr.md) §0).
+- Bir-RPC'ye-tazelik-iddiası-sormadan-önce: `tamga liveness-probe` (tazelik = blok-no-farkı;
+  sunucu-saati HİÇ okunmaz; `--rpc`/`--max-age-blocks`; üç-sonuç rc0/1/2).
 
 ## 11. Ağ-yetenekleri (beyanlı-egress)
 

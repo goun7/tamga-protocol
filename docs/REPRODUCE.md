@@ -37,8 +37,9 @@ bash tests/setup.sh && pip install -r requirements.txt   # once: pinned wasmtime
 bash tests/run_all.sh
 ```
 
-Expected tail: `RESULT: 49 PASS, 0 FAIL`. Last verified here: **2026-09-15** with the published wheel — **0.2.7** from live PyPI (48/48 at release; 49/49 since — AT-028 joined)
-included — AT-029 CR cross-proof joins the baseline; slow round re-pinned same day; the evidence log lands in
+Expected tail: `RESULT: 49 PASS, 0 FAIL`. Last verified here: **2026-09-15** on **0.2.9**: full suite re-proved on HEAD, and the published wheel was
+installed from live PyPI by the stranger ritual (`bash tools/fresh_audit.sh`) — 10/10 including the console
+`tamga liveness-probe` dead-port check. The evidence log lands in
 `.evidence/REGRESYON/<date>/run_all-*.log`).
 
 Slow extra controls (cross-host c30 + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-completeness — not in CI):

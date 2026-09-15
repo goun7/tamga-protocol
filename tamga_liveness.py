@@ -11,6 +11,10 @@ NE İDDİA ETMEZ (dürüstlük-satırı, çıktıdan-düşer): konsensüs-kanaat
 receipt-kabulü — sadece "bu-RPC bu-eşiklerde taze-görünüyor mu". §4.x metri geldiğinde
 gidon-adları-buraya-bağlanır (G6-RUNBOOK §2.A); bugünkü haliyle metinden-BAĞIMSIZdır.
 
+JSON-alanları: verdict+reason Her-ZAMAN; `evaluated:false` = sorgu-hepten-gerçekleşmedi
+(İND'tir ama "baktık-olmadı"dan makine-okunur-ayrılır; #2887 NOT_EVALUATED tartışmasının
+kendi-içimizdeki-karşılığı — üç-sonuç-korunur, sözlük-onlara-göre-BOYANMAZ).
+
 ÇIKIŞ SÖZLEŞMESİ (tamga üçlüsü): 0 GREEN · 1 RED (bloklar-var-ama-çatlak: head!=parent
 kardeş yaşı; ya da eşik-aşımı RED-isterken) · 2 İNDETERMİNE (RPC-bakamadım — yeşil-değil,
 kırmızı-da-değil). JSON tek-satır stdout; insan-satırı stderr.
@@ -39,11 +43,15 @@ def _rpc(rpc: str, method: str, params: list) -> dict:
 def probe(rpc: str, max_age_blocks: int) -> tuple[int, dict]:
     out = {"probe": "liveness", "rpc_kind": "public" if "localhost" not in rpc and "127.0.0.1" not in rpc else "local",
            "max_age_blocks": max_age_blocks,
+           # "evaluated": SONDA GERÇEKTEN BAKTI mi (sorgu-yapildi) yoksa bakamadi mi — #2887
+           # besinci-gun dersinin kendi-kapidan-gecmisi: "hic-kosmayan-kontrol gecmis gibi
+           # okunmamali"; uc-sonuc-korunur, ayrim-artik-makine-okunur-alan.
+           "evaluated": True,
            "claim": "RPC tazelik-sondası — konsensüs/receipt-kanaati DEĞİLDİR"}
     try:
         head_hex = _rpc(rpc, "eth_getBlockByNumber", ["latest", False])
     except Exception as e:  # bakamadım — yeşil de kırmızı da değil
-        out.update(verdict="İNDETERMİNE", reason=f"latest-okunamadı: {e}")
+        out.update(verdict="İNDETERMİNE", evaluated=False, reason=f"latest-okunamadı: {e}")
         return EXIT_IND, out
     head = int(head_hex["number"], 16)
     out["head"] = head
@@ -58,7 +66,7 @@ def probe(rpc: str, max_age_blocks: int) -> tuple[int, dict]:
     try:
         past_hex = _rpc(rpc, "eth_getBlockByNumber", [hex(max(head - max_age_blocks, 0)), False])
     except Exception as e:
-        out.update(verdict="İNDETERMİNE", reason=f"eşik-öncesi-blok okunamadı: {e}")
+        out.update(verdict="İNDETERMİNE", evaluated=False, reason=f"eşik-öncesi-blok okunamadı: {e}")
         return EXIT_IND, out
     span = head - int(past_hex["number"], 16)
     out["blocks_since_threshold"] = span

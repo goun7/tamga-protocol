@@ -164,10 +164,12 @@ python3 tamga_runner.py memory <pkg> --import-json converted.json
 ## 10. When something doesn't work
 
 ```bash
-tamga doctor    # install health: python / pynacl / wasmtime / verify-mini / bundle
+tamga doctor    # install health: python / pynacl / wasmtime / verify-mini / bundle /
+                  #   keccak / epoch-verify / liveness
 ```
 
-Engine-free paths (verify-mini, bundle, ledger-verify) work without wasmtime;
+Engine-free paths (verify-mini, bundle, ledger-verify, epoch-verify, liveness-probe)
+work without wasmtime;
 only the first `tamga run` triggers the pinned engine download.
 
 ## 11. Standalone verification & evidence bundles (2026-09-08)

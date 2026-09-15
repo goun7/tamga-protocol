@@ -6,7 +6,15 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
-Nothing unreleased; next planned: see the roadmap gates in README.
+### Added
+- tamga_liveness: machine-readable `evaluated` flag (false = the probe never got to look;
+  true-with-İNDETERMİNE = it looked and could not settle). x402 #2887's fifth-day
+  NOT_EVALUATED debate (stillmarcus24, 5684885350) met our own doctrine halfway — three
+  verdicts stay, the distinction stops living only in free-text reasons; AT-028 pins both
+  sides (control now 6 lines).
+- Docs parity: AGENT-GUIDE §10 EN+TR list liveness-probe/epoch-verify among engine-free
+  surfaces; REPRODUCE verification line moved to 0.2.9-ritual-verified (10/10 incl. console
+  dead-port probe).
 
 ## [0.2.9] — 2026-09-15
 

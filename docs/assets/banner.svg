@@ -33,5 +33,5 @@ M803 442 c-29 -4 -71 -45 -79 -76 -8 -34 11 -81 43 -102 54 -34 136 -9 157 48
 25 69 -43 143 -121 130z"/></g></g>
   <text x="450" y="92" font-family="Georgia, 'Times New Roman', serif" font-size="58" font-weight="bold" fill="#f1f5f9" letter-spacing="6">TAMGA</text>
   <text x="454" y="130" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#7dd3fc" letter-spacing="14">PROTOCOL</text>
-  <text x="452" y="176" font-family="Helvetica, Arial, sans-serif" font-size="17" fill="#94a3b8">Portable identity · Encrypted memory · Verifiable work receipts</text>
+  <text x="452" y="176" font-family="Helvetica, Arial, sans-serif" font-size="14.5" fill="#94a3b8">Self-custodial agent state · Verifiable work receipts</text>
 </svg>

@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# DEPRECATED 2026-09-15: tek-sahip-artik tools/gen_social_preview.py (surum pyproject'ten
+# okunur, 6-bant kendi-dogrulaması var; bu PIL-v1 elle-yazi-tasiyordu ve Noto-yollari bu
+# makinede yok — soka-karari silme-karari-beklentisiyle-bırakıldı, anti-entropy-onayina).  # ESKİ
 """GitHub social-preview image — 1280x640 (GitHub recommended 2:1). Same visual language as banner.svg."""
 from PIL import Image, ImageDraw, ImageFont
 

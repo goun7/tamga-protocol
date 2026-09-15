@@ -145,7 +145,7 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 ## One-command regression
 
 ```bash
-bash tests/run_all.sh        # 49/49 controls — families below, ~20 s on a laptop (52 with RUN_SLOW=1)
+bash tests/run_all.sh        # 50/50 controls — families below, ~20 s on a laptop (54 with RUN_SLOW=1)
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
 (AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory

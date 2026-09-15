@@ -46,7 +46,7 @@ RUN_SLOW=1 bash tests/run_all.sh     # → 54 kontrol (bu makinede 54/54)
 
 Yavaş-kontrollerin dürüst-önkoşulları (taze-klonda BUG değil — eksik-önkoşul; her biri söyler):
 - c30 (31-sn çapraz-host duvar-kontrolü) gitignored yerel simnet-fixtürleri ister
-  (`tests/simnet/node-C/` + `seedC.hex`) — yoksa `[SKIP]` basar ve koşum 49/49 okunur.
+  (`tests/simnet/node-C/` + `seedC.hex`) — yoksa `[SKIP]` basar ve koşum 50/50 okunur.
 - AT-019 `dist/` wheel'ini (gitignored) kurar/kullanır — wheel yoksa ve `build` paketi
   importlanabiliyorsa anında üretir; ikisi de yoksa `[SKIP]` basar.
 - AT-026 `python3 -m build` ister (`pip install build`); üretimi İZOLE geçici-dizine yapar

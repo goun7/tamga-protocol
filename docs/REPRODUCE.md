@@ -51,7 +51,7 @@ RUN_SLOW=1 bash tests/run_all.sh     # → 54 controls (54/54 on this host)
 Prerequisites the slow controls declare honestly (a fresh clone is NOT a bug — it is a missing
 precondition and each one says so):
 - c30 (the 31 s cross-host wall control) needs the gitignored local simnet fixtures
-  (`tests/simnet/node-C/` + `seedC.hex`) — without them it prints `[SKIP]` and the run reads 49/49.
+  (`tests/simnet/node-C/` + `seedC.hex`) — without them it prints `[SKIP]` and the run reads 50/50.
 - AT-019 builds/uses the wheel from `dist/` (gitignored) — if no wheel exists and the `build`
   package is importable it builds one on the spot; if neither, it prints `[SKIP]`.
 - AT-026 needs `python3 -m build` (`pip install build`); it builds into an isolated temp dir

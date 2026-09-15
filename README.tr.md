@@ -56,7 +56,7 @@ Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Rehber: [docs/AGENT-G
 ## Derin teknik özet — güvenceler (kanıtlarıyla)
 
 Her güvence burada *iddia + kanıt-yeri* çifti olarak durur; süit, her iddiayı kontrol-alkışlı
-negatif vektörlerle çalıştırır (`bash tests/run_all.sh` → 49/49):
+negatif vektörlerle çalıştırır (`bash tests/run_all.sh` → 50/50):
 
 | Güvence | Ne kanıtlar | Kanıt-yeri |
 |---|---|---|

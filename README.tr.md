@@ -38,6 +38,7 @@ python3 tamga_runner.py ledger-verify new-pkg/                                  
 python3 tamga_bootstrap.py project-head new-pkg/                                # zincirbaşı → dış-batch yaprak-izdüşümü
 python3 tamga_pugio_receiver.py dis_cipalar.jsonl     # dış çıpa satırlarını DOĞRULA (fail-loud)
 python3 tamga_pugio_ingest.py dis_bundle.json          # K0 bundle gövde-doğrulama → makbuz (RED'de makbuz YOK)
+python3 tamga_bootstrap.py epoch-verify kanit.json     # DIŞ epoch-mühür dahillik-kanıtını doğrula — GREEN rc0 / RED rc1 / İNDETERMİNE rc2; ölü-RPC asla yeşil okunmaz (--rpc zincir-bacağını da koşar)
 ```
 
 ## Temel güvenceler

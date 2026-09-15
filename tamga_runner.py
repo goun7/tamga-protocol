@@ -1158,31 +1158,44 @@ def cmd_ledger(a):
                grants=len([r for r in recs if r["op"] == "grant"]), fees_sim=round(fees, 9),
                balance_sim=round(grants - fees, 9))
 
-USAGE = """tamga_runner.py — Tamga Protocol agent runner (RFC-002)
+USAGE = """tamga — Tamga Protocol agent runner + verifier CLI (RFC-002/003/007/009)
 
-commands:
+engine-free commands (run right after pip install; no wasmtime download needed):
+  doctor                          installation health: what is ready, what self-resolves
+  verify-mini <ledger.jsonl>      standalone stdlib chain verifier — same verdicts as the
+                                  runner without installing it (flag: --expect-tip <hash>)
+  bundle <pkg>                    evidence bundle: records + hashes + re-verify instructions
+  explain <pkg|ledger.jsonl>      human-language summary of the chain (no crypto libs needed)
+  project-head <pkg> [-o f]       chain head → batch-leaf projection TAMGA_PROJECT_HEAD_V1
+                                  (RFC-009; composition-ready digest, presentation-only claim)
+  epoch-verify <proof.json>       verify a foreign epoch-seal inclusion proof — three verdicts:
+                                  GREEN rc0 / RED rc1 / INDETERMİNE rc2 (a dead RPC is never green)
+  ledger <pkg>                    print the ledger
+  ledger-verify <pkg>             recompute and verify the hash chain
+
+engine commands (first 'run' auto-downloads the SHA256-pinned wasmtime; repo clones: tests/setup.sh):
   keygen                          generate an ed25519 agent seed (printed once, never stored)
-  quickstart <dir> [--name n]     first-package wizard: template agent + sign + run + verify
   keygen-node                     generate a node keystore + node identity
+  quickstart <dir> [--name n]     first-package wizard: template agent + sign + run + verify
   grant <pkg> <amount> <label>    record a grant in the package ledger
                                   flags: run/grant --node-key <f>; run --supersedes <n> --link <id>;
                                          import --cosign-policy L0|L1 --node-trust <f> --node-revoked <f>
-  run <pkg> --seed <hex> [--input f] [--require-proof] [--note s]
+  run <pkg> --seed <hex> [--input f] [--require-proof] [--note s] [--delivery-alg sha256|keccak256]
                                   execute the agent (wasmtime), charge fee, append ledger
   export <pkg> -o <file> --seed <hex>
                                   seal a snapshot (memory + embedded chain) for migration
   import <file> <pkg> [--cosign-policy L0|L1] [--node-trust f]
                                   import a snapshot (deep verification)
-  ledger <pkg>                    print the ledger
-  ledger-verify <pkg>             recompute and verify the hash chain
   memory <pkg> [--search q] [--import-json f] [--export-json f]
                                   memory operations on the node state (flags, not subcommands)
-  project-head <pkg> [-o f]       chain-head → batch-leaf projection (RFC-009/AT-022;
-                                  engine-free) — outputs TAMGA_PROJECT_HEAD_V1 JSON
+  migrate-net <pkg>               one-way author-only bridge: net.json → manifest runtime.net
+                                  (refuses to finish unless the validator ACCEPTs after)
 
-setup: bash tests/setup.sh installs the pinned wasmtime engine.
-version: 0.2.0 (spec_version-flip 2026-09-11, kurucu-ONAYLI)
-exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-18).
+receiver libraries (import as modules; wire contracts in RFC-009):
+  tamga_pugio_receiver / tamga_pugio_ingest — external-anchor + K0 proof-bundle ingestion
+
+version: 0.2.4 · spec_version 0.2.0 (const-flip founder-approved 2026-09-11; next-release gate)
+exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-18) · 2 INDETERMİNE (epoch-verify).
 """
 if __name__ == "__main__":
     cmds = {"keygen": cmd_keygen, "quickstart": cmd_quickstart, "run": cmd_run,

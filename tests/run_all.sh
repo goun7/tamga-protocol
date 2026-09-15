@@ -6,6 +6,13 @@
 set -u
 cd "$(dirname "$0")/.."
 export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
+# concurrency guard (D1 closed 2026-09-15): the suite shares sandbox dirs — two parallel
+# instances produced 4 false FAILs the same day this was observed. One mutex, fail-loud.
+LOCKF="${TMPDIR:-/tmp}/tamga-run-all.lock"
+if command -v flock >/dev/null 2>&1; then
+  exec 9>"$LOCKF"
+  flock -n 9 || { echo "run_all.sh: another suite run holds the lock ($LOCKF) —eşzamanlı-koşum yakalandı: diğer run bitsin ya da sırayla koş"; exit 1; }
+fi
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
@@ -20,6 +27,8 @@ env:
   TAMGA_EVIDENCE_DIR    evidence output dir (default .evidence)
 
 prerequisites: bash tests/setup.sh (pinned wasmtime), pip install -r requirements.txt
+concurrency: the suite shares sandbox dirs — two parallel run_all.sh instances
+ produce false FAILs (observed 2026-09-15); run one at a time (flock guard: D1 open-debt).
 USG
   exit 0
 fi

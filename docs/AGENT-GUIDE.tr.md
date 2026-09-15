@@ -176,3 +176,20 @@ python3 tamga_runner.py memory <pkg> --import-json cevrilmis.json
 Ağ-varsayılan-değil, **YETENEKTİR**: manifest/net.json'da-beyan-edilirse-vekil-tek-kenarından
 çıkar (her-istek-kanıt-günlüğünde); beyansız-paketler-eski-düz-metin-davranışta-kalır.
 Protokol-detayı: [RFC-005](RFC-005-declared-egress.md) (vekil) · [RFC-006](RFC-006-agent-net-shim.md) (ajan-tarafı-şim).
+
+## 12. Yeniden-koşum-sınıfı — sabitlenmiş (pinned) ya da sıra-bağımsız (order-independent) (2026-09-15)
+
+Her-doğrulayıcı sana uzlaşı-yorumunu-borçludur. Tamga receipt'leri **pinned-class**tır:
+yeniden-koşum, receipt İÇİNDE-kaydedilmiş-çalıştırma-profiline-göre oynatılır — her-koşumda
+kaydedilen-sabit-wasmtime-sürümü, bileşen-özeti, kaynak-sınırları. O-yığın-artık-yoksa veya
+artık-aynı-davranmıyorsa dürüst-hüküm İNDETERMİNE'dir (CR sözlüğündeki UNVERIFIABLE) —
+kararlı-baytlar-şansıyla-yeşil-kalan-hüküm DEĞİL.
+
+Veri-katmanı bilinçli-olarak-öteki-sınıftır: kanonik-JSON **sıra-bağımsızdır** — anahtar
+sırası codepoint-sıralamasıyla-tanımlıdır; iki-bağımsız-uygulayıcı bayt-bayta-anlaşmak
+zorundadır. Bu-özelliği dış-hakeme notladık (AT-029: CR v0.1'in 8 canonicalisation
+vektörünün-hepsi, bayt-identik, in-toto/attestation#592).
+
+İki-eksen, tek-politika: uzlaşı her-katta-TANIMLI-bir-sözleşmeden-doğmalıdır —
+yeniden-hesaplanabilirliğin-iddia-olduğu-yerde bir-pin, bayt-kimliğin-iddia-olduğu-yerde
+bir-kanonik-biçim. Karıştırma; bir-eksendeki-kaza-uzlaşını öteki-eksenin-kanıtı-satma.

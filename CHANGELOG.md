@@ -6,6 +6,12 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
+### Added
+- AGENT-GUIDE §14 (EN) / §12 (TR) — re-execution class declaration: receipts are
+  pinned-class (profile recorded in-receipt; moved stack = İNDETERMİNE, never lucky green),
+  data layer is order-independent by canonical definition (byte-identity referee-graded,
+  AT-029). Fulfills the in-toto PR-592 doc commitment (issuecomment-5679421331).
+
 Nothing unreleased; next planned: see the roadmap gates in README.
 
 ## [0.2.8] — 2026-09-15

@@ -207,3 +207,20 @@ A broken chain still produces a bundle (verdict `broken@N`, rc=1): it is evidenc
 - **Single machine:** without cosign, an embedded chain on a fresh node is agent-attested.
 - **`cpu_ms_per_run` is a wall-clock timeout:** on a heavily loaded host even a trivial
   agent can hit reason 11 — that is scheduling noise, not metering.
+
+## 14. Re-execution class — pinned or order-independent (2026-09-15)
+
+Every verifier owes you its agreement semantics. Tamga receipts are **pinned-class**: a
+re-execution replays against the execution profile recorded IN the receipt — wasmtime
+version pinned and recorded on every run, component digest, resource limits. If that
+stack no longer exists or no longer behaves, the honest verdict is İNDETERMİNE (the CR
+vocabulary's UNVERIFIABLE) — never a green that survived on the luck of stable bytes.
+
+The data layer is deliberately the other class: canonical JSON is **order-independent**
+— key order is defined by codepoint sort, so two independent implementations must agree
+byte-for-byte. We had that property graded by a foreign referee (AT-029: all 8
+canonicalisation vectors of CR v0.1, byte-identical, in-toto/attestation#592).
+
+Two axes, one policy: agreement must come from a DECLARED contract at each layer — a pin
+where re-computability is the claim, a canonical form where byte-identity is the claim.
+Don't mix them; don't sell an accidental match on one axis as a proof on the other.

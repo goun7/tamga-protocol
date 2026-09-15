@@ -12,6 +12,16 @@ D=".evidence/AT-030/$(date +%F)"; mkdir -p "$D"; LOG="$D/at030.log"
 PASS=0; FAIL=0
 ok() { if [ "$1" -eq 0 ]; then PASS=$((PASS+1)); echo "  PASS: $2" | tee -a "$LOG"; else FAIL=$((FAIL+1)); echo "  FAIL: $2" | tee -a "$LOG"; fi; }
 
+# 0) corpus sha-pin DENETİMİ: üç-dosyanın-kendi-bütünlüğü, VENDOR-NOTE'taki-pinlerle-kapanır-bağ
+#    (beklenen-değerler-note'ta-YAZILI-olsa-da buraya-SABİT-GÖMÜLÜ: note'a-yazılan-pin-ometadadır,
+#    kontrolün-doğruladığı-dataolmalıdır — kendini-doğrulayan-not asla kanıt değildir)
+for pair in "1f88e843545e6be640eadea4df8b470fe5d04dd1b47a32c4cc753341e22a8ddd golden-vectors.json" \
+            "2c6292a296a5d9feef4ea2f301968523488f0a95621fc4a94ce770b66f38cf5c production-claim.jsonl" \
+            "b8dae2d9ea4b83ef6b0a85ecf56a46b23d18584f2eb731f197c19caeb6b6ee74 completeness-claims.jsonl"; do
+  set -- $pair
+  echo "$1  tests/vendor-capacity-attest/$2" | sha256sum -c --status || { echo "  corpus-pin İHLALİ: $2"; exit 1; }
+done
+
 # 1) golden-vektör bağımsız-koşumu (7 vektör; referans-hükümle birebir)
 python3 -m tamga_attest_verify --vectors tests/vendor-capacity-attest/golden-vectors.json > "$D/vectors.out" 2>&1
 [ $? -eq 0 ] && grep -q "7/7" "$D/vectors.out" && ! grep -q Traceback "$D/vectors.out"

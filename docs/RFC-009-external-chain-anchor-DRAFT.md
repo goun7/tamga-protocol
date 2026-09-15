@@ -61,6 +61,9 @@ Bilinirlik-listesi: `KNOWN_FOREIGN_TAGS`-(bugün: `TAMGA_CHAIN_HEAD_V1`, `APODIX
 terfisi-additive). Bu-davranış-kanonik-BEYANLI-davranıştır: tamga_verify_mini'da-canlıdır-ve
 AT-017-3-ile-kilitlidir.
 
+Kardeş-yüzey (2026-09-15): `tamga_attest_verify` (AT-030) — zincir-DIŞI imzalı foreign kayıt-doğrulaması;
+bilinmeyen-registry → İNDETERMİNE-deseni BU-belgedeki-tablodan-alındı (biçim-birliği korunur).
+
 **E-15 (2026-09-15) — zincir-bağı ön-sorgusu (epoch-verify CLI, çapa-bacağı):** doğrulanan
 zincir-kökü, okunan-zincire-aiddir — kimlik-bağı-test-edilebilir-alan-olmalıdır, değişmez-varsayım
 değil (x402 #2887 #issuecomment-5680705648 sınıfının bizim-yüzeyimizdeki-hali: çağıranın-verdiği

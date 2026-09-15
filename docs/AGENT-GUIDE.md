@@ -124,7 +124,12 @@ python3 tamga_pugio_ingest.py <bundle.json> > receipt.jsonl
 
 The boundary travels in the verdict: these verify *presentation* (the anchor math and
 the bundle body), never a foreign registry's validity — that belongs to the origin.
-Evidence family: AT-024 (receiver) / AT-025 (ingest), controls 48–49 (run unconditionally; slow suite reaches 50 via AT-026).
+Evidence family: AT-024 (receiver) / AT-025 (ingest), kontrol-slots 48–49 (run unconditionally; today's totals: 50 fast / 54 slow).
+
+Foreign DELIVERY attestations (another rail's signed records) are verifiable too:
+`tamga attest-verify claim.json` — stdlib-only secp256k1+EIP-191; unknown registry tags answer
+İNDETERMİNE, never silence (AT-030). The issuer calls this posture "independent verification,
+not just claimed" — here it cuts both ways: we ran their vectors, they can run ours.
 
 ## 9. Memory bridge
 

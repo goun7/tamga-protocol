@@ -16,7 +16,7 @@ born = sorted(x.name for x in docs.glob("*.md")
               if not x.name.endswith((".tr.md", ".en.md")) and dens(x.read_text()) >= 40)
 en = sorted(x.name for x in docs.glob("*.en.md"))
 tr = sorted(x.name for x in docs.glob("*.tr.md"))
-line = ("   Dil-durumu (tamamı-disk-türer, elle-bakım YOK — AT-033 bekçisi): bağlayıcı-orijinal BELGE-BAŞINA tek; "
+line = ("   Dil-durumu (KÜM disk-türer — dosya-ekle/çıkar→satır-bayatlar→AT-033 K5 süiti-kırmızıya-çevirir; içerik-iç-düzenlemeler-kapsam-dışı; elle-bakım YOK, üretici: `python3 tools/gen_lang_index.py`): bağlayıcı-orijinal BELGE-BAŞINA tek; "
         "İngilizce-doğmuşlar TR-ikizleriyle, Türkçe-doğmuşlar EN-kardeşleriyle. Türkçe-doğmuş aile: "
         + " · ".join(f"[{b}]({base}{b})" for b in born)
         + " (ayrışmada TR bağlar; EN-kardeşleri: " + " · ".join(f"[{e}]({base}{e})" for e in en) + ")"

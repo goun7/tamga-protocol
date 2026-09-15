@@ -147,7 +147,8 @@ yol-haritasındadır; çok-biçimli dönüştürücü bugün var: `tools/memory_
 > **Dil-notu (dürüstlük-düzeltmesi, 2026-09-16):** her-belgenin TEK bağlayıcı-orijinali vardır
 > ve ikiz-bunu-başında-söyler. RFC-001…004: yaşayan-bağlayıcı-metin İngilizce, TR-ikizleri
 > (`docs/*.tr.md`) yanlarında. RFC-005/006: Türkçe-doğdular — Türkçe-dosya ORİJİNALİN
-> TA KENDİSİDİR (ikiz yok; İngilizce-çeviriler belge-kuyruğunda — sınıfı AT-033 K2 bekliyor). Diğer ikizler (README.tr,
+> TA KENDİSİDİR; yabancı-okur için İngilizce-kardeşleri (`.en.md`) yanlarında —
+> ayrışmada Türkçe bağlar. Yönün-kendisini AT-033 K4 makineye-doğrulattırıyor. Diğer ikizler (README.tr,
 > AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK) İngilizce-orijinallerin çevirisidir.
 > Özel-Türkçe taslaklar kanonik olarak ANILMAZ: doğrulanamayan-kanonik, kanonik-değildir.
 

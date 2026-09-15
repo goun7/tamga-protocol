@@ -203,8 +203,9 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 
 > **Language note (honesty fix, 2026-09-16):** each document has ONE binding original and the
 > twin says which at its top. RFC-001…004: English is the living binding text, with Turkish
-> twins (`docs/*.tr.md`) beside them. RFC-005/006 + VERIFY-EPOCH-ANCHOR: born Turkish — the Turkish file IS
-> the original (no twin; EN translations are on the docs backlog — AT-033 K2 guards the class). All other twins
+> twins (`docs/*.tr.md`) beside them. RFC-005/006 + VERIFY-EPOCH-ANCHOR: born Turkish — the Turkish file IS the
+> original; English twins (`.en.md`) now stand beside them for foreign readers — on divergence
+> the Turkish governs. AT-033 K4 makes the direction itself machine-checked. All other twins
 > (README.tr, AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK) are translations of
 > their English originals. Earlier private Turkish drafts are never cited as canonical —
 > an uncheckable canonical is not a canonical.

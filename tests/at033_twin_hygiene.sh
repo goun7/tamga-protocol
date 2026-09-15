@@ -26,6 +26,13 @@ for p in sorted(pathlib.Path("docs").glob("*.md")):
         born.append(p.name)
         if p.with_name(p.stem + ".tr.md").exists():
             viol.append(f"{p.name}: TR-orijinale TR-kardeş-üretilmiş")
+# K4 (.en.md yön-dürüstlüğü): EN-kardeş YALNIZ Türkçe-doğmuş orijinalin yanında yaşar;
+#    aynı-belgenin .tr.md'si OLAMAZ (çift-yön ikiz = hangi-orijinal belirsiz = drift fabrikası)
+for p2 in sorted(pathlib.Path("docs").glob("*.en.md")):
+    src = p2.with_name(p2.name[:-len(".en.md")] + ".md")
+    if not src.exists(): viol.append(f"{p2.name}: orijinal-yok {src.name}")
+    elif dens(src.read_text()) < 40: viol.append(f"{p2.name}: .en.md İngilizce-doğmuş belgenin yanında duramaz (orijinal zaten EN)")
+    if src.with_name(src.stem + ".tr.md").exists(): viol.append(f"{src.name}: hem .tr.md hem .en.md — çift-yön ikiz yasak")
 # K3: README'lerde elle-ikiz-sayaçı deseni (sekiz|dokuz|N Turkish twins|N Türkçe-ikiz)
 import re
 for f in ["README.md", "README.tr.md"]:
@@ -38,4 +45,4 @@ PY
 RC=$?
 [ $RC -ne 0 ] && cat "$D/out" && F "ikiz-hijyeni"
 grep -q "OK" "$D/out" || cat "$D/out"
-echo "AT-033 twin-hygiene: K1+K2+K3 PASS ($(cat "$D/out" | grep -c OK) taranmış-set temiz)"
+echo "AT-033 twin-hygiene: K1+K2+K3+K4 PASS ($(cat "$D/out" | grep -c OK) taranmış-set temiz)"

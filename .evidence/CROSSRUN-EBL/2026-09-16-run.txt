@@ -1,0 +1,21 @@
+EBL-CORE ÇAPRAZ-KOŞUM 2026-09-16 04:1xZ — bağımsız-dördüncü-uygulayıcı kanonik-bayt-paritesi
+korpüs: arXiv 2609.11596v1 anc/ vectors/financial-transfer-vectors.json (34 vektör, sha256:
+039453b5edf931e183db81cce19aee243454c676a00a6f99973a956e6fdbf2e0)
+yöntem: mutasyon-uygulayıcı=kendi-korpüs-tanımları(import; test-edilen-o-değil); test: onların-ref
+canonical_json vs BİZİM stdlib RFC 8785 jcs — iki-girdi-koşumu: (A) ham-sıra, (B) UNORDERED_LIST_KEYS
+alanları-canonical-önsıralı.
+(A) HAM-SIRA: 1/34 bayt-eşit — 33 ayrışmanın-tepedeki-örneği: evidence-listesi
+(B) ÖNSIRALI: 34/34 BAYT-BİREBİR — sıfır-açıklanamayan-fark
+SONUÇ-HARİTASI (ölçülmüş):
+1. EBL-Core'un kanonikleştirme ÇEKİRDEĞİ standart RFC 8785'tir:bildirilmemiş-hiçbir-gizli-kodlama-sapması
+   yok — 34/34, bizim-bağımsız-uygulamamızdan. (Onların-paket-bağımsızlık-itirafı-böylece-dışarıdan
+   DOĞRULANDI: çekirdek-beklenir-JCS-davranıyor.)
+2. Tüm-raw-sıra-ayrışmaları TAM-OLARAK-bildirdikleri-tek-uzantıdan: UNORDERED_LIST_KEYS
+   {evidence, root/operational_obligations, allowed_recipients/assets/networks} canonical-sıraya
+   çekiliyor. Sınıf-bildirimi-diliyle(§14): EBL-commitment'ları ORDER-INDEPENDENT-lane'dedir;
+   raw-JCS-pinli-değildir — bu-BİZİM-TAKSONOMİMİZİN-ilk-harici-örneklenmesi: başkasının-kanonik-
+   sınıfını-kendi-araçlarımızla-ölçtük.
+3. İÇERİLMEYEN-boyutlar (dürüst): float-yasağı-korpüste-vektör-bulmuyor (0 temas), ensure_ascii
+   ayrışması-için-non-ASCII-yok — bu-iki-örneklem-doğrulanamadı-değil, TEST-EDİLMEMİŞ olarak-yazılır.
+4. Anlam-katmanı (decision ALLOW/DENY) BİZİM-hükmümüz-değil — kanonikleştirme-katlı-only iddia,
+   AT-029/030-kapsam-dürüstlüğü-deseni.

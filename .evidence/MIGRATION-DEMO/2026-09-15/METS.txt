@@ -1,0 +1,7 @@
+input: 1,000,000 B urandom — native==bare==envelope üç-yollu-parite
+native b3sum 1.8.7 med: 9.7 ms | bare wasmtime v48.0.1 med: 26.0 ms (wasm-tax ~2.7x)
+tamga envelope NET med: 37.6 ms (Python-startup 108.5 ms çıkarıldı, med15) | protokol-vergisi (envelope-bare) ~11.6 ms = manifest-validate+ledger-append+receipt-seal+stdout-disk+state-IO
+migration-patch: 3 etiketli nokta [tamga-migration-patch]: rayon-pool kaldırıldı (sandbox thread=ENOTSUP fail-loud), mmap+rayon→düz reader, closure-inline. Sessiz-degradasyon YOK.
+kaynak: BLAKE3-team/BLAKE3 b3sum v1.8.7 (MIT OR Apache-2.0), depth-1 clone 2026-09-15
+wasm sha256: 6122c64779b82fe30c9b26ab520aeed99417a7fb2e30474ac4b556f8604edcde
+> Determinizm-notu (2026-09-16 reprodüksiyon): aynı-komut build **farklı** wasm-verir (sha 2244e9f2…434fcc03 — .evidence/MIGRATION-DEMO/2026-09-16-reprod/) — bu sha anlık-build-kimliktir, yeniden-üretilebilirlik-sözü-değildir; asıl-iddia (bare==envelope çıktı-paritesi, blake3 580ef597…) reprodüksiyonda da SAĞLANDI.

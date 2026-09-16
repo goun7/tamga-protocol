@@ -17,15 +17,7 @@ import json, sys, pathlib
 
 # Kök-modül (wheel-yüzeyi): tools/explain.py uyumluluk-alias'ı buraya yönlendirir.
 # keccak bağımlılığı kök-modül tamga_keccak'ten (tools/ repo-checkout'a özeldir).
-from tamga_keccak import keccak256
 import hashlib
-
-def human_bytes(n):
-    for u in ("B", "KiB", "MiB", "GiB"):
-        if n < 1024:
-            return f"{n:.1f} {u}" if u != "B" else f"{n} B"
-        n /= 1024
-    return f"{n:.1f} TiB"
 
 LABELS_TR = {
     "header": "== {label} kaydı (seq {seq}) ==",
@@ -93,7 +85,6 @@ def explain_charge(rec, label="charge", L=None):
     return "\n".join(lines)
 
 def jcs_bytes(obj):
-    import io
     from tamga_validator import jcs
     return jcs(obj)
 

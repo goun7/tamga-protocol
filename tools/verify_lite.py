@@ -8,7 +8,6 @@ Runner'ın koşum/export/import yolçapları pynacl İSTER — bunlar bu-lite-n�
 Usage: python3 tools/verify_lite.py [--fixture docs/pairing]
 Exit 0 = tüm-lite-yolçapları-pynacl'sız-çalıştı.
 """
-import importlib
 import json
 import pathlib
 import shutil

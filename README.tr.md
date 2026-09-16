@@ -112,7 +112,7 @@ dış batch'e izdüşürülür → dış çıpayı bizim tarafımızda alınmı�
 tek komutla: `bash tools/demo.sh` · Ham kayıt: [docs/assets/demo.cast](docs/assets/demo.cast)
 · Beklenen akış: [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md).
 
-**Tek-komut regresyon:** `bash tests/run_all.sh` — 52/52 kontrol (~20 sn; `RUN_SLOW=1` ile
+**Tek-komut regresyon:** `bash tests/run_all.sh` — 52/52 kontrol (~70–110 sn; `RUN_SLOW=1` ile
 50). Kontrol-aileleri: snapshot yaşam-döngüsü + advers-negatifler (AT-001), determinizm/yeniden
 koşum (AT-002), defter-saldırı vektörleri (AT-003), girdiye-bağlı makbuzlar (AT-004), çok-biçimli
 hafıza-ithalatı (AT-005), manifest-şema çapraz-doğrulaması (0.2.0 terfi matrisiyle 60/60) ve
@@ -146,7 +146,7 @@ yol-haritasındadır; çok-biçimli dönüştürücü bugün var: `tools/memory_
 
 > **Dil-notu (dürüstlük-düzeltmesi, 2026-09-16):** her-belgenin TEK bağlayıcı-orijinali vardır
 > ve ikiz-bunu-başında-söyler. RFC-001…004: yaşayan-bağlayıcı-metin İngilizce, TR-ikizleri
-> (`docs/*.tr.md`) yanlarında. RFC-005/006: Türkçe-doğdular — Türkçe-dosya ORİJİNALİN
+> (`docs/*.tr.md`) yanlarında. RFC-005…009 + VERIFY-EPOCH-ANCHOR + MIGRATION-DEMO: Türkçe-doğdular — Türkçe-dosya ORİJİNALİN
 > TA KENDİSİDİR; yabancı-okur için İngilizce-kardeşleri (`.en.md`) yanlarında —
 > ayrışmada Türkçe bağlar. Yönün-kendisini AT-033 K4 makineye-doğrulattırıyor. Diğer ikizler (README.tr,
 > AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK) İngilizce-orijinallerin çevirisidir.
@@ -173,7 +173,7 @@ git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
-bash tests/run_all.sh    # 52/52 kontrol — ~20 sn (RUN_SLOW=1 ile 57)
+bash tests/run_all.sh    # 52/52 kontrol — ~70–110 sn (RUN_SLOW=1 ile 57)
 
 # ilk ajanın (örnek-vektörü-paket olarak kopyala — docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice

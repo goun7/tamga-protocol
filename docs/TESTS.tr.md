@@ -5,7 +5,7 @@
 Her şeyi tek bir komutla çalıştır:
 
 ```bash
-bash tests/run_all.sh     # 52/52 controls, ~20 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 52/52 controls, ~70–110 s on a laptop; CI runs it on every push
 ```
 
 ## Adversarial denetimler ve benchmark (CI-barındırmalı)

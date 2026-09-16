@@ -19,7 +19,7 @@ Cikti donuk-kanittir: <evidence>/self-pilot-evidence.json + acceptance.json.
 Kullanim:
   python3 tools/self_pilot.py [pkg-dir] [evidence-dir]
 """
-import sys, os, json, hashlib, shutil, subprocess, pathlib, datetime, tempfile
+import sys, json, shutil, subprocess, pathlib, datetime, tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 

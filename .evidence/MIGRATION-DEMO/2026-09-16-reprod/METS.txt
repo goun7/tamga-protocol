@@ -1,0 +1,3 @@
+fee_sim=1.5552e-05 wall_ms=428 cpu_saat=0.000219462 ram_gb_sn=0.030097015 io_mb=6.5e-05
+PARİTE ✓ bare==envelope blake3 580ef5979f989852948dc52efe52f5d3fbdaf2f254235a17ed787eac669f9a24
+wasm-sha(bu-koşum)=2244e9f24cc171b0e32edb03ae401a16c5d618e992ff9f8b1da22c1c434fcc03 — build-reproducibility-not: 09-15 ile FARKLI (toolchain aynı, byte-bayt-değil); iddia-paritesi-bu-yüzden-blake3-output-hash-üzerinden

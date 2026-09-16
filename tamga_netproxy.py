@@ -148,11 +148,6 @@ def validate_net_decl_dict(d):
             "_allowed": set(endpoints), "_pinned": pinned}
 
 
-def decl_sha256(path):
-    """Receipt-side binding value (slice-2 stores this as net_decl_sha256)."""
-    return hashlib.sha256(open(path, "rb").read()).hexdigest()
-
-
 class TamgaProxy:
     """Threaded HTTP-CONNECT loopback proxy with an exact host:port allow-list."""
 

@@ -1,0 +1,14 @@
+keccak256 çift-uygulama: 200/200 eksiksiz
+Traceback (most recent call last):
+  File "/tmp/xcheck.py", line 41, in <module>
+    theirs = "0x"+Account.recover_message(encode_defunct(primitive=cid), signature=bytes.fromhex(sig[2:])).lower().removeprefix("0x")
+                                          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/tmp/refver/lib/python3.14/site-packages/eth_account/messages.py", line 177, in encode_defunct
+    message_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
+  File "/tmp/refver/lib/python3.14/site-packages/eth_utils/decorators.py", line 86, in wrapper
+    return to_wrap(*args, **kwargs)
+  File "/tmp/refver/lib/python3.14/site-packages/eth_utils/conversions.py", line 138, in to_bytes
+    raise TypeError(
+    ...<2 lines>...
+    )
+TypeError: expected a bool, int, byte or bytearray in first arg, or keyword of hexstr or text

@@ -31,7 +31,7 @@ was built only on our own `templates/agent.wasm`.
 | bare wasmtime v48.0.1 | 26.0 ms (min 20.8) | wasm-tax ≈ 2.7× native |
 | tamga envelope-net | 37.6 ms | +11.6 ms **protocol-tax** = manifest-validate + ledger-append + receipt-seal + stdout-disk + state-IO (Python-startup 108.5 ms subtracted) |
 
-`fee_sim` first-run 2.39e-07 (sim-units — no real money, as there never has been).
+`fee_sim` = `cpu_saat×0.002 + ram_gb_sn×0.0005 + io_mb×0.001` (simnet constants, pinned in RFC-003 §7; real prices are the Phase-2 pilot gate) — 2026-09-16 reproduction run: **1.5552e-05** (wall_ms 428; the dominant term is ram_gb_sn, which moves with every run's timing). Stale-note: the document's prior figure (2.39e-07) was a single snapshot transcribed from a since-deleted original run and could not be re-derived — replaced by formula + fresh value, per house rule.
 
 ## What-It-Proves / What-It-Cannot-Prove
 

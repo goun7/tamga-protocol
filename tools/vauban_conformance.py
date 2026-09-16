@@ -71,14 +71,22 @@ def run_suite(suite_dir: pathlib.Path) -> int:
 
 
 def selftest() -> int:
-    # İç-KAT: tamga_validator.jcs bilinen-özleri-verir (RFC-8785 §3.2.3-örnek-ailesi)
+    # İç-KAT: RFC-8785 §3.2.3 yayımlanmış-özler (boş-nesne / kontrol-karakterleri / unicode+array)
     cases = [
         ({}, "{}"),
-        ({"\u20ac": "Euro Sign", "\r": "Carriage Return", "\n": "Line Feed"
-          if False else "LF", "a": "A"}, None),  # None: sadece-hata-urmamasi-bakilir
+        ({"\u20ac": "Euro Sign", "\r": "Carriage Return", "\n": "Line Feed", "a": "A"},
+         '{"\\n":"Line Feed","\\r":"Carriage Return","a":"A","\u20ac":"Euro Sign"}'),
+        ({"b": [1, 2], "a": "\u00e9"}, '{"a":"\u00e9","b":[1,2]}'),
     ]
-    assert jcs({}) in (b"{}", "{}")
-    print("selftest: boş-nesne-JCS-OK")
+    bad = 0
+    for obj, want in cases:
+        got = jcs(obj).decode("utf-8")
+        if got != want:
+            print(f"SELFTEST-FAIL: {obj!r} → {got!r} ≠ {want!r}")
+            bad += 1
+    if bad:
+        return 1
+    print(f"selftest: {len(cases)}/{len(cases)} RFC-8785-öz-OK")
     return 0
 
 

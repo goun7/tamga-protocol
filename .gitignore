@@ -27,7 +27,15 @@ progress.md
 cikti-*.json
 *-sentetik.db
 private/
-.evidence/
+# Kanıt-ağaçları: kök-ignore DİZİN-seviyesinde (`/*`), seçili-ağaçlar dizin-olarak-açık —
+# `**`+çocuk-istisnası git-yarımada-kuralı-yüzünden-çalışmaz (ebeveň-exclude-geri-alinamaz).
+# Kurucu kararı 2026-09-15 (force-add); kalıcı-kurala-bağlandı 2026-09-16.
+.evidence/*
+!.evidence/APODIX-EPOCH-10/
+!.evidence/VAUBAN-JCS-CONFORMANCE/
+!.evidence/MIGRATION-DEMO/
+!.evidence/CROSSRUN-EBL/
+!.evidence/ATTEST-VERIFY-REFERANS/
 tests/simnet/.tf/
 tests/simnet/.demo/
 kanit/

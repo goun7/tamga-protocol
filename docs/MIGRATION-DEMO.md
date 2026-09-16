@@ -29,7 +29,7 @@ kendi-şablonumuz **dışında** kanıtlamak: 2026-09-15'e kadar bu cümle yaln�
 | bare wasmtime v48.0.1 | 26.0 ms (min 20.8) | wasm-tax ≈ 2.7× native |
 | tamga envelope-net | 37.6 ms | +11.6 ms **protokol-vergisi** = manifest-validate + ledger-append + receipt-seal + stdout-disk + state-IO (Python-startup 108.5 ms çıkarılmıştır) |
 
-`fee_sim` ilk-koşumda 2.39e-07 (sim-birimleri — gerçek-para-yok, her-zaman-olmadığı gibi).
+`fee_sim` = `cpu_saat×0.002 + ram_gb_sn×0.0005 + io_mb×0.001` (simnet-sabiti, RFC-003 §7-pinli; gerçek-fiyat Phase-2-pilot-kapısı) — 2026-09-16 reprodüksiyon koşumu: **1.5552e-05** (wall_ms 428; baskın-bileşen ram_gb_sn, zaman-kaynağına-bağlı-her-koşumda-kıpırdar). Bayat-not: belgenin-önceki-sayısı (2.39e-07) silinmiş-orijinal-koşumdan-tekl-snapshot-transkripsiyonuydu ve yeniden-türetilamadı — tek-değer-yazarı-yerine-formül+taze-değer yazıldı.
 
 ## Ne-Kanıtlar / Ne-Kanıtlamaz
 

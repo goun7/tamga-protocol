@@ -6,6 +6,27 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
+- **AT-035 (kayıt — cross-run):** EBL-Core'nin (arXiv 2609.11596v1, `anc/` artefaktı, corpus sha
+  `039453b5…`) 34 vektörü bizim-stdlib-RFC8785-jcs ile onların-ref-kanonikleştiricisi karşısında:
+  ham-sıra 1/34, UNORDERED_LIST_KEYS-önsıralı **34/34 bayt-birebir · sıfır-açıklanamayan-sapma**.
+  Çekirdekleri standart JCS'tir; tüm-ayrışma tek-bildirdikleri-uzantıdır (sıra-normalizasyonlu
+  commitment = bizim §14-diliyle order-independent-sınıfı) — taksonominin ilk-harici-örneklenmesi.
+  Float-yasağı/non-ASCII-kaçışı boyutları korpüsleri tarafından test-edilmiyor (test-edilmedi olarak
+  kayıtlı). Kanıt: `.evidence/CROSSRUN-EBL/` (takibe-alındı). RELATED-WORK satırı güncel.
+- **Kural-6 uyumlu borç-süpürmesi (founder-talebi, denetim-ajanı 0 KRİTİK/3 ORTA/6 DÜŞÜK → hepsi-kapatıldı):**
+  `vauban_conformance --selftest` artık-GERÇEKTEN 3 yayımlanmış RFC-8785 özüyle koşuyor (ölü-ternary
+  `if False` gitti; iki-yanlış-beklenti-yazımını kendi-yakaladı = doğal-negatif-kanıt); ölü-kod×7
+  (human_bytes, decl_sha256, 4-ölü-import); bayat "~20 s" → "~70–105 sn" 6-baytta; README
+  "last full suite" 09-13→09-16; **fee_sim**: türetilmiş-tekl-snapshot (2.39e-07, orijinali-silinmiş)
+  yerine FORMÜL + tam-reprodüksiyon-koşumu-değeri 1.5552e-05 + PARİTE ✓ — build-determinizmi-notu
+  (aynı-komut → farklı wasm sha: anlık-kimlik, söz-değil) hem-belgeye-hem-iki-METS'e; .gitignore
+  kanıt-ağaçları kurala-bağlandı (`/*`+dizin-istisnaları; CROSSRUN-EBL + ATTEST-VERIFY-REFERANS +
+  MIGRATION-DEMO reprodüksiyonu takibe-alındı); dist bayat-0.2.9-artefaktları temizlendi.
+- **Dil-çekirdeği:** RFC-007/008/009 EN-kardeşleri eklendi (TR-doğmuş-ailede erişim-boşluğu-kapandı;
+  fence'ler byte-birebir, ikiz-yön-kuralı K4-altında; INDEX satırı `gen_lang_index --check` ✓);
+  README EN+TR dil-notu aile-listesi-tazelendi (005…009 + VERIFY-EPOCH + MIGRATION-DEMO).
+
+
 ### Added
 - AT-034 zero-digest counter (kontrol-56, fast): refusal-before-hash proved with a call-counter
   on the foreign lane — envelope-missing / broken-JSON / unknown-registry refusals hash 0 times;

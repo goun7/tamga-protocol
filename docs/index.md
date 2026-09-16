@@ -1,3 +1,8 @@
+<meta property="og:title" content="tamga-protocol — execution receipts for AI-agent outputs">
+<meta property="og:description" content="Zero-protocol-tax verifier layer: deterministic re-execution, declared egress, three-verdict contract. No funding, no token, ever.">
+<meta property="og:image" content="https://goun7.github.io/tamga-protocol/assets/social-preview.png">
+<meta property="og:url" content="https://goun7.github.io/tamga-protocol/">
+
 # tamga-protocol
 
 **Execution receipts for AI-agent outputs — a zero-protocol-tax verifier layer.**

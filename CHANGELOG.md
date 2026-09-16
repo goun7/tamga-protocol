@@ -22,6 +22,11 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
   (aynı-komut → farklı wasm sha: anlık-kimlik, söz-değil) hem-belgeye-hem-iki-METS'e; .gitignore
   kanıt-ağaçları kurala-bağlandı (`/*`+dizin-istisnaları; CROSSRUN-EBL + ATTEST-VERIFY-REFERANS +
   MIGRATION-DEMO reprodüksiyonu takibe-alındı); dist bayat-0.2.9-artefaktları temizlendi.
+- **PyPI aynı-gün-düzeltme (dış-bulgu):** 0.2.10'nin sdist'i yüklenmemişti (0.2.6–9'un-hepsinde
+  var; twine wheel-only-pass edebildiği-için-yakalanmamıştı). Tag-treeden-üretülüp-yüklendi (sha
+  29747a4b, `--skip-existing`); DIŞ-teyit: `pip install --no-binary` → CLI 0.2.10 yeşil; PyPI
+  JSON-envanteri artık wheel+sdist. RELEASE.md'e **dış-sdist-varlık-kapısı** eklendi (ritüel-artık
+  wheel-only-geçemez).
 - **Dil-çekirdeği:** RFC-007/008/009 EN-kardeşleri eklendi (TR-doğmuş-ailede erişim-boşluğu-kapandı;
   fence'ler byte-birebir, ikiz-yön-kuralı K4-altında; INDEX satırı `gen_lang_index --check` ✓);
   README EN+TR dil-notu aile-listesi-tazelendi (005…009 + VERIFY-EPOCH + MIGRATION-DEMO).

@@ -35,6 +35,20 @@ and the migration story is demonstrated on code we did not author.**
 
 Suite at release: 55/55 (RUN_SLOW=1, idle machine) · links 129/0 · fresh-venv audit ritual green.
 
+### Post-release fix 2026-09-16 (same-day, no silent edits)
+
+**Defect:** the v0.2.10 upload shipped the wheel only — 0.2.6–0.2.9 all carry wheel **and** sdist;
+0.2.10's sdist was missed. Found by the founder-requested debt sweep reading PyPI's own JSON
+(`GET /pypi/tamga-protocol/0.2.10/json` → one `bdist_wheel`, zero `sdist`), NOT by any local check:
+`twine upload` succeeded and the fresh-venv ritual is wheel-based, so nothing in the chain could
+catch a missing second artifact. **Fix (live):** sdist rebuilt from the tagged tree
+(`git worktree v0.2.10` → `python3 -m build --sdist`), `twine check` PASSED, uploaded with
+`--skip-existing` (no existing byte touched), sha256 `29747a4bcfe8e5c8a32ec7eeb7948150e034af0a12bfd4d0110c9eb1e7367266`,
+now present on PyPI. **Structural:** the release ritual now ends with an external assertion —
+after every upload, assert BOTH `bdist_wheel` and `sdist` appear in the live PyPI JSON for the
+version (the command that caught this). The ritual gap was that a wheel-only ritual can pass; it
+cannot anymore.
+
 # Release notes — v0.2.9
 
 Release date: 2026-09-15 · Tag: v0.2.9 · Branch: `main`

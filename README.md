@@ -209,7 +209,9 @@ Developer guide: [docs/AGENT-GUIDE.md](docs/AGENT-GUIDE.md).
 > (README.tr, AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK) are translations of
 > their English originals. Earlier private Turkish drafts are never cited as canonical —
 > an uncheckable canonical is not a canonical.
-> Türkçe README: [README.tr.md](README.tr.md).
+> Türkçe README: [README.tr.md](README.tr.md) — and the machine-generated full language map
+> (every original, every twin, both directions) lives in [docs/INDEX.md](docs/INDEX.md): its
+> Dil-durumu line is produced by `python3 tools/gen_lang_index.py`, never hand-written.
 
 ## Roadmap
 

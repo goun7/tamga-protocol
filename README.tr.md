@@ -150,7 +150,8 @@ yol-haritasındadır; çok-biçimli dönüştürücü bugün var: `tools/memory_
 > TA KENDİSİDİR; yabancı-okur için İngilizce-kardeşleri (`.en.md`) yanlarında —
 > ayrışmada Türkçe bağlar. Yönün-kendisini AT-033 K4 makineye-doğrulattırıyor. Diğer ikizler (README.tr,
 > AGENT-GUIDE, REPRODUCE, ARCHITECTURE, TESTS, RELATED-WORK) İngilizce-orijinallerin çevirisidir.
-> Özel-Türkçe taslaklar kanonik olarak ANILMAZ: doğrulanamayan-kanonik, kanonik-değildir.
+> Özel-Türkçe taslaklar kanonik olarak ANILMAZ: doğrulanamayan-kanonik, kanonik-değildir. Tam dil-haritası (her-orijinal, her-ikiz, iki-yön) [docs/INDEX.md](docs/INDEX.md) içindeki
+> Dil-durumu satırıdır — elle-yazılmaz, `python3 tools/gen_lang_index.py` üretir.
 
 ## 30-saniyelik demo
 

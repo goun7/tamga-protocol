@@ -47,6 +47,26 @@ correct all along:
   No published receipt or finding changed: the fixes are confined to the audit harness and
   the import cosign policy ladder.
 
+## Post-release fix 2 (same day) — UTF-16 member order, issue #2 (Rul1an)
+
+A second real canonicalization bug, also found by a stranger reading the code: sorting keys on
+`k.encode("utf-16-le")` compares the **low byte of each code unit first**, which is not the
+code-unit ordering RFC 8785 §3.2.3 requires. `a` next to `Ā` (U+0100) sorted `Ā` first; `ÿ`
+(U+00FF) next to `Ā` likewise. Fixed in `7474528`: the sort key is now `utf-16-be`, in both
+`tamga_canon.py` and the deliberately-duplicated standalone `tamga_verify_mini.py`.
+
+Why our own gate missed it: AT-036 covered the **astral** surrogate boundary (where LE happens
+to agree with code-unit order) but not the intra-BMP byte trap. The reporter's exact vectors are
+now pinned — they go RED under the old sort:
+
+- selftest: `{a,Ā}`, `{ÿ,Ā}` — 8 → 11 expected outputs
+- cross-language oracle: 13 → 16 vectors, `16/16` byte-identical to Node/ECMAScript
+- official RFC-8785 corpus (`cyberphone/json-canonicalization` @ `19d51d7f`): `6/6`
+  byte-identical, `weird.json` included — `דּ` now sorts last as the published output has it
+
+No published receipt or finding changed (all pinned hashes are ASCII-only;
+`fe6f230c…` recomputes unchanged). Suite 58/58.
+
 # Release notes — v0.2.10
 
 Release date: 2026-09-16 · Tag: v0.2.10 · Branch: `main`

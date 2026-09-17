@@ -1241,7 +1241,7 @@ engine commands (first 'run' auto-downloads the SHA256-pinned wasmtime; repo clo
 receiver libraries (import as modules; wire contracts in RFC-009):
   tamga_pugio_receiver / tamga_pugio_ingest — external-anchor + K0 proof-bundle ingestion
 
-version: 0.2.10 · spec_version 0.2.0 (const-flip founder-approved 2026-09-11; next-release gate)
+version: 0.2.11 · spec_version 0.2.0 (const-flip founder-approved 2026-09-11; next-release gate)
 exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-19) · 2 İNDETERMİNE (epoch-verify).
 """
 if __name__ == "__main__":

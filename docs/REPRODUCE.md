@@ -62,9 +62,15 @@ precondition and each one says so):
 ## 2. Verify a chain without installing anything (stdlib-only)
 
 ```bash
+# the chain is produced first (one grant), then verified with no engine, no network:
+python3 tamga_runner.py grant tests/vectors/tc-net-demo 0.01 tgs >/dev/null
 python3 tamga_verify_mini.py tests/vectors/tc-net-demo/ledger.jsonl
 # → {"ok": true, ...}  — no wasmtime, no network, no pynacl needed
 ```
+
+`tamga_verify_mini.py` imports nothing outside the stdlib — block `nacl` before import
+and it still loads and still verifies the chain. Verified 2026-09-18 from a fresh clone
+in a throwaway venv, as a stranger would.
 
 ## 3. Build a third-party evidence bundle
 

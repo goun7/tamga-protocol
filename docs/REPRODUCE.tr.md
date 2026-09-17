@@ -55,6 +55,8 @@ Yavaş-kontrollerin dürüst-önkoşulları (taze-klonda BUG değil — eksik-ö
 ## 2. Hiçbir şey kurmadan zincir doğrulayın (yalnız-stdlib)
 
 ```bash
+# önce zincir üretilir (bir hibe), sonra motor-ağ-yokken-doğrulanır:
+python3 tamga_runner.py grant tests/vectors/tc-net-demo 0.01 tgs >/dev/null
 python3 tamga_verify_mini.py tests/vectors/tc-net-demo/ledger.jsonl
 # → {"ok": true, ...}  — wasmtime yok, ağ yok, pynacl gerekmez
 ```

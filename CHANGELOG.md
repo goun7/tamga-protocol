@@ -6,8 +6,30 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
 
 ## [Unreleased]
 
+- **KANONİKLEŞTİRME-DÜZELTMESİ (dış-bulgu, 2026-09-17) — jcs artık-GERÇEKTEN RFC 8785:** bugüne-kadar
+  `jcs` = `json.dumps(sort_keys=True, separators=(",",":"))` idi — **Python-özel**: ECMAScript
+  sayı-üretimi yoktu (`1.0`→`"1.0"` değil `"1"`; `2.93e-07`→`"2.93e-07"` değil `"2.93e-7"`;
+  `1e16`→`"1e+16"` değil `"10000000000000000"`), anahtar-sıralaması UTF-16-code-unit-değil
+  code-point'tü (non-BMP + yüksek-BMP karışımında-ayrışır). Sonuç: bir-receipt-özetini-yalnızca-Python
+  yeniden-üretebilirdi — alıcının-tüm-amacına aykırı. **Bulan-biz-değiliz**: stillmarcus24, kardeş-
+  proje Dümen'i-denetlerken (issue #4, "json.dumps is not a canonical form" + tam-üreme-önerisiyle).
+  Düzeltme: tek-merkez `tamga_canon.py` (ECMAScript number-to-string + UTF-16 code-unit sıra +
+  RFC-8785 kaçış-kuralları), **9 çağrı-yerine-bağlandı** (validator, runner jcs+iki-header, mini-
+  verifier bilerek-ayrı standalone-kopya, bundle, pairing araçları, audit7/8, guard, attest-verify,
+  verify-lite). **Çapraz-dil-oracle:** Node/ECMAScript-referansı-ile 13/13 bayt-birebir
+  (`tools/jcs_parity.sh`); mini-quote-kaçış-bug'ı bu-süreçte-bizce-yakalandı (AT-029 7/8'de).
+  **Yeni-kontrol AT-036** (kontrol-58): vauban-selftest 9/9 öz + 3-uygulama-paritesi + node-oracle;
+  node-yoksa **İNDETERMİNE** (rc2 — asla-sessizce-yeşil-değil). Süit 52→53 hızlı / 57→58 slow.
+  Etki-ölçümü: pairing-fixture'ın pinned-hash'i-migrasyonla-yeniden-türetildi (`6c0cab5f…`→
+  `fe6f230c…`, 6/6-check-yeşil); **EBL 34/34-bulgusu-birebir-ayakta** (korpü float-free-ASCII →
+  0/34-diverjans; yeniden-indirilen-korpüs sha-pin'e-eşleşti, `.evidence/CROSSRUN-EBL/
+  2026-09-17-reverify.txt`); AT-029 8/8 ve AT-030 7/7+8/8 aynen-yeşil; MIGRATION-DEMO'un-ölçüm-
+  değerleri kanonikleştirme-bağımsız (etkilenmedi). RFC-8785-sözüğü-düzeltildi (RELATED-WORK +
+  PAIRING-FIXTURE "subset"→tam; AT-029/AT-030 kapsam-dürüstlüğü-dokümantasyonu).
+  pyproject modül 16→17 (tamga_canon).
+
 - **AT-035 (kayıt — cross-run):** EBL-Core'nin (arXiv 2609.11596v1, `anc/` artefaktı, corpus sha
-  `039453b5…`) 34 vektörü bizim-stdlib-RFC8785-jcs ile onların-ref-kanonikleştiricisi karşısında:
+  `039453b5…`) 34 vektörü bizim-RFC8785-jcs'leriyle (o-sırada-Python-özel-json.dumps; 2026-09-17'de-düzeltildi, bkz-yukarı) onların-ref-kanonikleştiricisi karşısında:
   ham-sıra 1/34, UNORDERED_LIST_KEYS-önsıralı **34/34 bayt-birebir · sıfır-açıklanamayan-sapma**.
   Çekirdekleri standart JCS'tir; tüm-ayrışma tek-bildirdikleri-uzantıdır (sıra-normalizasyonlu
   commitment = bizim §14-diliyle order-independent-sınıfı) — taksonominin ilk-harici-örneklenmesi.

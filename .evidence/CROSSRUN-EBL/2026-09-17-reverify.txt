@@ -1,0 +1,33 @@
+EBL-CORE ÇAPRAZ-KOŞUM YENİDEN-DOĞRULAMA 2026-09-17 12:0xZ — kanonikleştirme-düzeltmesinin
+yayımlanmış-bulgu-üzerine-etkisi (ölçüm, varsayım-değil)
+
+Bağlam: 2026-09-17'de jcs json.dumps(sort_keys=True) → gerçek RFC 8785 (tamga_canon; ECMAScript
+sayı-üretimi + UTF-16 code-unit sıralaması) olarak-değiştirildi. Düzeltmenin-nedeni: json.dumps
+Python-özel — bir-özeti-yalnız-Python-yeniden-üretebilir, yani "RFC 8785" iddiası-yanlıştı.
+Bulan-yabancı (stillmarcus24, Dümen issue #4), biz-değil. 2026-09-16-run.txt'deki-34/34-bulgusu
+o-sırada-Python-özel-kanonla-ölçülmüştü — düzeltme-sonrası-aynı-mı, diye-yeniden-ölçüldü.
+
+korpüs: arXiv 2609.11596v1 anc/ vectors/financial-transfer-vectors.json — YENİDEN-İNDİRİLDİ,
+sha256 birebir-eşleşti (039453b5edf931e183db81cce19aee243454c676a00a6f99973a956e6fdbf2e0 =
+kanıttaki-pin — aynı-korpü, karşılaştırılabilir).
+yöntem: apply_mutations = kendi-run_validation.py'ları (import; test-edilen-o-değil — kapsam-dürüstlüğü).
+test: onların-ref ebl_core.canonical_json vs BİZİM tamga_canon.jcs (DÜZELTİLMİŞ RFC 8785).
+
+ÖLÇÜM:
+  eski-json.dumps vs yeni-tamga_canon: 34/34 vektörde-ÇIKTI-BİREBİR-AYNI (korpüste 0 float,
+  0 non-BMP temas — iki-uygulama-yalnızca-bu-durumlarda-ayrışır; durumlar-aranıyor, bulunmuyor)
+  (A) HAM-SIRA  (yeni-jcs): 1/34   [önceki: 1/34]
+  (B) ÖNSIRALI (yeni-jcs): 34/34   [önceki: 34/34]
+
+SONUÇ: 2026-09-16-bulgusu-AYNEN-AYAKTA — 34/34 bayt-birebir, sıfır-açıklanamayan-fark.
+Nedeni-ölçümlendi: korpü float-free-ASCII-olduğu-için-düzeltme-orada-hiçbir-bayt-değiştirmedi
+(0/34-diverjans, iki-yöntemin-çakıştığı-durum-alanında). Bulgunun-geçerliliği-düzeltme-öncesi-de
+-sonra-da-aynı; ama 2026-09-16-run.txt'nin-"BİZİM stdlib RFC 8785 jcs" SÖZCÜĞÜ-ARTIK-DOĞRU-DEĞİLDİ
+(o-sırada-stdlib-RFC-8785-değildi-Python-json.dumps'du) — düzeltme-sonrası-sözük-doğru-hale-geldi.
+
+Dürüst-sınırlar (değişmedi):
+1. float-yasağı-ve-non-BMP korpüste-temas-etmedi → bu-iki-boyut-TEST-EDİLMEMİŞ olarak-kalır
+   (doğrulanamadı-değil; örneklem-yok). AT-036 bunu-bizim-tarafımızda-kapatır (13/13 node-paritesi).
+2. anlam-katmanı (decision ALLOW/DENY) bizim-hükmümüz-değil — kanonikleştirme-katmanı-only.
+3. 1/34-ham-sıra-anomalisi onların-bildirdiği-tek-uzantı: UNORDERED_LIST_KEYS (§14-diliyle:
+   ORDER-INDEPENDENT-lane; raw-JCS-pinli-değil) — bir-defekt-değil, sınıf-bildirimi.

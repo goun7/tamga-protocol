@@ -26,8 +26,7 @@ from keccak256 import keccak256  # noqa: E402
 SOURCES = {"simulated", "observed", "derived"}
 
 
-def jcs(d):
-    return json.dumps(d, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+from tamga_canon import jcs  # RFC 8785 — merkezi-uygulama (jcs_parity.sh)
 
 
 def _check_labels(node, path, errs):
@@ -60,7 +59,7 @@ def main():
     charge = fx["tamga_observed"]["charge_record"]["value"]
     # 2) hash membership: recompute the receipt hash from the shipped record
     rec = {k: v for k, v in charge.items() if k not in ("h", "node_sig")}
-    h = hashlib.sha256((charge["prev"] + jcs(rec)).encode("utf-8")).hexdigest()
+    h = hashlib.sha256(charge["prev"].encode("utf-8") + jcs(rec)).hexdigest()
     if h != fx["tamga_observed"]["receiptHash"]["value"] or \
        h != charge.get("h"):
         print(json.dumps({"ok": False, "where": "membership",

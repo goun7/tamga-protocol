@@ -34,8 +34,7 @@ def _sh(*args):
     return r.stdout
 
 
-def jcs(d):
-    return json.dumps(d, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+from tamga_canon import jcs  # RFC 8785 — merkezi-uygulama (jcs_parity.sh)
 
 
 def main():

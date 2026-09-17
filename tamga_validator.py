@@ -6,19 +6,19 @@ Dependency: PyNaCl only (ed25519). Schema validation hand-rolled with stdlib;
 cross-validated with jsonschema (2026-09-05): 6 vectors + 28 mutations,
 34/34 agreement with jsonschema — test: tests/cross_validate_schema.py
 (run with `python3 tests/cross_validate_schema.py` after `pip install jsonschema`; the runner itself keeps zero mandatory deps beyond PyNaCl).
-Note: RFC 8785 (JCS) — this schema holds only string/integer values; sorted-compact
-serialization is JCS-equivalent. If a float field is added, jcs() must be updated.
+Note: RFC 8785 (JCS) — canonicalization lives in tamga_canon (ECMAScript number
+serialization + UTF-16 code-unit member order; byte-identical to the Node reference,
+tools/jcs_parity.sh). History: until 2026-09-17 this was json.dumps and was Python-specific;
+found by a stranger auditing the sibling project (Dümen issue #4, stillmarcus24).
 """
 import sys, json, hashlib, os, re, pathlib
 from nacl.signing import SigningKey, VerifyKey
+from tamga_canon import jcs, es_number  # RFC 8785 — tek-merkez (parite: tools/jcs_parity.sh)
 
 def _secure_open(path):
     """Audit-9 B6 parity with the runner: create the file 0600 from the start —
     closes the post-write chmod window on plaintext key material."""
     return os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-
-def jcs(obj) -> bytes:
-    return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 def cmd_keygen(args):
     out = pathlib.Path(args[0]); out.mkdir(parents=True, exist_ok=True)

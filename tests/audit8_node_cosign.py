@@ -12,6 +12,7 @@ A3 (partial-cosign drop): node_sig is dropped from some records → RED under L1
 Evidence: .evidence/GUVENLIK/<date>/audit-8.log
 """
 import hashlib, json, os, pathlib, shutil, subprocess, sys, time, io
+from tamga_canon import jcs
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -44,12 +45,12 @@ def craft_cosigned(base_tsg, node_key_hex, mutate_records):
     seed = tr.xdec(bytes.fromhex(header["keystore_blob"]["ct"]), b"",
                    bytes.fromhex(header["keystore_blob"]["nonce"]),
                    tr.kdf(tr.passphrase(), bytes.fromhex(header["keystore_blob"]["salt"])))
-    state = json.loads(tr.xdec(data[8 + hlen:], json.dumps(header, ensure_ascii=False, sort_keys=True).encode(),
+    state = json.loads(tr.xdec(data[8 + hlen:], tamga_canon.jcs(header).decode("utf-8").encode(),
                                bytes.fromhex(header["body_nonce"]), tr.body_key(seed)).decode())
     state["ledger_records"] = mutate_records(state.get("ledger_records", []), node_key_hex)
     bn = os.urandom(24)
     header["body_nonce"] = bn.hex()
-    hb = json.dumps(header, ensure_ascii=False, sort_keys=True).encode()
+    hb = tamga_canon.jcs(header).decode("utf-8").encode()
     ct = tr.xenc(json.dumps(state, ensure_ascii=False).encode(), hb, bn, tr.body_key(seed))
     return tr.MAGIC + len(hb).to_bytes(4, "big") + hb + ct
 
@@ -63,7 +64,7 @@ def forge_chain(records, node_key_hex):
         rec = {k: v for k, v in rec.items() if k not in ("seq", "prev", "h", "node_id", "node_sig")}
         rec["seq"] = i; rec["prev"] = prev
         rec["node_id"] = sk.verify_key.encode().hex()
-        h = hashlib.sha256((rec["prev"] + tr.jcs(rec)).encode()).hexdigest()
+        h = hashlib.sha256((rec["prev"].encode("utf-8") + tr.jcs(rec))).hexdigest()
         rec["node_sig"] = sk.sign(h.encode()).signature.hex()
         rec["h"] = h
         prev = h
@@ -116,7 +117,7 @@ def main():
         for i, rec in enumerate(recs, start=1):
             rec = {k: v for k, v in rec.items() if k not in ("seq", "prev", "h", "node_sig")}
             rec["seq"] = i; rec["prev"] = prev; rec["node_id"] = honest_id   # honest identity kept
-            h = hashlib.sha256((rec["prev"] + tr.jcs(rec)).encode()).hexdigest()
+            h = hashlib.sha256((rec["prev"].encode("utf-8") + tr.jcs(rec))).hexdigest()
             rec["node_sig"] = sk.sign(h.encode()).signature.hex()           # but the signature is the attacker's
             rec["h"] = h; prev = h
             out_recs.append(rec)

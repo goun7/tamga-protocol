@@ -107,14 +107,17 @@ _LOWER_KEYS = ("sellerAddress", "buyerAddress")
 
 
 def _canonical_preimage(content: dict) -> bytes:
-    # onlarin sortKeysDeep+JSON.stringify'i ile ayni-sozlesme: derin-anahtar-sirali,
-    # ayiracsiz-mini-JSON, ham-UTF8 (ensure_ascii=False). Byte-bayt-uyum golden-vektörde-testli.
+    # yayıncı-tarafı (ethers/JS) ile ayni-sozlesme: derin-anahtar-sirali, ayiracsiz-mini-JSON,
+    # ham-UTF8. 2026-09-17: json.dumps → tamga_canon (gerçek RFC 8785: ECMAScript sayı-üretimi
+    # + UTF-16 sıra) — yayıncı-JS zaten-ECMAScript-semantic'leri-üretir, yani bu daha-doğru;
+    # float-free/ASCII-korpüsta çıktı-birebir-aynır (AT-030 7/7+8/8 ile-kanıtlanmıştır).
     clean = {}
     for k in SCHEMA_KEYS:
         if k in content:
             v = content[k]
             clean[k] = v.lower() if (k in _LOWER_KEYS and isinstance(v, str)) else v
-    return json.dumps(clean, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    from tamga_canon import jcs
+    return jcs(clean)
 
 
 def verify_capacity_attest(claim: dict) -> tuple[bool, str, dict]:

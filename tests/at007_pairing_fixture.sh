@@ -78,7 +78,7 @@ fx = json.load(open(p))
 ch = fx["tamga_observed"]["charge_record"]["value"]
 ch["fee_sim"] = 9.9e-9                      # doctor the record
 rec = {k: v for k, v in ch.items() if k != "h"}
-h = hashlib.sha256((ch["prev"] + jcs(rec)).encode("utf-8")).hexdigest()
+h = hashlib.sha256((ch["prev"].encode("utf-8") + jcs(rec))).hexdigest()
 fx["tamga_observed"]["receiptHash"]["value"] = h   # receiptHash made consistent...
 json.dump(fx, open(p, "w"))                        # ...but charge.h is now stale
 PY

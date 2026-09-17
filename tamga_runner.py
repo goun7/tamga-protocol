@@ -197,7 +197,10 @@ def _node_sig_ok(rec):
 
 # --- ledger hash chain (RFC-003 D4 draft decision; ADD-only seal lesson) ---
 def jcs(d):
-    return json.dumps(d, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    # RFC 8785 (ECMAScript number + UTF-16 sıra) — tek-merkez tamga_canon; bu sarmak str döndürür
+    # (çağrıları jcs(x).encode() biçiminde) — parite: tools/jcs_parity.sh
+    from tamga_canon import jcs as _canon
+    return _canon(d).decode("utf-8")
 
 def _node_key_from(a):
     """DESIGN-node-cosign (F25): '--node-key <hex>' optional node signing key.
@@ -926,7 +929,8 @@ def cmd_export(a):
                   "agent_id": agent_id, "cipher": "XChaCha20-Poly1305",
                   "keystore_blob": blob, "body_nonce": body_nonce.hex(),
                   "created": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
-        hb = json.dumps(header, ensure_ascii=False, sort_keys=True).encode("utf-8")
+        from tamga_canon import jcs as _c
+        hb = _c(header)
         ct = xenc(state, hb, body_nonce, body_key(seed))
         data = MAGIC + len(hb).to_bytes(4, "big") + hb + ct
         fd = _secure_open(dst)  # Audit-9 B6: atomik 0600
@@ -1026,7 +1030,8 @@ def cmd_import(a):
             return out(False, op="import", reason_code=18,
                        reason=f"agent_ownership_mismatch: target state belongs to {cur_owner[:16]}…; "
                               f"snapshot belongs to {header['agent_id'][:16]}… (import into an empty node)")
-    hb = json.dumps(header, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    from tamga_canon import jcs as _c
+    hb = _c(header)
     try:
         state = xdec(data[8 + hlen:], hb, bytes.fromhex(header["body_nonce"]), body_key(seed))
         parsed = json.loads(state.decode("utf-8"))

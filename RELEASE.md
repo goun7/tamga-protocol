@@ -49,6 +49,26 @@ after every upload, assert BOTH `bdist_wheel` and `sdist` appear in the live PyP
 version (the command that caught this). The ritual gap was that a wheel-only ritual can pass; it
 cannot anymore.
 
+### Pending: v0.2.11 — canonicalization fix (founder-gate; release follows a finding)
+
+**Defect (external finding, 2026-09-17):** our `jcs` was `json.dumps(sort_keys=True,
+separators=(",",":"))` — Python-specific, not RFC 8785: ECMAScript number serialization missing
+(`1.0` serialized as `"1.0"` not `"1"`; `2.93e-07` as `"2.93e-07"` not `"2.93e-7"`; `1e16` as
+`"1e+16"` not `"10000000000000000"`) and member ordering was code-point, not UTF-16 code-unit
+(diverges when non-BMP mixes with high-BMP). Consequence: a receipt digest was recomputable only
+by Python — the exact property a compliance receipt exists to destroy. **Found by a stranger
+auditing the sister project** (Dümen issue #4, stillmarcus24 — same class of bug in
+`evidence_chain.py:65`), not by us; our own audit had signed off the function as "RFC 8785" for
+weeks. **Fix:** single-center `tamga_canon.py` rewired into all 9 call sites; byte-identical to a
+Node/ECMAScript reference (13/13, `tools/jcs_parity.sh`); new control AT-036 (kontrol-58) with
+rc2-İNDETERMİNE when node is absent. **Measured impact:** EBL 34/34 cross-run finding stands
+byte-identical (corpus is float-free ASCII — re-verified against a re-downloaded sha-pinned
+corpus); AT-029 8/8 and AT-030 7/7+8/8 unchanged; pairing-fixture pinned hash migrated
+(`6c0cab5f…` → `fe6f230c…`, 6/6 checks green). Suite 52→53 fast, 57→58 slow, both green.
+**Structural:** this is the second release-following-a-finding (after 0.2.10's sdist gate) — the
+pattern that keeps the project honest is that strangers' audits find real defects and we publish
+the fix, not the story. Release timing: founder gate.
+
 # Release notes — v0.2.9
 
 Release date: 2026-09-15 · Tag: v0.2.9 · Branch: `main`

@@ -23,8 +23,76 @@ import sys
 
 MAX_LINE_BYTES = 1 * 1024 * 1024  # Audit-11 D1 paritesi
 
+# --- RFC 8785 canonical serialization (deliberate standalone copy of tamga_canon.py) ---
+# The mini-verifier must stay a SINGLE-FILE stdlib audit artifact, so tamga_canon is
+# duplicated here rather than imported. Byte-parity with tamga_canon AND with the Node
+# reference is machine-checked by tools/vauban_conformance.py --selftest.
+_ESCAPE = {'"': '\\"', "\\": "\\\\", "\b": "\\b", "\f": "\\f",
+           "\n": "\\n", "\r": "\\r", "\t": "\\t"}
+
+def es_number(x):
+    if x != x or x in (float("inf"), float("-inf")):
+        raise TypeError("non-finite numbers are not canonicalizable (RFC 8785)")
+    if x == 0:
+        return "0"
+    neg = x < 0
+    digits, exp = __import__("decimal").Decimal(repr(abs(x))).as_tuple()[-2:]
+    while len(digits) > 1 and digits[-1] == 0:
+        digits, exp = digits[:-1], exp + 1
+    k = len(digits); n = exp + k
+    s = "".join(map(str, digits))
+    if k <= n <= 21:
+        body = s + "0" * (n - k)
+    elif 0 < n <= 21:
+        body = s[:n] + "." + s[n:]
+    elif -6 < n <= 0:
+        body = "0." + "0" * (-n) + s
+    else:
+        e = n - 1
+        mant = s if k == 1 else s[0] + "." + s[1:]
+        body = mant + "e" + ("+" if e >= 0 else "-") + str(abs(e))
+    return ("-" if neg else "") + body
+
+def _enc_string(s_):
+    out = ['"']
+    for ch in s_:
+        if ch in _ESCAPE:
+            out.append(_ESCAPE[ch])
+        elif ord(ch) < 0x20:
+            out.append(f"\\u{ord(ch):04x}")
+        else:
+            out.append(ch)
+    out.append('"')
+    return "".join(out)
+
+def _encode(o, out):
+    if o is None: out.append("null")
+    elif o is True: out.append("true")
+    elif o is False: out.append("false")
+    elif isinstance(o, bool): out.append("true" if o else "false")
+    elif isinstance(o, int): out.append(str(o))
+    elif isinstance(o, float): out.append(es_number(o))
+    elif isinstance(o, str): out.append(_enc_string(o))
+    elif isinstance(o, dict):
+        out.append("{"); first = True
+        for key in sorted(o, key=lambda k: k.encode("utf-16-le")):
+            if not first: out.append(",")
+            first = False
+            out.append(_enc_string(str(key))); out.append(":"); _encode(o[key], out)
+        out.append("}")
+    elif isinstance(o, (list, tuple)):
+        out.append("["); first = True
+        for item in o:
+            if not first: out.append(",")
+            first = False
+            _encode(item, out)
+        out.append("]")
+    else:
+        raise TypeError(f"unsupported canonical value: {type(o).__name__}")
+
 def jcs(obj) -> bytes:
-    return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    out = []; _encode(obj, out)
+    return "".join(out).encode("utf-8")
 
 def verify(ledger_path: str):
     prev_h, n = "0" * 64, 0

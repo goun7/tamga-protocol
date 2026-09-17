@@ -71,12 +71,25 @@ def run_suite(suite_dir: pathlib.Path) -> int:
 
 
 def selftest() -> int:
-    # İç-KAT: RFC-8785 §3.2.3 yayımlanmış-özler (boş-nesne / kontrol-karakterleri / unicode+array)
+    # İç-KAT-1: RFC-8785 §3.2.3 yayımlanmış-özler (boş-nesne / kontrol-karakterleri / unicode+array)
     cases = [
         ({}, "{}"),
         ({"\u20ac": "Euro Sign", "\r": "Carriage Return", "\n": "Line Feed", "a": "A"},
          '{"\\n":"Line Feed","\\r":"Carriage Return","a":"A","\u20ac":"Euro Sign"}'),
         ({"b": [1, 2], "a": "\u00e9"}, '{"a":"\u00e9","b":[1,2]}'),
+        # ECMAScript number serialization (RFC-8785 §3.2.2.2) — json.dumps'ın-yalan-söylediği-yer:
+        ({"a": 1.0, "b": 1}, '{"a":1,"b":1}'),                     # 1.0 → "1", "1.0"-DEĞİL
+        ({"fee": 2.93e-07, "cpu": 2.983e-06},
+         '{"cpu":0.000002983,"fee":2.93e-7}'),                     # e-06 → ondalık; e-07 → e-7
+        ({"big": 1e16, "huge": 1e21, "tiny": 1e-7},
+         '{"big":10000000000000000,"huge":1e+21,"tiny":1e-7}'),    # 1e16 → ondalık (Python 1e+16 der)
+        ({"z": -0.0, "third": 0.3333333333333333},
+         '{"third":0.3333333333333333,"z":0}'),                     # -0.0 → "0"
+        # UTF-16 code-unit member order (RFC-8785 §3.2.3) — code-point sıralaması YANLIŞ-verir:
+        ({"\uffff": 1, "\U00010000": 2}, '{"\U00010000":2,"\uffff":1}'),
+        # quote + backslash kaçışı (\u001f = \u00XX kısa-değil):
+        ({"q": 'he said "hi" \\\\done', "ctl": "a\bb\nc\u001fd"},
+         '{"ctl":"a\\bb\\nc\\u001fd","q":"he said \\"hi\\" \\\\\\\\done"}'),
     ]
     bad = 0
     for obj, want in cases:
@@ -84,9 +97,21 @@ def selftest() -> int:
         if got != want:
             print(f"SELFTEST-FAIL: {obj!r} → {got!r} ≠ {want!r}")
             bad += 1
+    # İç-KAT-2: üç-uygulama-birebir (mini / validator / canon) — kopyalar-drift-yapamaz
+    try:
+        from tamga_validator import jcs as vj
+        from tamga_canon import jcs as cj
+        for obj, _ in cases:
+            if not (jcs(obj) == vj(obj) == cj(obj)):
+                print(f"SELFTEST-FAIL: üçlü-parite-bozuk: {obj!r}")
+                bad += 1
+    except ImportError as e:
+        print(f"SELFTEST-FAIL: parite-import-hatası: {e}")
+        bad += 1
     if bad:
         return 1
-    print(f"selftest: {len(cases)}/{len(cases)} RFC-8785-öz-OK")
+    print(f"selftest: {len(cases)}/{len(cases)} RFC-8785-öz-OK + 3-uygulama-paritesi "
+          f"(ECMAScript-number + UTF-16-sıra; json.dumps'ın-hatalı-olduğu-8-yer)")
     return 0
 
 

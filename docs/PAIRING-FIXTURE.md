@@ -73,10 +73,19 @@ changes every time — the *pairing structure* is what is stable.
 
 The `tamga_observed.receiptHash` is not a number to trust — re-derive it:
 
+**Canonicalization note (2026-09-17):** the fixture's pinned `receiptHash` was re-derived —
+until 2026-09-17 our `jcs` was `json.dumps(sort_keys=True)` (Python-specific: `1.0` stayed
+`"1.0"`, `2.93e-07` stayed `"2.93e-07"`, key order was code-point not UTF-16). It is now true
+RFC 8785 (`tamga_canon`, byte-identical to a Node/ECMAScript reference — `tools/jcs_parity.sh`,
+control AT-036). The fixture's floats (`fee_sim`, `fee_birebir`, `cpu_saat`) serialize
+differently, so the pinned hash moved (`6c0cab5f…` → `fe6f230c…`); the record itself is
+unchanged. Old hash was Python-only-recomputable; the new one is recomputable by anyone in
+any language — which is the entire point of a receipt.
+
 ```python
 import json, hashlib, sys
 sys.path.insert(0, ".")
-from tamga_validator import jcs          # canonical JSON (RFC 8785 subset)
+from tamga_validator import jcs          # canonical JSON (RFC 8785)
 fx = json.load(open("docs/pairing/pairing-fixture.json"))
 rec = fx["tamga_observed"]["charge_record"]["value"]
 body = {k: v for k, v in rec.items() if k not in ("h", "node_sig")}

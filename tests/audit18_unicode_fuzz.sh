@@ -40,16 +40,18 @@ PYEOF
 ok $? "ünikod-matrisi: NFC/NFD+homoglif+null-farklı-hash (kimlik-ayrışması-kanıtı)"
 
 python3 - > "$LOG.2" 2>&1 <<'PYEOF'
-# JCS-sayı-uyumsuzluğu-BELGELİ-durum-(dürüst-sınır; fix-v0.2-dilimi):
+# JCS-sayı-serialization 2026-09-17'DE-DÜZELTİLDİ (Dümen#4 stillmarcus24-bulgusu):
+# önceden json.dumps = Python-özel (yalnızca-Python-yeniden-üretebilirdi) — artık RFC-8785-birebir.
 import sys; sys.path.insert(0, ".")
 from tamga_validator import jcs
 r1 = jcs({"a": -0.0}).decode()
 r2 = jcs({"a": 1e-7}).decode()
-# beklenen-(RFC-8785): '0' ve '1e-7'; biz-'-0.0'/'1e-07' — DOKÜMANTASYON-DİSİPLİNİ:
-assert r1 == '{"a":-0.0}' and r2 == '{"a":1e-07}', (r1, r2)
-print("JCS-'RFC-8785-subset'-sınırı-dokümantasyonla-doğrulandı (ES6-sapma:-0.0/1e-07)")
+r3 = jcs({"a": 1.0, "b": 1e16}).decode()
+# RFC-8785 (ECMAScript-number): -0.0→"0", 1e-7→"1e-7", 1.0→"1", 1e16→"10000000000000000"
+assert r1 == '{"a":0}' and r2 == '{"a":1e-7}' and r3 == '{"a":1,"b":10000000000000000}', (r1, r2, r3)
+print("JCS-sayı-serialization RFC-8785-birebir (ES6: -0.0→0, 1e-7→1e-7, 1.0→1, 1e16→10000000000000000; eski-Python-sapması-KAPANDI)")
 PYEOF
-ok $? "JCS-subset-dürüst-sınırı: ES6-sapması-belgeli (fix-v0.2-kurucu-kapısı)"
+ok $? "JCS-sayı-serialization: RFC-8785-birebir (geri-dönüş-regresyon-kapısı: json.dumps'a-düşerse-RED)"
 
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" -eq 0 ]

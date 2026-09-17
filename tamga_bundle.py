@@ -20,8 +20,7 @@ import sys
 
 MAX_LINE_BYTES = 1 * 1024 * 1024  # Audit-11 paritesi
 
-def jcs(obj) -> bytes:
-    return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+from tamga_canon import jcs  # RFC 8785 — merkezi (python≡node, tools/jcs_parity.sh)
 
 def _chain_head(lp: pathlib.Path):
     prev_h, n = "0" * 64, 0

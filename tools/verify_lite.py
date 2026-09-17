@@ -34,9 +34,7 @@ def main(argv):
     # jcs-ÖNCE-standalone-çek (tamga_validator-import'u-nacl-ister — lite-dışı):
     import hashlib
 
-    def jcs(obj) -> bytes:
-        """RFC-8785-subset canonical JSON — runner'daki-jcs ile-aynı (json.dumps, sort_keys)."""
-        return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    from tamga_canon import jcs  # RFC 8785 — merkezi (python≡node, jcs_parity.sh)
 
     # 1) mini-verifier-(sentetik-küçük-zincir — donuk-vektör-yok):
     import tamga_verify_mini as mv

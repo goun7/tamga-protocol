@@ -11,7 +11,9 @@ adversary who tampers with the chain despite knowing the seed. The real threat-m
 adversary (a seed-less host) is weaker — this measures the mechanism's upper bound.
 Evidence: .evidence/GUVENLIK/<date>/audit-7.log
 """
-import json, os, pathlib, subprocess, sys, hashlib
+import json
+import os, pathlib, subprocess, sys, hashlib
+from tamga_canon import jcs
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -49,12 +51,12 @@ def craft(src, mutate):
     seed = tr.xdec(bytes.fromhex(header["keystore_blob"]["ct"]), b"",
                    bytes.fromhex(header["keystore_blob"]["nonce"]),
                    tr.kdf(tr.passphrase(), bytes.fromhex(header["keystore_blob"]["salt"])))
-    state = json.loads(tr.xdec(data[8 + hlen:], json.dumps(header, ensure_ascii=False, sort_keys=True).encode(),
+    state = json.loads(tr.xdec(data[8 + hlen:], tamga_canon.jcs(header).decode("utf-8").encode(),
                                bytes.fromhex(header["body_nonce"]), tr.body_key(seed)).decode())
     header, state = mutate(header, state)
     body_nonce = os.urandom(24)
     header["body_nonce"] = body_nonce.hex()
-    hb = json.dumps(header, ensure_ascii=False, sort_keys=True).encode()
+    hb = tamga_canon.jcs(header).decode("utf-8").encode()
     ct = tr.xenc(json.dumps(state, ensure_ascii=False).encode(), hb, body_nonce, tr.body_key(seed))
     forged = tr.MAGIC + len(hb).to_bytes(4, "big") + hb + ct
     return forged
@@ -112,7 +114,7 @@ def main():
                 rec["amount"] = 100.0
             rec["seq"] = i; rec["prev"] = prev
             no_h = {k: v for k, v in rec.items() if k != "h"}
-            rec["h"] = hashlib.sha256((rec["prev"] + tr.jcs(no_h)).encode()).hexdigest()
+            rec["h"] = hashlib.sha256((rec["prev"].encode("utf-8") + tr.jcs(no_h))).hexdigest()
             prev = rec["h"]
         return header, state
     (SB / "a1b.tsg").write_bytes(craft(base, a1b))

@@ -1,3 +1,30 @@
+# Release notes — v0.2.11
+
+Release date: 2026-09-17 · Tag: v0.2.11 · Branch: `main`
+
+**v0.2.11 — the canonicalization-fix release (release follows a finding).** Until today our
+`jcs` was `json.dumps(sort_keys=True)` — Python-specific, not RFC 8785: no ECMAScript number
+serialization (`1.0`→`"1.0"` not `"1"`; `2.93e-07`→`"2.93e-07"` not `"2.93e-7"`) and code-point
+not UTF-16 member ordering. A receipt digest was recomputable only by Python. Found by a
+stranger auditing the sister project (stillmarcus24, Dümen issue #4), not by us. Fixed:
+single-center `tamga_canon.py`, 13/13 byte-identical to a Node/ECMAScript reference, new
+control AT-036. Published findings stand: EBL 34/34, AT-029 8/8, AT-030 7/7+8/8 — all
+re-measured after the fix, byte-identical. The pairing fixture's pinned hash migrated
+(`6c0cab5f…`→`fe6f230c…`); the record itself is unchanged.
+
+## What is in this release
+
+1. **`tamga_canon.py`** — RFC 8785 canonical serialization as a single center: ECMAScript
+   number-to-string + UTF-16 code-unit member ordering + RFC-8785 escaping. Rewired into all
+   9 call sites (validator, runner, mini-verifier kept as a deliberately-duplicated standalone
+   audit artifact with machine-checked parity, bundle, attest-verify, pairing tools, audits,
+   verify-lite).
+2. **AT-036 (kontrol-58)** — canonicalization-parity: 9 RFC-8785 vectors + 3-implementation
+   parity + Node cross-language oracle, 13/13 byte-identical. Node absent → İNDETERMİNE (rc2).
+3. **Suite 52→53 fast, 57→58 slow** — both green on HEAD.
+4. **Documentation:** every "RFC 8785" claim verified and corrected (RELATED-WORK EN+TR,
+   PAIRING-FIXTURE "subset"→full + migration note, CHANGELOG). REPRODUCE re-verified.
+
 # Release notes — v0.2.10
 
 Release date: 2026-09-16 · Tag: v0.2.10 · Branch: `main`

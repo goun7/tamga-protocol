@@ -92,7 +92,7 @@ def _encode(o, out: list) -> None:
     elif isinstance(o, dict):
         out.append("{")
         first = True
-        for key in sorted(o, key=lambda k: k.encode("utf-16-le")):   # UTF-16 code-unit order
+        for key in sorted(o, key=lambda k: k.encode("utf-16-be")):   # UTF-16 code-unit order (RFC 8785 §3.2.3)
             if not first:
                 out.append(",")
             first = False

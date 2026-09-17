@@ -20,6 +20,9 @@ corpus = [
     {"q": "he said \"hi\" \\\\done", "x": 1.5},
     {"￿": 1, "𐀀": 2},
     {"x": [{"y": 1.5, "z": "é"}], "€": True},
+    {"a": 1, "Ā": 2},                     # issue#2 (Rul1an): BMP-içi LE-bayt-tuzağı
+    {"ÿ": 1, "Ā": 2},
+    {"b": 1, "Ă": 2},
     {"": "empty-key", "0": "digitish", "10": "x", "9": "y"},
 ]
 pathlib.Path("/tmp/jcs-corpus.json").write_text(json.dumps(corpus, ensure_ascii=False), encoding="utf-8")

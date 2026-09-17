@@ -87,6 +87,11 @@ def selftest() -> int:
          '{"third":0.3333333333333333,"z":0}'),                     # -0.0 → "0"
         # UTF-16 code-unit member order (RFC-8785 §3.2.3) — code-point sıralaması YANLIŞ-verir:
         ({"\uffff": 1, "\U00010000": 2}, '{"\U00010000":2,"\uffff":1}'),
+        # BMP-içi-bayt-tuzağı (Rul1an issue#2, 2026-09-17): küçük-endian BAYT sıralaması
+        # code-unit sıralamasına-eşit-değildir. LE'de 'Ā'(0x0100) → bayt 00,01 → 'a'(0x61)
+        # öncesi-yanlış-sıralar; BE doğru-sıralar. Bu-vektör LE-uygulamada-KIRMIZI-verir:
+        ({"a": 1, "Ā": 2}, '{"a":1,"Ā":2}'),                      # a(0x61) < Ā(0x0100)
+        ({"ÿ": 1, "Ā": 2}, '{"ÿ":1,"Ā":2}'),                      # ÿ(0x00FF) < Ā(0x0100)
         # quote + backslash kaçışı (\u001f = \u00XX kısa-değil):
         ({"q": 'he said "hi" \\\\done', "ctl": "a\bb\nc\u001fd"},
          '{"ctl":"a\\bb\\nc\\u001fd","q":"he said \\"hi\\" \\\\\\\\done"}'),

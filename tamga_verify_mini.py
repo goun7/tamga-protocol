@@ -75,7 +75,7 @@ def _encode(o, out):
     elif isinstance(o, str): out.append(_enc_string(o))
     elif isinstance(o, dict):
         out.append("{"); first = True
-        for key in sorted(o, key=lambda k: k.encode("utf-16-le")):
+        for key in sorted(o, key=lambda k: k.encode("utf-16-be")):   # RFC 8785 §3.2.3 code-unit order
             if not first: out.append(",")
             first = False
             out.append(_enc_string(str(key))); out.append(":"); _encode(o[key], out)

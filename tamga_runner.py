@@ -970,13 +970,19 @@ def cmd_keygen_node(a):
                note="node key written 0600 (operator identity; D3 applies to the agent seed only)")
 
 def _cosign_policy(a):
-    """import policy: --cosign-policy L0|L1 (default L0) + --node-trust <file>
-    (required for L1; JSON array of trusted node_id hex strings)."""
-    pol = "L0"
+    """import policy: --cosign-policy L0|L1 (default L0 — back-compat; L1 opt-in) +
+    --node-trust <file> (JSON array of trusted node_id hex strings).
+    L0 (varsayılan): gömülü zincirde node_sig YOKSA kabul-edilir (legacy back-compat);
+    bir kayıt node_sig TAŞIYORSA imzası doğrulanır (geçersiz → RED reason 14).
+    L1: HER kayıt node_sig imzalı olmalı VE node_id trust-list'te-olmalı;
+    bilinmeyen node_id → RED (F25-closure: dışarıdan-gelen sahte-geçmiş
+    reddedilir). --node-trust verilmezse trust=None → L1 trust-kontrolünü-atlar
+    (imza-tesisi-yine-istenir); node-cosign açık-seçimdir, zorunlu-değil."""
+    pol = "L0"   # varsayılan: back-compat (legacy zincirler kabul); L1 opt-in
     try:
         if "--cosign-policy" in a: pol = a[a.index("--cosign-policy") + 1]
     except IndexError:
-        pol = "L0"   # Audit-9 B11: a value-less flag means default, not a crash
+        pol = "L0"   # Audit-9 B11: değer-siz-bayrak varsayılan-demek, çöküş-değil
     if pol not in ("L0", "L1"): pol = "L0"
     trust = None
     if "--node-trust" in a:
@@ -1069,7 +1075,11 @@ def cmd_import(a):
                        reason="ledger_broken: embedded chain " + why_emb)
         pol, trust = _cosign_policy(a)
         if pol == "L1":
-            # node-cosign L1: every record must be node_sig-signed and its node_id on the trust list
+            # node-cosign L1 (opt-in; F25-closure 2026-09-17):
+            # gömülü zincirdeki her kayıt node_sig imzalı olmalı (imza geçersizse RED),
+            # VE node_id trust-list'te-olmalı. --node-trust verilmezse trust=None
+            # → trust-kontrolü-atlanır (sadece imza-tesisi-istenir); node-cosign
+            # açık-seçimdir: operator hangi-node'lara-güvendiğini-beyan-etmelidir.
             # OQ-3 (founder decision 2026-09-05): revocation list — the signatures of a retired
             # node are ALSO invalid (dropping it from the list is not enough; closes the
             # key-theft scenario). Revocation file: JSON array [node_id, ...].
@@ -1085,9 +1095,11 @@ def cmd_import(a):
             for rec in recs:
                 if "node_sig" not in rec:
                     bad = f"node_sig_eksik@{rec.get('seq')}"; break
+                if not _node_sig_ok(rec):
+                    bad = f"node_sig_invalid@{rec.get('seq')}"; break
                 if revoked and rec.get("node_id") in revoked:
                     bad = f"node_id_iptal_edildi@{rec.get('seq')}"; break
-                if not trust or rec.get("node_id") not in trust:
+                if trust is not None and rec.get("node_id") not in trust:
                     bad = f"node_id_untrusted@{rec.get('seq')}"; break
             if bad:
                 return out(False, op="import", reason_code=14,

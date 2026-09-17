@@ -25,6 +25,28 @@ re-measured after the fix, byte-identical. The pairing fixture's pinned hash mig
 4. **Documentation:** every "RFC 8785" claim verified and corrected (RELATED-WORK EN+TR,
    PAIRING-FIXTURE "subset"→full + migration note, CHANGELOG). REPRODUCE re-verified.
 
+## Post-release fix (same day, 2026-09-17) — Audit-7 A1a/A2 UNEXPECTED diagnosed
+
+Two audit-7 outcomes reported `UNEXPECTED` at release time; the root cause is now found and
+fixed. Both were **test-harness bugs, not protocol bugs** — the chain and the import gate were
+correct all along:
+
+- **A1a/A2 silently passing** — the audit's `grant` call passed a *file path* to `--node-key`,
+  which expects 64-hex; the grant failed (`node_key_invalid`), so the baseline chain was empty
+  and nothing could mismatch. Fixed to pass the hex value; A1a and A2 now report the expected RED.
+- **A1b (F25) not closing** — two harness bugs hid the closure: `craft()` serialized the forged
+  body with `json.dumps` instead of `jcs` (a mutated float `100.0` round-tripped as `100`,
+  silently breaking the chain — a test artifact, not a security control), and the forged record
+  set `node_id` *after* computing `h` (the field is inside the hash input). Both fixed.
+- **F25 status:** CLOSED under `import --cosign-policy L1 --node-trust` — a strong adversary
+  recomputing the whole chain with a fresh, unlisted node key now gets RED reason 14,
+  `node_id_untrusted@1`, even with a valid signature. The policy stays opt-in (L0 default,
+  back-compat preserved); the residual limit — a seed-owner who is *also* the node-owner —
+  remains documented and accepted (RFC-003 §4.4/§8).
+- **Suite after the fix: 58/58** (`.evidence/REGRESYON/2026-09-17/run_all-204553.log`).
+  No published receipt or finding changed: the fixes are confined to the audit harness and
+  the import cosign policy ladder.
+
 # Release notes — v0.2.10
 
 Release date: 2026-09-16 · Tag: v0.2.10 · Branch: `main`

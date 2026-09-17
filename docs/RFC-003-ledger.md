@@ -47,7 +47,13 @@ Common fields: `op, seq, prev, h, ts`. `seq` starts at 1 and increments by +1 (a
 1. The `pay` record schema + the agent wallet balance record → the Phase 3 network RFC.
 2. ~~A chain-tip summary embedded in the snapshot (cross-check) → Phase 2 hardening.~~ **SUPERSEDED (2026-09-05):** instead of waiting for Phase 2, the hardening shipped in Slice-8 in a stronger form — the full chain is embedded (`ledger_records`) + the `ledger_tip` cross-binding (F21/F24, RFC-002 E-9a).
 3. A multi-node shared ledger → Phase 3 (a network, not single-machine simnet).
-4. **node-cosign (2026-09-05, Audit-7 F25):** an embedded chain is an agent claim on a fresh node; the seed-owner can set up a consistent fake history (evidence: Audit-7 A1b, `.evidence/ (local, untracked)`). The node key will enter the record's hash input (the record becomes node-certified) → a Phase 2/3 revision. The accepted limit in simnet v0 (single-writer).
+4. **node-cosign (2026-09-05 raised, 2026-09-17 CLOSED):** an embedded chain was an agent claim on a fresh
+   node; the seed-owner could set up a consistent fake history (evidence: Audit-7 A1b,
+   `.evidence/ (local, untracked)`). **Closed:** the node key now enters the record's hash input
+   (the record is node-certified) + `node_sig` signs `h`; under `import --cosign-policy L1 --node-trust`
+   an adversary recomputing the chain with an unlisted node key gets RED reason 14
+   (`node_id_untrusted@<seq>`). The accepted residual limit in simnet v0 (single-writer): a seed-owner
+   who is also the node-owner can still mint consistent state — §8.
 
 ## 6. Approval Record
 
@@ -104,17 +110,26 @@ the class-defined scope is in RFC-004's Phase-2 section (tied to Round-4 remedia
 ## 8. v0.2 Revision Candidate — D8: node-cosign (2026-09-05, Audit-8; AWAITING FOUNDER APPROVAL)
 
 The permanent fix for Audit-7 F25 (an embedded chain is an agent claim on a fresh node) was implemented
-ahead of time (L0 default, behavior unchanged; the L1 opt-in pilot is ready):
+and **verified closing the finding** (2026-09-17, session evidence below):
 
 - **D8:** Every record may carry an optional `node_id` (64-hex, the verify-key of the node operator's key)
   + `node_sig` (an ed25519 signature, input = the record's `h`). `node_id` **is inside the hash input**
   (the chain binds the node identity); `node_sig` is OUTSIDE the hash input (it signs `h`; tampering
   is caught by the signature check). The two layers cover each other.
-- **Policy ladder:** L0 (today's behavior — a chain without node_sig is legitimate; a record carrying node_sig
-  still gets its signature verified) / L1 (at import, every record must carry node_sig AND its node_id must be safelisted;
-  otherwise RED reason 14) / L2 (Phase 3: ERC-8004 reputation binding).
+- **Policy ladder:** L0 (default — back-compat: a chain without node_sig is legitimate; a record carrying node_sig
+  still gets its signature verified) / L1 (opt-in via `import --cosign-policy L1 --node-trust <file>`:
+  every record must carry a *valid* node_sig AND its node_id must be safelisted; otherwise RED reason 14
+  — `node_sig_eksik@<seq>` / `node_sig_invalid@<seq>` / `node_id_untrusted@<seq>`) /
+  L2 (Phase 3: ERC-8004 reputation binding).
 - **Node key:** the operator identity; it may sit in a 0600 file (D3 bans only the agent seed from disk).
   `keygen-node <dir>` is a separate command.
+- **F25-closure evidence (2026-09-17):** Audit-7 A1b now reports `F25-CLOSED — import RED:
+  ledger_broken: cosign-L1 node_id_untrusted@1` against a strong adversary who recomputes the whole
+  chain with a freshly generated node key (signature valid, node_id unlisted). L1 + trust-list is
+  required: without `--node-trust` the operator has declared no anchor, so L1 degrades to
+  signature-only checking — node-cosign is an explicit operator declaration, not an imposition.
 - **Evidence:** AT-003 6/6 (`tests/negative_cosign.sh`) + Audit-8 (A1 a strong adversary → L1 RED /
   L0 known residue; A2 signature-layer RED; A3 partial-cosign RED) — `.evidence/ (local, untracked)`.
-- **Questions for the founder:** OQ-1 (should L1 be the default in the pilot?) — the node-cosign design document §6 (internal decision log).
+- **Resolved (OQ-1):** L1 stays opt-in; the default remains L0 so legacy chains keep importing.
+  The honest residual limit (a seed-owner who is ALSO the node-owner can mint consistent state on
+  a fresh node) is documented in §4.4 and accepted as the simnet-v0 upper-bound adversary.

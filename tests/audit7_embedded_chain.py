@@ -22,6 +22,7 @@ os.chdir(ROOT)
 os.environ.setdefault("TAMGA_KS_PASSPHRASE", "simnet-2026")
 
 import tamga_runner as tr  # the runner's own crypto primitives
+from nacl.signing import SigningKey  # F25-closure: temel-zincir node-sig imzalanır
 
 SB = ROOT / "tests/simnet/.audit7"
 OUT = []
@@ -58,7 +59,10 @@ def craft(src, mutate):
     body_nonce = os.urandom(24)
     header["body_nonce"] = body_nonce.hex()
     hb = jcs(header).decode("utf-8").encode()
-    ct = tr.xenc(json.dumps(state, ensure_ascii=False).encode(), hb, body_nonce, tr.body_key(seed))
+    # DİKKAT: gövde JCS ile-yazılır (json.dumps DEĞİL) — aksi halde bir float'ı
+    # değiştiren saldırgan (100.0) dönüşümde "100"/"100.0" uyumsuzluğundan-ötürü
+    # zinciri-kendiliğinden-bozar ve RED bir güvenlik-kontrolü-değil, test-artifactı-olur.
+    ct = tr.xenc(jcs(state).decode("utf-8").encode(), hb, body_nonce, tr.body_key(seed))
     forged = tr.MAGIC + len(hb).to_bytes(4, "big") + hb + ct
     return forged
 
@@ -78,7 +82,13 @@ def main():
     for f in ("tamga.json", "agent.wasm"):
         (SB / "pkgA" / f).write_bytes((ROOT / "tests/vectors/tc-a1" / f).read_bytes())
     seed = json.loads(sh("keygen"))["seed_hex"]
-    sh("grant", str(SB / "pkgA"), "0.01", "audit7-hibe")
+    # F25-closure 2026-09-17: import varsayılanı cosign-L1 olduğundan temel-zincirin
+    # node_sig imzalı olması-gerekir — yoksa meşru snapshot'lar bile reddedilir.
+    node_hex = SigningKey(bytes.fromhex(seed)).encode().hex()   # 64-hex (argv-üzerinden)
+    node_id = SigningKey(bytes.fromhex(seed)).verify_key.encode().hex()
+    trust_f = SB / "node-trust.json"
+    trust_f.write_text(json.dumps([node_id]))
+    sh("grant", str(SB / "pkgA"), "0.01", "audit7-hibe", "--node-key", node_hex)
     # build memory without wasmtime (external-memory bridge — slice-4 mechanism)
     mi = sh("memory", str(SB / "pkgA"), "--import-json", "tests/simnet/memory-dersler.json")
     base = SB / "base.tsg"
@@ -93,7 +103,7 @@ def main():
                 break
         return header, state
     (SB / "a1a.tsg").write_bytes(craft(base, a1a))
-    r1a = sh("import", str(SB / "a1a.tsg"), str(fresh("pkgB")))
+    r1a = sh("import", str(SB / "a1a.tsg"), str(fresh("pkgB")), "--cosign-policy", "L1", "--node-trust", str(trust_f))
     j1a_import = json.loads(r1a)
     ok1a = j1a_import.get("ok")
     v1a = sh("ledger-verify", str(SB / "pkgB"))
@@ -108,25 +118,35 @@ def main():
         log("A1a RESULT: UNEXPECTED")
 
     # ---------- A1b: record-splice, STRONG adversary (recomputes the whole chain) ----------
+    # F25-closure senaryosu: dışarıdan-gelen saldırgan kendi-node-anahtarını-üretir
+    # (node_id trust-list'te YOK) → cosign-L1 varsayılanı onu node_id_untrusted ile-reddeder.
+    # Kalan-yapısal-sınır: seed-sahibi===node-sahibi olursa imzalar-geçerli-kalır (aşağıda-not).
     def a1b(header, state):
         prev = "0" * 64
+        nsk = SigningKey.generate()   # saldırganın-kendi-anahtarı (untrusted node_id)
         for i, rec in enumerate(state.get("ledger_records", []), start=1):
             if rec.get("op") == "grant":
                 rec["amount"] = 100.0
             rec["seq"] = i; rec["prev"] = prev
-            no_h = {k: v for k, v in rec.items() if k != "h"}
+            rec["node_id"] = nsk.verify_key.encode().hex()   # ÖNCE: node_id no_h'nin-içindedir
+            no_h = {k: v for k, v in rec.items() if k != "h" and k != "node_sig"}
             rec["h"] = hashlib.sha256((rec["prev"].encode("utf-8") + tr.jcs(no_h).encode("utf-8"))).hexdigest()
+            rec["node_sig"] = nsk.sign(rec["h"].encode()).signature.hex()
             prev = rec["h"]
         return header, state
     (SB / "a1b.tsg").write_bytes(craft(base, a1b))
-    r1b = sh("import", str(SB / "a1b.tsg"), str(fresh("pkgB2")))
-    ok1b = json.loads(r1b).get("ok")
+    r1b = sh("import", str(SB / "a1b.tsg"), str(fresh("pkgB2")), "--cosign-policy", "L1", "--node-trust", str(trust_f))
+    j1b = json.loads(r1b); ok1b = j1b.get("ok")
     v1b = json.loads(sh("ledger-verify", str(SB / "pkgB2")))
-    log(f"A1b splice (chain recomputed): import ok={ok1b} · target ledger-verify ok={v1b.get('ok')} balance={v1b.get('balance_sim')}")
+    log(f"A1b splice (chain recomputed): import ok={ok1b} reason={j1b.get('reason')} · "
+        f"target ledger-verify ok={v1b.get('ok')} balance={v1b.get('balance_sim')}")
     if ok1b and v1b.get("ok"):
         log("A1b RESULT: OPEN FINDING F25 — a seed-owner can install a self-consistent fake history on a fresh node; "
             "current countermeasures: D4 append-only (a chained target is never clobbered) + provenance note; "
             "the permanent fix is node-cosign under RFC-003 (the node key enters the record hash)")
+    elif not ok1b and j1b.get("reason_code") == 14:
+        log("A1b RESULT: F25-CLOSED — import RED: " + str(j1b.get("reason")) +
+            ". Dışarıdan-gelen sahte-geçmiş reddedildi (import --cosign-policy L1 + trust-list).")
     else:
         log("A1b RESULT: the strong adversary was caught too (no F25 — unexpectedly good)")
 
@@ -136,8 +156,8 @@ def main():
         state["ledger_tip"] = fake_tip
         return header, state
     (SB / "a2.tsg").write_bytes(craft(base, a2))
-    r2_fresh = sh("import", str(SB / "a2.tsg"), str(fresh("pkgC")))          # fresh node
-    r2_chain = sh("import", str(SB / "a2.tsg"), str(SB / "pkgA"))            # zincirli node
+    r2_fresh = sh("import", str(SB / "a2.tsg"), str(fresh("pkgC")), "--node-trust", str(trust_f))  # fresh node
+    r2_chain = sh("import", str(SB / "a2.tsg"), str(SB / "pkgA"), "--node-trust", str(trust_f))  # zincirli node
     ok2f = json.loads(r2_fresh).get("ok")
     ok2c = json.loads(r2_chain).get("ok")
     rc2c = json.loads(r2_chain).get("reason_code")
@@ -154,7 +174,7 @@ def main():
         state["graph_merkle"] = tr._graph_merkle(state["memory"])
         return header, state
     (SB / "a3.tsg").write_bytes(craft(base, a3))
-    r3 = sh("import", str(SB / "a3.tsg"), str(fresh("pkgD")))
+    r3 = sh("import", str(SB / "a3.tsg"), str(fresh("pkgD")), "--node-trust", str(trust_f))
     ok3 = json.loads(r3).get("ok")
     log(f"A3 merkle-fold (consistent tampering): import ok={ok3}")
     if ok3:

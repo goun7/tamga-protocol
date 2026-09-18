@@ -54,12 +54,21 @@ kod-farklı-yükte-farklı-wall_ms-verir; bu-bir-hata-değil-**bildirilmiş-sın
 > (4) disputeContext **doğrulanmamış-atıf**'tır, pinned-değil;
 > (5) evidenceHash **imzalı-hash-bağı**'dır, bağımsız-kanıt-doğrulaması-değil;
 > (6) stdout_sha256/delivered **mantıksal-çelişmez** — farklı-sorular-sorarlar.
+>
+> **İkinci-düzeltme-dalgası (2026-09-18, holistis'in-FIELD-PROVENANCE.md'sine-);
+> (7) evidenceHash-etiketi "derived (sınırlı)"-dan **asserted**'e-düştü.** Holistis'in
+> tablosu-bunu-kanıtlıyor: kanıtın-kendisi-asla-saklanmaz-veya-doğrulanmaz, yalnızca-
+> hash'in-imzaya-bağlığı-kaydedilir. Kendi-derived-tanımımıza-göre-yabancı-bir-taraf
+> claim'in-baytlarından-hash'i-yeniden-üremez (kanıt-baytları-dışarıda) — o-halde-
+> derived-değildir. Bu, K17.3-kuralının-bizim-tarafımızda-uygulanması: dış-denetim-
+> sonrası-düzeltme-inline-yazıldı, sessiz-değil. (Kod-doğrulaması:
+> `packages/capacity-attest/docs/FIELD-PROVENANCE.md` @ `3ae036eb1e`.)
 
 | Alan | Etiket | Ne-kanıtlar (koddan-okunmuş) |
 |---|---|---|
 | `buyerAddress`-imzası | derived | **attribution** — kim-imzaladı (ecrecover) |
 | `delivered` (yes/no/partial) | asserted | **alıcının-iddiası** — ne-olduğunu-kanıtlamaz |
-| `evidenceHash` | derived (sınırlı) | **imzalı-hash-bağı**: dış-kanıt-baytları-ELİNDE-olan-bir-doğrulayıcı-claim'i-onlara-bağlayabilir; **tek-başına-kanıtın-varolduğunu-veya-doğru-yorumlandığını-kanıtlamaz** |
+| `evidenceHash` | **asserted** (imzalı-bağ) | alıcının-sağladığı-hash; **kanıtın-kendisi-hiç-saklanmaz-veya-doğrulanmaz** — yalnızca-hash'in-varlığı-imzaya-bağlı. İmza-alıcının-bu-hash'e-gönüllü-olduğunu-kanıtlar; baytların-varolduğunu-veya-doğru-yorumlandığını-kanıtlamaz. (İlk-sürüm-bunu "derived (sınırlı)"-etiketlemişti; holistis'in FIELD-PROVENANCE-düzeltmesi-ile **asserted**'e-düştü — kendi-derived-tanımımıza-göre-yabancı-bir-taraf-claim'in-baytlarından-onu-yeniden-üremez, bu-yüzden-derived-değildir. K17.3-in-uygulaması.) |
 | `computeClaimId`-girdisi | derived | `sha256(canonicalize(ClaimContentSchema.parse(content)))` — **tüm-normalize-ClaimContent**: sellerAddress+buyerAddress+assetType+promisedSpec+delivered+evidenceHash+settlementRef+timestamp + opsiyonel measured/externalRefs/priorClaimId |
 | `priorClaimId` | **asserted** | alıcı-sağlar-ve-claim'e-imzalar; **derived-değil**. Derived-olan-sonraki `analyzeCompleteness()`-sonucudur (dangling/fork, imzalı-işaretçilerden-yeniden-hesaplanır) |
 | `completeness` | derived-fakat-host-tarafından | **aynı-hostta-hesaplanır** — imzalı-prior-bağdan-güçlü-değil, tek-başına-kanıt-sunulamaz |

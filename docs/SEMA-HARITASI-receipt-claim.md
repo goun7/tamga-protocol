@@ -42,27 +42,40 @@ kod-farklı-yükte-farklı-wall_ms-verir; bu-bir-hata-değil-**bildirilmiş-sın
 
 ---
 
-## capacity-attest-claim-sütunu (holistis'in-kodundan, onun-#401/5726904247-açıklamasıyla)
+## capacity-attest-claim-sütunu (koddan-okunmuş, safal207-denetimi-ile-düzeltilmiş)
 
-| Alan | Etiket | Ne-kanıtlar (onun-ifadesiyle) |
+> **Düzeltme-notu (2026-09-18):** bu-sütun-başlangıçta-holistis'in-issue-yorumlarındaki
+> *prose*-açıklamasından-taslaklandı. **safal207 bunu-gerçek-koda-karşı-denetti**
+> (commit `3ae036eb1e`, `packages/capacity-attest/src/{schema,signing,tools,completeness}.ts`)
+> ve-6-düzeltme-verdi; hepsi-aşağıda-uygulandı. Önceki-sürümün-hataları:
+> (1) `#401`-referansı-yanlıştı — o-PR Algorand-AVM'dir, capacity-attest-değildir;
+> (2) computeClaimId **tüm-normalize-ClaimContent**'i-hash'ler, adres-altkümesini-değil;
+> (3) priorClaimId **asserted**'dir (alıcı-sağlar-ve-imzalar), derived-değil;
+> (4) disputeContext **doğrulanmamış-atıf**'tır, pinned-değil;
+> (5) evidenceHash **imzalı-hash-bağı**'dır, bağımsız-kanıt-doğrulaması-değil;
+> (6) stdout_sha256/delivered **mantıksal-çelişmez** — farklı-sorular-sorarlar.
+
+| Alan | Etiket | Ne-kanıtlar (koddan-okunmuş) |
 |---|---|---|
 | `buyerAddress`-imzası | derived | **attribution** — kim-imzaladı (ecrecover) |
 | `delivered` (yes/no/partial) | asserted | **alıcının-iddiası** — ne-olduğunu-kanıtlamaz |
-| `evidenceHash` | pinned | alıcının-bağladığı-kanıt-özü |
-| `computeClaimId`-girdileri | derived | claimId-sabitliği (adresler+spec+settlement+ts) |
-| `priorClaimId`-zinciri | derived | imzalı-önceki-bağ |
-| `completeness` | derived-fakat-host-tarafından | **kendisi-aynı-hostta-hesaplanır** — holistis'in-uyarısı: tek-başına-kanıt-değil |
-| `externalRefs.disputeContext` | pinned | dış-tahkim-sürecine-işaretçi |
+| `evidenceHash` | derived (sınırlı) | **imzalı-hash-bağı**: dış-kanıt-baytları-ELİNDE-olan-bir-doğrulayıcı-claim'i-onlara-bağlayabilir; **tek-başına-kanıtın-varolduğunu-veya-doğru-yorumlandığını-kanıtlamaz** |
+| `computeClaimId`-girdisi | derived | `sha256(canonicalize(ClaimContentSchema.parse(content)))` — **tüm-normalize-ClaimContent**: sellerAddress+buyerAddress+assetType+promisedSpec+delivered+evidenceHash+settlementRef+timestamp + opsiyonel measured/externalRefs/priorClaimId |
+| `priorClaimId` | **asserted** | alıcı-sağlar-ve-claim'e-imzalar; **derived-değil**. Derived-olan-sonraki `analyzeCompleteness()`-sonucudur (dangling/fork, imzalı-işaretçilerden-yeniden-hesaplanır) |
+| `completeness` | derived-fakat-host-tarafından | **aynı-hostta-hesaplanır** — imzalı-prior-bağdan-güçlü-değil, tek-başına-kanıt-sunulamaz |
+| `externalRefs.disputeContext` | asserted (doğrulanmamış-atıf) | `termsHash`-dış-koşulları-sabitler; capacity-attest **süreci-veya-sonucu-çözmez/doğrulamaz** |
 | *yok* | — | **wasm-hash / resource-limits / replay-contract YOK** (holistis'in-itirafı) |
 
 ---
 
 ## Seam'ler — kompozisyon-yapılırsa-nereyi-görmek-lazım
 
-1. **receipt.stdout_sha256 (derived) ↔ claim.delivered (asserted):** birinci
-   "aynı-kod-aynı-çıktı"-der; ikinci "alıcı-bunu-aldım"-der. **İkisi-de-gerçek-
-   olabilir-ve-çelişebilir** — receipt-çıktı-doğru-ama-alıcı-yanlış-alıcıya-gitti.
-   Bu-seam'de-hiçbiri-diğerini-tutmaz.
+1. **receipt.stdout_sha256 (derived) ↔ claim.delivered (asserted):** **mantıksal-
+   olarak-çelişmezler** — farklı-sorular-sorarlar (safal207'nin-düzeltmesi). Birinci
+   "bu-baytlar-üretildi"-der; ikinci "alıcı-teslimi-bu-şekilde-yargıladı"-der.
+   İkisi-de-dahili-olarak-geçerliyken-uyumsuz olabilir: çıktı-doğru-ama-yanlış-
+   alıcıya-gitti-veya-alıcı-doğru-teslime-"kısmi"-dedi. **Çelişki-değil,
+   önerme-sınırı** — hiçbir-alan-diğerini-tutmaz, hiçbir-kompozisyon-bunu-düzeltmez.
 2. **receipt.wall_ms (asserted) ↔ claim.evidenceHash:** ikisi-de-beyan; çifte-
    beyan-doğrulama-değildir.
 3. **completeness (host-derived) ↔ zincir (derived):** completeness-aynı-hostta-

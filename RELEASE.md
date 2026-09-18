@@ -622,3 +622,73 @@ runner, validator and acceptance suite.
 - Pilot/partnership track is now open (docs/DESIGN-PARTNERS.md): free migration
   for the first three partners, founder-approved 2026-09-05. Personal outreach
   is the founder's channel.
+
+---
+
+# 0.2.12 — canonicalization boundary enforcement (2026-09-18)
+
+Two behavior changes, both found by tracing a third party's audit taxonomy back
+into our own code. Neither is a new feature; both tighten a determinism boundary
+that was previously enforced by luck rather than by code.
+
+## What changed
+
+**1. Integers outside `[−2^53, 2^53]` are now rejected.** Previously preserved
+exactly, treated as a feature. That was wrong: Python parses `9007199254740993`
+as an exact integer and serializes it unchanged, while every ECMAScript runtime
+parses it as an IEEE-754 double and prints `9007199254740992`. The same JSON text
+in, two different canonical bytes out, and a receipt that stops recomputing
+across languages — silently. RFC 8785's I-JSON subset (RFC 7493) excludes these
+values, so the boundary is now an explicit refusal. Callers scale the unit or
+serialize large identifiers as strings.
+
+**2. `NaN` and `Infinity` are now rejected.** Previously a `TypeError`; the
+behavior was correct but the class was mislabeled. The reason it matters:
+`JSON.stringify` in ECMAScript emits the literal `"null"` for both — silent value
+degradation, not an error. Aligned to the same `ValueError` family as the range
+check so the conformance gate asserts both as RED.
+
+## How it was found
+
+SolomonisBlack shipped an instrument derived from our hash-invocation counter
+(the `check-hash-count.mjs` shape discussed in x402#2887) and, alongside it, an
+audit CLI that classifies canonicalization violations. "Integers past 2^53-1" was
+on that list. Reading the classification, we checked our own implementation and
+found the divergence above — the audit taxonomy of a third party found a live
+defect in our code across the wire. This is the third and last divergence class
+we are aware of between our canonicalizer and an ECMAScript one, after the
+number-to-string regression (0.2.11, #1) and the UTF-16 code-unit ordering (0.2.11, #2).
+
+## Verification
+
+- Canonicalizer selftest 11 → 16 vectors; 4 now assert a refusal (`ValueError`)
+  rather than an output.
+- Cross-language parity 16 → 19 vectors: 17/17 byte-identical against the Node
+  oracle, plus 2 I-JSON range cases where Python refuses and Node rounds — the
+  gate now names that as the expected difference instead of counting it as a
+  divergence. NaN/Infinity cannot ride the JSON interchange (Python writes a NaN
+  literal that `JSON.parse` rejects), so they are asserted object-level in the
+  selftest.
+- Official RFC-8785 test corpus: still 6/6. The corpus is I-JSON-clean, so the
+  new refusal does not reach it — no published fixture, receipt, or finding hash
+  changes. The pinned `pairing-fixture.json` digest (`fe6f230c…9264c`)
+  recomputes identically (ASCII-only numeric fields).
+- Slow acceptance suite: 58 PASS, 0 FAIL.
+- A duplicate-member-name injection was tested and requires no code change:
+  both runtimes take the last value, and a tampered amount in a ledger record
+  fails `ledger-verify` with reason 14 (`broken@1`) because the signed hash no
+  longer matches. The parser layer is not the canonicalizer's problem, and the
+  signature layer already catches the tamper.
+
+## Honest limits
+
+- The two refusals are boundary tightenings, not a soundness result. A value
+  inside the I-JSON range can still be a lie about what happened; a receipt is
+  post-hoc and proves authenticity, not soundness. Nothing here changes that.
+- Callers passing large integers (milli-satoshi scale above 2^53, large
+  timestamps in non-ISO fields) must move to string fields or a smaller unit.
+  The migration is mechanical, but it is a break, so it ships in a minor bump
+  rather than a patch.
+- The same month found one honest correction of our own: a finding we attributed
+  to a live run had actually come from a fixture shape. The fixes stood; the
+  mechanism was overstated. Recorded in x402#2887 rather than left in chat.

@@ -302,6 +302,11 @@ PY
   bash tests/at018_m6_manifest_schema.sh > /dev/null 2>&1
   kontrol $? "AT-018: M6 manifest-schema v0.3.0-draft (additive-contract; 1-VALID+4-RED sentetik; izolasyon)"
 
+
+  # ---- kontrol-59: AT-038 BAĞIMSIZ attest-verify (sıfır-tamga-import; 7-golden-çift-üretim) ----
+  bash tests/at038_attest_verify_bagimsiz.sh > /dev/null 2>&1
+  kontrol $? "AT-038: BAĞIMSIZ attest-verify (foreign-claim keccak+JCS+ecrecover saf-Python; 7/7-çift-üretim)"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

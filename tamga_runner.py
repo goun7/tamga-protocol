@@ -1264,10 +1264,23 @@ if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):
         print(USAGE)
         sys.exit(0 if len(sys.argv) >= 2 else 1)  # bare invocation = usage error
-    if sys.argv[1] not in cmds:
-        print(f"unknown command: {sys.argv[1]}\n\n{USAGE}")
+    cmd = sys.argv[1]
+    if cmd not in cmds:
+        # Runner-çok-küçük-bir-altküme-dispatch-ediyor; engine-süz-komutlar
+        # (doctor, liveness-probe, attest-verify, verify-cr, verify-mini, bundle,
+        # epoch-verify, project-head, explain) tamga_bootstrap'a-yönelendir.
+        # Bu-liste-ile-USAGE-birbirini-tutar-tutmaz: tools/konsol_drift_kontrol.py.
+        ENGINE_FREE = {"doctor", "liveness-probe", "attest-verify", "verify-cr",
+                       "verify-mini", "bundle", "epoch-verify", "project-head",
+                       "explain"}
+        if cmd in ENGINE_FREE:
+            print(f"not-runner-command: {cmd} engine-süz-yol — "
+                  f"`tamga {cmd} …` ile-çalışır (console-script), "
+                  f"`python3 tamga_runner.py {cmd} …` değil")
+            sys.exit(2)  # İNDETERMİNE-değil, kullanım-hatası (rc2 runner'da-ayrı-tutulur)
+        print(f"unknown command: {cmd}\n\n{USAGE}")
         sys.exit(1)
-    rc = usage_guard(sys.argv[1], sys.argv[2:])
+    rc = usage_guard(cmd, sys.argv[2:])
     if rc is not None:
         sys.exit(rc)
-    sys.exit(cmds[sys.argv[1]](sys.argv[2:]) or 0)
+    sys.exit(cmds[cmd](sys.argv[2:]) or 0)

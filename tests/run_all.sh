@@ -193,6 +193,10 @@ PY
   bash tests/at036_canonical_parity.sh > /dev/null 2>&1
   kontrol $? "AT-036: canonical-parity (ECMAScript-number 1.0→1 + UTF-16-sıra; 3-uygulama + node-oracle)"
 
+  # ---- kontrol-59: AT-037 ret-listesi↔kod round-trip (GVP-PR-#3'ün-bizde-yansıması) ----
+  bash tests/at037_list_code_roundtrip.sh > /dev/null 2>&1
+  kontrol $? "AT-037: list⇄code-roundtrip (ret-listesi-ile-kod-birebir; 0.2.12-I-JSON-RED'leri-sabitlenmiş)"
+
   # ---- kontrol-57 (slow): AT-032 builder-determinism (aynı-pinli-toolchain çift-derleme bayt-bayt) ----
   if [ "${RUN_SLOW:-0}" = "1" ]; then
     bash tests/at032_agent_rebuild.sh > /dev/null 2>&1

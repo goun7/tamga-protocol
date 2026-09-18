@@ -85,6 +85,13 @@ def selftest() -> int:
          '{"big":10000000000000000,"huge":1e+21,"tiny":1e-7}'),    # 1e16 → ondalık (Python 1e+16 der)
         ({"z": -0.0, "third": 0.3333333333333333},
          '{"third":0.3333333333333333,"z":0}'),                     # -0.0 → "0"
+        # I-JSON sayı-aralığı (RFC 7493; 2026-09-18 — gvp-audit "past 2^53-1" sınıfı):
+        # 2^53'ü-aşan-tamsayı Node'da sessiz-yuvarlanır (9007199254740993→…992), Python
+        # aynen-korur → aynı-JSON-iki-dilde-farklı-parse → digest-uyuşmaz. JCS-bütünlüğü
+        # için RED-gerekir (None-beklenen), sessiz-koruma-değil.
+        ({"max_safe": 2 ** 53 - 1}, '{"max_safe":9007199254740991}'),  # son-güvenli-sınır (yeşil)
+        ({"over": 2 ** 53 + 1}, None),                                   # RED: I-JSON-dışı
+        ({"big": 1234567890123456789}, None),                            # RED: I-JSON-dışı
         # UTF-16 code-unit member order (RFC-8785 §3.2.3) — code-point sıralaması YANLIŞ-verir:
         ({"\uffff": 1, "\U00010000": 2}, '{"\U00010000":2,"\uffff":1}'),
         # BMP-içi-bayt-tuzağı (Rul1an issue#2, 2026-09-17): küçük-endian BAYT sıralaması
@@ -98,15 +105,32 @@ def selftest() -> int:
     ]
     bad = 0
     for obj, want in cases:
+        if want is None:
+            # RED-vektörü: değer-invalid-dır, jcs bir-ValueError-atmalı (sessiz-kabul-yasak).
+            try:
+                got = jcs(obj).decode("utf-8")
+                print(f"SELFTEST-FAIL: {obj!r} → {got!r} kabul-edildi (RED-bekleniyordu)")
+                bad += 1
+            except ValueError:
+                pass   # beklenen-red
+            continue
         got = jcs(obj).decode("utf-8")
         if got != want:
             print(f"SELFTEST-FAIL: {obj!r} → {got!r} ≠ {want!r}")
             bad += 1
-    # İç-KAT-2: üç-uygulama-birebir (mini / validator / canon) — kopyalar-drift-yapamaz
+    # İç-KAT-2: üç-uygulama-birebir (mini / validator / canon) — kopyalar-drift-yapamaz.
+    # RED-vektörleri-de-dahil: üçü-de-aynı-reddi-vermeli (RED-üretimi-parite-dışı-tutulamaz).
     try:
         from tamga_validator import jcs as vj
         from tamga_canon import jcs as cj
-        for obj, _ in cases:
+        for obj, want in cases:
+            if want is None:
+                for fn, nm in ((jcs, "validator"), (vj, "validator"), (cj, "canon")):
+                    try:
+                        fn(obj); print(f"SELFTEST-FAIL: {nm} RED-vermedi: {obj!r}"); bad += 1
+                    except ValueError:
+                        pass
+                continue
             if not (jcs(obj) == vj(obj) == cj(obj)):
                 print(f"SELFTEST-FAIL: üçlü-parite-bozuk: {obj!r}")
                 bad += 1
@@ -116,7 +140,8 @@ def selftest() -> int:
     if bad:
         return 1
     print(f"selftest: {len(cases)}/{len(cases)} RFC-8785-öz-OK + 3-uygulama-paritesi "
-          f"(ECMAScript-number + UTF-16-sıra; json.dumps'ın-hatalı-olduğu-8-yer)")
+          f"(ECMAScript-number + UTF-16-sıra + I-JSON-aralık; "
+          f"json.dumps'ın-hatalı-olduğu-8-yer + 2 RED-ijson-aralık)")
     return 0
 
 

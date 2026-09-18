@@ -70,7 +70,12 @@ def _encode(o, out):
     elif o is True: out.append("true")
     elif o is False: out.append("false")
     elif isinstance(o, bool): out.append("true" if o else "false")
-    elif isinstance(o, int): out.append(str(o))
+    elif isinstance(o, int):
+        # I-JSON (RFC 7493): tamsayı [−2^53, 2^53] içinde-olmalı; sınır-aşımı RED.
+        # Python aynen-korur, ECMAScript yuvarlar → digest-uyuşmaz (2026-09-18).
+        if not (-(2 ** 53) <= o <= 2 ** 53):
+            raise ValueError("ijson_number_out_of_range: int outside [−2^53, 2^53]")
+        out.append(str(o))
     elif isinstance(o, float): out.append(es_number(o))
     elif isinstance(o, str): out.append(_enc_string(o))
     elif isinstance(o, dict):

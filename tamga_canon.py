@@ -84,7 +84,16 @@ def _encode(o, out: list) -> None:
     elif isinstance(o, bool):        # defensive: bool subclasses int
         out.append("true" if o else "false")
     elif isinstance(o, int):
-        out.append(str(o))           # decimal digits; big ints stay exact (see module docstring)
+        # RFC 8785 I-JSON altkümesi (RFC 7493): tamsayılar [−2^53, 2^53] içinde-olmalı.
+        # Sınırı-aşan değer ECMAScript Number'da (IEEE-754) temsil-edilemediği-için
+        # Python aynen-korur, Node yuvarlar → aynı JSON iki-dilde-farklı-parse-edilir,
+        # digest uyuşmaz (2026-09-18, #2887/GVP gvp-audit'in "integers past 2^53-1"
+        # sınıfıyla-aynı-köken). Sessiz-koruma-veya-sessiz-yuvarlama yerine RED:
+        if not (-(2 ** 53) <= o <= 2 ** 53):
+            raise ValueError("ijson_number_out_of_range: int outside [−2^53, 2^53] "
+                             "is not in the I-JSON subset (RFC 7493); serialize as a "
+                             "string or scale the unit instead")
+        out.append(str(o))
     elif isinstance(o, float):
         out.append(es_number(o))
     elif isinstance(o, str):

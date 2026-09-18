@@ -101,6 +101,25 @@ The bundle carries the chain records, the manifest re-hash, and per-job
 digests — the counterparty re-derives every claim offline. Full flow:
 [docs/AGENT-GUIDE.md §8b](AGENT-GUIDE.md).
 
+## 6c. Verify a claim with zero Tamga code (foreign counterparty)
+
+The attestation verifier ships as **one stdlib-Python file** — a counterparty who
+does not trust us, and does not want to install anything, can still verify:
+
+```bash
+curl -sO https://raw.githubusercontent.com/goun7/tamga-protocol/main/tools/attest_verify_bagimsiz.py
+python3 attest_verify_bagimsiz.py claim.json
+```
+
+```json
+{"verdict": "GREEN", "reason": "ok", "registry": "CAPACITY_ATTEST_V1",
+ "signer_recover": "0xf11ce714…", "buyerAddress": "0xf11ce714…"}
+```
+
+Everything needed is inside that file: keccak256, RFC 8785 canonicalization, secp256k1
+signature recovery. **Installing Tamga is never a prerequisite for checking Tamga** —
+which is the point of a receipt standard rather than a trusted service.
+
 ## 6b. Use it as a library (no CLI, no engine)
 
 The four engine-free modules import directly from the published wheel:

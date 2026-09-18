@@ -6,7 +6,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-57%2F57%20PASS-brightgreen)](#one-command-regression)
+[![Tests](https://img.shields.io/badge/tests-55%2F55%20PASS-brightgreen)](#one-command-regression)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Phase%202%20--%20pilot-orange)](#roadmap)
 [![Reproduce](https://img.shields.io/badge/docs-reproduce%20it%20yourself-blue)](docs/REPRODUCE.md) — last full suite run: 2026-09-17 (58/58 slow)
@@ -27,6 +27,21 @@ The agent ecosystem has three layers — and none of them fills the gap between 
 
 Tamga lives in that gap: **encrypted, portable, tamper-evident agent state.**
 Not a competitor — a complement. See [docs/ERC-8004-MAPPING.md](docs/ERC-8004-MAPPING.md).
+
+### The gap is measured, not assumed
+
+This is not a hypothetical. Blockchain-intelligence firm TRM Labs audited $52.7M of x402
+settlements and found that **only 0.6–7.5% was plausibly agentic** — roughly
+**$5,000–$11,000 per month** of real agent spend against the headline number. Their
+structural finding names the gap directly:
+
+> *"A settled transaction proves that value moved — it does not prove a model made a
+> purchasing decision. A script, a cron job, a load test, a self-payment loop or a human
+> clicking a button all drive the same HTTP 402 sequence and leave an identical record."*
+
+Three independent audits reached the same conclusion. Their recommendation — accurate
+registration plus counterparty reputation an agent can check on its own — is exactly the
+layer Tamga implements. Payment rails move value; **Tamga binds the work to the claim.**
 
 ## 30-second summary
 
@@ -76,6 +91,15 @@ flowchart LR
 ```
 
 New here? → [docs/QUICKSTART.md](docs/QUICKSTART.md) (5-minute setup, `pip install tamga-protocol`).
+
+**Verify a claim without installing anything.** The attestation verifier is a single
+stdlib-Python file — keccak256, RFC 8785 canonicalization and secp256k1 recovery all
+self-contained. Anyone checking one of our claims never has to trust or install us:
+
+```bash
+curl -sO https://raw.githubusercontent.com/goun7/tamga-protocol/main/tools/attest_verify_bagimsiz.py
+python3 attest_verify_bagimsiz.py claim.json      # GREEN rc0 / RED rc1
+```
 
 Full technical details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 

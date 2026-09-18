@@ -92,6 +92,9 @@ def selftest() -> int:
         ({"max_safe": 2 ** 53 - 1}, '{"max_safe":9007199254740991}'),  # son-güvenli-sınır (yeşil)
         ({"over": 2 ** 53 + 1}, None),                                   # RED: I-JSON-dışı
         ({"big": 1234567890123456789}, None),                            # RED: I-JSON-dışı
+        # NaN/Inf (I-JSON/RFC 7493 yasak; Node JSON.stringify sessizce "null"-verir):
+        ({"nan": float("nan")}, None),                                   # RED: sessiz-null düşüşü
+        ({"inf": float("inf")}, None),                                   # RED: sessiz-null düşüşü
         # UTF-16 code-unit member order (RFC-8785 §3.2.3) — code-point sıralaması YANLIŞ-verir:
         ({"\uffff": 1, "\U00010000": 2}, '{"\U00010000":2,"\uffff":1}'),
         # BMP-içi-bayt-tuzağı (Rul1an issue#2, 2026-09-17): küçük-endian BAYT sıralaması
@@ -140,8 +143,8 @@ def selftest() -> int:
     if bad:
         return 1
     print(f"selftest: {len(cases)}/{len(cases)} RFC-8785-öz-OK + 3-uygulama-paritesi "
-          f"(ECMAScript-number + UTF-16-sıra + I-JSON-aralık; "
-          f"json.dumps'ın-hatalı-olduğu-8-yer + 2 RED-ijson-aralık)")
+          f"(ECMAScript-number + UTF-16-sıra + I-JSON-aralık + NaN/Inf-RED; "
+          f"json.dumps'ın-hatalı-olduğu-8-yer + 4 RED)")
     return 0
 
 

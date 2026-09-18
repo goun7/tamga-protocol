@@ -26,6 +26,8 @@ corpus = [
     {"max_safe": 9007199254740991},          # 2^53-1: son-I-JSON-güvenli-tamsayı (yeşil)
     {"over": 9007199254740993},              # 2^53+1: node yuvarlar, python RED (gvp-audit sınıfı)
     {"big": 1234567890123456789},            # I-JSON-dışı: node …6780 yuvarlar
+    # NOT: NaN/Inf JSON-interchange'da taşınamaz (json.dumps NaN-literal-üretir,
+    # JSON.parse-red-eder); bu sınıf vauban-selftest'te doğrudan-nesne-olarak-test-edilir.
     {"": "empty-key", "0": "digitish", "10": "x", "9": "y"},
 ]
 pathlib.Path("/tmp/jcs-corpus.json").write_text(json.dumps(corpus, ensure_ascii=False), encoding="utf-8")

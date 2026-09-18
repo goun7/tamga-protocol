@@ -32,7 +32,7 @@ _ESCAPE = {'"': '\\"', "\\": "\\\\", "\b": "\\b", "\f": "\\f",
 
 def es_number(x):
     if x != x or x in (float("inf"), float("-inf")):
-        raise TypeError("non-finite numbers are not canonicalizable (RFC 8785)")
+        raise ValueError("ijson_number_not_finite: NaN/Infinity are not in the I-JSON subset")
     if x == 0:
         return "0"
     neg = x < 0

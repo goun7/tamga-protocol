@@ -37,7 +37,10 @@ _ESCAPE = {
 def es_number(x: float) -> str:
     """ECMAScript ``Number.prototype.toString`` (RFC 8785 §3.2.2.2); rejects NaN/Inf."""
     if x != x or x in (float("inf"), float("-inf")):
-        raise TypeError("non-finite numbers are not canonicalizable (RFC 8785 forbids them)")
+        # I-JSON (RFC 7493) ve RFC 8785 NaN/Inf'i-yasaklar; Node JSON.stringify → "null"
+        # (sessiz-değer-düşüşü). RED ile-reddet: ValueError, I-JSON-aralık-reddiyle-aynı-sınıf.
+        raise ValueError("ijson_number_not_finite: NaN/Infinity are not in the I-JSON subset "
+                         "(RFC 7493); ECMAScript would silently emit \"null\"")
     if x == 0:                       # covers -0.0 → "0" (ECMAScript prints "0")
         return "0"
     neg = x < 0

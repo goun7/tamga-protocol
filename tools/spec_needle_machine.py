@@ -84,6 +84,78 @@ def check_op_coverage() -> list:
     return sorted(undocumented), sorted(found)
 
 
+def _spec_ops(spec_text: str) -> set:
+    """Spec'te-adı-geçen-op-değerlerini-OTOMATIK-çıkar.
+
+    DERS (Sester-2026-09-20): elle-tutulan-üretici-tabloları-kirlenir
+    (onların-EVENT_TYPE_SOURCES'ı-yanlış-yol-gösteriyordu). Bu-liste-de-aynı
+    tuzakta-idi — SPEC_OPS-sabiti-elle-yazılmıştı. Artık-spec'in-kendisinden
+    okunuyor: hem-listeli-hem-reserved-değerler-belgeden-gelir.
+    """
+    # SADECE-yapısal-liste-satırları: "Kayıt-türleri:" + "**RESERVED".
+    # Prose-erratum-cümlelerini-dahil-ETME — \`fee\` orada da-geçiyor-ve
+    # makine-onu-iki-kez-listeli-sayıyor → ölü-tarama-bozuluyor.
+    ids = set()
+    lines = spec_text.splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith("Kayıt-türleri:"):
+            j = i + 1
+            blob = line
+            while j < len(lines) and lines[j].strip() and not lines[j].startswith("**"):
+                blob += " " + lines[j]; j += 1
+            ids |= set(re.findall(r"`([a-z][a-z-]+)`", blob))
+        if line.startswith("**RESERVED"):
+            j = i + 1
+            blob = line
+            while j < len(lines) and lines[j].strip() and not lines[j].startswith("**"):
+                blob += " " + lines[j]; j += 1
+            ids |= set(re.findall(r"`([a-z][a-z-]+)`", blob))
+    return ids
+
+
+def check_dead_entries() -> list:
+    """Sester'ın-test_209_taxonomy_has_no_dead_entries'inin-bizdeki-karşılığı.
+
+    Spec'te-listeli-ama-hiç-yayınlanmayan-op-RED — **ancak-açıkça-reserved
+    olarak-belgelenmişse-GREEN.** Bu-ayırt-önemli:
+      - Sester'ın-usage_event'i: panel-etiketinden-varsayım, emitter-yok,reserved
+        notu-yok → ÖLÜ → kaldırıldı
+      - Bizim-fee'miz: §1'de-açıkça-'ayrılmış'-diyor → meşru-reserved, kalır
+    """
+    spec = (SPEC_DIR / "LEDGER-SPEC.md").read_text(encoding="utf-8")
+    found = set()
+    for p in REPO.rglob("*.jsonl"):
+        try:
+            for m in re.finditer(r'"op":\s*"([a-z][a-z-]*)"', p.read_text(encoding="utf-8", errors="replace")):
+                found.add(m.group(1))
+        except OSError:
+            continue
+    listed = _spec_ops(spec)
+    dead = []
+    for o in sorted(listed):
+        if o in found:
+            continue
+        # reserved-olarak-belgeli-mi? YAPI-BAZLI: ayrı-bir-RESERVED-satırında
+        # listeliyse-GREEN. Pencere-tabanlı-yaklaşım-BUĞDAYTI: parantez-içine
+        # gömülen-yeni-değer-reserved-notundan-geçer-geliyordu (deneme-op,
+        # fee'nin-ayrılmış-parantezi-içine-yazılınca-yeşil-döndü).
+        # AYNI-satırda-reserved-anahtar-kelime-veya-RESERVED-listesinde
+        # RESERVED-bloğunu-aynı-blob-okuma-ile-al (_spec_ops-ile-tutarlı)
+        reserved = set()
+        lines = spec.splitlines()
+        for i, ln in enumerate(lines):
+            if ln.startswith("**RESERVED"):
+                j = i + 1
+                blob = ln
+                while j < len(lines) and lines[j].strip() and not lines[j].startswith("**"):
+                    blob += " " + lines[j]; j += 1
+                reserved |= set(re.findall(r"`([a-z][a-z-]+)`", blob))
+        if o in reserved:
+            continue
+        dead.append(o)
+    return dead
+
+
 def main(argv: list[str]) -> int:
     problems = []
     miss = check_needles()
@@ -93,6 +165,10 @@ def main(argv: list[str]) -> int:
     undoc, found = check_op_coverage()
     if undoc:
         problems.append(f"[E1(c)-otomatik] spec'te-yazmayan-ledger-op'ları: {undoc}")
+    dead = check_dead_entries()
+    if dead:
+        problems.append(f"[Sester-209-aynası] ÖLÜ-girdiler (listeli-ama-yayılmayan-"
+                        f"ve-reserved-değil): {dead}")
     if problems:
         print("SPEC-NEEDLE-BAŞARISIZ:")
         for p in problems:

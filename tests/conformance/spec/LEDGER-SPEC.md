@@ -9,8 +9,9 @@
 |---|---|---|
 | Ledger | `tamga-sim/1` JSONL | her-kayıt: `seq` (1-based) + `prev` + `h = sha256(prev ‖ jcs(kayıt))` |
 
-Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman), `fee`
-(harcama — ayrılmış; v0.1 yalnız `charge` ve `grant` yayar).
+Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman); v0.1
+yalnız bu ikisini yayar. **Harcama-türü `fee` RESERVED'dir** (aşağıda, tek
+listede — çift-liste-makineyi-şaşırtıyor).
 
 **Erratum E1(c) (2026-09-20 — Sester-K0.2-yöntemi-ile-bulundu):** §1'in
 listesi-yanlıştı. **fail-closed-dalga-deneyi** (kısıt-ekle → tam-suite-koş →
@@ -21,6 +22,12 @@ kırılım-eksik-değeri-yüzeye-vur) iki-eksik-değer-çıkardı:
   sınıfı:** meşru-üretim-olayı-spec-dışı-ilan-ediliyordu.
 - **`fee`-listeli-ama-hiç-kullanılmıyor** (corpus'ta-0-kayıt) — either-way-
   tutarsızlık.
+
+**RESERVED (ölü-ama-kasıtlı; yayılmaz):** `fee` — v0.1'de-yayılmaz, gelecekte-harcama. **Ölü-girdi-taraması-bu-listeyi-yeşil-geçirir.**
+**Dürüst-limit (Sester-2026-09-20-dersi):** bu-liste-insan-elinde-tutulur — onların-EVENT_TYPE_SOURCES-üretici-tablosu-aynı-tuzakta-idi (settlement-için-el-girilen-yol-yanlış-emitter-gösteriyordu, makine-RED-verdi). Makine-yalnızca 'listeli-ama-yayılmayan'-ı-yakalar; 'listeli-ama-yanlış-emitter'-ı-yakamaz — o-için-üretici-tablosunun-üretim-kodundan-doğrulanması-gerekir (bizde-henüz-yok).
+
+
+
 
 **Gözlemlenen-küme (empirik, kod+jsonl+fixture-taraması):** `charge`, `grant`,
 `replace` — artı `note` (yalnızca `tools/verify_lite.py`-fixture'ında).

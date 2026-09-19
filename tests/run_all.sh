@@ -351,6 +351,10 @@ PY
   python3 tools/spec_code_scan.py > /dev/null 2>&1
   kontrol $? "AT-046: 9-kural-çift-yönlü + sıfır-divergence + parite"
 
+  # ---- kontrol-71: AT-047 spec-needle-machine (YÖN-B-makinede + op-otomatik) ----
+  python3 tools/spec_needle_machine.py > /dev/null 2>&1
+  kontrol $? "AT-047: 18-needle-makine + op-kümesi-E1(c)-otomatik"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

@@ -12,6 +12,25 @@
 Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman), `fee`
 (harcama — ayrılmış; v0.1 yalnız `charge` ve `grant` yayar).
 
+**Erratum E1(c) (2026-09-20 — Sester-K0.2-yöntemi-ile-bulundu):** §1'in
+listesi-yanlıştı. **fail-closed-dalga-deneyi** (kısıt-ekle → tam-suite-koş →
+kırılım-eksik-değeri-yüzeye-vur) iki-eksik-değer-çıkardı:
+
+- **`replace`-GERÇEK-LEDGER-OP'dur** — `__pycache__/session.v3.jsonl`-canlı-
+  oturum-ledger'ında-5-kayıtta-var; spec'te-listeli-değildi. **Tam-Sester-K0.2
+  sınıfı:** meşru-üretim-olayı-spec-dışı-ilan-ediliyordu.
+- **`fee`-listeli-ama-hiç-kullanılmıyor** (corpus'ta-0-kayıt) — either-way-
+  tutarsızlık.
+
+**Gözlemlenen-küme (empirik, kod+jsonl+fixture-taraması):** `charge`, `grant`,
+`replace` — artı `note` (yalnızca `tools/verify_lite.py`-fixture'ında).
+
+**Kısıt-hâlâ-yok** (E1(a)-kararı-korunur) — ama **dalga-yöntemi-artık-locked**:
+eğer-yarın-kısıtlamaya-karar-verilirse, `ALLOWED_OPS`-yazım-sınırında-fail-closed
+yapılıp-tam-suite-koşulmalı; her-kırılım-dalgası-eksik-değeri-çıkarır.
+**Gözle-tükenmezlik-kanıtlanamaz** (bu-deney-bunu-kanıtladı: ben-ilk-bakışta
+`charge`/`grant`/`fee`-sandım, `replace`-canlı-ledger'da-gizliydi).
+
 ## 2. Kanonikleşme — RFC 8785 (JCS)
 
 `jcs(kayıt)`-şunları-uygular:

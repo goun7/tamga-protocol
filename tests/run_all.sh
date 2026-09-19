@@ -315,6 +315,10 @@ PY
   bash tests/at002c_identity_anchor.sh > /dev/null 2>&1
   kontrol $? "AT-002c: identity-anchor eip155-şema + signer-uyumu + 3-negatif-yol-RED"
 
+  # ---- kontrol-62: AT-002d charge-kayıt bağımsız-doğrulama (stdlib-only; P9'suz) ----
+  bash tests/at002d_receipt_compat.sh > /dev/null 2>&1
+  kontrol $? "AT-002d: charge-üyelik + zincir-doğrulama + digest-parite + 3-negatif-yol-RED"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

@@ -323,6 +323,10 @@ PY
   bash tests/at002e_profit_worm.sh > /dev/null 2>&1
   kontrol $? "AT-002e: λ-eşik-bant-bağlı (300/1000/1500) + eski-tek-2000-keşfi"
 
+  # ---- kontrol-64: AT-039 yüzey-sabitleme (doğrulama-arayüzleri-testle-kilitli) ----
+  bash tests/at039_surface_lock.sh > /dev/null 2>&1
+  kontrol $? "AT-039: CLI/import-yüzeyleri + argüman-sözleşmesi + sester-bağı"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

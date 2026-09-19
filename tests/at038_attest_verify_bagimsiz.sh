@@ -83,25 +83,39 @@ fi
 
 # 4) CLI-üzerinden-foreign-claim: prod1.json GREEN + signer==buyer
 note "4) CLI foreign-claim (prod1.json — gerçek-üretim-claim'i)"
-if python3 tools/attest_verify_bagimsiz.py .evidence/AT-030/2026-09-18/prod1.json >> "$LOG" 2>&1; then
-  PASS=$((PASS+1)); note "  PASS foreign-claim: GREEN signer==buyer"
+# tarih-hardcoded-değil: en-son-üretilen-prod1'i-bul (CI-gün-gelince-eski-klasöre-bakar)
+PROD1="$(ls -t .evidence/AT-030/*/prod1.json 2>/dev/null | head -1)"
+if [[ -z "$PROD1" ]]; then
+  # üretim-yoksa-bu-aşama-önce-üretmeli (P8-kanıtı-zinciri)
+  PROD1=".evidence/AT-030/$(date +%F)/prod1.json"
+  mkdir -p "$(dirname "$PROD1")"
+  TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}" \
+    python3 -c "
+import sys, json; sys.path.insert(0,'.')
+from tamga_runner import cmds
+" >> "$LOG" 2>&1 || true
+fi
+if [[ -n "$PROD1" && -f "$PROD1" ]] && python3 tools/attest_verify_bagimsiz.py "$PROD1" >> "$LOG" 2>&1; then
+  PASS=$((PASS+1)); note "  PASS foreign-claim: GREEN signer==buyer ($PROD1)"
 else
-  FAIL=$((FAIL+1)); note "  FAIL foreign-claim — RED-üretti"
+  FAIL=$((FAIL+1)); note "  FAIL foreign-claim — RED-üretti veya claim-yok ($PROD1)"
   cat "$LOG"
 fi
 
 # 5) negatif-self-test: kurcalanmış-claim RED-üretmeli (test-kendisi-bozulabilir)
 note "5) negatif-self-test — kurcalanmış-claim RED-olmalı"
+CL="${PROD1:-.evidence/AT-030/$(date +%F)/prod1.json}"
 if python3 -c "
-import sys, json, copy
+import sys, json, copy, os
 sys.path.insert(0,'tools')
 from attest_verify_bagimsiz import verify
-c = json.load(open('.evidence/AT-030/2026-09-18/prod1.json'))
+p = os.environ.get('AT038_CLAIM', '$CL')
+c = json.load(open(p))
 bad = copy.deepcopy(c); bad['delivered'] = 'no'
 ok, r, d = verify(bad)
 assert not ok, 'kurcalama-RED-üretmedi — test-boş'
 print(f'  kurcalama-RED: {r}')
-" >> "$LOG" 2>&1; then
+" AT038_CLAIM="$PROD1" >> "$LOG" 2>&1; then
   PASS=$((PASS+1)); note "  PASS negatif-self-test: kurcalama RED"
 else
   FAIL=$((FAIL+1)); note "  FAIL negatif-self-test — kurcalama-yakalanmadı"

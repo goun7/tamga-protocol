@@ -69,6 +69,17 @@ def verify_anchor(path: str) -> dict:
     if a.get("all_proved") != (len(proved) == len(results)):
         return {"ok": False, "reason": "all_proved ile results çelişiyor"}
 
+    # ERRATUM-A2 (2026-09-20): ok:True-ama-verdict≠GREEN-boyama-saldırısı.
+    # proved-yalnızca-ok'a-bakıyordu; a09-vektörü-UNVERIFIED-perdesi-arkasında
+    # kötü-sonucu-gizliyordu. Artık-ikisi-de-gerekli.
+    for p, r in results.items():
+        if not isinstance(r, dict):
+            return {"ok": False, "reason": f"sonuç-nesne-değil: {p}"}
+        if r.get("ok") and r.get("verdict") not in ("GREEN",):
+            return {"ok": False,
+                    "reason": f"sahte-yeşile-boyama: {p} ok:True-ama-verdict:"
+                              f"{r.get('verdict')!r} — çelişki"}
+
     # §5.6 — kaynaklar-yoksa-dürüst-bildir
     if not isinstance(a.get("sources"), dict) or not a["sources"]:
         return {"ok": True, "structural": True,

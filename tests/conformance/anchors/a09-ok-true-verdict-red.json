@@ -1,0 +1,20 @@
+{
+  "type": "sovereign-anchor",
+  "version": "0.1",
+  "products_present": [
+    "tamga"
+  ],
+  "products_proved": [
+    "tamga"
+  ],
+  "all_proved": true,
+  "results": {
+    "tamga": {
+      "ok": true,
+      "verdict": "RED",
+      "detail": "kanıt-bozuk-ama-ok-doğru"
+    }
+  },
+  "sources": {},
+  "anchor_root": "dc412a5117f5dcfa384564b4755cb6199bccc9f5f75d24fbf76f2cba72682658"
+}

@@ -55,11 +55,19 @@ geçilmez, dürüst-bildirilir.
 
 ## 5. Zorunlu-denetimler
 
-1. `type == "sovereign-anchor"`, `version == "0.1"`
-2. `results`-bir-nesne-olmalı; her-değer-`{ok, verdict}`-biçiminde
-3. `anchor_root`-§3'e-göre-yeniden-hesaplandığında-birebir-aynı
-4. `products_proved == [p for p in ("tamga","sester","veridict") if results[p].ok]`
-5. `all_proved == (len(proved) == len(results))`
-6. `sources`-yoksa-veya-boşsa → **UNVERIFIED-INDEPENDENTLY** (hata-değil)
+ 1. `type == "sovereign-anchor"`, `version == "0.1"`
+ 2. `results`-bir-nesne-olmalı; her-değer-`{ok, verdict}`-biçiminde
+ 3. `anchor_root`-§3'e-göre-yeniden-hesaplandığında-birebir-aynı
+ 4. `products_proved == [p for p in ("tamga","sester","veridict") if results[p].ok]`
+ 5. `all_proved == (len(proved) == len(results))`
+ 6. **ERRATUM-A2 (2026-09-20):** her-sonuç-için `ok:True`-ise-`verdict`-de
+    `"GREEN"`-olmalı. **Aksi-saldırı:** `ok:True`+`verdict:"RED"`-boyayıp-kökü
+    yeniden-hesaplayan-saldırgan, layer-1'i-geçip-UNVERIFIED-INDEPENDENTLY
+    perdesi-arkasında-kötü-sonucu-gizler. Vektör: `a09-ok-true-verdict-red`.
+ 7. `sources`-yoksa-veya-boşsa → **UNVERIFIED-INDEPENDENTLY** (hata-değil)
 
-İhlal → RED + belirli-reason.
+ İhlal → RED + belirli-reason.
+
+**Not (A2'-nin-önemi):** bu-sınıf-"absent==instrument-failure"-ailesindendir
+(stillmarcus24, x402#2887): katman-1-geçti-ama-gerçek-kanıt-yok-iken-eklenen
+ikinci-alan-tutarsızlığı-olmadan-sessizce-geçerdi.

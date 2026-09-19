@@ -175,6 +175,38 @@ if [ $RC -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS UNVERIFIED-dürüst-bildirim"
 else FAIL=$((FAIL+1)); note "  FAIL kaynaksız"; cat "$LOG"; fi
 
+# 6) ERRATUM-A2: ok:True-ama-verdict:RED-boyama → layer-1-RED (yeni-sınıf)
+note "6) A2 — ok:True/verdict:RED-boyama-yakalanır (UNVERIFIED-perdesi)"
+"$PY" - <<'PYEOF' >> "$LOG" 2>&1
+import json, os, sys, hashlib, copy
+sys.path.insert(0, "tools")
+W = os.environ["W"]
+d = json.load(open(os.environ["A"]))
+from sovereign_anchor import verify, _canon
+# saldırı: ürünün-sonucunu-ok:True-ama-verdict:RED-yap (çelişki), kökü-yeniden
+# hesapla → layer-1-geçmeli-ESKİ-sürümde-UNVERIFIED-ile-gizliyordu.
+s = copy.deepcopy(d)
+# A2-vektörü: ok:True-ama-verdict:RED. products_proved-ok'e-göre-DOLU-olmalı
+# (yoksa-önceki-denetim-tetiklenir). all_proved: proved==results-uzunluğu.
+s["results"] = {"tamga": {"ok": True, "verdict": "RED", "detail": "gizli-bozuk"}}
+s["products_present"] = ["tamga"]
+s["products_proved"] = ["tamga"]           # ok:True → proved'da-olmalı
+s["all_proved"] = True                      # len(proved)==len(results)==1
+s["sources"] = {}
+s["anchor_root"] = hashlib.sha256(
+    _canon({"results": s["results"], "sources": {}})).hexdigest()
+json.dump(s, open(f"{W}/a2.json", "w"))
+r = verify(f"{W}/a2.json")
+assert not r.get("ok"), f"A2-saldırısı-gizlendi: {r}"
+assert "boyama" in r.get("reason", "") or "çelişki" in r.get("reason", ""), \
+    f"A2-sebebi-yanlış: {r.get('reason')}"
+print(f"A2-saldırısı-yakalandı: {r['reason'][:60]}")
+PYEOF
+RC=$?
+if [ $RC -eq 0 ]; then
+  PASS=$((PASS+1)); note "  PASS A2-boyama-yakalandı"
+else FAIL=$((FAIL+1)); note "  FAIL A2-gizlendi"; cat "$LOG"; fi
+
 echo
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 echo "  AT-041-kapısı: üç-ürün-tek-öz + iki-katmanlı-doğrulama"

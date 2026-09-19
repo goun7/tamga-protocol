@@ -133,6 +133,18 @@ def verify(anchor_path: str) -> dict:
         return {"ok": False, "reason": "products_proved ile results çelişiyor"}
     if a.get("all_proved") != (len(proved) == len(results)):
         return {"ok": False, "reason": "all_proved ile results çelişiyor"}
+    # ERRATUM-A2 (2026-09-20 — vektör-araştırması-ile-bulundu): proved-yalnızca
+    # ok'a-bakıyordu; saldırgan ok:True-verdict:RED-boyayıp-kökü-yeniden-hesapla
+    # → UNVERIFIED-INDEPENDENTLY-perdesi-arkasında-kötü-sonucu-gizliyordu.
+    # Artık-kanıt-için-HER-İKİSİ-gerekli: ok:True-VE-verdict:"GREEN".
+    for p, r in results.items():
+        if not isinstance(r, dict):
+            return {"ok": False,
+                    "reason": f"sonuç-nesne-değil: {p}"}
+        if r.get("ok") and r.get("verdict") != "GREEN":
+            return {"ok": False,
+                    "reason": f"sahte-yeşile-boyama: {p} ok:True-ama-verdict:"
+                              f"{r.get('verdict')!r} — çelişki"}
     # --- katman-2: bağımsız-yeniden-hesap (sahte-yeşile-boyama-koruması) ---
     # anchor'ın-iddia-ettiği-her-yeşil-sonuç, kaynaklardan-bağımsız-doğrulanır.
     # anchor-yalnızca-özet-taşır; kaynakları-değil — bu-yüzden-katman-2-yalnızca

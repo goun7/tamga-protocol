@@ -40,10 +40,13 @@ from spec_needle_machine import check_op_coverage
 undoc, found = check_op_coverage()
 assert not undoc, f"spec-dışı-ledger-op'ları-keşfedildi: {undoc}"
 assert "charge" in found and "grant" in found, "çekirdek-op'lar-yok"
-# E1(c)-kanıtı: replace-artık-spec'te-listeli-olmalı
+# LEDGER-FİLTRESİ-kanıtı: session.v3.jsonl-'replace'-gürültüsü-artık-yakalanmaz
+assert "replace" not in found, \
+    "replace-tool/result-gürültüsü-hâlâ-ledger-op-sayılıyor (filtre-bozuk)"
+# E1(c)-düzeltme: yanlış-bulguyu-spec'te-teslim-eden-itàiraf-yazılı-olmalı
 import pathlib
 spec = pathlib.Path("tests/conformance/spec/LEDGER-SPEC.md").read_text(encoding="utf-8")
-assert "replace" in spec, "replace-hâlâ-spec'te-değil (E1(c)-kapanmadı)"
+assert "E1(c)-düzeltme" in spec, "yanlış-bulgu-itàrafı-spec'te-yok"
 print(f"op-kümesi-uyumlu: {sorted(found)}")
 PYEOF
 if [ $? -eq 0 ]; then

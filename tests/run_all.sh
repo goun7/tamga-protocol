@@ -359,6 +359,10 @@ PY
   bash tests/at048_detector_selftest.sh > /dev/null 2>&1
   kontrol $? "AT-048: 4-sınıf-bilinen-cevap + 18/0/0/0 + absent≠failure"
 
+  # ---- kontrol-73: AT-049 emitter-doğrulama (yanlış-emitter-sınıfı-kilidi) ----
+  bash tests/at049_emitter_verify.sh > /dev/null 2>&1
+  kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

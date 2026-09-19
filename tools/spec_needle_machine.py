@@ -47,7 +47,8 @@ NEEDLES = [
 ]
 
 # spec'te-listelenen-gözlemlenebilir-küme (E1(c)-den-sonra)
-SPEC_OPS = ("charge", "grant", "fee", "replace", "note")
+# replace-çıkarıldı (E1(c)-düzeltme): tool/result-gürültüsü-idi
+SPEC_OPS = ("charge", "grant", "fee", "note")
 
 
 def check_needles() -> list:
@@ -68,13 +69,18 @@ def check_op_coverage() -> list:
     spec = (SPEC_DIR / "LEDGER-SPEC.md").read_text(encoding="utf-8")
     found = set()
     for p in REPO.rglob("*.jsonl"):
-        if "__pycache__" in p.parts or ".evidence" in p.parts:
-            pass  # __pycache__-DAHİL — canlı-oturum-ledger'ı-oranın-olabilir
         try:
-            for m in re.finditer(r'"op":\s*"([a-z][a-z-]*)"', p.read_text(encoding="utf-8", errors="replace")):
-                found.add(m.group(1))
+            txt = p.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
+        # LEDGER-FİLTRESİ (E1(c)-düzeltme): session.v3.jsonl-gibi-DSH-oturum
+        # dosyaları-da-'op'-anahtarı-taşır → tool/result-gürültüsü. Yalnızca
+        # seq+prev+h-üçlüsünü-taşıyan-satırlar-gerçek-ledger'dır.
+        for line in txt.splitlines():
+            if not ("\"seq\"" in line and "\"prev\"" in line and "\"h\"" in line):
+                continue
+            for m in re.finditer(r'"op":\s*"([a-z][a-z-]*)"', line):
+                found.add(m.group(1))
     # spec'te-adı-geçen-değerler
     in_spec = {o for o in SPEC_OPS if o in spec}
     # fixture-dışı-üretim-op'ları: spec'te-adı-geçmeyenler
@@ -126,10 +132,14 @@ def check_dead_entries() -> list:
     found = set()
     for p in REPO.rglob("*.jsonl"):
         try:
-            for m in re.finditer(r'"op":\s*"([a-z][a-z-]*)"', p.read_text(encoding="utf-8", errors="replace")):
-                found.add(m.group(1))
+            txt = p.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
+        for line in txt.splitlines():
+            if not ("\"seq\"" in line and "\"prev\"" in line and "\"h\"" in line):
+                continue
+            for m in re.finditer(r'"op":\s*"([a-z][a-z-]*)"', line):
+                found.add(m.group(1))
     listed = _spec_ops(spec)
     dead = []
     for o in sorted(listed):

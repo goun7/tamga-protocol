@@ -13,15 +13,30 @@ Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman); v0.1
 yalnız bu ikisini yayar. **Harcama-türü `fee` RESERVED'dir** (aşağıda, tek
 listede — çift-liste-makineyi-şaşırtıyor).
 
-**Erratum E1(c) (2026-09-20 — Sester-K0.2-yöntemi-ile-bulundu):** §1'in
-listesi-yanlıştı. **fail-closed-dalga-deneyi** (kısıt-ekle → tam-suite-koş →
-kırılım-eksik-değeri-yüzeye-vur) iki-eksik-değer-çıkardı:
+**Erratum E1(c)-düzeltme (2026-09-20, ikinci-tur — ÖNEMLİ-İTİRAF):** önceki-
+sürüm-bu-erratum'da-`replace`'i-"gerçek-ledger-op"-diye-yazdım. **YANLIŞTI.**
+5-eşleşmenin-hepsi-`__pycache__/session.v3.jsonl`-dosyasındaki-`tool/result`-
+kayıtlarıydı — yani-benim-kendi-oturumlarımın-araç-çıktıları (edit/replace-tool
+-results), Tamga-ledger-kayıtları-DEĞIL. Bu-dosya-`type`-alanlı-DSH-oturum-
+günlüğü, `seq`/`prev`/`h`-üçlüsünü-taşımıyor.
 
-- **`replace`-GERÇEK-LEDGER-OP'dur** — `__pycache__/session.v3.jsonl`-canlı-
-  oturum-ledger'ında-5-kayıtta-var; spec'te-listeli-değildi. **Tam-Sester-K0.2
-  sınıfı:** meşru-üretim-olayı-spec-dışı-ilan-ediliyordu.
-- **`fee`-listeli-ama-hiç-kullanılmıyor** (corpus'ta-0-kayıt) — either-way-
-  tutarsızlık.
+**Ders (Sester'ın-service.py:104-tuzağının-bire-bizdeki-kanıtı):** grep
+`"op":"..."`-kalıbını-her-bağlamda-aranca-araç-çıktılarını-ledger-kaydı-sandım.
+Bu-tam-olarık-Sester'ın-`lines.append(f"...")`-çağrısının-ilk-argümanını-olay-
+sayma-hatasıyla-aynı-sınıf. **Çözüm:** emitter_verify.py-artık-yalnızca
+`seq`+`prev`+`h`-üçlüsünü-taşıyan-satırları-ledger-kabul-ediyor.
+
+**Doğru-gözlemlenen-küme:** `charge` (72-kayıt), `grant` (7-kayıt). Kod-emitter'ları:
+`charge`←tamga_runner.py:784, `grant`←tamga_runner.py:367, `run`←:805,
+`migrate-net`←:1174 (kodda-var-ledger-korpusunda-yok).
+
+**fail-closed-dalga-deneyi-sonuçları-de-doğrulandı:** DALGA-1/2-FAIL'leri-gerçek
+elde-edinildi (verify-lite-`note`-fixture + AT-045-`BILINMEYEN`-testi), yani
+yöntem-doğru-çalıştı — sadece-ben-sonuçları-yanlış-okudum. Yöntem-kilitli,
+yorum-hatalı-idi.
+
+**E1(c)-orijinal-iddia-iptal:** `replace`-gerçek-ledger-op-değildi. `fee`-ise
+RESERVED-olarak-kilitli (aşağıda).
 
 **RESERVED (ölü-ama-kasıtlı; yayılmaz):** `fee` — v0.1'de-yayılmaz, gelecekte-harcama. **Ölü-girdi-taraması-bu-listeyi-yeşil-geçirir.**
 **Dürüst-limit (Sester-2026-09-20-dersi):** bu-liste-insan-elinde-tutulur — onların-EVENT_TYPE_SOURCES-üretici-tablosu-aynı-tuzakta-idi (settlement-için-el-girilen-yol-yanlış-emitter-gösteriyordu, makine-RED-verdi). Makine-yalnızca 'listeli-ama-yayılmayan'-ı-yakalar; 'listeli-ama-yanlış-emitter'-ı-yakamaz — o-için-üretici-tablosunun-üretim-kodundan-doğrulanması-gerekir (bizde-henüz-yok).
@@ -29,8 +44,9 @@ kırılım-eksik-değeri-yüzeye-vur) iki-eksik-değer-çıkardı:
 
 
 
-**Gözlemlenen-küme (empirik, kod+jsonl+fixture-taraması):** `charge`, `grant`,
-`replace` — artı `note` (yalnızca `tools/verify_lite.py`-fixture'ında).
+**Gözlemlenen-küme (seq+prev+h-üçlüsü-ile-doğrulanmış):** `charge` (72),
+`grant` (7). Kod-emitter'ları-`run`-ve-`migrate-net`-de-içerir (bkz.
+tools/emitter_verify.py). `note`-yalnızca-fixture.
 
 **Kısıt-hâlâ-yok** (E1(a)-kararı-korunur) — ama **dalga-yöntemi-artık-locked**:
 eğer-yarın-kısıtlamaya-karar-verilirse, `ALLOWED_OPS`-yazım-sınırında-fail-closed

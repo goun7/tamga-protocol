@@ -319,6 +319,10 @@ PY
   bash tests/at002d_receipt_compat.sh > /dev/null 2>&1
   kontrol $? "AT-002d: charge-üyelik + zincir-doğrulama + digest-parite + 3-negatif-yol-RED"
 
+  # ---- kontrol-63: AT-002e kâr-solucanğı (λ-eşik-geçerliliği; P9'suz-ön-iş) ----
+  bash tests/at002e_profit_worm.sh > /dev/null 2>&1
+  kontrol $? "AT-002e: λ-eşik-bant-bağlı (300/1000/1500) + eski-tek-2000-keşfi"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

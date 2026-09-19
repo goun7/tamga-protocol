@@ -311,6 +311,10 @@ PY
   bash tests/at002a_registration_schema.sh > /dev/null 2>&1
   kontrol $? "AT-002a: ERC-8004 registration-v1 üret+doğrula + 6-negatif-yol-RED + JCS-paritesi"
 
+  # ---- kontrol-61: AT-002c kimlik-çapası (node-kimliği ↔ makbuz-signer bağı; P9'suz) ----
+  bash tests/at002c_identity_anchor.sh > /dev/null 2>&1
+  kontrol $? "AT-002c: identity-anchor eip155-şema + signer-uyumu + 3-negatif-yol-RED"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

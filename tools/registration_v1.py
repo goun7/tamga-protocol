@@ -13,6 +13,7 @@ Kullanım:
     python3 tools/registration_v1.py verify  <registration.json>
 """
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -33,10 +34,47 @@ ALLOWED = {
     "agentRegistry": {None},        # v0: on-chain-değil
 }
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 _.-]{0,63}$")
+# eip155:{chainId}:{registry-address} — Phase-3-on-chain-kimlik-çapası
+EIP155_RE = re.compile(r"^eip155:\d+:(0x[a-fA-F0-9]{40})$")
+# ethereum-address (signer/buyer-karşılaştırması-için)
+ADDR_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")
 
 
 def _fail(reason: str) -> tuple[bool, str]:
     return False, reason
+
+
+def bind_identity(reg: dict, signer_address: str) -> tuple[bool, str]:
+    """AT-002c: kimlik-çapası — node-kimliği-ile-makbuzun-signer'ı-bağlanır.
+
+    Faz-3-on-chain-registry-henüz-yok (v0), bu-yüzden-bu-denetim ŞEMA-seviyesinde
+    yapılır: bildirilen-kimlik-çapası-geçerli-bir-eip155-bağı-olmalı-ve-açıkça-
+    işaretlenmiş-bir-signer-address-ile-uyumlu-olmalıdır.
+
+    Üretimde-bu-bağ, tools/attest_verify_bagimsiz.py:258'deki-signer==buyer-
+    karşılaştırmasının-node-tarafıdır: kayıt-kimliği-ile-doğrulayıcı-signer-aynı
+    adresi-göstermelidir, yoksa-node-kimliği-RED (identity-mismatch).
+    """
+    if "tamgaIdentityAnchor" not in reg:
+        return True, "ok (v0: çapa-yok — aç)"
+    anchor = reg["tamgaIdentityAnchor"]
+    if not isinstance(anchor, dict):
+        return _fail("tamgaIdentityAnchor bir nesne olmalı")
+    chain_ref = anchor.get("registry", "")
+    if not isinstance(chain_ref, str) or not EIP155_RE.match(chain_ref):
+        return _fail(f"registry eip155:{{chain}}:{{0xaddr}} biçiminde değil: {chain_ref!r}")
+    # signer-address-çapa-içinde-açıkça-taşınır-ise-şema-geçerliliği-denetlenir;
+    # gerçek-imza-doğrulaması-üretim-verify'-inde-yapılır (attest_verify_bagimsiz)
+    addr = anchor.get("signerAddress")
+    if addr is not None:
+        if not isinstance(addr, str) or not ADDR_RE.match(addr):
+            return _fail(f"signerAddress geçerli bir 0x-adresi değil: {addr!r}")
+        if signer_address and addr.lower() != signer_address.lower():
+            return _fail(
+                f"identity-mismatch: kayıt {addr[:10]}… ama-makbuz-signer "
+                f"{signer_address[:10]}…"
+            )
+    return True, "ok"
 
 
 def produce(manifest_path: str) -> dict:
@@ -86,6 +124,10 @@ def verify(reg: dict) -> tuple[bool, str]:
         return _fail(f"name şema-desenine-uymuyor: {reg.get('name')!r}")
     if not isinstance(reg.get("description"), str):
         return _fail("description string olmalı")
+    # AT-002c: kimlik-çapası-bağlaması (varsa-signer-ile-uyum-zorunlu)
+    ok, why = bind_identity(reg, reg.get("_signer_address", ""))
+    if not ok:
+        return False, why
     return True, "ok"
 
 
@@ -99,6 +141,13 @@ def main(argv: list[str]) -> int:
         return 0
     if cmd == "verify":
         reg = json.load(open(path, encoding="utf-8"))
+        # signer-address-ortamdan-veya-argümandan (identity-mismatch-denetimi-için)
+        signer = None
+        if len(argv) > 3:
+            signer = argv[3]
+        elif os.environ.get("TAMGA_SIGNER_ADDRESS"):
+            signer = os.environ["TAMGA_SIGNER_ADDRESS"]
+        reg["_signer_address"] = signer
         ok, reason = verify(reg)
         print(json.dumps({"ok": ok, "reason": reason}, ensure_ascii=False))
         return 0 if ok else 1

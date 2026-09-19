@@ -343,6 +343,10 @@ PY
   bash tests/at043_conformance_pack.sh > /dev/null 2>&1
   kontrol $? "AT-043: 7-vektör + izolasyon + sıfır-tamga-import + üretim-parite"
 
+  # ---- kontrol-69: AT-045 spec↔kod çift-yönlü-parite (Veridict-D12-eşi) ----
+  bash tests/at045_spec_code_parity.sh > /dev/null 2>&1
+  kontrol $? "AT-045: erratum-E1 + seq/op/ekstra-alan iki-yön-locked"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

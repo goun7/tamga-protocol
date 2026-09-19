@@ -45,6 +45,26 @@ h   = sha256( (prev + jcs(no_h).decode("utf-8")).encode("utf-8") ).hexdigest()
 
 İhlal → RED, kırık-satır-numarasıyla-belirtilir.
 
+## 3.6 Erratum E1 (2026-09-19 — Veridict-D12'-ye-karşılık)
+
+Veridict'in-uyarısı-üzerine-yapılan-spec↔kod-audit'i-iki-boşluk-buldu:
+
+**(a) `op`-değerleri-KISITLANMAMIŞTIR.** §1'-de-`charge`/`grant`/`fee`-
+listelenmesine-rağmen-üretim-bunları-zorunlu-kılmaz: `op:"BILINMEYEN"`-ile-
+bir-kayıt-GREEN-doğrulanır. **Bu-kasıtlıdır** (ileri-uyumlu-genişleme), ama-
+§1'in-dili-bunu-söylemiyordu. Bağımsız-gerçeklemeler-bilinmeyen-`op`-değerlerini-
+RED-veya-GREEN-olarak-ele-almakta-özgürdür; conformance-paketi-bu-vektörü-
+kısmi-uyumlu-olarak-raporlar.
+
+**(b) bilinmeyen-ekstra-alanlara-izin-verilir** (yukarıdaki- gibi). Üretim-
+sadece-`h`-ve-`node_sig`-alanlarını-dışlar; diğer-tüm-alanlar-`jcs`-girişidir.
+Bu-kasıtlıdır (ileri-uyumlu), ancak-açıkça-belgelendirilmedi.
+
+**Ders (üç-ürün-için):** kodda-uygulanan-ama-spec'te-yazmayan-kural, bağımsız-
+verifier-ile-gerçekleme-arasında-ayrışma-yaratır. Tersine, spec'te-yazan-ama-
+kodda-uygulmayan-kural-ayrışma-yaratır. Her-iki-yön-de-audit-edilmeli — bizde
+bu-erratum-iki-yönü-de-kapattı.
+
 ## 4. Boş-zincir
 
 Boş-dosya-veya-sadece-boş-satırlar-içeren-ledger "empty chain" ile-RED-

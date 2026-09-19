@@ -194,16 +194,21 @@ def verify_ledger(ledger_path: str) -> tuple[int, str]:
 def main(argv: list[str]) -> int:
     # argv: [ledger.jsonl] — main(sys.argv[1:]) ile çağrılır
     if len(argv) < 1 or not argv[0]:
-        print("kullanim: spec_verifier_independent.py <ledger.jsonl>", file=sys.stderr)
+        print("kullanim: verify.py <ledger.jsonl>", file=sys.stderr)
         return 2
     line_no, reason = verify_ledger(argv[0])
     result = {
-        "verifier": "spec-independent (AT-040)",
+        "verifier": "conformance-independent (AT-043)",
+        "spec": "tests/conformance/spec/LEDGER-SPEC.md",
         "ok": line_no == 0 and reason == "ok",
+        "empty_chain": (line_no == 0 and reason == "empty chain"),
         "broken_line": line_no or None,
         "reason": reason,
     }
     print(json.dumps(result, ensure_ascii=False, indent=1))
+    # boş-zincir (§4) geçerli-başlangıç: GREEN değil ama ayrı-sonuç
+    if result["empty_chain"]:
+        return 0
     return 0 if result["ok"] else 1
 
 

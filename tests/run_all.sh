@@ -339,6 +339,10 @@ PY
   bash tests/at042_settlement_bridge.sh > /dev/null 2>&1
   kontrol $? "AT-042: build+verify iki-katmanlı + Veridict-saldırı-kilidi + limits"
 
+  # ---- kontrol-68: AT-043 conformance pack (sıfır-import, repo-dışı-çalışır) ----
+  bash tests/at043_conformance_pack.sh > /dev/null 2>&1
+  kontrol $? "AT-043: 7-vektör + izolasyon + sıfır-tamga-import + üretim-parite"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

@@ -1,0 +1,3 @@
+{"seq": 1, "op": "charge", "amount": 5, "agent_id": "conf-vector", "note": "\u00a73-kural-kan\u0131t\u0131", "prev": "0000000000000000000000000000000000000000000000000000000000000000", "h": "55fedc8bbde6006cc13856d747a796a7681970b7863e650ba6cf7a7c494f52b4"}
+{"seq": 2, "op": "charge", "amount": 10, "agent_id": "conf-vector", "note": "\u00a73-kural-kan\u0131t\u0131", "prev": "55fedc8bbde6006cc13856d747a796a7681970b7863e650ba6cf7a7c494f52b4", "h": "0000000000000000000000000000000000000000000000000000000000000000"}
+{"seq": 3, "op": "charge", "amount": 15, "agent_id": "conf-vector", "note": "\u00a73-kural-kan\u0131t\u0131", "prev": "2058976ba9669e160bfc1bb75150da0a7713ba2e9b9bfc96310ce9a826c6c010", "h": "f02246ec85d892c4746d4039c9f96377000ca5a832c2dcd9d871f0838a509059"}

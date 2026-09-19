@@ -69,15 +69,22 @@ else FAIL=$((FAIL+1)); note "  FAIL verify-mini-yüzeyi"; cat "$LOG"; fi
 # 4) registration_v1: produce|verify-altkomut-yüzeyi
 note "4) registration_v1 altkomut-yüzeyi"
 if python3 -c "
-import subprocess, sys, json
-p = subprocess.run([sys.executable, 'tools/registration_v1.py', 'produce',
-                    '/tmp/at002a-manifest.json'], capture_output=True, text=True)
-assert p.returncode == 0
+import subprocess, sys, json, tempfile, os
+# kendi-fixture'ını-üret (dış-temp'e-bağımlı-değil — AT-038-dersi)
+W = tempfile.mkdtemp(prefix='at039-')
+mf = os.path.join(W, 'manifest.json')
+rf = os.path.join(W, 'reg.json')
+open(mf, 'w').write(json.dumps({'package': {'name': 'yuzey-sabitle'},
+                                'summary': 'sabitleme', 'runtime': {'min_proof_level': 1}}))
+p = subprocess.run([sys.executable, 'tools/registration_v1.py', 'produce', mf],
+                   capture_output=True, text=True)
+assert p.returncode == 0, f'produce-RED: {p.stderr[:120]}'
+open(rf, 'w').write(p.stdout)
 d = json.loads(p.stdout)
 assert d['type'] == 'agent' and 'x402Support' in d
-v = subprocess.run([sys.executable, 'tools/registration_v1.py', 'verify',
-                    '/tmp/at002a-reg.json'], capture_output=True, text=True)
-assert v.returncode == 0
+v = subprocess.run([sys.executable, 'tools/registration_v1.py', 'verify', rf],
+                   capture_output=True, text=True)
+assert v.returncode == 0, f'verify-RED: {v.stderr[:120]}'
 print('  produce|verify: rc0 + normatif-alanlar')
 " >> "$LOG" 2>&1; then
   PASS=$((PASS+1)); note "  PASS registration-v1-yüzeyi"

@@ -355,6 +355,10 @@ PY
   python3 tools/spec_needle_machine.py > /dev/null 2>&1
   kontrol $? "AT-047: 18-needle-makine + op-kümesi-E1(c)-otomatik"
 
+  # ---- kontrol-72: AT-048 dedektör-öz-doğrulama (stillmarcus24-yoldaş-kuralı) ----
+  bash tests/at048_detector_selftest.sh > /dev/null 2>&1
+  kontrol $? "AT-048: 4-sınıf-bilinen-cevap + 18/0/0/0 + absent≠failure"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

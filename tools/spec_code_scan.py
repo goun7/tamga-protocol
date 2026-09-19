@@ -234,9 +234,13 @@ def scan() -> dict:
             ind = _vind(p) if green_case else (not _vind(p) if red_case else None)
         else:
             ind = None
-        div = "aligned" if (documented and code_ok) else (
-            "spec-only" if documented and not code_ok else (
-                "code-only" if not documented and code_ok else "untested"))
+        # KNOWN-ANSWER-DİSİPLİNİ (stillmarcus24-2026-09-20): code_ok=None-iken
+        # 'documented-and-not-None'-yanlışlıkla-spec-only-düşürürdü; untested
+        # öncelikli-olmalı-ki-ölçülemeyen-kural-ayrışma-taklit-etmesin
+        div = ("untested" if code_ok is None else
+               "aligned" if (documented and code_ok) else
+               "spec-only" if documented else
+               "code-only" if code_ok else "untested")
         rows.append({"id": rid, "rule": desc, "spec_ref": spec_ref,
                      "spec_documented": documented, "code_enforced": code_ok,
                      "independent_parity": ind, "divergence": div,
@@ -254,9 +258,13 @@ def scan() -> dict:
             code_ok = got            # geçerli-GREEN-gelmeli
         else:                        # unverified
             code_ok = got            # UNVERIFIED-dönmeli (ok=True)
-        div = "aligned" if (documented and code_ok) else (
-            "spec-only" if documented and not code_ok else (
-                "code-only" if not documented and code_ok else "untested"))
+        # KNOWN-ANSWER-DİSİPLİNİ (stillmarcus24-2026-09-20): code_ok=None-iken
+        # 'documented-and-not-None'-yanlışlıkla-spec-only-düşürürdü; untested
+        # öncelikli-olmalı-ki-ölçülemeyen-kural-ayrışma-taklit-etmesin
+        div = ("untested" if code_ok is None else
+               "aligned" if (documented and code_ok) else
+               "spec-only" if documented else
+               "code-only" if code_ok else "untested")
         rows.append({"id": rid, "rule": desc, "spec_ref": needle,
                      "spec_documented": documented, "code_enforced": code_ok,
                      "independent_parity": code_ok, "divergence": div,

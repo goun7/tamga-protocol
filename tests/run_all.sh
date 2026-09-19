@@ -307,6 +307,10 @@ PY
   bash tests/at038_attest_verify_bagimsiz.sh > /dev/null 2>&1
   kontrol $? "AT-038: BAĞIMSIZ attest-verify (foreign-claim keccak+JCS+ecrecover saf-Python; 7/7-çift-üretim)"
 
+  # ---- kontrol-60: AT-002a registration-v1 şema-doğrulayıcı (Faz-3-ön-iş, P9'suz) ----
+  bash tests/at002a_registration_schema.sh > /dev/null 2>&1
+  kontrol $? "AT-002a: ERC-8004 registration-v1 üret+doğrula + 6-negatif-yol-RED + JCS-paritesi"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

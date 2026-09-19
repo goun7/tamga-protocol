@@ -133,6 +133,83 @@ def _make(case):
     return p
 
 
+
+
+def _anchor(results, sources):
+    """ERRATUM-A1-formülüyle-geçerli-anchor-üret."""
+    import hashlib as _h
+    from sovereign_anchor import _canon as _ac
+    return {"type": "sovereign-anchor", "version": "0.1",
+            "products_present": sorted(results),
+            "products_proved": [p for p in ("tamga","sester","veridict")
+                                if results.get(p, {}).get("ok")],
+            "all_proved": bool(results) and all(v.get("ok") for v in results.values()),
+            "results": results, "sources": sources,
+            "anchor_root": _h.sha256(_ac({"results": results,
+                                          "sources": sources})).hexdigest()}
+
+def _avmin(path):
+    """Bağımsız-anchor-verifier (paket) — üretimden-tamamen-ayrı."""
+    sys.path.insert(0, str(REPO / "tests" / "conformance"))
+    from verify_anchor import verify_anchor
+    return verify_anchor(path).get("ok")
+
+def _anchor_case(case):
+    """Anchor-kural-kırım/veya-geçerli-vektör-üret → yol-döndür."""
+    d = tempfile.mkdtemp()
+    p = f"{d}/a.json"
+    good = {"tamga": {"ok": True, "verdict": "GREEN"},
+            "sester": {"ok": True, "verdict": "GREEN"},
+            "veridict": {"ok": True, "verdict": "GREEN"}}
+    src = {"tamga_claim": "a", "sester_db": "b", "veridict_cert": "c"}
+    if case == "a-clean":
+        json.dump(_anchor(good, src), open(p, "w"), indent=1)
+    elif case == "a-bad-type":
+        a = _anchor(good, src); a["type"] = "x"; json.dump(a, open(p,"w"), indent=1)
+    elif case == "a-bad-ver":
+        a = _anchor(good, src); a["version"] = "9"; json.dump(a, open(p,"w"), indent=1)
+    elif case == "a-bad-result-obj":
+        json.dump(_anchor({}, src), open(p, "w"), indent=1)
+    elif case == "a-root-tamper":
+        a = _anchor(good, src); a["anchor_root"] = "f"*64
+        json.dump(a, open(p,"w"), indent=1)
+    elif case == "a-proved-missing":
+        a = _anchor(good, src); a["products_proved"] = ["tamga"]
+        json.dump(a, open(p,"w"), indent=1)
+    elif case == "a-allproved-lie":
+        a = _anchor(good, src); a["all_proved"] = False
+        json.dump(a, open(p,"w"), indent=1)
+    elif case == "a-no-sources":
+        json.dump(_anchor(good, {}), open(p, "w"), indent=1)
+    elif case == "a-sources-tamper":
+        a = _anchor(good, src); a["sources"]["sester_db"] = "/tmp/sahte.db"
+        json.dump(a, open(p,"w"), indent=1)
+    return p
+
+# ANCHOR-kural-tablosu: (id, açıklama, spec-needle, kırım/yeşil-case,
+#                       beklenen: red|green|unverified)
+ANCHOR_RULES = [
+    ("A-5.1t", "type sovereign-anchor", '`type == "sovereign-anchor"`',
+     "a-bad-type", "red"),
+    ("A-5.1v", "version 0.1", '`version == "0.1"`',
+     "a-bad-ver", "red"),
+    ("A-5.2", "results-nesne + {ok,verdict}", "`results`-bir-nesne-olmalı",
+     "a-bad-result-obj", "red"),
+    ("A-5.3", "anchor_root-yeniden-hesap (A1-dahil)",
+     "anchor_root    = sha256",
+     "a-root-tamper", "red"),
+    ("A-5.4", "products_proved-tutarlı", "`products_proved ==",
+     "a-proved-missing", "red"),
+    ("A-5.5", "all_proved-tutarlı", "`all_proved ==",
+     "a-allproved-lie", "red"),
+    ("A-5.6", "kaynaksız → UNVERIFIED", "UNVERIFIED-INDEPENDENTLY",
+     "a-no-sources", "unverified"),
+    ("A-A1", "sources-köke-girer (ERRATUM-A1)", "Erratum A1",
+     "a-sources-tamper", "red"),
+    ("A-0", "temiz-anchor-geçerli", "Üye-sıralaması",
+     "a-clean", "green"),
+]
+
 def scan() -> dict:
     spec_ledger = (REPO / "tests" / "conformance" / "spec" /
                    "LEDGER-SPEC.md").read_text(encoding="utf-8")
@@ -164,6 +241,26 @@ def scan() -> dict:
                      "spec_documented": documented, "code_enforced": code_ok,
                      "independent_parity": ind, "divergence": div,
                      "evidence": evidence})
+    # ---- ANCHOR-tarafı (ANCHOR-SPEC.md §5 + ERRATUM-A1) ----
+    spec_anchor = (REPO / "tests" / "conformance" / "spec" /
+                   "ANCHOR-SPEC.md").read_text(encoding="utf-8")
+    for rid, desc, needle, case, expect in ANCHOR_RULES:
+        documented = needle in spec_anchor
+        p = _anchor_case(case)
+        got = _avmin(p)
+        if expect == "red":
+            code_ok = not got        # kırım-RED-gelmeli
+        elif expect == "green":
+            code_ok = got            # geçerli-GREEN-gelmeli
+        else:                        # unverified
+            code_ok = got            # UNVERIFIED-dönmeli (ok=True)
+        div = "aligned" if (documented and code_ok) else (
+            "spec-only" if documented and not code_ok else (
+                "code-only" if not documented and code_ok else "untested"))
+        rows.append({"id": rid, "rule": desc, "spec_ref": needle,
+                     "spec_documented": documented, "code_enforced": code_ok,
+                     "independent_parity": code_ok, "divergence": div,
+                     "evidence": f"anchor-{case}: beklenen={expect}"})
     n = lambda k: sum(1 for r in rows if r["divergence"] == k)
     return {"scanner": "AT-046-tri-product", "product": "tamga",
             "rules": rows,

@@ -72,6 +72,29 @@ def measure_r1():
 r1 = measure_r1()
 print(f"unlock-RED/başarı-oranı (ortanca-3): {r1:.2f}")
 assert 0.6 <= r1 <= 1.6, f"unlock-RED-zamanı-bant-dışı (ortanca): {r1}"
+
+# NEGATIF-KONTROL (2026-09-19, Sester'ın-fleet-lane-dersinden): pozitif-yön
+# tek-başına-kanıt-değildir. Negatif-yön: AYNI-iş-ölçen-iki-aynı-hedef-oranı
+# da-band-içi-olmalı — yoksa-band-gerçek-farka-değil-gürültüye-duyarlıdır.
+#
+# DÜRÜST-İTİRAF: median-of-3 bu-negatif-kontrolü-zayıflatır — tek-bozuk-ölçüm
+# filtrelendiği-için-aynı-hedef-oranı-her-zaman-1.0-döner-ve-band-gürültüye-
+# duyarlı-bile-olsa-test-yeşil-geçer. Bu-nedenle-negatif-kontrol-burada
+# **zayıf-kanıt**-olur — tek-ölçümlük-flap-korumasını-kasten-feda-etmedikçe
+# güçlendiremeyiz. Tercih: median-flap-koruması (daha-sık-gerçekleşen-fail)
+# güçlü-negatif-kontrol-üzerine-tutuldu. İkisini-aynı-anda-tutmak-için:
+# negatif-kontrolü-median-DEĞİL-maksimum-üzerinden-yapalım — en-kötü-ölçüm-
+# bile-band-içe-düşmeli.
+def measure_neg():
+    import statistics
+    ra = [timed(snap, W / "tgt_b", env) for _ in range(3)]
+    rb = [timed(snap, W / "tgt_b", env) for _ in range(3)]
+    # maksimum-oran: gürültü-band'ı-aşarsa-yakalar (median-gizlemez)
+    return max(a / b for a, b in zip(ra, rb))
+
+rn = measure_neg()
+print(f"negatif-kontrol (aynı-hedef-maks-oran): {rn:.2f}")
+assert 0.6 <= rn <= 1.6, f"negatif-kontrol-band-dışı: {rn} — band-gürültüye-duyarlı"
 print("OK")
 PYEOF
 ok $? "zaman-matrisi: unlock-RED≈başarı-(band-içi); ölçüm-kanıt-logda"

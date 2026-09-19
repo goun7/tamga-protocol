@@ -34,12 +34,12 @@ if [ $RC -eq 0 ]; then
 else FAIL=$((FAIL+1)); note "  FAIL divergence-kaldı rc=$RC"; cat "$LOG"; fi
 
 # 2) özet-alanları-doğru
-note "2) özet — 9-aligned, 0-divergence"
+note "2) özet — 18-aligned, 0-divergence"
 python3 - <<'PYEOF' >> "$LOG" 2>&1
 import json
 d = json.load(open("/tmp/at046.json"))
 s = d["summary"]
-assert s["aligned"] == 9, f"aligned={s['aligned']} beklenen-9"
+assert s["aligned"] == 18, f"aligned={s['aligned']} beklenen-18"
 assert s["spec_only"] == 0, f"spec-only-divergence: {s['spec_only']}"
 assert s["code_only"] == 0, f"code-only-divergence: {s['code_only']}"
 assert s["untested"] == 0
@@ -47,7 +47,7 @@ assert s["untested"] == 0
 for r in d["rules"]:
     assert r["spec_documented"], f"{r['id']} spec'te-belgeli-değil"
     assert r["code_enforced"] is not False, f"{r['id']} kod-tarafı-ölçülemedi"
-print("9-kural-hepsi-çift-yönlü-kanıtlandı")
+print("18-kural-hepsi-çift-yönlü-kanıtlandı (9-ledger+9-anchor)")
 PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then
@@ -62,7 +62,7 @@ d = json.load(open("/tmp/at046.json"))
 bad = [r["id"] for r in d["rules"] if r["independent_parity"] is False]
 assert not bad, f"bağımsız-verifier-ayrışması: {bad}"
 n = sum(1 for r in d["rules"] if r["independent_parity"] is True)
-assert n >= 9, f"parite-ölçülen-kural-sayısı={n}"
+assert n >= 18, f"parite-ölçülen-kural-sayısı={n}"
 print(f"bağımsız-verifier {n}-kuralda-üretim-ile-aynı")
 PYEOF
 RC=$?

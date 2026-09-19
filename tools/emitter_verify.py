@@ -84,6 +84,7 @@ def _ledger_evidence() -> dict:
 def scan() -> dict:
     code = _code_emitters()
     seen = _ledger_evidence()
+    spec = _read_spec()
     problems = []
     # (b) tablodaki-her-op-emitter'a-sahip-olmalı-veya-reserve
     all_ops = set(code) | set(seen) | RESERVED
@@ -93,15 +94,25 @@ def scan() -> dict:
         if op not in code and op not in seen:
             problems.append(f"[{op}] ne-kodda-ne-ledgerda — hayalet-girdi")
         elif op not in code:
-            # ledgerda-var-ama-kod-emitter'ı-yok → session.v3-gibi-dış-kaynak
+            # ledgerda-var-ama-kod-emitter'ı-yok → dış-kaynak-gürültüsü
             problems.append(
                 f"[{op}] ledger-kanıtı-var-ama-ÜRETİM-KODUNDA-emitter-yok "
-                f"({seen[op]}-dosya) — yanlış-emitter-veya-eshki-tarihçe")
+                f"({seen[op]}-dosya) — yanlış-emitter-veya-tarihçe")
+        elif op not in spec:
+            # CODE-ONLY (E1(c)-sınıfı): emitter-var-ama-spec'te-yazılı-değil
+            problems.append(
+                f"[{op}] ÜRETİM-KODUNDA-emitter-var-({code[op][0]})-ama-SPEC'TE-"
+                f"yazılı-değil — gerçek-E1(c)-sınıfı-kod-only")
     return {"emitters": {k: v for k, v in code.items()},
             "ledger_evidence": seen,
             "reserved": sorted(RESERVED),
             "problems": problems,
             "ops_total": len(all_ops)}
+
+
+def _read_spec() -> str:
+    p = REPO / "tests" / "conformance" / "spec" / "LEDGER-SPEC.md"
+    return p.read_text(encoding="utf-8") if p.exists() else ""
 
 
 def main(argv: list[str]) -> int:

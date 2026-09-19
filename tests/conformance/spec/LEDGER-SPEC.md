@@ -9,9 +9,19 @@
 |---|---|---|
 | Ledger | `tamga-sim/1` JSONL | her-kayıt: `seq` (1-based) + `prev` + `h = sha256(prev ‖ jcs(kayıt))` |
 
-Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman); v0.1
-yalnız bu ikisini yayar. **Harcama-türü `fee` RESERVED'dir** (aşağıda, tek
+Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman), `run`
+(ajans-yürütme-kanıtı), `migrate-net` (R1-ağ-geçiş-kanıtı); v0.1-bunları-yayar.
+**Harcama-türü `fee` RESERVED'dir** (aşağıda, tek
 listede — çift-liste-makineyi-şaşırtıyor).
+
+**Erratum-E1(d) (2026-09-20 — emitter_verify.py-ile-bulundu):** `run`-ve-
+`migrate-net`-üretim-kodunda-emitter'a-sahipti-ama-önceki-§1-listesinde-yazılı
+değildi. **Gerçek-E1(c)-sınıfı** (önceki-`replace`-yanlış-bulgunun-aksine —
+bunlar-seq/prev/h-üçlüsü-ile-doğrulanan-emitter'lardır):
+  - `run`-←-tamga_runner.py:805
+  - `migrate-net`-←-tamga_runner.py:1174
+Artık-listede. **Bu-kez-gözle-değil-emitter-kodu-ile-kanıtladık** — AT-049'nun
+üretim-koddan-doğrulama-yükümlülüğü-bunu-sağlar.
 
 **Erratum E1(c)-düzeltme (2026-09-20, ikinci-tur — ÖNEMLİ-İTİRAF):** önceki-
 sürüm-bu-erratum'da-`replace`'i-"gerçek-ledger-op"-diye-yazdım. **YANLIŞTI.**

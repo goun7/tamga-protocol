@@ -48,7 +48,7 @@ NEEDLES = [
 
 # spec'te-listelenen-gözlemlenebilir-küme (E1(c)-den-sonra)
 # replace-çıkarıldı (E1(c)-düzeltme): tool/result-gürültüsü-idi
-SPEC_OPS = ("charge", "grant", "fee", "note")
+SPEC_OPS = ("charge", "grant", "run", "migrate-net", "fee", "note")
 
 
 def check_needles() -> list:
@@ -109,13 +109,13 @@ def _spec_ops(spec_text: str) -> set:
             blob = line
             while j < len(lines) and lines[j].strip() and not lines[j].startswith("**"):
                 blob += " " + lines[j]; j += 1
-            ids |= set(re.findall(r"`([a-z][a-z-]+)`", blob))
+            ids |= set(re.findall(r"`([a-zçğıöşü][a-zçğıöşü-]*)`", blob))
         if line.startswith("**RESERVED"):
             j = i + 1
             blob = line
             while j < len(lines) and lines[j].strip() and not lines[j].startswith("**"):
                 blob += " " + lines[j]; j += 1
-            ids |= set(re.findall(r"`([a-z][a-z-]+)`", blob))
+            ids |= set(re.findall(r"`([a-zçğıöşü][a-zçğıöşü-]*)`", blob))
     return ids
 
 
@@ -159,11 +159,22 @@ def check_dead_entries() -> list:
                 blob = ln
                 while j < len(lines) and lines[j].strip() and not lines[j].startswith("**"):
                     blob += " " + lines[j]; j += 1
-                reserved |= set(re.findall(r"`([a-z][a-z-]+)`", blob))
+                reserved |= set(re.findall(r"`([a-zçğıöşü][a-zçğıöşü-]*)`", blob))
         if o in reserved:
+            continue
+        # EMITTER-KORUMASI (E1(d)): koddaki-_ledger_append-emitter'ı-varsa-bu
+        # ÖLÜ-değil — 'emitter'ı-olan-ama-corpus'ta-yayılmamış'-sınıfı.
+        # run/migrate-net-bu-durumda-idi: kodda-emitter-var, Henüz-kayıt-yok.
+        if _has_code_emitter(o):
             continue
         dead.append(o)
     return dead
+
+
+def _has_code_emitter(op: str) -> bool:
+    """Üretim-kodunda-bu-op-için-emitter-var-mı (AT-049-emitter_verify-uyumu)."""
+    import emitter_verify as EV
+    return op in EV._code_emitters()
 
 
 def main(argv: list[str]) -> int:

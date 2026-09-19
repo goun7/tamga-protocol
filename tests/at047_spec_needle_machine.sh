@@ -68,6 +68,32 @@ if [ $? -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS dalga-yöntemi-dokümante"
 else FAIL=$((FAIL+1)); note "  FAIL dokümantasyon-eksik"; cat "$LOG"; fi
 
+# 4) AYAR: emitter'ı-olmayan-gerçek-ölü-girdi-yakalanmalı (Türkçe-karakter-dahil)
+note "4) ayar — emitter'sız-ölü-girdi (Türkçe-regex-kapsamı)"
+python3 - <<'PYEOF' >> "$LOG" 2>&1
+import sys, pathlib, tempfile
+sys.path.insert(0, "tools")
+import spec_needle_machine as M
+base = pathlib.Path("tests/conformance/spec/LEDGER-SPEC.md").read_text(encoding="utf-8")
+# Kayıt-türleri-satırına-emitter'ı-OLMAYAN-değer-ekle (Türkçe-karakterli)
+iso = base.replace("`migrate-net` (R1-ağ-geçiş-kanıtı);",
+                   "`migrate-net` (R1-ağ-geçiş-kanıtı), `bogus-tür`;")
+d = tempfile.mkdtemp()
+(pathlib.Path(d) / "LEDGER-SPEC.md").write_text(iso, encoding="utf-8")
+M.SPEC_DIR = pathlib.Path(d)
+dead = M.check_dead_entries()
+assert "bogus-tür" in dead, \
+    f"emitter'sız-ölü-girdi-yakalanmadı (regex-Türkçe-dışlıyor): {dead}"
+# run/migrate-net-emitter'ı-olduğu-için-yeşil-olmalı (E1(d)-sınıfı)
+assert "run" not in dead and "migrate-net" not in dead, \
+    f"emitter'lı-değerler-yanlış-ölü-sayılıyor: {dead}"
+print(f"  bogus-tür-yakalandı; run/migrate-net-emitter-korumasıyla-yeşil")
+PYEOF
+RC=$?
+if [ $RC -eq 0 ]; then
+  PASS=$((PASS+1)); note "  PASS ölü-girdi-ayarı-doğru"
+else FAIL=$((FAIL+1)); note "  FAIL ölü-girdi-sızıntısı"; cat "$LOG"; fi
+
 echo
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 echo "  AT-047-kapısı: YÖN-B-makinede + op-kümesi-otomatik"

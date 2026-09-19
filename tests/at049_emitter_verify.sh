@@ -81,8 +81,29 @@ if [ $RC -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS ayar-gürültü-yakalandı"
 else FAIL=$((FAIL+1)); note "  FAIL ayar-gürültü-sızdı"; cat "$LOG"; fi
 
-# 4) AYAR (ters yön): GERÇEK-ledger-satırı-ekle → tanınmalı
-note "4) ayar — gerçek-ledger-satırı-tanınmalı"
+# 4) AYAR (code-only-sınıfı): emitter-var-spec'te-yok → yakalanmalı
+note "4) ayar — code-only-op (emitter-var-spec'te-yok)"
+python3 - <<'PYEOF' >> "$LOG" 2>&1
+import sys, pathlib
+sys.path.insert(0, "tools")
+import emitter_verify as EV
+base = pathlib.Path("tests/conformance/spec/LEDGER-SPEC.md").read_text(encoding="utf-8")
+# migrate-net'in-TÜM-geçişlerini-sil → gerçek-code-only-ayar
+EV._read_spec = lambda: base.replace("migrate-net", "X-ALINMIS")
+r = EV.scan()
+EV._read_spec = lambda: base
+assert any("migrate-net" in p and "SPEC'TE" in p for p in r["problems"]), \
+    f"code-only-sınıfı-yakalanmadı: {r['problems']}"
+assert not EV.scan()["problems"], "üretim-yeşil-olmalıydı"
+print("  code-only-ayar-yakalandı; üretim-yeşil")
+PYEOF
+RC=$?
+if [ $RC -eq 0 ]; then
+  PASS=$((PASS+1)); note "  PASS code-only-ayarı-doğru"
+else FAIL=$((FAIL+1)); note "  FAIL code-only-sınıfı-yok"; cat "$LOG"; fi
+
+# 5) AYAR (ters yön): GERÇEK-ledger-satırı-ekle → tanınmalı
+note "5) ayar — gerçek-ledger-satırı-tanınmalı"
 python3 - <<'PYEOF' >> "$LOG" 2>&1
 import sys, tempfile, pathlib
 sys.path.insert(0, "tools")

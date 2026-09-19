@@ -335,6 +335,10 @@ PY
   bash tests/at041_sovereign_anchor.sh > /dev/null 2>&1
   kontrol $? "AT-041: üç-ürün-tek-öz + kök-kurcalama-RED + sahte-yeşile-boyama-RED"
 
+  # ---- kontrol-67: AT-042 settlement-köprü (Veridict-eşi; iki-katmanlı) ----
+  bash tests/at042_settlement_bridge.sh > /dev/null 2>&1
+  kontrol $? "AT-042: build+verify iki-katmanlı + Veridict-saldırı-kilidi + limits"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

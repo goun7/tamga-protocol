@@ -327,6 +327,10 @@ PY
   bash tests/at039_surface_lock.sh > /dev/null 2>&1
   kontrol $? "AT-039: CLI/import-yüzeyleri + argüman-sözleşmesi + sester-bağı"
 
+  # ---- kontrol-65: AT-040 spec↔üretim verifier paritesi (Veridict-örneği) ----
+  bash tests/at040_spec_parity.sh > /dev/null 2>&1
+  kontrol $? "AT-040: JCS-16/16 + temiz-ikili-GREEN + 6-mutasyon-RED-uyum + bağımsızlık"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

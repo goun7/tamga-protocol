@@ -347,6 +347,10 @@ PY
   bash tests/at045_spec_code_parity.sh > /dev/null 2>&1
   kontrol $? "AT-045: erratum-E1 + seq/op/ekstra-alan iki-yön-locked"
 
+  # ---- kontrol-70: AT-046 tri-product spec↔code-divergence-tarayıcı ----
+  python3 tools/spec_code_scan.py > /dev/null 2>&1
+  kontrol $? "AT-046: 9-kural-çift-yönlü + sıfır-divergence + parite"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

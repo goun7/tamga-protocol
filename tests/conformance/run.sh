@@ -71,6 +71,33 @@ except Exception: print('error')" 2>/dev/null)
   fi
 done
 
+# ---- sovereign-anchor conformance (katman-1; üç-ürün-özü) ----
+note ""
+note "Sovereign-anchor conformance — katman-1 (ANCHOR-SPEC.md §3-§5)"
+if ls anchors/*.json > /dev/null 2>&1; then
+  for a in anchors/*.json; do
+    name="$(basename "$a" .json)"
+    python3 verify_anchor.py "$a" > /tmp/conf-anchor.json 2>&1; rc=$?
+    verdict=$(python3 -c "
+import json
+try:
+    d=json.load(open('/tmp/conf-anchor.json'))
+    print('green' if d.get('ok') and 'UNVERIFIED' not in d.get('verdict','')
+          else 'unverified' if d.get('ok') else 'red')
+except Exception: print('error')" 2>/dev/null)
+    case "$name" in
+      a00-clean)      want="green" ;;
+      a06-no-sources) want="unverified" ;;
+      *)              want="red" ;;
+    esac
+    if [ "$verdict" = "$want" ]; then
+      PASS=$((PASS+1)); note "  PASS $name [$verdict]"
+    else
+      FAIL=$((FAIL+1)); note "  FAIL $name beklenen=$want referans=$verdict"
+    fi
+  done
+fi
+
 echo
 echo "RESULT: $PASS PASS, $FAIL FAIL"
 if [ $FAIL -eq 0 ]; then

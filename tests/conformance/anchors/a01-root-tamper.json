@@ -1,0 +1,35 @@
+{
+ "type": "sovereign-anchor",
+ "version": "0.1",
+ "products_present": [
+  "sester",
+  "tamga",
+  "veridict"
+ ],
+ "products_proved": [
+  "tamga",
+  "sester",
+  "veridict"
+ ],
+ "all_proved": true,
+ "results": {
+  "tamga": {
+   "ok": true,
+   "verdict": "GREEN"
+  },
+  "sester": {
+   "ok": true,
+   "verdict": "GREEN"
+  },
+  "veridict": {
+   "ok": true,
+   "verdict": "GREEN"
+  }
+ },
+ "sources": {
+  "tamga_claim": "a",
+  "sester_db": "b",
+  "veridict_cert": "c"
+ },
+ "anchor_root": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+}

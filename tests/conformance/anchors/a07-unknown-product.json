@@ -1,0 +1,40 @@
+{
+ "type": "sovereign-anchor",
+ "version": "0.1",
+ "products_present": [
+  "acme-corp",
+  "sester",
+  "tamga",
+  "veridict"
+ ],
+ "products_proved": [
+  "tamga",
+  "sester",
+  "veridict"
+ ],
+ "all_proved": true,
+ "results": {
+  "tamga": {
+   "ok": true,
+   "verdict": "GREEN"
+  },
+  "sester": {
+   "ok": true,
+   "verdict": "GREEN"
+  },
+  "veridict": {
+   "ok": true,
+   "verdict": "GREEN"
+  },
+  "acme-corp": {
+   "ok": true,
+   "verdict": "GREEN"
+  }
+ },
+ "sources": {
+  "tamga_claim": "a",
+  "sester_db": "b",
+  "veridict_cert": "c"
+ },
+ "anchor_root": "814a1a0c0a75c4b991adb0e420a18d7cb3e4439e663217606a9af9c89d760e59"
+}

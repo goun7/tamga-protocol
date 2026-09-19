@@ -331,6 +331,10 @@ PY
   bash tests/at040_spec_parity.sh > /dev/null 2>&1
   kontrol $? "AT-040: JCS-16/16 + temiz-ikili-GREEN + 6-mutasyon-RED-uyum + bağımsızlık"
 
+  # ---- kontrol-66: AT-041 sovereign-anchor (üç-ürün tek-öz + iki-katmanlı) ----
+  bash tests/at041_sovereign_anchor.sh > /dev/null 2>&1
+  kontrol $? "AT-041: üç-ürün-tek-öz + kök-kurcalama-RED + sahte-yeşile-boyama-RED"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

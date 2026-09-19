@@ -70,7 +70,6 @@ def build(tamga_claim: str, sester_db: str | None = None,
                                "verdict": r.get("verdict", "RED")}
     # kanıt-sayısı-sıralı-ürün-listesinde
     proved = [p for p in PRODUCTS if results.get(p, {}).get("ok")]
-    root = hashlib.sha256(_canon(results)).hexdigest()
     # sources: katman-2-bağımsız-yeniden-hesabın-çalışabilmesi-için-yollar.
     # Sadece-yollar-taşınır — ürünlerin-iç-state'i-değil.
     sources = {"tamga_claim": tamga_claim}
@@ -78,6 +77,11 @@ def build(tamga_claim: str, sester_db: str | None = None,
     if sester_secret: sources["sester_secret"] = sester_secret
     if veridict_ledger: sources["veridict_ledger"] = veridict_ledger
     if veridict_cert: sources["veridict_cert"] = veridict_cert
+    # ERRATUM-A1 (2026-09-19, Sester-K0.1'in-karşılığı): sources-da-köke-
+    # girmeli. Aksi-halde-saldırgan-yollar-değiştirip-anchor_root'u-korur —
+    # kök-tutarlı-olur-ama-katman-2-yanlış-kaynağa-bakar.
+    root = hashlib.sha256(_canon({"results": results,
+                                  "sources": sources})).hexdigest()
     return {
         "type": "sovereign-anchor",
         "version": "0.1",
@@ -116,7 +120,11 @@ def verify(anchor_path: str) -> dict:
     if not isinstance(results, dict):
         return {"ok": False, "reason": "results bir nesne değil"}
     # --- katman-1: presented-tutarlılık ---
-    expected = hashlib.sha256(_canon(results)).hexdigest()
+    # ERRATUM-A1: sources-da-köke-girer (build-ile-aynı-formül).
+    sources = a.get("sources")
+    expected = hashlib.sha256(_canon(
+        {"results": results,
+         "sources": sources if isinstance(sources, dict) else {}})).hexdigest()
     if a.get("anchor_root") != expected:
         return {"ok": False, "reason": "anchor_root uyuşmaz — kurcalanmış",
                 "expected": expected[:16], "actual": str(a.get("anchor_root"))[:16]}

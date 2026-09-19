@@ -50,7 +50,11 @@ def verify_anchor(path: str) -> dict:
             return {"ok": False, "reason": f"results.{p} {{ok,...}} olmalı"}
 
     # §5.3 — köy-KENDİ-alanlarından-yeniden-hesapla (Veridict-saldırı-koruması)
-    expected = hashlib.sha256(_canon(results)).hexdigest()
+    # ERRATUM-A1: sources-da-köke-girer (Sester-K0.1'in-karşılığı)
+    srcs = a.get("sources")
+    expected = hashlib.sha256(_canon(
+        {"results": results,
+         "sources": srcs if isinstance(srcs, dict) else {}})).hexdigest()
     if a.get("anchor_root") != expected:
         return {"ok": False, "reason": "anchor_root uyuşmaz — kurcalanmış",
                 "expected": expected[:16], "actual": str(a.get("anchor_root"))[:16]}

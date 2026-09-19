@@ -31,7 +31,13 @@ canon(results) = JSON(results, sort_keys=True, separators=(",",":"))
 anchor_root    = sha256( canon(results).encode("utf-8") ).hexdigest()
 ```
 
-Üye-sıralaması **alan-adlarına-gre**-olmalı (sort_keys). Boşluk-yok, indent-yok.
+Üye-sıralaması **alan-adlarına-göre**-olmalı (sort_keys). Boşluk-yok, indent-yok.
+
+**Erratum A1 (2026-09-19 — Sester-K0.1'in-karşılığı):** kök **sadece-results'ı-değil,
+`{"results": ..., "sources": ...}`-nesnesini-kapsar.** Önceki-formülde-saldırgan
+`sources`-içindeki-yolları-değiştirip-`anchor_root`'u-koruyabiliyordu — kök-tutarlı
+kalır-ama-katman-2-yanlış-kaynağa-bakar-duruma-gelirdi. Kaynak-yolları-da-bir
+**kanıt-iddiasıdır**: "şu-dosyadan-bağımsız-doğruladım". Bu-nedenle-köke-girer.
 
 ## 4. İki-katmanlı-doğrulama (Veridict-dersi, 2026-09-19)
 

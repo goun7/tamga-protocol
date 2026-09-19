@@ -125,7 +125,8 @@ from sovereign_anchor import verify, _canon
 # saldırı: sester'in-SONUCUNU-sahte-GREEN'e-boyayıp-kökü-yeniden-hesapla
 # (gerçek-saldırı: sonuç-RED-gelmiş-ama-özel-yeşile-boyanmış)
 d["results"]["sester"] = {"ok": True, "verdict": "GREEN"}
-d["anchor_root"] = hashlib.sha256(_canon(d["results"])).hexdigest()
+d["anchor_root"] = hashlib.sha256(
+    _canon({"results": d["results"], "sources": d.get("sources", {})})).hexdigest()
 json.dump(d, open(f"{W}/s.json", "w"))
 # katman-2-AĞIRLA: sester-db'nin-zincir-kırıcı-alanını-boz ki
 # bağımsız-doğrulama-RED-versin, sahte-yeşile-boyama-yakatlansın.
@@ -153,10 +154,15 @@ else FAIL=$((FAIL+1)); note "  FAIL saldırı-geçiyor!"; cat "$LOG"; fi
 # 5) kaynaksız → UNVERIFIED (sessiz-geçiş-yok, dürüst-bildirim)
 note "5) kaynaksız — UNVERIFIED-INDEPENDENTLY (dürüst)"
 "$PY" - <<'PYEOF' >> "$LOG" 2>&1
-import json, os, sys
+import json, os, sys, hashlib
 sys.path.insert(0, "tools")
 W = os.environ["W"]
 d = json.load(open(os.environ["A"])); d.pop("sources", None)
+# ERRATUM-A1: sources-köke-girer → kaynaksız-anchor'ın-kökünü-yeniden-hesapla
+# (yoksa katman-1-kök-uyuşmazlığı-RED-verir-ve-bu-asıl-testi-gizler)
+from sovereign_anchor import _canon
+d["anchor_root"] = hashlib.sha256(
+    _canon({"results": d["results"], "sources": {}})).hexdigest()
 json.dump(d, open(f"{W}/n.json", "w"))
 from sovereign_anchor import verify
 r = verify(f"{W}/n.json")

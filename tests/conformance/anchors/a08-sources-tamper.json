@@ -1,5 +1,5 @@
 {
- "type": "not-an-anchor",
+ "type": "sovereign-anchor",
  "version": "0.1",
  "products_present": [
   "sester",
@@ -28,7 +28,7 @@
  },
  "sources": {
   "tamga_claim": "a",
-  "sester_db": "b",
+  "sester_db": "/tmp/sahte.db",
   "veridict_cert": "c"
  },
  "anchor_root": "052b873b96dec42d06cbf444dd91cf49ce246da0ac71b9acccb0503cfdc8a00e"

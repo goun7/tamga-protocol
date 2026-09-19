@@ -22,17 +22,60 @@ LOG=".evidence/AT-039/$D/at039.log"
 
 note "AT-039 yüzey-sabitleme (doğrulama-arayüzleri-testle-kilitli)"
 
+# tüm-hücreler-kendi-fixture'larını-üretir — dış-artık-bağımlılık-yok (AT-038/039-dersi)
+export FX=$(mktemp -d /tmp/at039-XXXX)
+
+# 1) üretim-claim-fixture'ı (AT-030-formatında, gerçek-anahtarlarla)
+python3 - "$FX" <<'PY' >> "$LOG" 2>&1
+import sys, json, hashlib, secrets
+FX = sys.argv[1]
+# AT-030-formatında-üretim-claim — kendi-anahtarımız-ile
+k = secrets.token_hex(32)
+claim = {
+  "claim_id": f"at039-{hashlib.sha256(k.encode()).hexdigest()[:16]}",
+  "product": "tamga", "kind": "capacity-attest",
+  "level": 1,
+  "issued_at": "2026-09-19T00:00:00Z",
+  "subject": "agent-042",
+  "payload_hash": hashlib.sha256(b"at039-fixture").hexdigest(),
+}
+open(f"{FX}/claim.json", "w").write(json.dumps(claim))
+print("  fixture-üretildi")
+PY
+
+# AT-002d-için-gerçek-ledger-fixture'ı
+python3 - "$FX" <<'PY' >> "$LOG" 2>&1
+import sys, json, hashlib
+sys.path.insert(0, ".")
+from tamga_verify_mini import jcs
+FX = sys.argv[1]
+prev = "0"*64
+lines = []
+for seq in (1, 2, 3):
+    rec = {"seq": seq, "op": "charge", "amount": seq*5, "agent_id": "node-A",
+           "note": "at039-fixture"}
+    rec["prev"] = prev
+    no_h = {k: v for k, v in rec.items() if k not in ("h", "node_sig")}
+    rec["h"] = hashlib.sha256((prev + jcs(no_h).decode()).encode()).hexdigest()
+    lines.append(json.dumps(rec)); prev = rec["h"]
+open(f"{FX}/ledger.jsonl", "w").write("\n".join(lines) + "\n")
+print("  ledger-fixture-üretildi")
+PY
+
 # 1) attest_verify_bagimsiz: CLI-şekli-sabit — tek-argüman + JSON-çıkış
 note "1) attest_verify_bagimsiz CLI-yüzeyi"
 if python3 -c "
-import subprocess, sys, json
-# çağrı-şekli: tam-2-argüman (script + claim-yolu)
-p = subprocess.run([sys.executable, 'tools/attest_verify_bagimsiz.py',
-                    '.evidence/AT-030/2026-09-19/prod1.json'],
+import subprocess, sys, json, os, tempfile
+# AT-030 ile aynı vendored üretim claim (repo-içi, CI'da-da-var; dış-artık-değil)
+src = 'tests/vendor-capacity-attest/production-claim.jsonl'
+assert os.path.exists(src), f'vendored-claim-kayıp: {src}'
+p1 = os.path.join(os.environ.get('FX', tempfile.gettempdir()), 'prod1.json')
+head = open(src, encoding='utf-8').readline()
+open(p1, 'w', encoding='utf-8').write(head)
+p = subprocess.run([sys.executable, 'tools/attest_verify_bagimsiz.py', p1],
                    capture_output=True, text=True)
-assert p.returncode == 0, f'red-çıkış: {p.returncode}'
+assert p.returncode == 0, f'red-çıkış: {p.returncode} stderr={p.stderr[:120]}'
 d = json.loads(p.stdout)
-# normatif-alanlar (wrapper-bunları-okur)
 for k in ('verdict', 'reason', 'signer_recover'):
     assert k in d, f'normatif-alan-kayıp: {k}'
 assert d['verdict'] == 'GREEN', f'beklenen-GREEN: {d[\"verdict\"]}'
@@ -56,8 +99,9 @@ else FAIL=$((FAIL+1)); note "  FAIL argüman-sözleşmesi"; cat "$LOG"; fi
 # 3) tamga_verify_mini: import-yüzeyi-sabit — verify(path) → (tip, reason)
 note "3) tamga_verify_mini import-yüzeyi"
 if python3 -c "
+import os
 from tamga_verify_mini import verify
-r = verify('.evidence/AT-002d/2026-09-19/at002d.log')  # herhangi-geçerli-dosya
+r = verify(os.path.join(os.environ['FX'], 'ledger.jsonl'))
 assert isinstance(r, tuple) and len(r) == 2, f'dönüş-şekli-bozuk: {r!r}'
 tip, reason = r
 assert isinstance(tip, str) and isinstance(reason, str)
@@ -94,9 +138,9 @@ else FAIL=$((FAIL+1)); note "  FAIL registration-yüzeyi"; cat "$LOG"; fi
 note "5) node_receipt_compat altkomut-yüzeyi"
 if python3 -c "
 import subprocess, sys, json, os
-os.makedirs('/tmp/at039', exist_ok=True)
-p = subprocess.run([sys.executable, 'tools/node_receipt_compat.py', 'ledger',
-                    '/tmp/at002d-dbg/ledger.jsonl'], capture_output=True, text=True)
+lg = os.path.join(os.environ['FX'], 'ledger.jsonl')
+p = subprocess.run([sys.executable, 'tools/node_receipt_compat.py', 'ledger', lg],
+                   capture_output=True, text=True)
 assert p.returncode == 0, f'ledger-RED: {p.stdout[:100]}'
 d = json.loads(p.stdout)
 assert 'ok' in d and 'ledger_tip' in d
@@ -105,27 +149,34 @@ print('  check|ledger: rc0 + normatif-alanlar')
   PASS=$((PASS+1)); note "  PASS node-receipt-yüzeyi"
 else FAIL=$((FAIL+1)); note "  FAIL node-receipt-yüzeyi"; cat "$LOG"; fi
 
-# 6) sester-yüzeyi-sabit (sovereign_verify'un-çağırdığı)
-note "6) sester-yüzeyi — Ledger(path).verify_chain()"
-if python3 -c "
+# 6) sester-yüzeyi-sabit + RISK-1/2-kilitleri (Sester-tarafından-bulundu)
+note "6) sester-yüzeyi — Ledger(path,secret).verify_chain() + RISK-1/2-kilitleri"
+# Sester-kurulu-mu-önce-denetle (kurulu-değilse-hücre-izole-geçer)
+if ! python3 -c "import sester" 2>/dev/null; then
+  note "  PASS sester-yüzey-işaretli (kurulu-değil — izole-geç)"
+elif python3 -c "
+import os, sys
+sys.path.insert(0, 'tools')
+from sovereign_verify import verify_sester_ledger
+lg_path = os.environ['FX'] + '/sester-test.db'
 from sester.ledger import Ledger
-lg = Ledger('/tmp/sg-sester.db')
-try: ok = lg.verify_chain()
-finally: lg.close()
-assert isinstance(ok, bool)
-print('  Ledger(path).verify_chain() → bool:', ok)
+lg = Ledger(lg_path, 'dev-secret')
+lg.append('charge', 'a1', 'h1', 1.0, {})
+lg.close()
+# 6a) yüzey-çağrısı-çalışır (geriye-uyum)
+r = verify_sester_ledger(lg_path, 'dev-secret')
+assert r.get('verdict') == 'GREEN', f'yüzey-bozuk: {r}'
+# 6b) RISK-1 KİLİT: var-olmayan-yol → RED (sahte-GREEN-engeli)
+r1 = verify_sester_ledger(os.environ['FX'] + '/yok.db')
+assert not r1.get('ok'), f'RISK-1-tekrar-açık: {r1}'
+# 6c) RISK-2 KİLİT: secret-mismatch → RED (sahte-RED-dürüst)
+r2 = verify_sester_ledger(lg_path, 'yanlış-secret')
+assert not r2.get('ok'), f'RISK-2-secret-kilidi-yok: {r2}'
+print('  yüzey-GREEN + RISK-1-RED + RISK-2-RED — üç-kilit-de-yerinde')
 " >> "$LOG" 2>&1; then
-  PASS=$((PASS+1)); note "  PASS sester-yüzeyi-sabit"
+  PASS=$((PASS+1)); note "  PASS sester-yüzeyi + RISK-1/2-kilitleri"
 else
-  # Sester-kurulu-değilse-bu-yüzey-işaretlenir-ama-suite'i-kırmaz:
-  # Tamga'nın-kendi-CI'ında-Sester-olmayabilir; sovereign_verify-zaten-bunu
-  # "sester-kurulu-değil"-ile-eksik-halleder. Kırılma-ancak-Sester-kurulu-iken
-  # ve-yüzey-değişmişse-bildirir.
-  if grep -q "ImportError\|ModuleNotFound" "$LOG"; then
-    note "  PASS sester-yüzey-işaretli (kurulu-değil — izole-geç)"
-  else
-    FAIL=$((FAIL+1)); note "  FAIL sester-yüzeyi-bozuk"; cat "$LOG"
-  fi
+  FAIL=$((FAIL+1)); note "  FAIL sester-yüzeyi-bozuk"; cat "$LOG"
 fi
 
 echo

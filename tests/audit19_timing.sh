@@ -56,14 +56,22 @@ mb = timed(snap, W / "tgt_b", env)
 print(f"C-magic-RED  : {mc:.1f} ms (kdf-öncesi-dönüş beklenir)")
 print(f"A-unlock-RED : {ma:.1f} ms (scrypt-TAM-koşar — AEAD-doğrulamasına-kadar)")
 print(f"B-başarı     : {mb:.1f} ms")
-r1 = ma / mb
-print(f"oran A/B = {r1:.2f} (sızıntı-yok eşiği: 0.6-1.6 bantı)")
 r2 = mc / mb
 print(f"oran C/B = {r2:.2f} (yorumlayıcı-başlangıcı-dominant)")
-# iddialar: unlock-RED-başarı-bandında; KDF-parite-kanıtı-kod-tarafından-(xdec-exception-sonrası):
+# iddialar: unlock-RED-başarı-bandında; KDF-parite-kanıtı-kod-tarafında-(xdec-exception-sonrası):
 # band 0.6-1.6 (kurucu-onayı 2026-09-12): iddia AYNI-iş ölçümüdür, mutlak-ms değil;
 # tam-süit-yükü altında ±%20 sapma normaldir; ölçüm-kanıtı logda kalır (dürüst-not).
-assert 0.6 <= r1 <= 1.6, f"unlock-RED-zamanı-bant-dışı: {r1}"
+# Flap-dayanıklılık (2026-09-19): tek-ölçüm-geçici-CPU-yüküne-takılıp-tüm-süiti
+# RED-düşürdü; üç-ölçümün-ortancası-flap'leri-filtreler-ama-bandı-zayıflatmaz.
+def measure_r1():
+    import statistics
+    ra = [timed(snap, W / "tgt_a", env_bad) for _ in range(3)]
+    rb = [timed(snap, W / "tgt_b", env) for _ in range(3)]
+    return statistics.median(ra) / statistics.median(rb)
+
+r1 = measure_r1()
+print(f"unlock-RED/başarı-oranı (ortanca-3): {r1:.2f}")
+assert 0.6 <= r1 <= 1.6, f"unlock-RED-zamanı-bant-dışı (ortanca): {r1}"
 print("OK")
 PYEOF
 ok $? "zaman-matrisi: unlock-RED≈başarı-(band-içi); ölçüm-kanıt-logda"

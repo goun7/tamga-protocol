@@ -11,9 +11,9 @@ zinciri-kendi-kodunu-kullanır (AT-038-BAĞIMSIZ-ilkesi-üzre).
 
 Kullanım:
     python3 tools/sovereign_verify.py --kind capacity-attest --input claim.json
-    python3 tools/sovereign_verify.py --kind sester-ledger  --input ledger.jsonl
+    python3 tools/sovereign_verify.py --kind sester-ledger  --sester-db ledger.db
     python3 tools/sovereign_verify.py --kind veridict-cert   --ledger l.jsonl --cert c.json
-    python3 tools/sovereign_verify.py --kind all            --input claim.json --ledger l.jsonl --cert c.json
+    python3 tools/sovereign_verify.py --kind all            --input claim.json --sester-db ledger.db --ledger l.jsonl --cert c.json
 """
 from __future__ import annotations
 
@@ -60,18 +60,45 @@ def verify_capacity_attest(path: str) -> dict:
     }
 
 
-def verify_sester_ledger(path: str) -> dict:
+def verify_sester_ledger(path: str, secret: str | None = None) -> dict:
     """Sester: KENDİ-Ledger.verify_chain'iyle — SQLite-üzerinden (üretim-yolu).
 
     Kanıt-zinciri-üzerinde-oynama-yapmamak-için-JSONL-yorumam: Sester'in-gerçek
     depolama-yüzeyi-SQLite'dır; verify_chain-orada-çalışır. path-bir-*.db'dir.
+
+    İki zafiyet-düzeltmesi (Sester-tarafından-bulundu, 2026-09-19):
+      RISK-1 (sahte-GREEN): Ledger() var-olmayan-yolda-boş-DB-yaratıp-verify_chain
+        True-döndüğü-için-olmayan-ledger-GREEN-raporlanıyordu. Artık-yol-ve
+        olay-sayısı-denetleniyor; boş-yok-ledger-RED.
+      RISK-2 (sahte-RED): Ledger(path)-default-'dev-secret'-kullanıyor-ve
+        gerçek-üretim-secret'ı-ile-mühürlenmiş-zincir-sağlam-olduğu-halde-RED
+        düşüyordu. Artık-secret-SESTER_LEDGER_SECRET-veya-parametre-ile-geçiliyor.
     """
+    import os
+    # RISK-1: var-olmayan-yol → Ledger boş-DB-yaratır, verify True-verir (sahte-GREEN)
+    if not os.path.exists(path):
+        return {"product": "sester", "ok": False, "verdict": "RED",
+                "error": f"sester-db-yok: {path}"}
     try:
         from sester.ledger import Ledger
     except ImportError:
         return {"product": "sester", "ok": False, "error": "sester-kurulu-değil"}
+    # RISK-2: üretim-secret'ı — parametre > ortam > default
+    if secret is None:
+        secret = os.environ.get("SESTER_LEDGER_SECRET", "dev-secret")
     try:
-        lg = Ledger(path)
+        # RISK-1 (boş-zincir): Ledger'ın-olay-sayısı-API'si-imza-steril-değil
+        # (count_today-agent_id-ister); doğrudan-SQLite-sayalım — yüzey-bağımsız
+        import sqlite3
+        try:
+            rowcount = sqlite3.connect(path).execute(
+                "SELECT COUNT(*) FROM events").fetchone()[0]
+        except Exception:
+            rowcount = 0  # tablo-yok → boş-ledger
+        if rowcount == 0:
+            return {"product": "sester", "ok": False, "verdict": "RED",
+                    "error": "boş-zincir: olay-yok (sahte-GREEN-korunması)"}
+        lg = Ledger(path, secret)
         try:
             ok = lg.verify_chain()
         finally:
@@ -101,6 +128,9 @@ def main(argv: list[str]) -> int:
                     choices=["capacity-attest", "sester-ledger", "veridict-cert", "all"])
     ap.add_argument("--input", help="Tamga-claim.json (capacity-attest)")
     ap.add_argument("--sester-db", dest="sester_db", help="Sester-SQLite-ledger.db")
+    ap.add_argument("--sester-secret", dest="sester_secret",
+                    help="Sester-üretim-secret'ı (SESTER_LEDGER_SECRET-ile-de)"
+                         " — RISK-2: default-dev-secret-üretim-zincirini-RED-düşürür")
     ap.add_argument("--ledger", help="veridict-ledger.jsonl")
     ap.add_argument("--cert", help="veridict-sertifika.json")
     a = ap.parse_args(argv)
@@ -116,7 +146,7 @@ def main(argv: list[str]) -> int:
         if not db:
             results.append({"product": "sester", "ok": False, "error": "--sester-db-yok"})
         else:
-            results.append(verify_sester_ledger(db))
+            results.append(verify_sester_ledger(db, a.sester_secret))
     if a.kind in ("veridict-cert", "all"):
         if not (a.ledger and a.cert):
             results.append({"product": "veridict", "ok": False, "error": "--ledger+--cert-yok"})

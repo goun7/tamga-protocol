@@ -363,6 +363,10 @@ PY
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
 
+  # ---- kontrol-74: AT-050 üçlü-kapsam (Sester'ın-iddia-düzeltmesi) ----
+  bash tests/at050_triple_coverage.sh > /dev/null 2>&1
+  kontrol $? "AT-050: runtime-fail-closed + statik + corpus (üçlü)"
+
   rm -rf "$SB"
   echo ""
   echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"

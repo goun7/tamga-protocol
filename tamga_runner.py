@@ -247,6 +247,19 @@ def _ledger_append(lp, rec, node_key=None, op="append"):
     rec["ts"] = time.strftime("%Y-%m-%dT%H:%M:%S%z")
     if node_key:
         rec["node_id"] = SigningKey(node_key).verify_key.encode().hex()   # BEFORE h: the chain binds the node identity
+    # KATMAN-1/3 (Sester'ın-üçlü-kapsamı, 2026-09-20): runtime-fail-closed-yazım-
+    # sınırı. op-değeri-taksonomide-değilse-ekleme-RED. Dalga-deneyi-artık-tek-
+    # seferlik-değil-kalıcı. E1(a)-kararı-korunur: **değerler-kısıtlı-değil**,
+    # ama-yazılan-her-değer-örneğin-emitter-kaydında-olmalı — yoksa-açık-kalır
+    # (run/migrate-net-ve-Sester'ın-tenderix_-sınıfı).
+    _op = rec.get("op")
+    if _op is not None:
+        from emitter_registry import EMITTED_OPS, register_emitter
+        if _op not in EMITTED_OPS:
+            return out(False, op=op, reason_code=15,
+                       reason=f"unknown_op: {_op!r} — emitter-kaydında-yok "
+                              f"(üçlü-kapsam-katman-1)")
+        register_emitter(_op, "tamga_runner.py")
     h = hashlib.sha256((prev + jcs(rec)).encode("utf-8")).hexdigest()
     if node_key:
         rec["node_sig"] = SigningKey(node_key).sign(h.encode()).signature.hex()  # signs h; OUTSIDE the hash input

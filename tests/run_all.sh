@@ -363,6 +363,10 @@ PY
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
 
+  # ---- kontrol-80: AT-056 GATES-kayıt-defteri (Kural-7.1-makine-hali) ----
+  bash tests/at056_gates_registry.sh > /dev/null 2>&1
+  kontrol $? "AT-056: GATES-üç-yönlü + self-catching"
+
   # ---- kontrol-79: AT-055 alıcı-tarafı-bilinmeyen-op (Sester-5.tur) ----
   bash tests/at055_unknown_ops_receiver.sh > /dev/null 2>&1
   kontrol $? "AT-055: alıcı-tarafı-görür (üretici-kapsam-sınırı)"

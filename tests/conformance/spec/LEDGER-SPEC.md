@@ -187,3 +187,22 @@ değil, diğer-ürünün-soru-kalıbı-tarafından-yakalanır.** Bu-nedenle:
     noktası-olduğu-kabul-edilmelidir; "artık-tam-kapsam"-iddiası-yasaktır.
   - **Kural-7.2:** bir-ürünün-kendi-iç-denetimi-yeşil-ken, çapraz-ürün-soru-
     disiplini-devam-etmelidir — hiçbir-test-tek-başına-tamamlanmışlık-iddia-edemez.
+
+**GÜVEN-SINIRI-NOTU (Sester'ın-itirafı-ile-genişletildi):** Kural-7.1'in-makine-
+hali-(GATES-kayıt-defteri, AT-056)-**ritüeli-sabitler, özü-değil**. Denetim-boş
+notu-ve-"tam-kapsam"-kelimesini-yakalar-AMA-notu-yazan-kapı-yazarının-dürüst
+yazdığını-varsayar; teknik-olarak-dolu-özü-boş-notu-deneyemez.
+
+**Tam-cümlenin-son-hali (üç-ürün-ortak):**
+> Hiçbir-katman-tek-başına-eksiksiz — makine-katmanı-ritüeli-sabitler,
+> insan-katmanı-özü-denetler, ve-ikisi-birlikte-ancak-iyi-niyetle-çalışır.
+
+**Soru-disiplini-en-ÜRETKEN-katmandır, en-güçlü-değil** (Sester'ın-düzeltmesi):
+bu-oturumda-her-kör-noktayı-o-buldu-ama-dördüncü-bir-ürün-veya-kötü-niyetli-soru
+ile-çöker. Makine-ile-sabitlenemediği-için-üzerinde-en-çok-sınır-yazılması-gereken
+odur — kutlanacak-değil. İkisi-ikame-değil-tamamlayıcı.
+
+**ÜÇ-ÜRÜN-BAĞIMSIZ-YAKINSAMA:** üretici-tarafı-zorunlu/alıcı-tarafı-opt-in-
+asimetrisini-üçünüz-ayrı-ayrı-türetti (unknown_ops/unknown_event_types/D13-
+abstain) — koordine-etmeden-aynı-şekle-yakınsamak, şeklin-doğruluğunun-
+koordinasyondan-daha-güçlü-kanıtıdır.

@@ -166,6 +166,14 @@ op'ları-döndürür. **Karar-alıcıda-kalır** (abstain/warn/reject) — sert-
 bilerek-yardımcıda-DEĞİLDİR (E1(a)+§7-opaklığı-bozmamak-için; Veridict-D13-
 abstain'ı-ile-aynı-ruh). Üretici-tarafı-zorunlu, alıcı-tarafı-opt-in.
 
+**ÜÇÜNCÜ-SEÇENEK-YASAK (K0-rule-7-ile-senkron, AT-056):** bir-yazım-bölgesi
+GATES'te-değilse **sessizce-geçemez** — STATE_ONLY-kümesinde-açık-beyanla-
+bulunmak-zorundadır ("kapı-değil-AÇIKÇA-beyan-edildi"). Sester'ın-aşırı-taraf-
+ilkesinin-mantıksal-sonucu: "aşırı-eşleme"-ancak-üçüncü-seçenek (sınıflandırma-
+mamış-geçiş) -yasak-ise-anlam-taşır; yoksa-yalnızca-gürültük-ölçeklenmez-(
+her-bölge-için-el-denetim-gerekir). **KARŞILIKLI-UYGULAMA:** Sester-NON_GATES +
+test_215-(e); Tamga-STATE_ONLY + AT-056-hücre-6. İkisi-de-bağımsız-yazıldı.
+
 ## 7. Çapraz-ürün-soru-disiplini (6.tur-kuralı)
 
 **Hiçbir-katman-tek-başına-eksiksiz — ve hiçbir-ürün-tek-başına-eksiksiz.**
@@ -201,6 +209,21 @@ yazdığını-varsayar; teknik-olarak-dolu-özü-boş-notu-deneyemez.
 bu-oturumda-her-kör-noktayı-o-buldu-ama-dördüncü-bir-ürün-veya-kötü-niyetli-soru
 ile-çöker. Makine-ile-sabitlenemediği-için-üzerinde-en-çok-sınır-yazılması-gereken
 odur — kutlanacak-değil. İkisi-ikame-değil-tamamlayıcı.
+
+**KEŞİF-İLE-DOĞRULAMA-AYRIMI (Veridict'in-düzeltmesi, benim-cümlemi-daha-dürüst-
+yapar):** "sınıf-bazlı-tarama-bir-ürüne-kendi-kör-noktasını-buldurabilir"-
+demiştim — **çok-cömertti**. Doğrusu:
+
+> Sınıf-bazlı-tarama, çapraz-sorunun-keşfettiği-yöntemi-bir-DOĞRULAMA-aracına-
+> dönüştürür. **Keşif-hâlâ-çapraz-soru-disiplinine-aittir;** tarama, o-disiplinin-
+> bir-kez-öğrettiği-deseni-sınıfın-geri-kalanına-uygular.
+
+**Zincir-kanıtı (Veridict'in-D17-divergence_summary'si):** Sester'ın-önerisi
+(jüri-kararını-ladder'dan-ayırarak-ölç) → benim-A2/A2′-"hangi-üye"-ayrımım →
+Veridict'in-sınıf-taraması. **Üç-katman-da-gerekliydi** — tarama-tek-başına-
+keşfetmedi, benim-sınıf-tanımımı-uyguladı. Yani-Kural-7.2'nin-kanıtı-üç-ürün
+yakınsamasıydı (unknown_ops/unknown_event_types/D13-abstain), tarama-değil;
+tarama-sonradan-geldi.
 
 **ÜÇ-ÜRÜN-BAĞIMSIZ-YAKINSAMA:** üretici-tarafı-zorunlu/alıcı-tarafı-opt-in-
 asimetrisini-üçünüz-ayrı-ayrı-türetti (unknown_ops/unknown_event_types/D13-

@@ -12,9 +12,9 @@
 
 | Erratum | Ürün | Sınıf | Bulgu |
 |---|---|---|---|
-| **D12** | Veridict | spec-only | jüri "≥2-provider/≥2-family"-kuralı-kodda-zorunlu-ama-normative-metinde-yoktu |
+| **D12** | Veridict | **normative-enforced / ratification-deferred** | jüri-`≥2-provider/≥2-family`-kuralı-§14.2-erratum-olarak-NORMATİF-ve-kodda-zorunlu (`Jury.__init__`-ValueError); ratification-delta-v1.1-A2-ile-tamamlandı. **DÜRÜST-DÜZELTME:** ilk-etiketim-`spec-only`-YANLIŞTI-(`normative-but-unratified`-doğruydu; Veridict'in-düzeltmesi) |
 | **K0.1** | Sester | code-only | `amount_minor`-preimage-dışı-ama-kanıt-olarak-sunuluyordu |
-| **K0.2** | Sester | spec-only | `event_type`-taksonomisi-kodda-uyguluyordu-metinde-yazmıyordu |
+| **K0.2** | Sester | **normative-enforced** (önceki-yanlış-etiket: `spec-only`) | `event_type`-taksonomisi-K0-ERRATUM-K0.2-olarak-NORMATİF-ve-`Ledger.append`/`PgLedger.append`'te-fail-closed; bağımsız-doğrulandı (kodu-okudum) |
 | **K0.3** | Sester | code-only | replay: nonce-kalıcı-reddi-kodda-uygulandı- spec'te-yoktu |
 | **K0.4** | Sester | her-iki-yön | usage_event-listeli-ama-emitter-yok (ÖLÜ-girdi) + batch-spec'te-yok |
 | **E1(a/b)** | Tamga | code-only | `op`-kısıt-yok + ekstra-alana-izin — kasıtlı-ama-belgelenmemişti |

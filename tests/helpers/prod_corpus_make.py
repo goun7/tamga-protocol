@@ -37,6 +37,18 @@ RECORDS = [
     {"op": "migrate-net", "pkg": "at057-prodrun", "session": 1,
      "from": "old-node", "to": "new-node",
      "reason": "at057-uretim-corpus-kaniti"},
+    # RFC-009-dış-zincir-çapası (AT-059-pilot, 2026-09-20): R9-1-sürüm-sabit +
+    # R9-5-presentation-only-etiketi-üretim-corpus'unda-da-taşınır — anchor'ın
+    # üretim-erişilebilirliği-kanıtlanır (üçüncü-seçenek-yasak-uyumlu).
+    {"op": "anchor", "pkg": "at057-prodrun", "session": 1,
+     "anchor_version": "TAMGA_EXTERNAL_ANCHOR_V1",
+     "foreign_registry": "apodix/epoch",
+     "foreign_fact": "0x02362521254a8ca4f75097267655f6aeb8524217a25c261f60538edc367136e2",
+     "foreign_digest": "0x997c497ef5fe81b98290e990cd8f62e674bd55db8ab3c3ea85d3931b1e6ff71d",
+     "verified_at": "2026-09-10T07:32:08Z",
+     "tool": "verifier_epoque + tamga_keccak (dual-impl)",
+     "presentation_only": True,
+     "reason": "at057-uretim-corpus-kaniti"},
 ]
 
 

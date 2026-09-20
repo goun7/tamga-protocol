@@ -75,35 +75,66 @@ if [ $RC -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS katman-2-statik-registry-uyumlu"
 else FAIL=$((FAIL+1)); note "  FAIL katman-2"; cat "$LOG"; fi
 
-# 3) KATMAN-3: corpus-taraması — runtime-seen-ile-tutarlı
-note "3) corpus — *.jsonl-süzgeci-ile-gerçek-kayıtlar"
+# 3) KATMAN-3: corpus-taraması — ÜRETİM-vs-FIXTURE-ayırmadan-sonra
+note "3) corpus — üretim-ledger'ları-vs-test-fixture'leri (Veridict-canary-dersi)"
 python3 - <<'PYEOF' >> "$LOG" 2>&1
 import sys, pathlib, re
-sys.path.insert(0, ".")
+sys.path.insert(0, "."); sys.path.insert(0, "tools")
 import emitter_registry as ER
-corpus = set()
-for p in pathlib.Path(".").rglob("*.jsonl"):
-    if ".venv" in p.parts:
-        continue
-    try:
-        txt = p.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        continue
-    for line in txt.splitlines():
-        if not ("\"seq\"" in line and "\"prev\"" in line and "\"h\"" in line):
-            continue
-        m = re.search(r'"op":\s*"([a-zçğıöşü][a-zçğıöşü0-9-]*)"', line)
-        if m:
-            corpus.add(m.group(1))
-# corpus'taki-her-op-ya-emitter'da-ya-RESERVED'da
-unbound = corpus - ER.EMITTED_OPS
+import emitter_verify as EV
+# TÜM-corpus (fixture-dahil) — eski-davranış
+corpus_all = EV.corpus_ops()
+# SADECE-üretim — test-fixture'leri-hariç
+corpus_prod = EV.corpus_ops(production_only=True)
+# Veridict-canary-2026-09-20-aynası: seq+prev+h-üçlüsü-FIXTURE'ler-de-üretir!
+# Önceki-turda-'charge(72)-grant(7)-gerçek-gözlemlenen-küme'-diye-raporladım;
+# aslında-hepsi-test-fixture-kanıtıydı. Bu-düzeltme-bu-hücre.
+print(f"  tüm-corpus (fixture-dahil): {sorted(corpus_all)}")
+print(f"  SADECE-üretim-corpus: {sorted(corpus_prod)}")
+unbound = corpus_all - ER.EMITTED_OPS
 assert not unbound, f"corpus'ta-ama-emitter-kayıdında-yok: {sorted(unbound)}"
-print(f"  katman-3: corpus={sorted(corpus)} — hepsi-kayıtlı")
+# DÜRÜST-BİLDİRİM: üretim-corpus-boş-ise-üçlü-kapsamın-3.katmanı-ZAYIF
+if not corpus_prod:
+    print("  DÜRÜST-LİMİT: repoda-üretim-ledger'ı-YOK — 3.katman")
+    print("    yalnızca-test-fixture-kanıtı-taşıyor, üretim-erişilebilirliği")
+    print("    KANITLAYAMIYOR. migrate-net-bu-nedenle-hâlâ-doğrulanmamış.")
+else:
+    unbound_p = corpus_prod - ER.EMITTED_OPS
+    assert not unbound_p, f"üretim-corpus'ta-kayıtsız: {sorted(unbound_p)}"
+    print(f"  üretim-corpus-da-tutarlı: {sorted(corpus_prod)}")
 PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then
-  PASS=$((PASS+1)); note "  PASS katman-3-corpus-tutarlı"
+  PASS=$((PASS+1)); note "  PASS katman-3-corpus-tutarlı (üretim-boş-dürüst)"
 else FAIL=$((FAIL+1)); note "  FAIL katman-3"; cat "$LOG"; fi
+
+# 3b) AYAR: sahte-üretim-ledger'ı-ekle → katman-3-onu-üretim-saymalı
+note "3b) ayar — sahte-üretim-ledger'ı-tanınmalı (negatif-kontrol)"
+python3 - <<'PYEOF' >> "$LOG" 2>&1
+import sys, tempfile, pathlib
+sys.path.insert(0, "tools")
+import emitter_verify as EV
+d = tempfile.mkdtemp()
+# tests/-altında-DEĞİL → üretim-sayılmalı
+fake = pathlib.Path(d) / "prod.jsonl"
+fake.write_text('{"seq":1,"prev":null,"h":"a","op":"charge","amount":1}\n',
+                encoding="utf-8")
+orig = EV.REPO
+class FakeRepo:
+    def rglob(self, pat):
+        if pat.endswith("*.jsonl"):
+            yield fake
+        yield from orig.glob(pat)
+EV.REPO = FakeRepo()
+got = EV.corpus_ops(production_only=True)
+EV.REPO = orig
+assert "charge" in got, f"üretim-ledger'ı-tanınamadı: {got}"
+print(f"  sahte-üretim-tanıldı: {sorted(got)}")
+PYEOF
+RC=$?
+if [ $RC -eq 0 ]; then
+  PASS=$((PASS+1)); note "  PASS 3b-üretim-ledger-tanıma"
+else FAIL=$((FAIL+1)); note "  FAIL 3b"; cat "$LOG"; fi
 
 # 4) E1(a)-korunumu: op-HÂLÂ-serbest (kısıt-değil-kayıt)
 note "4) E1(a) — op-serbest-korunuyor, yeni-op-eklenebilir"

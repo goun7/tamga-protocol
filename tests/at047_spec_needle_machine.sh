@@ -68,6 +68,23 @@ if [ $? -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS dalga-yöntemi-dokümante"
 else FAIL=$((FAIL+1)); note "  FAIL dokümantasyon-eksik"; cat "$LOG"; fi
 
+# 3b) VERIDICT-CANARY-AYNASI: fixture-kanıtı-üretim-sayılmamalı
+note "3b) fixture-üretim-sayılmıyor (Veridict-canary-dersi)"
+python3 - <<'PYEOF' >> "$LOG" 2>&1
+import sys
+sys.path.insert(0, "tools")
+import emitter_verify as EV
+# tüm-corpus'ta-charge-var (fixture) — ama-üretim-corpus'ta-YOK
+assert "charge" in EV.corpus_ops(), "fixture-corpus-bozuk"
+assert EV.corpus_ops(production_only=True) == set(), \
+    f"üretim-corpus-boş-olmalıydı-fixture-sızdı: {EV.corpus_ops(production_only=True)}"
+print("  fixture-üretim-sızıntısı-yok (repoda-üretim-ledger'ı-yok)")
+PYEOF
+RC=$?
+if [ $RC -eq 0 ]; then
+  PASS=$((PASS+1)); note "  PASS fixture-üretim-ayrıldı"
+else FAIL=$((FAIL+1)); note "  FAIL fixture-sızdı"; cat "$LOG"; fi
+
 # 4) AYAR: emitter'ı-olmayan-gerçek-ölü-girdi-yakalanmalı (Türkçe-karakter-dahil)
 note "4) ayar — emitter'sız-ölü-girdi (Türkçe-regex-kapsamı)"
 python3 - <<'PYEOF' >> "$LOG" 2>&1

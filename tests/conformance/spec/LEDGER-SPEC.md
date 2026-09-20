@@ -45,9 +45,17 @@ Bu-tam-olarık-Sester'ın-`lines.append(f"...")`-çağrısının-ilk-argümanın
 sayma-hatasıyla-aynı-sınıf. **Çözüm:** emitter_verify.py-artık-yalnızca
 `seq`+`prev`+`h`-üçlüsünü-taşıyan-satırları-ledger-kabul-ediyor.
 
-**Doğru-gözlemlenen-küme:** `charge` (72-kayıt), `grant` (7-kayıt). Kod-emitter'ları:
-`charge`←tamga_runner.py:784, `grant`←tamga_runner.py:367, `run`←:805,
-`migrate-net`←:1174 (kodda-var-ledger-korpusunda-yok).
+**Doğru-gözlemlenen-küme — İKİNCİ-DÜZELTME (Veridict-canary-2026-09-20-aynası):**
+önceki-"`charge` (72), `grant` (7)"-raporu-**yanlıştı** — seq+prev+h-üçlüsü-ile
+doğrulanmış-AMA-tümü-**test-fixture**-kanıtıydı. **Repoda-ÜRETİM-ledger'ı-YOK**
+(14-ledger'ın-hepsi-tests/-altında). Üçlü-kapsamın-3.katmanı-bu-nedenle-ZAYIF:
+fixture-kanıtı-emitter'ın-test-edildiğini-gösterir, **üretimde-erişilebilir-
+olduğunu-KANITLAMAZ.**
+
+Kod-emitter'ları (katman-2, fixture'den-bağımsız):
+`charge`←tamga_runner.py:784, `grant`←tamga_runner.py:367,
+`migrate-net`←:1174 (kodda-var-üretim-corpus'ta-henüz-yok — DOĞRULANMAMIŞ).
+`fee`-RESERVED.
 
 **fail-closed-dalga-deneyi-sonuçları-de-doğrulandı:** DALGA-1/2-FAIL'leri-gerçek
 elde-edinildi (verify-lite-`note`-fixture + AT-045-`BILINMEYEN`-testi), yani
@@ -63,9 +71,10 @@ RESERVED-olarak-kilitli (aşağıda).
 
 
 
-**Gözlemlenen-küme (seq+prev+h-üçlüsü-ile-doğrulanmış):** `charge` (72),
-`grant` (7). Kod-emitter'ları-`run`-ve-`migrate-net`-de-içerir (bkz.
-tools/emitter_verify.py). `note`-yalnızca-fixture.
+**Gözlemlenen-küme (seq+prev+h-üçlüsü-ile, ÜRETİM-OLARAK):** **BOŞ** — repoda
+üretim-ledger'ı-yok. Test-fixture-kümesi: `charge`, `grant`. Kod-emitter'ları-
+`migrate-net`-de-içerir (bkz. tools/emitter_verify.py). `note`-yalnızca-fixture.
+**3.katmanın-üretim-erişilebilirliği-ancak-üretim-ledger'ı-var-olunca-kanıtlanır.**
 
 **Kısıt-hâlâ-yok** (E1(a)-kararı-korunur) — ama **dalga-yöntemi-artık-locked**:
 eğer-yarın-kısıtlamaya-karar-verilirse, `ALLOWED_OPS`-yazım-sınırında-fail-closed

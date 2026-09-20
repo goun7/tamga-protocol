@@ -104,11 +104,18 @@ def _ledger_evidence() -> dict:
     session.v3.jsonl-bir-Tamga-ledger'ı-DEĞILDIR ('type':'session'-kayıtları).
     İlk-taramam-'replace'-değerini-orada-yanlışlıkla-buldu. Çözüm: yalnızca
     'seq'+'prev'+'h'-üçlüsünü-taşıyan-satırları-ledger-kabul-et.
+
+    DİKKAT-2 (Veridict-canary-2026-09-20-aynası): seq+prev+h-üçlüsü-test-
+    fixture'leri-de-üretir! tests/,-altındaki-ledger'lar-gerçek-üretim-kanıtı
+    DEĞİLDİR — onları-üretim-kanıtı-saymak-Veridict'in-canary-sayım-hatasının
+    bire-bizdeki-aynası (sayım-kanıtın-girmediği-yerden-geliyordu). Artık
+    fixture-ve-üretim-ayrı-tutarlı.
     """
     out = {}
     for p in REPO.rglob("*.jsonl"):
         if ".venv" in p.parts:
             continue
+        sp = str(p)
         try:
             txt = p.read_text(encoding="utf-8", errors="replace")
         except OSError:
@@ -117,10 +124,37 @@ def _ledger_evidence() -> dict:
             # GERÇEK-Tamga-ledger-satırı: seq+prev+h-üçlüsü-olmalı
             if not ("\"seq\"" in line and "\"prev\"" in line and "\"h\"" in line):
                 continue
-            m = re.search(r'"op":\s*"([a-z][a-z0-9-]*)"', line)
+            m = re.search(r'"op":\s*"([a-zçğıöşü][a-zçğıöşü0-9-]*)"', line)
             if m:
-                out.setdefault(m.group(1), set()).add(str(p))
+                out.setdefault(m.group(1), set()).add(sp)
     return {k: len(v) for k, v in out.items()}
+
+
+def corpus_ops(production_only: bool = False) -> set:
+    """Katman-3: corpus'ta-görünen-op'ler. production_only=True-ise-yalnızca
+    üretim-ledger'ları (test-fixture'leri-hariç).
+
+    Veridict-canary-2026-09-20-aynası: seq+prev+h-üçlüsü-FIXTURE'ler-de-üretir;
+    fixture-kanıtı-üretim-erişilebilirliğini-KANITLAMAZ."""
+    out = set()
+    for p in REPO.rglob("*.jsonl"):
+        if ".venv" in p.parts:
+            continue
+        sp = str(p)
+        if production_only and any(t in sp for t in
+                                   ("tests/", "test-", "fixture", ".dbg")):
+            continue
+        try:
+            txt = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for line in txt.splitlines():
+            if not ("\"seq\"" in line and "\"prev\"" in line and "\"h\""):
+                continue
+            m = re.search(r'"op":\s*"([a-zçğıöşü][a-zçğıöşü0-9-]*)"', line)
+            if m:
+                out.add(m.group(1))
+    return out
 
 
 def scan() -> dict:

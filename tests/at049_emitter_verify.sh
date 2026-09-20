@@ -73,8 +73,8 @@ EV.REPO = FakeRepo()
 seen = EV._ledger_evidence()
 EV.REPO = orig_rg
 assert "fake-noise" not in seen, \
-    f"sahte-oturum-gürültüsü-ledger-sayıldı: {seen}"
-print(f"  sahte-gürültü-filtrelendi: {seen}")
+    f"sahte-oturum-gürültüsü-ledger-sayıldı: {sorted(seen)}"
+print(f"  sahte-gürültü-filtrelendi: {sorted(seen)}")
 PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then
@@ -124,8 +124,8 @@ EV.REPO = FakeRepo()
 seen = EV._ledger_evidence()
 EV.REPO = orig_rg
 assert "test-emitter" in seen, \
-    f"gerçek-ledger-satırı-tanınamadı (filtre-aşırı-katı): {seen}"
-print(f"  gerçek-satır-tanıldı: {seen}")
+    f"gerçek-ledger-satırı-tanınamadı (filtre-aşırı-katı): {sorted(seen)}"
+print(f"  gerçek-satır-tanıldı: {sorted(seen)}")
 PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then

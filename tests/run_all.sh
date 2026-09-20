@@ -50,6 +50,16 @@ bekle_red() { kontrol "$@"; }  # semantic alias for expected-RED greps (grep -q 
 {
   echo "# run_all — $(date -Iseconds)"
 
+  # ÜRETİM-CORPUS-ÖNCE (AT-057, bağımlılık-sırası): emitter_verify.py'nin
+  # üretim-denetimi (AT-049/AT-057) deneysel-üretim-ledger'ını-ister; bu-yüzden
+  # kontrol-73'ten-ÖNCE-üretilmeli (CI'da-AT-049-kırmızıydı, yerelde-77/77-
+  # geçiyordu-çünkü-önceki-koşudan-kalmıştı). Üretim-kanıtı-koşuya-bağlı,
+  # commit'e-değil (.evidence/-gitignore).
+  export PROD="$(pwd)/.evidence/PROD-CORPUS/$(date +%F)"
+  mkdir -p "$PROD"
+  python3 tests/helpers/prod_corpus_make.py > /dev/null 2>&1 || \
+    echo "  [UYARI] üretim-corpus-üretilemedi — AT-049/AT-057-boş-corpusta-koşar"
+
   echo "--- AT-001a: manifest validation vectors (expecting 2 ACCEPT + 5 RED; v0.2.0-flip 2026-09-11)"
   python3 tamga_validator.py validate tests/vectors/tc-a1 | grep -q '^ACCEPT'; kontrol $? "tc-a1 ACCEPT"
   python3 tamga_validator.py validate tests/vectors/tc-a6 | grep -q '^ACCEPT'; kontrol $? "tc-a6 ACCEPT (v0.2.0 üst-sınır flip-SONRASI açık)"

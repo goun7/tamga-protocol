@@ -363,6 +363,10 @@ PY
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
 
+  # ---- kontrol-76: AT-052 yazım-bölgesi-geçitli (Sester'ın-mimari-cevabı) ----
+  bash tests/at052_write_region_gate.sh > /dev/null 2>&1
+  kontrol $? "AT-052: ikinci-yazım-deyimi-kapatıldı (bölge-geçitli)"
+
   # ---- kontrol-75: AT-051 blockchain-üçlü-paritesi (epoch-10-canlı-zincir) ----
   bash tests/at051_blockchain_triple_parity.sh > /dev/null 2>&1
   kontrol $? "AT-051: 3-bağımsız-keccak + on-chain-root-paritesi"

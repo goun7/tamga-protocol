@@ -47,6 +47,22 @@ import json
 import os
 import select
 import signal
+
+# KNOWN_NET_EVENTS (AT-052, Sester'ın-yazım-bölgesi-geçitli-dersi): bu-dosya
+# bir-Tamga-ledger'ı-değildir-ama-ikinci-yazım-deyimidir — emitör-tarayıcımız
+# _append-tetikleyicisiyle-onu-göremez. Bilinen-event-türleri-kapalı-küme;
+# aile-genişlemesi-net_*-öneki-ile-açık (Sester'ın-facilitator_*/tenderix_*
+# ruhu). Yeni-bir-tür-eklemek-için-bu-liste+kod-güncellenir.
+#
+# DÜRÜST-DÜZELTME (AT-006-kırılması): ilk-listem-yalnız-_log()-içindeki-4-türdü
+# — ama-tamga_runner.py:624-'proxy_start'-event'ini-üretiyor (run-receipt-akışı).
+# Fail-closed'ım-GERÇEK-üretim-event'ini-kırıyordu: Sester'ın-bulgusunun-birebir
+# kendisi. Tür-listesi-elle-değil-tüm-üretim-kaynaklarından-çıkartılmalı (AT-052
+# 5.-hücre-bunu-kanıtlar: _log-çağrıları + runner-cross-call).
+KNOWN_NET_EVENTS = frozenset({
+    "net_denied", "net_timeout", "net_byte_cap", "net_connect",
+    "proxy_start",   # tamga_runner.py:624 (run-receipt-akışı)
+})
 import socket
 import sys
 import threading
@@ -171,6 +187,14 @@ class TamgaProxy:
     # ---- event log (M5 seed; 0600 file, JSONL) ----
     def _log(self, ev):
         ev["ts"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        # YAZIM-BÖLGESİ-GEÇİTLİ (Sester'ın-2026-09-20-dersi, AT-052): bu-dosya
+        # bir-Tamga-ledger'ı-değildir (seq/prev/h-yok; işlemsiz-event-log'dur),
+        # AMA-ikinci-yazım-deyimi-olarak-emitör-tarayıcımızdan-kaçar. Deyim-adı
+        # taramasına-değil-bölge-kapsamına-güven: buraya-yazılan-her-event
+        # bilinen-event-türünden-olmalı-yoksa-kayıt-reddedilir (fail-closed).
+        _ev = ev.get("event")
+        if _ev not in KNOWN_NET_EVENTS:
+            return   # fail-closed: bilinmeyen-event-yazılmaz
         with self._lock:
             self._events.append(ev)
         if self.events_path:

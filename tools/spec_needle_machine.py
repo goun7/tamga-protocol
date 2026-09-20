@@ -120,16 +120,19 @@ def _spec_ops(spec_text: str) -> set:
     return ids
 
 
-def check_dead_entries() -> list:
-    """Sester'ın-test_209_taxonomy_has_no_dead_entries'inin-bizdeki-karşılığı.
+def _found_ops(production_only: bool = False) -> set:
+    """Ledger'larda-yayılmış-op'ları-döndür.
 
-    Spec'te-listeli-ama-hiç-yayınlanmayan-op-RED — **ancak-açıkça-reserved
-    olarak-belgelenmişse-GREEN.** Bu-ayırt-önemli:
-      - Sester'ın-usage_event'i: panel-etiketinden-varsayım, emitter-yok,reserved
-        notu-yok → ÖLÜ → kaldırıldı
-      - Bizim-fee'miz: §1'de-açıkça-'ayrılmış'-diyor → meşru-reserved, kalır
+    production_only=False (eski-davranış): TÜM-*.jsonl'ler-sayılır — ama-bu
+    AT-057'nin-kanıtladığı-gibi-fixture-kanıtını-üretim-erişilebilirliği-olarak
+    yanlış-sayar (Veridict-canary-2026-09-20-sınıfı).
+
+    production_only=True: yalnızca-üretim-corpus'undaki-ledger'lar-sayılır
+    (emitter_verify.corpus_ops-ile-aynı-ayraç).
     """
-    spec = (SPEC_DIR / "LEDGER-SPEC.md").read_text(encoding="utf-8")
+    if production_only:
+        import emitter_verify as EV
+        return set(EV.corpus_ops(production_only=True))
     found = set()
     for p in REPO.rglob("*.jsonl"):
         try:
@@ -141,6 +144,25 @@ def check_dead_entries() -> list:
                 continue
             for m in re.finditer(r'"op":\s*"([a-z][a-z-]*)"', line):
                 found.add(m.group(1))
+    return found
+
+
+def check_dead_entries() -> list:
+    """Sester'ın-test_209_taxonomy_has_no_dead_entries'inin-bizdeki-karşılığı.
+
+    Spec'te-listeli-ama-hiç-yayınlanmayan-op-RED — **ancak-açıkça-reserved
+    olarak-belgelenmişse-GREEN.** Bu-ayırt-önemli:
+      - Sester'ın-usage_event'i: panel-etiketinden-varsayım, emitter-yok,reserved
+        notu-yok → ÖLÜ → kaldırıldı
+      - Bizim-fee'miz: §1'de-açıkça-'ayrılmış'-diyor → meşru-reserved, kalır
+    AT-057-SONRASI (üçüncü-seçenek-yasak): 'found'-artık-üretim-corpus'undan
+    gelir — fixture-kanıtı-üretim-erişilebilirliği-KANITLAMAZ (Veridict-canary-
+    2026-09-20-sınıfı). Op-üretimde-kanıtlanmamış-AMA-kod-emitter'ı-varsa
+    ÖLÜ-sayılMAZ (aşağıda); bunun yerine-üretim-boşluğu-açıkça-raporlanır
+    (sessiz-geçiş-yok).
+    """
+    spec = (SPEC_DIR / "LEDGER-SPEC.md").read_text(encoding="utf-8")
+    found = _found_ops(production_only=True)
     listed = _spec_ops(spec)
     dead = []
     for o in sorted(listed):
@@ -191,6 +213,17 @@ def main(argv: list[str]) -> int:
     if dead:
         problems.append(f"[Sester-209-aynası] ÖLÜ-girdiler (listeli-ama-yayılmayan-"
                         f"ve-reserved-değil): {dead}")
+    # AT-057-üçüncü-seçenek-yasak: emitter'ı-var-AMA-üretim-corpus'unda-kanıt-
+    # lanmamış-op'lar-da-açıkça-raporlanır (sessiz-geçiş-yok). Bunlar-ÖLÜ-
+    # değildir (kod-yazıyor) ama-üretim-erişilebilirliği-KANITLANMAMIŞTIR.
+    import emitter_verify as EV
+    prod = set(EV.corpus_ops(production_only=True))
+    for o in sorted(EV._code_emitters()):
+        if o not in prod:
+            problems.append(
+                f"[AT-057] [{o}] kod-emitter'ı-var-AMA-ÜRETİM-corpus'unda-"
+                f"kanıt-YOK — fixture-kanıtı-üretim-erişilebilirliği-"
+                f"KANITLAMAZ (Veridict-canary-sınıfı)")
     if problems:
         print("SPEC-NEEDLE-BAŞARISIZ:")
         for p in problems:

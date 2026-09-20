@@ -373,6 +373,10 @@ PY
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
 
+  # ---- kontrol-82: AT-058 ayraç-sınıfı-örtüşme (Kural-7.2-makine-hali) ----
+  bash tests/at058_ayrac_sinifi.sh > /dev/null 2>&1
+  kontrol $? "AT-058: ayraç-sınıfı-örtüşme + çapraz-körlük"
+
   # ---- kontrol-81: AT-057 üretim-corpus-boşluğu (Veridict-canary-aynası) ----
   bash tests/at057_production_corpus.sh > /dev/null 2>&1
   kontrol $? "AT-057: üretim-corpus + üçüncü-seçenek-yasak"

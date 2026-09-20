@@ -125,4 +125,35 @@ P8-1..3 + F1-etiket-uyumu).
 
 - Kamu-tartışma-x402-foundation/x402#3447-(RFC-008-E1-tasıyla-aynı-kanal; DRAFT-öneri-
   issue-non-binding)
+
+## 8. ÜÇÜNCÜ-SEÇENEK-YASAK-ve-AYRAÇ-SINIFI (AT-056/AT-057-sonrası, 2026-09-20)
+
+RFC-009'un-`anchor`-op'u-const'a-girince-üç-ürün-normatif-K0-rule-7'ye-bağlı-olacak:
+her-yazım-bölgesi-ya-GATES'te-ya-da-açık-kapı-değil-beyanında-(Sester-NON_GATES /
+Tamga-STATE_ONLY)-olmalı; **sessiz-geçiş-YASAK**.
+
+**Ancak-bu-turda-ölçülen-gerçek-sınır-aşağıdadır — pilot-öncesi-bilinmeli:**
+
+| Yazım-deyimi-sınıfı | Sester-ayracı | Tamga-ayracı | Ortak |
+|---|---|---|---|
+| `INSERT INTO events` (SQL-metni) | ✓ | ✗ | — |
+| `fdopen(…,"w")` / `O_APPEND` / `O_TRUNC` (dosya) | ✗ | ✓ | — |
+| `os.write(fd, b…)` (ikili) | ✗ | ✗ | ✗ |
+| `COPY … FROM` (bulk) | ✗ | ✗ | ✗ |
+| `executemany` (toplu-SQL) | ✗ | ✗ | ✗ |
+
+**Ayraçlarımız-HİÇ-örtüşmüyor.** İki-ürün-birlikte-üçüncü-seçeneği-ancak-**kendi-
+deyim-sınıflarında**-tutar; ortak-sınıf-YOK. `anchor`-op'u-her-iki-üründe-de-farklı
+deyimle-yazılacak-(SQL-ve-dosya)-ve-her-ürün-yalnızca-kendi-sınıfını-denetler.
+
+**Bu-Kural-7.2'nin-canlı-kanıtı:** üçüncü-seçenek-yasak-bir-üründe-tamamlandı-
+diye-üç-üründe-tamamlandı-demiyor. **Pilot-ön-şart:** `anchor`-yazma-yolu-her-
+üründe-kendi-GATES/NON_GATES-kayıdına-girmeli-VE-diğer-ürünün-ayracının-onu-
+göremediği-açıkça-beyan-edilmeli (örneğin-Tamga-SQL-yazmaz-→-Sester'ın-`anchor`
+bölgesi-bizde-deneyimsiz).
+
+**AT-057-üretim-kanıtı-bağlamı:** bu-ülkenin-üç-emitter'ı-da-(charge/grant/migrate-
+net)-artık-üretim-ledger'ında-kanıtlandı-(deneysel-repo-içi-koşu; fixture-kanıtı-
+üretim-erişilebilirliği-KANITLAMAZ). `anchor`-için-aynı-üretim-kanıtı-yalnızca-pilot-
+günü-oluşur — bu-yüzden-op-const'a-PILOT-SONRASI-girer (§4-NE-SONRA-ile-aynı-karar).
 - Bu-taslağın-kaderi-orada-masaya-yatar; PR-yalnız-P8-1..3-ve-etiket-uyumu-kapandıktan-sonra

@@ -36,6 +36,26 @@ FORBIDDEN = ("eksiksiz", "tam-kapsam", "tam-kapsamlı", "complete-coverage",
              "full-coverage", "tüm-yollar", "bütün-yollar")
 
 # Her-kapı-kendi-kör-noktasını-yazar. BOŞ-OLAMAZ, yasak-kelime-içeremez.
+# SESTER'IN-TASARIM-İLİKESİ (0c4ea87-sonrası, AT-056'ya-uygulandı): "ayıraç-
+# hata-yapacaksa-aşırı-tarafta-yapsın — sessiz-eksiklik-ölümcül, gürültü-
+# maliyetlidir." İlk-ayracım-dar-eşliyordu → cmd_memory/cmd_keygen_node-SESSİZCE
+# geçiyordu. Çözüm: onları-açık-bir-STATE_ONLY-kümesine-yazmak — geçiş-artık-
+# sessiz-karar-değil, kayıtlı-beyan. Yarın-biri-onları-ledger'a-yazmaya-çevirirse
+# (a)-denetimi-RED-verir: GATES'te-olmayan-yazım-bölgesi-ihlal.
+STATE_ONLY = {
+    "tamga_runner.py:cmd_memory":
+        "state.json'e-yazar (fdopen w); ledger'a-değil — kapı-değil-AÇIKÇA-"
+        "beyan-edildi. Sessiz-geçiş-değil: bu-kümede-olmayan-her-yazım-bölgesi "
+        "GATES'e-kayıt-ister (Sester'ın-aşırı-tarafta-hata-ilkesi).",
+    "tamga_runner.py:cmd_keygen_node":
+        "node_seed.hex'e-yazar (operator-private-key); ledger'a-değil — "
+        "kapı-değil-AÇIKÇA-beyan-edildi.",
+    "tamga_runner.py:_secure_open":
+        "ALÇAK-SEVİYE-yardımcı: fdopen-çağrılarını-yaratan-her-fonksiyonun "
+        "gövdesinde-bu-ad-geçer (yanlış-pozitif). Kendi-başına-yazmaz — "
+        "çağıranları-GATES'te-veya-STATE_ONLY'de-olmalı.",
+}
+
 GATES = {
     "tamga_runner.py:_ledger_append": (
         "KÖR-NOKTA: yalnızca-bu-fonksiyon-içinden-yazılanlar-denetlenir; "
@@ -94,15 +114,13 @@ def _write_regions(mod: str) -> set:
             # Sester'ın-own-tuzak-aynısı: çok-geniş-eşleme-cmd_run/cmd_memory'yi-
             # yanlış-kapı-sandı (onlar-yalnızca `_, sp, _ = _pkg(pkg)`-çağırıyor,
             # ledger-yolunu-kullanmıyor). Ayrım: gövde-LEDGER-DEĞİŞKENİNE-YAZMALI.
-            fn_src = _extract_fn(src, fn)
-            if not fn_src:
-                continue
-            writes_ledger = bool(re.search(
-                r'fdopen\([^)]*"[wa]"\s*\)\s*as\s+f', fn_src)) and bool(re.search(
-                r'\blp\s*,|\blp\s*=\s*_secure_open|ledger_path|self\.ledger', fn_src))
-            writes_events = "self.events_path" in fn_src
-            if writes_ledger or writes_events:
-                fns.add(fn)
+            # SESTER'IN-AŞIRİ-TARAFTA-HATA-İLKESİ: artık-DAR-süzme-YOK. Daha-
+            # önce- gövdede-lp/ledger-olmasını-istiyordum → cmd_memory/
+            # cmd_keygen_node-SESSİZCE-dışlanıyordu (check()-onları-göremeyip
+            # 'temiz'-diyordu). Artık-her-yazım-bölgesi-DÖNDÜRÜLÜR; check()
+            # GATES/STATE_ONLY-üçüncü-seçenek-yasak'ı-ile-sınıflandırılmaya-
+            # zorlar. Gürültü-maliyetlidir-ama-sessiz-ıskalama-ölümcül.
+            fns.add(fn)
     return fns
 
 
@@ -125,8 +143,14 @@ def check() -> dict:
         if fn_src is None:
             continue
         is_gate = bool(GATE_MARK.search(fn_src))
-        if is_gate and key not in registered:
-            problems.append(f"kayitsiz-kapi: {key} — geçitli-yazım-kapısı-GATES'te-yok")
+        # SESTER'IN-AŞIRİ-TARAFTA-HATA-İLKESİ: her-yazım-bölgesi-ya-GATES'te-ya-
+        # STATE_ONLY'de-olmalı — ÜÇÜNCÜ-BİR-SEÇENEK-YOK (sessiz-geçiş-yasak).
+        # Kapı-şartı-KALDIRILDI: kapı-olmasa-bile-sınıflandırılmalı, yoksa-sessiz-
+        # ıskalama-ölümcül (cmd_memory/.cmd_keygen_node-ilk-ayracımda-sessizdi).
+        if key not in registered and key not in STATE_ONLY:
+            problems.append(
+                f"sessiz-gecis: {key} — ne-GATES'te-ne-STATE_ONLY'de; "
+                f"aşırı-taraf-ilkesi-ihlali (sessiz-ıskalama-yasak)")
 
     # (b) ESASIZ-KAYIT: kayıtlı-her-kapı-gerçekten-var-olmalı
     for key in registered:

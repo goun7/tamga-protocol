@@ -142,6 +142,36 @@ if [ $RC -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS 5) kapılar-RED-veriyor"
 else FAIL=$((FAIL+1)); note "  FAIL 5)"; cat "$LOG"; fi
 
+# 6) SESTER'IN-AŞIRİ-TARAFTA-HATA-İLKESİ: sessiz-geçiş-yasak
+note "6) üçüncü-seçenek-yok — yazım-bölgesi-ya-GATES'te-ya-STATE_ONLY'de"
+python3 - <<PYEOF >> "$LOG" 2>&1
+import sys
+sys.path.insert(0, "tools")
+import gates_registry as GR
+r = GR.check()
+assert r["ok"], f"GATES-bozuk: {r['problems']}"
+# her-yazım-bölgesi-sınıflandırılmış-olmalı
+known = set(GR.GATES) | set(GR.STATE_ONLY)
+for mod in ("tamga_runner.py", "tamga_netproxy.py"):
+    fns = GR._write_regions(mod)
+    for fn in fns:
+        key = f"{mod}:{fn}"
+        assert key in known, f"SESSİZ-GEÇİŞ: {key} ne-GATES'te-ne-STATE_ONLY'de"
+print(f"  {len(known)}-yazım-bölgesi-tamamen-sınıflandırıldı (sessiz-geçiş-yok)")
+# ayar: STATE_ONLY'den-çıkart → (a)-RED-vermeli
+orig = dict(GR.STATE_ONLY)
+GR.STATE_ONLY.pop("tamga_runner.py:cmd_memory")
+r2 = GR.check()
+GR.STATE_ONLY.clear(); GR.STATE_ONLY.update(orig)
+assert not r2["ok"], "sessiz-geçiş-yakalanmadı!"
+assert any("cmd_memory" in p_ for p_ in r2["problems"]), r2["problems"]
+print("  ayar: STATE_ONLY-kaldırılınca-RED (sessiz-geçiş-yasak)")
+PYEOF
+RC=$?
+if [ $RC -eq 0 ]; then
+  PASS=$((PASS+1)); note "  PASS 6) sessiz-geçiş-yasak (aşırı-taraf-ilkesi)"
+else FAIL=$((FAIL+1)); note "  FAIL 6)"; cat "$LOG"; fi
+
 echo
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 echo "  AT-056: GATES-üç-yönlü+self-catching (Kural-7.1-makine-hali)"

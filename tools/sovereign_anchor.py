@@ -173,6 +173,15 @@ def verify(anchor_path: str) -> dict:
                     f"sahte-yeşile-boyama-{prod}: anchor-GREEN-diyor-ama-"
                     f"bağımsız-yeniden-doğrulama-RED",
                     "independent": rechecked}
+    # AT-054(b)-kapanışı: kaynak-verildi-AMA-bağımsız-doğrulama-boş-kaldıysa
+    # doğrudan-GREEN-vermek, pack'in-STRUCTURAL-GREEN'inin-taşıdığı-"katman-2-
+    # gerekli"-sinyalini-kaybettirir. Kimlik-yolu-eksikse-STRUCTURAL-GREEN-ver
+    # (pack-verify_anchor.py-ile-parite).
+    if not rechecked:
+        return {"ok": True, "verdict": "STRUCTURAL-GREEN", "structural": True,
+                "note": "katman-1-geçti; kaynaklar-verildi-ama-ürün-gerçeklemesi "
+                        "yapılamadı (kimlik-doğrulama-yolu-eksik)",
+                "anchor_root": expected, "products_proved": proved}
     return {"ok": True, "verdict": "GREEN", "anchor_root": expected,
             "products_proved": proved, "independent": rechecked}
 

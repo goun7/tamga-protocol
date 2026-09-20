@@ -153,6 +153,35 @@ if [ $RC -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS 4) boş-durum-doğru-aile"
 else FAIL=$((FAIL+1)); note "  FAIL 4)"; cat "$LOG"; fi
 
+# 5) AT-054(b)-KAPANIŞI: STRUCTURAL-GREEN-artık-iki-tarafta-da-var
+note "5) STRUCTURAL-GREEN-paritesi — tools-artık-pack-ile-aynı-sinyali-taşır"
+python3 - <<PYEOF >> "$LOG" 2>&1
+import sys, json, tempfile, hashlib
+sys.path.insert(0, "tools")
+import sovereign_anchor as SA
+d = tempfile.mkdtemp()
+def canon(o): return json.dumps(o, sort_keys=True, separators=(",",":")).encode()
+# kaynak-verildi-AMA-ürün-anahtarı-eşleşmiyor → rechecked-boş → STRUCTURAL-GREEN
+a = {"type":"sovereign-anchor","version":"0.1","products_present":["sester"],
+     "products_proved":["sester"],"all_proved":True,
+     "results":{"sester":{"ok":True,"verdict":"GREEN"}},
+     "sources":{"tamga_claim": f"{d}/yok.json"}}
+a["anchor_root"] = hashlib.sha256(canon({"results":a["results"],"sources":a["sources"]})).hexdigest()
+p = f"{d}/a.json"; json.dump(a, open(p,"w"))
+r = SA.verify(p)
+assert r.get("verdict") == "STRUCTURAL-GREEN", f"STRUCTURAL-GREEN-verilmedi: {r}"
+assert r.get("ok") is True
+# pack-tarafında-da-STRUCTURAL-GREEN-tanımlı
+src_pack = open("tests/conformance/verify_anchor.py", encoding="utf-8").read()
+assert "STRUCTURAL-GREEN" in src_pack, "pack'te-tanımsız"
+print("  tools+pack — ikisinde-de-STRUCTURAL-GREEN-var")
+print("  'katman-2-gerekli'-sinyali-artık-iki-tarafta-da-taşınıyor")
+PYEOF
+RC=$?
+if [ $RC -eq 0 ]; then
+  PASS=$((PASS+1)); note "  PASS 5) STRUCTURAL-GREEN-paritesi"
+else FAIL=$((FAIL+1)); note "  FAIL 5)"; cat "$LOG"; fi
+
 echo
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 echo "  AT-054: absent-≠-failure-kanıtlı + 2-zayıf-yüz-kayıtlı"

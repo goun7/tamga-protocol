@@ -50,8 +50,15 @@ for p in sorted(pathlib.Path(".").glob("*.py")):
     for i, l in enumerate(p.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
         if pat.search(l):
             regions.append((p.name, i, l.strip()[:50]))
-# restore-kurulum-satırı-bulunmalı
-restore = [r for r in regions if r[0] == "tamga_runner.py" and 1120 <= r[1] <= 1145]
+# restore-kurulum-satırı-bulunmalı — ARALIK-DAYANIKLI: cmd_anchor-eklenmesi
+# satırları-öteledi (eski-1120..1145-artık-1147..1171); bu-yüzden-tüm-dosyada
+# "restore"-ile-başlıklı-fonksiyonun-gövdesini-bul-ve-içinde-yazım-bölgesi-ara
+import inspect
+src_lines = pathlib.Path("tamga_runner.py").read_text(encoding="utf-8").splitlines()
+restore = []
+for i, l in enumerate(src_lines, 1):
+    if pat.search(l) and "restore" in " ".join(src_lines[max(0,i-25):i]).lower():
+        restore.append(("tamga_runner.py", i, l.strip()[:50]))
 assert restore, "restore-yazım-bölgesi-bulunamadı!"
 print(f"  toplam-yazım-bölgesi: {len(regions)} (append+truncate)")
 for n, i, l in restore:

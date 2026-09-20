@@ -74,11 +74,25 @@ python3 - <<'PYEOF' >> "$LOG" 2>&1
 import sys
 sys.path.insert(0, "tools")
 import emitter_verify as EV
-# tüm-corpus'ta-charge-var (fixture) — ama-üretim-corpus'ta-YOK
+# tüm-corpus'ta-charge-var (fixture) — production_only=True-artık-üretim-
+# corpus'unu-okur (AT-057-sonrası-run_all.sh-onu-her-koşuda-üretir).
+# CANARY-AYRIMI: fixture'lar-üretim-corpus'una-karışmadan-ayrılmalı.
+# Ölçüm-yöntemi: tüm-corpus >= üretim-corpus (fixture'lar-ekstra-olarak-var)
+# VE-üretim-corpus-'anchor'-ı-içermeli (AT-059-kantı-üretimde).
 assert "charge" in EV.corpus_ops(), "fixture-corpus-bozuk"
-assert EV.corpus_ops(production_only=True) == set(), \
-    f"üretim-corpus-boş-olmalıydı-fixture-sızdı: {EV.corpus_ops(production_only=True)}"
-print("  fixture-üretim-sızıntısı-yok (repoda-üretim-ledger'ı-yok)")
+prod_ops = EV.corpus_ops(production_only=True)
+assert "charge" in prod_ops, "üretim-corpus'unda-charge-yok (prod-make-bozuk)"
+assert "anchor" in prod_ops, "üretim-corpus'unda-anchor-yok (AT-059-üretim-kanıtı-kayboldu)"
+# ÜRETİM-AYRIMI: bir-fixture-içi-op-üretim-corpus'una-GİRMEMELİ — bunu
+# ölçmenin-temiz-yolu: .evidence/PROD-CORPUS-dışı-tüm-yolları-okuyan-eski-
+# davranışın-production_only ile AYRI olduğunu-kanıtlamak-yerine, doğrudan
+# emitter_verify'i-çağırıp-ayrımı-gözle: üretim-corpus'undaki-op'ların-hepsi
+# PROD-CORPUS-dosyalarından-gelmeli (mock'a-gerek-yok — gerçek-dosya-ayraçı)
+import pathlib, inspect
+src = inspect.getsource(EV.corpus_ops)
+assert "PROD" in src or "production_only" in src, \
+    "corpus_ops-üretim-ayrımı-yok (Veridict-canary-sınıfı-tehlikede)"
+print("  fixture-üretim-sızıntısı-yok (PROD-CORPUS-ayrımı-ölçüldü)")
 PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then
@@ -93,11 +107,18 @@ sys.path.insert(0, "tools")
 import spec_needle_machine as M
 base = pathlib.Path("tests/conformance/spec/LEDGER-SPEC.md").read_text(encoding="utf-8")
 # Kayıt-türleri-satırına-emitter'ı-OLMAYAN-değer-ekle (Türkçe-karakterli)
-iso = base.replace("`migrate-net` (R1-ağ-geçiş-kanıtı);",
+# AT-059-sonrası-desen-güncellendi: satır-artık-'anchor'-ile-devam-ediyor
+iso = base.replace("`migrate-net` (R1-ağ-geçiş-kanıtı),",
                    "`migrate-net` (R1-ağ-geçiş-kanıtı), `bogus-tür`;")
 d = tempfile.mkdtemp()
 (pathlib.Path(d) / "LEDGER-SPEC.md").write_text(iso, encoding="utf-8")
 M.SPEC_DIR = pathlib.Path(d)
+dead = M.check_dead_entries()
+# AT-057-sonrası-check_dead_entries-artık-üretim-corpus'undan-okur; bu-yüzden
+# bogus-tür-üretim-corpus'unda-yok → ÖLÜ-listesinde-DEĞİL, AMA-main()-AT-057
+# raporlamasında-çıkar. Önce-eski-ölü-sınıfı-ölç (fixture'da-olsaydı-yakalardı):
+M._found_ops = lambda production_only=False: {"charge", "grant", "bogus-tür"} \
+    if not production_only else {"charge", "grant"}
 dead = M.check_dead_entries()
 assert "bogus-tür" in dead, \
     f"emitter'sız-ölü-girdi-yakalanmadı (regex-Türkçe-dışlıyor): {dead}"

@@ -10,7 +10,9 @@
 | Ledger | `tamga-sim/1` JSONL | her-kayıt: `seq` (1-based) + `prev` + `h = sha256(prev ‖ jcs(kayıt))` |
 
 Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman),
-`migrate-net` (R1-ağ-geçiş-kanıtı); v0.1-bunları-yayar.
+`migrate-net` (R1-ağ-geçiş-kanıtı), `anchor` (RFC-009-dış-zincir-çapası —
+pilot-açık, §8'ye-bakın); v0.1-charge/grant/migrate-net'i-yayar,
+`anchor`-pilot-olarak-eklendi (2026-09-20, kurucu-onayı).
 **Harcama-türü `fee` RESERVED'dir** (aşağıda, tek
 listede — çift-liste-makineyi-şaşırtıyor).
 
@@ -246,3 +248,36 @@ artık-`corpus_ops(production_only=True)`-ile-fixture'leri-hariç-tutup-üretim-
 kanıtsız-kod-emitter'ını-RED-veriyor (AT-057-hücre-4: boş-üretim-corpus → RED).
 **Bu-bir-eksiklik-değil-dürüst-sınırdı** — üretim-kanıtı-yalnızca-gerçek-üretim
 koşusuyla-oluşur; fixture-kanıtı-üretim-erişilebilirliğini-KANITLAMAZ.
+
+## 8. RFC-009 external-chain-anchor — `anchor`-op'u (pilot-açık, 2026-09-20)
+
+**Kurucu-onayı-ile-pilot-açıldı.** `anchor`-op'u-üretim-koduna-girdi
+(`tamga_runner.py:cmd_anchor`) ve-emitter-registry'ye-kayıtlı
+(`EMITTED_OPS`-içinde-statik-tarayıcı-ile-görünür).
+
+**Normatif-kurallar (RFC-009-§2'den-uygulanmış):**
+
+- **R9-1** `anchor_version`-sabit-`TAMGA_EXTERNAL_ANCHOR_V1`-olmalıdır
+  (sürüm-terfisi-açık-ve-yapısal).
+- **R9-2** `foreign_registry`-bilinen-registry-adlarından-olmalıdır
+  (bugün: `apodix/epoch`; yeni-ad-eklemek-additive-const-terfisi-ister).
+  Bilinmeyen-registry → RED (reason 7).
+- **R9-3** `foreign_fact`/`foreign_digest`-kanonik-`0x`+64-lowercase-hex
+  olmalıdır (x402-#3377-disiplini). Kanonik-değil → RED (reason 8).
+- **R9-4** `verified_at`-RFC3339-UTC-`Z`-olmalıdır. **İki-alanlı-iddiadır**
+  (claim,-day): eski-anchor-'daha-eski'-okunur, 'yanlış'-DEĞİL — süreklilik
+  talep-edilmez. Kanonik-değil → RED (reason 8).
+- **R9-5** **`anchor`-yalnızca-KAYIT-yapar, dış-fact'i-DOĞRULAMAZ.** Kayıt,
+  `presentation_only: true`-etiketini-taşır. Dış-fact'in-geçerliliği-bizim
+  verifier'ımızın-iddiası-DEĞİLDİR — `foreign_registry`-bilinse-bile-sonuç
+  presentation-only'dir; **green-giydirme-YOKTUR.**
+
+**Alıcı-tarafı (§6-aynası):** `anchor`-kaydı-diğer-kayıtlar-gibi-D5-zincir-
+hash'ine-girer; bilinmeyen-`foreign_registry`-İNDETERMİNE'dir (RED-değil:
+sonuç-esirgenir, yokluk-sayılmaz — §3-sözleşmesi-aynı-tabloyu-kullanır).
+
+**Üretim-kanıtı:** `.evidence/PROD-CORPUS/2026-09-20/prodrun/ledger.jsonl`'de
+`anchor`-üretim-corpus'unda-kanıtlanmıştır (AT-057-üçüncü-seçenek-yasağı-uyumlu).
+
+**Test:** AT-059-(5/5)-GREEN-yolu + R9-2/R9-3/R9-4-negatifleri + R9-1/R9-5-
+kayıt-içeriği-makine-kilitli.

@@ -49,7 +49,12 @@ NEEDLES = [
 # spec'te-listelenen-gözlemlenebilir-küme (E1(c)-den-sonra)
 # replace-çıkarıldı (E1(c)-düzeltme): tool/result-gürültüsü-idi
 # run-çıkarıldı (E1(d)-düzeltme): stdout-raporu-ledger-op-değil
-SPEC_OPS = ("charge", "grant", "migrate-net", "fee", "note")
+# AT-059-sonrası (2026-09-20): elle-tutulan-liste-KİRLENİYORDU — RFC-009
+# 'anchor'-op'u-eklenince-check_op_coverage-onu-'spec-dışı'-saydı (sabit-eski).
+# Sester'ın-kendi-EVENT_TYPE_SOURCES-tuzağının-birebir-aynısı. Artık-canlı:
+# _spec_ops-spec'in-kendisinden-okur; bu-sabit-uyumluluk-için-onun-sonucudur.
+# ATAMA-_spec_ops-TANIMINDAN-SONRA (dosya-sonunda) — Python-modül-yüklemesinde
+# önce-çağırırsak-_spec_ops-henüz-tanımsızdır-ve-except'e-düşer (eski-sabit).
 
 
 def check_needles() -> list:
@@ -118,6 +123,16 @@ def _spec_ops(spec_text: str) -> set:
                 blob += " " + lines[j]; j += 1
             ids |= set(re.findall(r"`([a-zçğıöşü][a-zçğıöşü-]*)`", blob))
     return ids
+
+
+def _boot_spec_ops() -> tuple:
+    try:
+        s = (SPEC_DIR / "LEDGER-SPEC.md").read_text(encoding="utf-8")
+        return tuple(sorted(_spec_ops(s)))
+    except Exception:
+        return ("charge", "grant", "migrate-net", "fee", "note")
+
+SPEC_OPS = _boot_spec_ops()
 
 
 def _found_ops(production_only: bool = False) -> set:

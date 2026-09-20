@@ -50,7 +50,10 @@ USAGE_HINT = {"run": "tamga run <pkg> --seed <hex>", "quickstart": "tamga quicks
               "keygen-node": "tamga keygen-node <dir>", "ledger": "tamga ledger <pkg>",
               "ledger-verify": "tamga ledger-verify <pkg>", "grant": "tamga grant <pkg> <amount>",
                "attest-verify": "tamga attest-verify <claim.json> [--registry R]",
-               "verify-cr": "tamga verify-cr <doc.json> [--expect sha256:...]"}
+               "verify-cr": "tamga verify-cr <doc.json> [--expect sha256:...]",
+               "anchor": "tamga anchor <pkg> --foreign-registry <name> "
+                         "--foreign-fact <0x+64> --foreign-digest <0x+64> "
+                         "--verified-at <RFC3339Z> [--tool <string>]"}
 
 def usage_guard(cmd, a):
     """None = geç; int = kullanım-hatası rc'si (message-RED, traceback YOK)."""
@@ -1277,6 +1280,11 @@ engine-free commands (run right after pip install; no wasmtime download needed):
                                   = three-verdict check, without it = measurement, not verdict
   ledger <pkg>                    print the ledger
   ledger-verify <pkg>             recompute and verify the hash chain
+  anchor <pkg>                    RFC-009: cite a foreign-registry fact in our chain —
+                                  RECORD ONLY, does not verify the fact (presentation-only).
+                                  flags: --foreign-registry <name> --foreign-fact <0x+64>
+                                         --foreign-digest <0x+64> --verified-at <RFC3339Z>
+                                         [--tool <string>]
 
 engine commands (first 'run' auto-downloads the SHA256-pinned wasmtime; repo clones: tests/setup.sh):
   keygen                          generate an ed25519 agent seed (printed once, never stored)
@@ -1302,11 +1310,86 @@ receiver libraries (import as modules; wire contracts in RFC-009):
 version: 0.2.12 · spec_version 0.2.0 (const-flip founder-approved 2026-09-11; next-release gate)
 exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-19) · 2 İNDETERMİNE (epoch-verify).
 """
+def cmd_anchor(a):
+    """RFC-009 (DRAFT, pilot-şimdi-açık): external-chain-anchor.
+
+    Ledger'a 'anchor'-op'u-yazar: bizim-zincirimiz-dış-fact'i-cite-eder.
+    İlk-adım-ilkesi-korunur: PUGIO-çekirdeğine-dokunmaz, bağımlılık-eklemez.
+
+    R9-1..R9-5 (RFC-009-§2) burada-uygulanır:
+      R9-1: anchor_version-sabit-TAMGA_EXTERNAL_ANCHOR_V1
+      R9-2: foreign_registry-bilinen-registry-adı (bugün: apodix/epoch)
+      R9-3: foreign_fact/foreign_digest-kanonik-0x+64-lowercase
+      R9-4: verified_at-RFC3339-UTC-Z; iki-alanlı-iddia (claim,day) — süreklilik-DEĞİL
+      R9-5: dış-fact'in-geçerliliği-bizim-iddiamız-DEĞİL (presentation-only)
+
+    Önemli: bu-op-yalnızca-KAYIT-yapar — dış-fact'i-DOĞRULAMAZ. Doğrulama
+    ayrı-adımdır (verifier_epoque/epoch-verify); bu-komut-onun-çıktısını-cite-eder.
+    """
+    usage = ("usage: anchor <pkg> --foreign-registry <name> --foreign-fact <0x+64> "
+             "--foreign-digest <0x+64> --verified-at <RFC3339Z> [--tool <string>]")
+    if len(a) < 9:
+        return out(False, op="anchor", reason_code=1, reason=usage)
+    pkg = pathlib.Path(a[0])
+    if not pkg.is_dir():
+        return out(False, op="anchor", reason_code=1, reason="package not found")
+    kv = {}
+    for i in range(1, len(a) - 1, 2):
+        kv[a[i]] = a[i + 1]
+    need = ["--foreign-registry", "--foreign-fact", "--foreign-digest", "--verified-at"]
+    if any(k not in kv for k in need):
+        return out(False, op="anchor", reason_code=1, reason=usage)
+    # R9-2: bilinen-registry (bugün-tek-örnek; terfi-additive)
+    KNOWN_REGISTRIES = {"apodix/epoch"}
+    if kv["--foreign-registry"] not in KNOWN_REGISTRIES:
+        return out(False, op="anchor", reason_code=7,
+                   reason=f"unknown_registry: {kv['--foreign-registry']} "
+                          f"(known: {sorted(KNOWN_REGISTRIES)})")
+    # R9-3: kanonik-0x+64-lowercase (x402-#3377-disiplini)
+    for k in ("--foreign-fact", "--foreign-digest"):
+        v = kv[k]
+        if not (isinstance(v, str) and v.startswith("0x") and len(v) == 66
+                and v[2:].isascii() and all(c in "0123456789abcdef" for c in v[2:])):
+            return out(False, op="anchor", reason_code=8,
+                       reason=f"non_canonical_digest: {k} must be 0x+64-lowercase-hex")
+    # R9-4: RFC3339-UTC-Z (basit-yapısal-kontrol; tam-IMF-parsing-stdlib-yok)
+    va = kv["--verified-at"]
+    if not (isinstance(va, str) and va.endswith("Z") and "T" in va):
+        return out(False, op="anchor", reason_code=8,
+                   reason="verified_at must be RFC3339-UTC-Z (…T…Z)")
+    rec = {"op": "anchor",
+           "anchor_version": "TAMGA_EXTERNAL_ANCHOR_V1",            # R9-1
+           "foreign_registry": kv["--foreign-registry"],            # R9-2
+           "foreign_fact": kv["--foreign-fact"],                    # R9-3
+           "foreign_digest": kv["--foreign-digest"],                # R9-3
+           "verified_at": va,                                        # R9-4
+           "tool": kv.get("--tool", "external-verifier (unspecified)")}
+    # R9-5: presentation-only-etiketi-cite-içinde-taşır (green-giydirme-yok)
+    rec["presentation_only"] = True
+    from emitter_registry import register_emitter
+    register_emitter("anchor", "cmd_anchor")
+    lp = pkg / "ledger.jsonl"
+    # ÇAĞRI-İÇİ-literal (Sester-çağrı-içi-iğne-dersi-ile-tutarlı): _code_emitters
+    # bir-yorumda/parametrede-geçen-'anchor'u-RED-saymamalı — çağrı-aralığında-olmalı.
+    r = _ledger_append(lp, {"op": "anchor",
+                            "anchor_version": rec["anchor_version"],
+                            "foreign_registry": rec["foreign_registry"],
+                            "foreign_fact": rec["foreign_fact"],
+                            "foreign_digest": rec["foreign_digest"],
+                            "verified_at": rec["verified_at"],
+                            "tool": rec["tool"],
+                            "presentation_only": True})
+    if isinstance(r, int):          # out(False,…)-int-döndü
+        return r
+    return out(True, op="anchor", ledger=str(lp), seq=r.get("seq"),
+               anchor_id=r.get("h"))
+
 if __name__ == "__main__":
     cmds = {"keygen": cmd_keygen, "quickstart": cmd_quickstart, "run": cmd_run,
             "export": cmd_export, "import": cmd_import, "ledger": cmd_ledger,
             "memory": cmd_memory, "grant": cmd_grant, "ledger-verify": cmd_ledger_verify,
-            "keygen-node": cmd_keygen_node, "migrate-net": cmd_migrate_net}
+            "keygen-node": cmd_keygen_node, "migrate-net": cmd_migrate_net,
+            "anchor": cmd_anchor}
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):
         print(USAGE)
         sys.exit(0 if len(sys.argv) >= 2 else 1)  # bare invocation = usage error

@@ -150,9 +150,9 @@ print("  negatif-kontroller: yorum/parametre/append/cok-satirli — HEPSI-DOGRU"
 em = EV._code_emitters()
 assert "run" not in em, \
     f"run-ledger-op-sayılıyor-ama-out(True,**kw)-stdout'tur: {sorted(em)}"
-assert set(em) == {"charge", "grant", "migrate-net"}, \
+assert set(em) == {"anchor", "charge", "grant", "migrate-net"}, \
     f"beklenmeyen-emitter-set: {sorted(em)}"
-print(f"  ledger-op'ları: {sorted(em)} — run-stdout'tan-çıkarıldı")
+print(f"  ledger-op'ları: {sorted(em)} — run-stdout'tan-çıkarıldı (anchor: RFC-009-pilot)")
 PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then

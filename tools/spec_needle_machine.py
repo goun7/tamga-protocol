@@ -48,7 +48,8 @@ NEEDLES = [
 
 # spec'te-listelenen-gözlemlenebilir-küme (E1(c)-den-sonra)
 # replace-çıkarıldı (E1(c)-düzeltme): tool/result-gürültüsü-idi
-SPEC_OPS = ("charge", "grant", "run", "migrate-net", "fee", "note")
+# run-çıkarıldı (E1(d)-düzeltme): stdout-raporu-ledger-op-değil
+SPEC_OPS = ("charge", "grant", "migrate-net", "fee", "note")
 
 
 def check_needles() -> list:

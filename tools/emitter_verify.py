@@ -36,22 +36,64 @@ RESERVED = {"fee"}
 def _code_emitters() -> dict:
     """(a) Kod-içi-ledger-append-çağrılarından-op→kaynak-çıkart.
 
-    {"op": "deger", ...} kalıbını-_ledger_append/append-bağlamında-arar.
-    Sester'nin-service.py:104-tuzağını-önler: lines.append("string")-gibi
-    çağrıların-ilk-argümanı-op-değili-olarak-işaretlenmez (dict-olmalı).
+    **ÇAĞRI-İÇİ-İĞNE (Sester-2026-09-20-dersi):** iğne dosyada-var-mı-değil,
+    bir `_ledger_append(...)`-çağrı-aralığın-İÇİNDE-olmalı (parantez-eşlemeli,
+    çok-satırlı-append'leri-de-tanıyan).
+
+    Dosyada-var-yöntemi-yetmezdi (Sester'ın-ilk-test_209'u-gibi): bir-yorumda,
+    parametrede-veya-payload'da-da-geçebilir. Sester'ın-ördüğü-negatif-kontrol:
+      # "x"           → RED (yorum, çağrı-aralığında-değil)
+      def f(op="x")   → RED (parametre, çağrı-değil)
+      _ledger_append(lp, {"op": "x"}) → GREEN (gerçek-çağrı-içi)
     """
     out = {}
     for mod in EMITTER_MODULES:
         p = REPO / mod
         if not p.exists():
             continue
-        for i, line in enumerate(p.read_text(encoding="utf-8",
-                                             errors="replace").splitlines(), 1):
-            # {"op": "deger" — dict-literal- içerisinde-olmalı (string değil)
-            for m in re.finditer(r'\{\s*"op":\s*"([a-z][a-z0-9-]*)"', line):
+        lines = p.read_text(encoding="utf-8",
+                           errors="replace").splitlines()
+        for i, line in enumerate(lines, 1):
+            if not re.search(r'_append\s*\(', line):
+                continue
+            # çok-satırlı-çağrı-aralığı: kapanış-parantezi-dengeyi-bulana-kadar
+            blob, depth = "", 0
+            for j in range(i - 1, min(i + 12, len(lines))):
+                blob += " " + lines[j]
+                depth += lines[j].count("(") - lines[j].count(")")
+                if depth <= 0 and j > i - 1:
+                    break
+            # çağrı-aralığı-içinde-{"op": "deger"}-dict-literal-ara
+            for m in re.finditer(r'\{\s*"op":\s*"([a-zçğıöşü][a-zçğıöşü0-9-]*)"',
+                                 blob):
                 op = m.group(1)
                 out.setdefault(op, []).append(f"{mod}:{i}")
     return out
+
+
+def _test_callin_needle() -> list:
+    """Negatif-kontrol: üç-vasıtayı-da-doğru-sınıflandırıyor-mu (Sester'ın-ördüğü)."""
+    import tempfile, pathlib
+    cases = [
+        ("yorum", '# "op": "x-yorum"\\n', []),
+        ("parametre", 'def f(op="x-param"): pass\\n', []),
+        ("gercek-append", '_ledger_append(lp, {"op": "x-gercek"})\\n',
+         ["x-gercek"]),
+        ("cok-satirli-append",
+         '_ledger_append(lp,\\n    {"op": "x-cok"},\\n    "diger")\\n',
+         ["x-cok"]),
+    ]
+    fails = []
+    orig = REPO
+    for name, src, expect in cases:
+        d = tempfile.mkdtemp()
+        (pathlib.Path(d) / "tamga_runner.py").write_text(src, encoding="utf-8")
+        globals()["REPO"] = pathlib.Path(d)
+        got = sorted(_code_emitters())
+        globals()["REPO"] = orig
+        if got != sorted(expect):
+            fails.append(f"{name}: got={got} expected={sorted(expect)}")
+    return fails
 
 
 def _ledger_evidence() -> dict:

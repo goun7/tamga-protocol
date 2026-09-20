@@ -9,19 +9,28 @@
 |---|---|---|
 | Ledger | `tamga-sim/1` JSONL | her-kayıt: `seq` (1-based) + `prev` + `h = sha256(prev ‖ jcs(kayıt))` |
 
-Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman), `run`
-(ajans-yürütme-kanıtı), `migrate-net` (R1-ağ-geçiş-kanıtı); v0.1-bunları-yayar.
+Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman),
+`migrate-net` (R1-ağ-geçiş-kanıtı); v0.1-bunları-yayar.
 **Harcama-türü `fee` RESERVED'dir** (aşağıda, tek
 listede — çift-liste-makineyi-şaşırtıyor).
 
-**Erratum-E1(d) (2026-09-20 — emitter_verify.py-ile-bulundu):** `run`-ve-
-`migrate-net`-üretim-kodunda-emitter'a-sahipti-ama-önceki-§1-listesinde-yazılı
-değildi. **Gerçek-E1(c)-sınıfı** (önceki-`replace`-yanlış-bulgunun-aksine —
-bunlar-seq/prev/h-üçlüsü-ile-doğrulanan-emitter'lardır):
-  - `run`-←-tamga_runner.py:805
+**Erratum-E1(d)-düzeltme (2026-09-20, üçüncü-tur — Sester'ın-çağrı-içi-iğnesi
+benim-E1(d)-hatamı-yakaladı):** E1(d)-ilk-sürüm-`run`'ı-da-listeye-eklemişti.
+**YANLIŞTI.** `run`-bir-ledger-op-değil: tamga_runner.py:805'te-`kw`-dict'ine
+konup-`out(True, **kw)`-ile-**stdout-raporu**-olarak-basılıyor, zincire
+yazılmıyor. **Çağrı-içi-iğne-doğru-davrandı** — dosyada-var-yöntemi-tuzakta-idi.
+
+Gerçek-ledger-op'ları (sadece-`_ledger_append`-çağrı-aralığında):
+  - `charge`-←-tamga_runner.py:784
+  - `grant`-←-tamga_runner.py:366
   - `migrate-net`-←-tamga_runner.py:1174
-Artık-listede. **Bu-kez-gözle-değil-emitter-kodu-ile-kanıtladık** — AT-049'nun
-üretim-koddan-doğrulama-yükümlülüğü-bunu-sağlar.
+`fee`-RESERVED. **`run`-bu-listeden-çıkarıldı** (stdout-sözcüğü).
+
+**Sester'ın-sentezi-spec'e-yazıldı (yapısal↔çalışma-zamanı-tamamlama):**
+yapısal-emitter-doğrulama-yapısal-boşluğu-yakalar (spec-listiyor-yazım-deyimi-
+yok), **erişilebilirliği-kanıtlayamaz** (ölü-dalda-append-geçer-ama-yayılmaz).
+Corpus-tarama-tam-tersi: çalışma-zamanı-ayrışmayı-yakalar-ama "henüz-çalışmamış"
+ile "yapısal-olmayan"-ayıramaz. **İkisi-birden-gerekli.**
 
 **Erratum E1(c)-düzeltme (2026-09-20, ikinci-tur — ÖNEMLİ-İTİRAF):** önceki-
 sürüm-bu-erratum'da-`replace`'i-"gerçek-ledger-op"-diye-yazdım. **YANLIŞTI.**

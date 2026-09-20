@@ -132,6 +132,29 @@ if [ $RC -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS ters-yön-ayarı-doğru"
 else FAIL=$((FAIL+1)); note "  FAIL ters-yön-bozuk"; cat "$LOG"; fi
 
+# 6) Sester'ın-çağrı-içi-iğnesi: negatif-kontroller + run-stdout-düzeltmesi
+note "6) çağrı-içi-iğne — yorum/parametre/append-ayırımı (Sester-dersi)"
+python3 - <<'PYEOF' >> "$LOG" 2>&1
+import sys
+sys.path.insert(0, "tools")
+import emitter_verify as EV
+# (a) üç-negatif-kontrol-Sester'ın-ördüğü-örneklerle
+fails = EV._test_callin_needle()
+assert not fails, f"çağrı-içi-iğne-negatif-kontroller-bozuk: {fails}"
+print("  negatif-kontroller: yorum/parametre/append/cok-satirli — HEPSI-DOGRU")
+# (b) run-artık-ledger-op-değil (stdout-raporu — E1(d)-düzeltme)
+em = EV._code_emitters()
+assert "run" not in em, \
+    f"run-ledger-op-sayılıyor-ama-out(True,**kw)-stdout'tur: {sorted(em)}"
+assert set(em) == {"charge", "grant", "migrate-net"}, \
+    f"beklenmeyen-emitter-set: {sorted(em)}"
+print(f"  ledger-op'ları: {sorted(em)} — run-stdout'tan-çıkarıldı")
+PYEOF
+RC=$?
+if [ $RC -eq 0 ]; then
+  PASS=$((PASS+1)); note "  PASS çağrı-içi-iğne-doğru"
+else FAIL=$((FAIL+1)); note "  FAIL çağrı-içi-iğne"; cat "$LOG"; fi
+
 echo
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 echo "  AT-049: 'listeli-ama-yanlış-emitter'-sınıfı-kilitlendi"

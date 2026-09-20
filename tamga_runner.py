@@ -1123,6 +1123,19 @@ def cmd_import(a):
             fd = _secure_open(sp)  # Audit-9 B6: atomik 0600
             with os.fdopen(fd, "w") as f:
                 f.write(json.dumps(body2, ensure_ascii=False))
+            # AT-053 (Sester'ın-insert_event-sınıfının-üçüncü-bizdeki-aynası):
+            # gömülü-zincir-kayıtları-_ledger_append'i-atlayıp-"w"-modunda-kopya-
+            # lanır. Hash'leri-korunur-AMA-op-değerleri-denetlenmiyordu. Şimdi-
+            # her-kurulan-kayıdın-op'u-emitör-kayıt-defterinde-olmalı (üçlü-
+            # kapsamın-1.katmanı-bu-yazım-bölgesine-de-uygulanır).
+            from emitter_registry import EMITTED_OPS
+            bad_op = next((r.get("op") for r in recs
+                           if r.get("op") is not None
+                           and r.get("op") not in EMITTED_OPS), None)
+            if bad_op is not None:
+                return out(False, op="import", reason_code=15,
+                           reason=f"unknown_op: {bad_op!r} — gömülü-zincirdeki-op "
+                                  f"emitter-kaydında-yok (AT-053-restore-geçidi)")
             fd = _secure_open(lp)  # Audit-9 B6: atomik 0600
             with os.fdopen(fd, "w") as f:
                 for rec in recs:

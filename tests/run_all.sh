@@ -363,6 +363,10 @@ PY
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
 
+  # ---- kontrol-77: AT-053 restore-geçidi (üçüncü-yazım-deyimi) ----
+  bash tests/at053_restore_gate.sh > /dev/null 2>&1
+  kontrol $? "AT-053: gömülü-zincir-kurulumunda-op-geçidi"
+
   # ---- kontrol-76: AT-052 yazım-bölgesi-geçitli (Sester'ın-mimari-cevabı) ----
   bash tests/at052_write_region_gate.sh > /dev/null 2>&1
   kontrol $? "AT-052: ikinci-yazım-deyimi-kapatıldı (bölge-geçitli)"

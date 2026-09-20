@@ -69,10 +69,11 @@ for p in sorted(pathlib.Path(".").glob("*.py")):
     if p.name not in PROD:
         continue
     for i, l in enumerate(p.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-        if re.search(r'(O_APPEND|fdopen\([^)]*"a"|open\([^,]+,\s*"a")', l):
+        # AT-053: truncate("w")-yazım-bölgeleri-de-dahil (restore-kurulumu)
+        if re.search(r'(O_APPEND|O_TRUNC|fdopen\([^)]*"[wa]"|open\([^,]+,\s*"[wa]")', l):
             regions.append((p.name, i))
 # üretimde-en-az-2-bölge-olmalı (runner + netproxy)
-assert len(regions) >= 2, f"yazım-bölgesi-2'den-az: {regions}"
+assert len(regions) >= 3, f"yazım-bölgesi-3'den-az: {regions}"
 # netproxy-bölgesi-artık-geçitli
 src = pathlib.Path("tamga_netproxy.py").read_text(encoding="utf-8")
 assert "KNOWN_NET_EVENTS" in src, "netproxy-geçidi-yok"

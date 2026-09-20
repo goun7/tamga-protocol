@@ -363,6 +363,10 @@ PY
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
 
+  # ---- kontrol-75: AT-051 blockchain-üçlü-paritesi (epoch-10-canlı-zincir) ----
+  bash tests/at051_blockchain_triple_parity.sh > /dev/null 2>&1
+  kontrol $? "AT-051: 3-bağımsız-keccak + on-chain-root-paritesi"
+
   # ---- kontrol-74: AT-050 üçlü-kapsam (Sester'ın-iddia-düzeltmesi) ----
   bash tests/at050_triple_coverage.sh > /dev/null 2>&1
   kontrol $? "AT-050: runtime-fail-closed + statik + corpus (üçlü)"

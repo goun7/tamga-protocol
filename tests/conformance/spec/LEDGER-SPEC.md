@@ -146,3 +146,44 @@ değil-geçerli-başlangıç-tır (genesis-geçerli). Conformance-paketi-bunu-
 Conformance-paketinin-`verify.py`-si **hiçbir-Tamga-modülü-içe-aktarmaz**.
 RFC 8785'yi-sıfırdan-uygular. Amaç: herhangi-bir-gerçeklemenin-spec'in-
 KENDİSİNE-sadık-olduğunu-kanıtlayabilmektir — bizim-kodumuza-değil.
+
+## 6. Yazım-kapsamı-güven-sınırı (K0-§1-aynası, AT-055)
+
+**Üretici-garantisi-yalnızca-BU-KÜTÜPHANE-üzerinden-yazılanları-kapsar.**
+Operatör-ledger-dosyasına-doğrudan-yazarsa (kütüphane-dışında), üç-üretici-
+katmanı-da-onu-göremez:
+
+  1. runtime-fail-closed (`_ledger_append`-yazım-sınırı)
+  2. statik-emitter-tarayıcısı
+  3. bölge-kapsamlı-tarama + bölge-geçitleri (`_log`/`cmd_import`)
+
+**Ve-zincir-hâlâ-yeşil-geçer** — `_verify_chain`-op'u-OPAK-veri-olarak-hash'ler
+(Sester'ın-§7-rule-3-tasarımıyla-aynı). Bu-bir-tasarım-kararıdır, hata-değil:
+op-değerleri-kısıtlanmaz (E1(a)), opaklık-korunur.
+
+**Alıcı-tarafı-yardımcı:** `unknown_ops(recs)`-okunan-kayıtlarda-bilinmeyen-
+op'ları-döndürür. **Karar-alıcıda-kalır** (abstain/warn/reject) — sert-reject-
+bilerek-yardımcıda-DEĞİLDİR (E1(a)+§7-opaklığı-bozmamak-için; Veridict-D13-
+abstain'ı-ile-aynı-ruh). Üretici-tarafı-zorunlu, alıcı-tarafı-opt-in.
+
+## 7. Çapraz-ürün-soru-disiplini (6.tur-kuralı)
+
+**Hiçbir-katman-tek-başına-eksiksiz — ve hiçbir-ürün-tek-başına-eksiksiz.**
+
+Beş-turda-üç-ürünün-her-biri-bir-kısıt-sabiti-ve-bir-kör-nokta-üretti:
+
+| Kısıt | Kör-nokta | Kim-yakaladı |
+|---|---|---|
+| tarayıcı-ad-sabiti (`_append`) | `_log()`-ikinci-deyim | Sester'ın-sorusu |
+| runtime-append-sabti | `insert_event` | Sester'ın-own-taraması |
+| bölge-regex-mod-sabti (yalnız-`"a"`) | `cmd_import`-`"w"`-truncate | AT-053-kendim |
+| INSERT-odaklı-bölge | doğrudan-DB-yazma | benim-sorum → Sester |
+| boş-ledger-sabtı | gömülü-zincir-kurulumu | AT-053 |
+
+**Her-kısıtın-kendi-kör-noktası-var; kör-nokta-ürünün-kendi-katmanları-tarafından
+değil, diğer-ürünün-soru-kalıbı-tarafından-yakalanır.** Bu-nedenle:
+
+  - **Kural-7.1:** yeni-bir-kısıt-eklendiğinde, varsayım-olarak-onun-da-bir-kör-
+    noktası-olduğu-kabul-edilmelidir; "artık-tam-kapsam"-iddiası-yasaktır.
+  - **Kural-7.2:** bir-ürünün-kendi-iç-denetimi-yeşil-ken, çapraz-ürün-soru-
+    disiplini-devam-etmelidir — hiçbir-test-tek-başına-tamamlanmışlık-iddia-edemez.

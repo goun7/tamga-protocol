@@ -202,6 +202,26 @@ def jcs(d):
     from tamga_canon import jcs as _canon
     return _canon(d).decode("utf-8")
 
+def unknown_ops(recs) -> set:
+    """[AT-055] ALICI-TARAFI-yardımcı — Sester'ın-unknown_event_types()-aynası.
+
+    Üretici-garantisi-yalnızca-BU-KÜTÜPHANE-üzerinden-yazılanları-kapsar (K0-§1-
+    güven-sınırı). Operatör-doğrudan-ledger'a-yazarsa-yazım-kapılarımız-onu-
+    göremez — ve-_verify_chain-op'u-OPAK-veri-olarak-hash'ler (Sester'§7-rule-3
+    ile-aynı-tasarım), yani-o-satır-YEŞİL-doğrulanır.
+
+    Bu-yardımcı-o-sınıfı-alıcı-tarafında-görür: okunan-kayıtlarda-bilinmeyen-op'
+    ları-döndürür. KARAR-alıcıda-kalır (abstain/warn/reject) — sert-reject-burada
+    DEĞİL: E1(a)-serbestliği-ve-§7-opaklığı-bozmamak-için (Veridict-D13-abstain
+    ile-aynı-ruh). Üretici-tarafı-zorunlu-alıcı-tarafı-opt-in."""
+    try:
+        from emitter_registry import EMITTED_OPS
+    except ImportError:
+        return set()
+    return {r.get("op") for r in recs
+            if isinstance(r, dict) and r.get("op") is not None
+            and r.get("op") not in EMITTED_OPS}
+
 def _node_key_from(a):
     """DESIGN-node-cosign (F25): '--node-key <hex>' optional node signing key.
     The node key is SEPARATE from the agent seed (operator key); like the agent seed,

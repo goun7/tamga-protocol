@@ -94,8 +94,12 @@ r = EV.scan()
 EV._read_spec = lambda: base
 assert any("migrate-net" in p and "SPEC'TE" in p for p in r["problems"]), \
     f"code-only-sınıfı-yakalanmadı: {r['problems']}"
-assert not EV.scan()["problems"], "üretim-yeşil-olmalıydı"
-print("  code-only-ayar-yakalandı; üretim-yeşil")
+# AT-057-sonrası: scan()-artık-üretim-corpus-boşluğunu-da-raporlar. Bu-hücre
+# yalnızca-code-only-SPEC-sınıfını-denetler; üretim-kanıtsızlık-ayrı-sınıftır
+# (AT-057'de-test-edilir). Bu-yüzden-SPEC-problemlerine-filtre-koyarız.
+spec_probs = [p for p in EV.scan()["problems"] if "SPEC'TE" not in p]
+assert not spec_probs, f"üretim-yeşil-olmalıydı (SPEC-dışı): {spec_probs}"
+print("  code-only-ayar-yakalandı; üretim-yeşil (SPEC-dışı)")
 PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then

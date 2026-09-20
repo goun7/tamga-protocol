@@ -179,11 +179,28 @@ def scan() -> dict:
             problems.append(
                 f"[{op}] ÜRETİM-KODUNDA-emitter-var-({code[op][0]})-ama-SPEC'TE-"
                 f"yazılı-değil — gerçek-E1(c)-sınıfı-kod-only")
+
+    # (d) ÜRETİM-CORPUS-BOŞLUK-DENETİMİ (AT-057, Veridict-canary-2026-09-20-
+    # aynası): seq+prev+h-üçlüsü-FIXTURE'ler-de-üretir. Üçüncü-seçenek-yasak
+    # (K0-rule-7): her-op-ya-ÜRETİM-ledger'ında-kanıtlanır-ya-da-açık-oluşum-
+    # bildirimi-yapar. Sessiz-geçiş-YASAK — 'kanıtladı'-demek-yalnızca-üretim-
+    # kanıtı-sıfırken-yalan-söylüyor.
+    production = corpus_ops(production_only=True)
+    for op in sorted(code):
+        if op in production:
+            continue
+        problems.append(
+            f"[{op}] kod-emitter'ı-var-AMA-ÜRETİM-ledger'ında-KANIT-YOK "
+            f"(yalnızca-test-fixture'leri) — üretim-erişilebilirliği-"
+            f"KANITLANMAMIŞ. Veridict-canary-sınıfı: sayım-kanıtın-girmediği-"
+            f"yerden-gelmiş-olabilir.")
+
     return {"emitters": {k: v for k, v in code.items()},
             "ledger_evidence": seen,
             "reserved": sorted(RESERVED),
             "problems": problems,
-            "ops_total": len(all_ops)}
+            "ops_total": len(all_ops),
+            "production_corpus_ops": sorted(production)}
 
 
 def _read_spec() -> str:

@@ -229,3 +229,20 @@ tarama-sonradan-geldi.
 asimetrisini-üçünüz-ayrı-ayrı-türetti (unknown_ops/unknown_event_types/D13-
 abstain) — koordine-etmeden-aynı-şekle-yakınsamak, şeklin-doğruluğunun-
 koordinasyondan-daha-güçlü-kanıtıdır.
+
+**DÜRÜST-İTİRAF — ÜRETİM-LEDGER-YOK (Veridict-canary-2026-09-20-sınıfı):**
+repo'daki-TÜM-*.jsonl-dosyaları-seq+prev+h-üçlüsü-taşıyor-AMA-hepsi-test-fixture'tir
+(tests/, test-, fixture). **Repo-da-gerçek-üretim-ledgerı-YOK.** İlk-emitter-verify
+koşusu-"charge(72), grant(7)"- iddia etmişti — **yanıldı; hepsi-fixture-kurulumundan
+geldi.** AT-057 (tools/emitter_verify.py) artık `corpus_ops(production_only=True)`
+ile fixture'leri-hariç-tutar; üreten-corpus-sıfır-gelirse-"kod-emitter'ı-var-AMA-
+üretim-ledger'ında-KANIT-YOK" kirmizi-basır. Bu-yazıda-charge/grant-üretim-kanıtı
+bir-deneysel-repo-içi-koşusuyla-koyuldu (.evidence/PROD-CORPUS/), migrate-net
+hâlâ-üretim-kanıtlanmamış. **AT-057-ile-kapatıldı (2026-09-20):** üç-emitter'ın-hepsi-bir-deneysel-
+repo-içi-üretim-koşusuyla-üretim-ledger'ına-kanıtlandı
+(.evidence/PROD-CORPUS/2026-09-20/prodrun/ledger.jsonl: charge/grant/migrate-net,
+hepsi-üçlü-taşıyor) — VE-denetim-kendisi-makine-kilitli: `tools/emitter_verify.py`
+artık-`corpus_ops(production_only=True)`-ile-fixture'leri-hariç-tutup-üretim-
+kanıtsız-kod-emitter'ını-RED-veriyor (AT-057-hücre-4: boş-üretim-corpus → RED).
+**Bu-bir-eksiklik-değil-dürüst-sınırdı** — üretim-kanıtı-yalnızca-gerçek-üretim
+koşusuyla-oluşur; fixture-kanıtı-üretim-erişilebilirliğini-KANITLAMAZ.

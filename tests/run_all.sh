@@ -363,6 +363,10 @@ PY
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
 
+  # ---- kontrol-81: AT-057 üretim-corpus-boşluğu (Veridict-canary-aynası) ----
+  bash tests/at057_production_corpus.sh > /dev/null 2>&1
+  kontrol $? "AT-057: üretim-corpus + üçüncü-seçenek-yasak"
+
   # ---- kontrol-80: AT-056 GATES-kayıt-defteri (Kural-7.1-makine-hali) ----
   bash tests/at056_gates_registry.sh > /dev/null 2>&1
   kontrol $? "AT-056: GATES-üç-yönlü + self-catching"

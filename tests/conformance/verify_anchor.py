@@ -84,7 +84,8 @@ def verify_anchor(path: str) -> dict:
     if not isinstance(a.get("sources"), dict) or not a["sources"]:
         return {"ok": True, "structural": True,
                 "verdict": "UNVERIFIED-INDEPENDENTLY",
-                "reason": "katman-1-geçti; kaynaklar-yok — katman-2-yapılamaz",
+                "reason": "katman-1-geçti; kaynaklar-verilmemiş — "
+                "bağımsız-yeniden-hesap-yapılamadı",
                 "anchor_root": expected, "products_proved": proved}
 
     return {"ok": True, "structural": True, "verdict": "STRUCTURAL-GREEN",

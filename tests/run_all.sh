@@ -363,6 +363,10 @@ PY
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
 
+  # ---- kontrol-78: AT-054 absent-vs-failure (stillmarcus24-#2887) ----
+  bash tests/at054_absent_vs_failure.sh > /dev/null 2>&1
+  kontrol $? "AT-054: absent-state ≠ instrument-failure"
+
   # ---- kontrol-77: AT-053 restore-geçidi (üçüncü-yazım-deyimi) ----
   bash tests/at053_restore_gate.sh > /dev/null 2>&1
   kontrol $? "AT-053: gömülü-zincir-kurulumunda-op-geçidi"

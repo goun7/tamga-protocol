@@ -277,7 +277,42 @@ hash'ine-girer; bilinmeyen-`foreign_registry`-İNDETERMİNE'dir (RED-değil:
 sonuç-esirgenir, yokluk-sayılmaz — §3-sözleşmesi-aynı-tabloyu-kullanır).
 
 **Üretim-kanıtı:** `.evidence/PROD-CORPUS/2026-09-20/prodrun/ledger.jsonl`'de
-`anchor`-üretim-corpus'unda-kanıtlanmıştır (AT-057-üçüncü-seçenek-yasağı-uyumlu).
+`anchor`-üretim-corpus'unda-kanıtlanmıştır (AT-057-üçüncü-seçenek-yasağı-uyumlu;
+üretici: `tests/helpers/prod_corpus_make.py`-her-koşuda-sıfırdan-ürettiğü-için
+kanıt-koşuya-bağlıdır-commit'e-değil).
 
 **Test:** AT-059-(5/5)-GREEN-yolu + R9-2/R9-3/R9-4-negatifleri + R9-1/R9-5-
 kayıt-içeriği-makine-kilitli.
+
+### 8.1 Okuma-kapısı — `ledger-verify`-R9-1..R9-5 (AT-060, 2026-09-21)
+
+**Yazma-yolu-tek-başına-kapsamıyor** (AT-050-üçlü-kapsam-dersi): `cmd_anchor`
+R9-1..R9-5'i-doğrular-AMA-düşük-seviye-`_ledger_append`-çağrısı-yalnızca-op-
+taksonomisine-bakar (reason 15) ve-herhangi-bir-üçüncü-taraf-aracı-R9-ihlali-
+içeren-bir-anchor-yazabilir — o-yol-`cmd_anchor`'dan-geçmez. **Kanıtlandı:**
+R9-1..R9-5'in-hepsini-ihlal-eden-bir-kayıt-hem-zincire-giriyor-hem-de
+`ledger-verify`'da-GREEN-geçiyordu — D5-hash-byteleri-kilitler, **ANLAMI-değil**.
+
+Bu-yüzden-aynı-kurallar-okuma-tarafında-da-uygulanır: `ledger-verify`-her-
+`anchor`-kaydını-`_anchor_violation`-ile-denetler (sabit-`delivery_hash`-ve-D12-
+shape-gate'leriyle-aynı-desen). İhlal → **RED (reason 16, `anchor_invalid`)**,
+`broken_at`-ihlalin-satırını-gösterir.
+
+**Tek-kaynak-İLKESİ:** `_ANCHOR_VERSION`, `_KNOWN_FOREIGN_REGISTRIES`-ve-
+`_anchor_violation`-module-level-tek-tanım — yazma-ve-okuma-aynı-kaynaktan-
+hesaplar. İki-yerde-elle-tutulan-bir-liste-Sester'ın-`EVENT_TYPE_SOURCES`-
+tuzağına-düşerdi (bir-taraf-güncellenip-diğeri-unutulur); bu-tuzağın-birebir-
+aynısı-`spec_needle_machine`-`SPEC_OPS`'ta-AT-047'de-yaşandı.
+
+**En-kritik-sınıf R9-5'tir:** `presentation_only`-etiketsiz-bir-anchor-dış-fact'i
+-bizim-doğrulamışımız-gibi-sunar — **green-giydirme-işte-budur**; okuma-kapısı-
+onu-da-RED'ler (yazma-yolu-hiç-geçmese-bile).
+
+**İki-yüzey-ayrımı (§8'in-alıcı-satırı-ile-çelişmiyor):** yukarıdaki-İNDETERMİNE
+kuralı-yabancı-kanıt-doğrulama-yüzeyi-içindir (bir-başkasının-zincirini-okurken
+bilinmeyen-registry'sini-yargılayamayız — sonuç-esirgenir). Bu-§8.1-bizim-OWN-
+zincirimizin-doğrulayıcısıdır: kendi-yazdığımız-kayıt-kendi-sözleşmemize-
+uymuyorsa-RED'dir — bu-iki-farklı-sözleşme, aynı-tablo-değil.
+
+**Test:** AT-060-(7/7) — GREEN-yolu + her-R9-sınıfı-taze-pakette-tek-ihlal +
+`cmd_anchor`-regresyonu (refactor-yazma-yolunu-bozmaz).

@@ -373,6 +373,10 @@ PY
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
 
+  # ---- kontrol-84: AT-060 RFC-009 anchor-okuma-kapısı (yazma-yolu-yetmez) ----
+  bash tests/at060_anchor_read_gate.sh > /dev/null 2>&1
+  kontrol $? "AT-060: anchor R9-1..R9-5 okuma-tarafında-RED (reason-16)"
+
   # ---- kontrol-83: AT-059 RFC-009 external-chain-anchor (pilot-açık) ----
   bash tests/at059_rfc009_anchor.sh > /dev/null 2>&1
   kontrol $? "AT-059: RFC-009-anchor R9-1..R9-5 + negatif-kontroller"

@@ -375,6 +375,19 @@ def cmd_ledger_verify(a):
                         return out(False, op="ledger-verify", reason_code=10, broken_at=ln,
                                    reason="net_mb_format: must be a number rounded to "
                                           "6 decimal places (MiB, RFC-003 §11)")
+            # RFC-009 R9-1..R9-5 OKUMA-KAPISI (AT-060): anchor-kaydının-anlamsal-
+            # geçerliliği-zincir-hash'inden-gelmez. cmd_anchor-yazma-yolunu-kilitler
+            # AMA-düşük-seviye-_ledger_append (yalnızca-op-taksonomisi-reason-15) veya
+            # üçüncü-bir-araç-R9-ihlali-yazabilir — o-yol-cmd_anchor'dan-geçmez.
+            # AT-050-üçlü-kapsam-dersi: doğrulama-okuma-tarafında-da-olmalı.
+            # En-kritiği-R9-5: presentation_only'suz-bir-anchor-dış-fact'i-bizim
+            # doğrulamışımız-gibi-sunar — green-giydirme-işte-budur.
+            if rec.get("op") == "anchor":
+                viol = _anchor_violation(rec)
+                if viol:
+                    return out(False, op="ledger-verify", reason_code=16,
+                               broken_at=ln,
+                               reason=f"anchor_invalid: {viol[1]}")
     lines = sum(1 for line in open(lp, "r", encoding="utf-8") if line.strip())
     return out(True, op="ledger-verify", lines=lines, head=tip,
                note="chain tip verified (RFC-003 D7 draft)")
@@ -1310,6 +1323,58 @@ receiver libraries (import as modules; wire contracts in RFC-009):
 version: 0.2.12 · spec_version 0.2.0 (const-flip founder-approved 2026-09-11; next-release gate)
 exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-19) · 2 İNDETERMİNE (epoch-verify).
 """
+# ---- RFC-009 paylaşılan-doğrulayıcı (AT-060) ----
+# TEK-KAYNAK-İLKESİ: cmd_anchor (yazma-yolu) ve cmd_ledger_verify (okuma-yolu)
+# AYNI-sabitleri-ve-AYNI-fonksiyonu-kullanır. İki-yerde-elle-tutulan-bir-liste
+# Sester'ın-EVENT_TYPE_SOURCES-tuzağına-düşer — bir-taraf-güncellenip-diğeri
+# unutulur (biz bu-tuzağın-birebir-aynısını spec_needle_machine-SPEC_OPS'ta
+# AT-047'de-yaşadık). Yeni-registry-eklemek-buraya-eklemektir (additive-terfi).
+_ANCHOR_VERSION = "TAMGA_EXTERNAL_ANCHOR_V1"
+_KNOWN_FOREIGN_REGISTRIES = ("apodix/epoch",)
+
+
+def _is_canonical_0x64(v) -> bool:
+    """R9-3: kanonik-0x+64-lowercase-hex (x402-#3377-disiplini)."""
+    return (isinstance(v, str) and v.startswith("0x") and len(v) == 66
+            and v[2:].isascii() and all(c in "0123456789abcdef" for c in v[2:]))
+
+
+def _anchor_violation(rec) -> tuple | None:
+    """RFC-009-§2 R9-1..R9-5-ihlal-tespiti — KAYIT-içeriği-üzerinden.
+
+    Yazma-yolu (cmd_anchor) ve okuma-yolu (cmd_ledger_verify) AYNI-fonksiyonu
+    çağırır. NEDEN-iki-yol: AT-050'in-üçlü-kapsam-dersi — write-time-
+    doğrulaması-tek-başına-kapsamıyor. Düşük-seviye-_ledger_append (sadece-op-
+    taksonomisine-bakar, reason-15) veya-herhangi-bir-üçüncü-taraf-aracı-R9-
+    ihlali-içeren-bir-anchor-yazabilir; cmd_anchor-o-yoldan-geçmez. O-zaman-
+    doğrulama-okuma-tarafında-olmalı — D5-hash-bütünlüğü-byteleri-kilitler,
+    kaydın-ANLAMSAL-geçerliliğini-değil.
+
+    Returns (key, message)-veya-None. key: version/registry/digest/time/
+    presentation — cmd_anchor-CLI-kodlarına-haritalanır (7/8/8/8/8),
+    ledger-verify-hepsini-tek-okuma-kodu-16'ya-haritalar (delivery_hash-ve-D12-
+    shape-gate'leriyle-aynı-desen).
+    """
+    if rec.get("anchor_version") != _ANCHOR_VERSION:                    # R9-1
+        return ("version", f"anchor_version must be {_ANCHOR_VERSION!r} "
+                           f"(got {rec.get('anchor_version')!r})")
+    if rec.get("foreign_registry") not in _KNOWN_FOREIGN_REGISTRIES:    # R9-2
+        return ("registry", f"unknown_registry: {rec.get('foreign_registry')!r} "
+                            f"(known: {sorted(_KNOWN_FOREIGN_REGISTRIES)})")
+    for k in ("foreign_fact", "foreign_digest"):                        # R9-3
+        if not _is_canonical_0x64(rec.get(k)):
+            return ("digest", f"non_canonical_digest: {k} must be 0x+64-lowercase-hex")
+    va = rec.get("verified_at")                                          # R9-4
+    if not (isinstance(va, str) and va.endswith("Z") and "T" in va):
+        return ("time", "verified_at must be RFC3339-UTC-Z (…T…Z)")
+    if rec.get("presentation_only") is not True:                        # R9-5
+        return ("presentation",
+                "presentation_only must be true — anchor RECORDS the fact, "
+                "does not verify it (green-giydirme-yasak: dış-fact bizim "
+                "iddiamız-değildir)")
+    return None
+
+
 def cmd_anchor(a):
     """RFC-009 (DRAFT, pilot-şimdi-açık): external-chain-anchor.
 
@@ -1339,33 +1404,22 @@ def cmd_anchor(a):
     need = ["--foreign-registry", "--foreign-fact", "--foreign-digest", "--verified-at"]
     if any(k not in kv for k in need):
         return out(False, op="anchor", reason_code=1, reason=usage)
-    # R9-2: bilinen-registry (bugün-tek-örnek; terfi-additive)
-    KNOWN_REGISTRIES = {"apodix/epoch"}
-    if kv["--foreign-registry"] not in KNOWN_REGISTRIES:
-        return out(False, op="anchor", reason_code=7,
-                   reason=f"unknown_registry: {kv['--foreign-registry']} "
-                          f"(known: {sorted(KNOWN_REGISTRIES)})")
-    # R9-3: kanonik-0x+64-lowercase (x402-#3377-disiplini)
-    for k in ("--foreign-fact", "--foreign-digest"):
-        v = kv[k]
-        if not (isinstance(v, str) and v.startswith("0x") and len(v) == 66
-                and v[2:].isascii() and all(c in "0123456789abcdef" for c in v[2:])):
-            return out(False, op="anchor", reason_code=8,
-                       reason=f"non_canonical_digest: {k} must be 0x+64-lowercase-hex")
-    # R9-4: RFC3339-UTC-Z (basit-yapısal-kontrol; tam-IMF-parsing-stdlib-yok)
-    va = kv["--verified-at"]
-    if not (isinstance(va, str) and va.endswith("Z") and "T" in va):
-        return out(False, op="anchor", reason_code=8,
-                   reason="verified_at must be RFC3339-UTC-Z (…T…Z)")
+    # R9-1..R9-5: ortak-doğrulayıcı-kayıt-içeriği-üzerinden (yazma-ve-okuma-
+    # aynı-kaynak — _anchor_violation). Önce-kayıdı-kur,-sonra-doğrula;
+    # CLI-seviye-kodlar-AT-059-sözleşmesini-korur: registry→7, diğerleri→8.
     rec = {"op": "anchor",
-           "anchor_version": "TAMGA_EXTERNAL_ANCHOR_V1",            # R9-1
-           "foreign_registry": kv["--foreign-registry"],            # R9-2
-           "foreign_fact": kv["--foreign-fact"],                    # R9-3
-           "foreign_digest": kv["--foreign-digest"],                # R9-3
-           "verified_at": va,                                        # R9-4
-           "tool": kv.get("--tool", "external-verifier (unspecified)")}
-    # R9-5: presentation-only-etiketi-cite-içinde-taşır (green-giydirme-yok)
-    rec["presentation_only"] = True
+           "anchor_version": _ANCHOR_VERSION,                    # R9-1
+           "foreign_registry": kv["--foreign-registry"],         # R9-2
+           "foreign_fact": kv["--foreign-fact"],                 # R9-3
+           "foreign_digest": kv["--foreign-digest"],             # R9-3
+           "verified_at": kv["--verified-at"],                   # R9-4
+           "tool": kv.get("--tool", "external-verifier (unspecified)"),
+           "presentation_only": True}                            # R9-5
+    viol = _anchor_violation(rec)
+    if viol:
+        key, msg = viol
+        return out(False, op="anchor",
+                   reason_code={"registry": 7}.get(key, 8), reason=msg)
     from emitter_registry import register_emitter
     register_emitter("anchor", "cmd_anchor")
     lp = pkg / "ledger.jsonl"

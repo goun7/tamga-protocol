@@ -64,7 +64,14 @@ geçilmez, dürüst-bildirilir.
     `"GREEN"`-olmalı. **Aksi-saldırı:** `ok:True`+`verdict:"RED"`-boyayıp-kökü
     yeniden-hesaplayan-saldırgan, layer-1'i-geçip-UNVERIFIED-INDEPENDENTLY
     perdesi-arkasında-kötü-sonucu-gizler. Vektör: `a09-ok-true-verdict-red`.
- 7. `sources`-yoksa-veya-boşsa → **UNVERIFIED-INDEPENDENTLY** (hata-değil)
+ 7. **ERRATUM-A2'-framing-kardeşi (Veridict-2026-09-20):** türetilmiş-özet-
+    alanlar (Veridict'te-`risk_level`/`score`, bizde-karşılığı-`all_proved`)
+    kaynaklarıyla-eşzamanlı-denetlenmelidir. **İki-saldırı-tipi-ayrılmalı:**
+      - **pass-through:** kötü-sonucu-gizle (Tamga-A2 — UNVERIFIED-perdesi)
+      - **framing:** tamamen-onaylıyı-riskli-göster (Veridict-A2' — sahte-
+        `risk_level:"high"`-yerleştirme-politikasına-gerçek-hasar)
+    **İkisi-de-aynı-aile:** özet-alanı-kaynağıyla-eşzamanlı-denetmeyince-olur.
+ 8. `sources`-yoksa-veya-boşsa → **UNVERIFIED-INDEPENDENTLY** (hata-değil)
 
  İhlal → RED + belirli-reason.
 

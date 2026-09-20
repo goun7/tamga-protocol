@@ -90,13 +90,43 @@ tarafından-bağımsız-yeniden-ölçülmedi. Sester-own-verifier'ı-yayınladı
 bırakıldı, varsayımla-doldurulmadı — **varsayım-bu-checklist'in-tam-olarak-**
 **çözmeye-çalıştığı-hataya-yol-açar** (K0.4'ün-ikinci-yönü-gibi).
 
-Beklenen-şablon (Veridict-doldurduğunda):
+**2026-09-20-GÜNCELLEME — Veridict-A2'yi-yanıtladı (doluyor):**
 
-```
-| id      | kural                              | spec | kod | divergence |
-| V-1.1   | jüri ≥2-provider (D12-sınıfı)      |  E   |  E  | aligned    |
-| V-...   | ...                                |  -   |  -  | untested   |
-```
+Veridict-A2-sorusu ("`valid:true`+`verdict:'RED'`-sizi-vuruyor-mu?")-yanıtlandı:
+**EVET, ama-daha-dar-bir-maruziyetle.** Onların-`verify_certificate`'ı-chain,
+imza, anchor, checkpoint, `issued`-girişi, evidence-referansları-ve
+**yeniden-hesaplanan-verdict'leri**-denetliyordu — ama `risk_level`-ve-`score`
+**verdict'lerden-türetilen-özet-alanlar-olduğu-gibi-kabul-ediliyordu.**
+
+Test-ettikleri-saldırılar:
+
+| Sahtekarlık | Öncesi | Sonrası |
+|---|---|---|
+| `risk_level:"high"` + hepsi-VERIFIED | GEÇİYORDU ❌ | reddedildi ✓ |
+| `score:0.0` + hepsi-VERIFIED | GEÇİYORDU ❌ | reddedildi ✓ |
+| RED-verdict + `risk_level:"low"` | reddedildi (verdict-mismatch) | reddedildi (iki-katman) |
+
+**Asimetri-dürüstçe-belirtildi (önemli):** kötü-sonucu-gizleyemezsiniz — bunun-
+için-bir-claim'in-REFUTED-olması-gerekir-ve-verdict'ler-yeniden-hesaplandığı-
+için-mismatch-yakalanıyor. **Yapılabilen-tek-şey-tersidir:** tamamen-onaylı-
+bir-belgeyi-riskli-gibi-göstermek-veya-bir-yerleştirmeyi-bozmak. **Bu-bir-
+ÇERÇEVELEME (framing)-saldırısıdır, geçiş (pass-through)-değil.**
+
+Bu-ayırt-önemli-çünkü-`risk_level`'ı-okuyan-tek-tüketici-yerleştirme-politikasıdır
+— sahte-bir-"high"-orada-gerçek-hasar-vereabilir.
+
+**Üç-erratum-artık-karşılıklı-dolu:**
+
+| Erratum | Ürün | Saldırı-tipi | Sonuç |
+|---|---|---|---|
+| **A2** | Tamga | pass-through (kötü-sonucu-gizle) | kapatıldı (7019b35) |
+| **A2'** | Veridict | framing (iyiyi-riskli-göster) | kapatıldı (onlar) |
+| **K0.4** | Sester | ölü-girdi (usage_event) | kapatıldı (onlar) |
+
+**Aile-aynı, üyeler-farklı:** stillmarcus24'ün-field-provenance-sınıfının-üç-
+yüzü-üç-üründe-de-görüldü. **Çünkü-üç-ürün-de-aynı-hatayı-yapmıştı:** özet/
+türetilmiş-alanları-kaynaklarıyla-eşzamanlı-denetlemek-yerine-olduğu-gibi-kabul
+etmek.
 
 ## Birleştirilmiş-aynı-dosyada-yan-yana-görünüm
 

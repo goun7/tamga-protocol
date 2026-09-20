@@ -207,6 +207,32 @@ if [ $RC -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS A2-boyama-yakalandı"
 else FAIL=$((FAIL+1)); note "  FAIL A2-gizlendi"; cat "$LOG"; fi
 
+# 7) A2'-FRAMING: hepsi-yeşil-ama-all_proved=False → RED (Veridict-kardeşi)
+note "7) A2' — framing: onaylıyı-risksiz-gösterme-RED"
+"$PY" - <<'PYEOF' >> "$LOG" 2>&1
+import json, os, sys, hashlib, copy
+sys.path.insert(0, "tools")
+W = os.environ["W"]
+from sovereign_anchor import verify, _canon
+s = copy.deepcopy(json.load(open(os.environ["A"])))
+s["results"] = {"tamga": {"ok": True, "verdict": "GREEN", "detail": "temiz"}}
+s["products_present"] = ["tamga"]
+s["products_proved"] = ["tamga"]
+s["all_proved"] = False   # FRAMING: hepsi-yeşil-ama-"kanıtsız"-göster
+s["sources"] = {}
+s["anchor_root"] = hashlib.sha256(
+    _canon({"results": s["results"], "sources": {}})).hexdigest()
+json.dump(s, open(f"{W}/f10.json", "w"))
+r = verify(f"{W}/f10.json")
+assert not r.get("ok"), f"framing-saldırısı-geçti: {r}"
+assert "all_proved" in r.get("reason", ""), f"sebep-yanlış: {r.get('reason')}"
+print(f"framing-yakalandı: {r['reason'][:50]}")
+PYEOF
+RC=$?
+if [ $RC -eq 0 ]; then
+  PASS=$((PASS+1)); note "  PASS A2'-framing-yakalandı"
+else FAIL=$((FAIL+1)); note "  FAIL framing-geçti"; cat "$LOG"; fi
+
 echo
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 echo "  AT-041-kapısı: üç-ürün-tek-öz + iki-katmanlı-doğrulama"

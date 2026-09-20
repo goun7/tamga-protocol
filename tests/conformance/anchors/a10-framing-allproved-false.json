@@ -1,0 +1,20 @@
+{
+  "type": "sovereign-anchor",
+  "version": "0.1",
+  "products_present": [
+    "tamga"
+  ],
+  "products_proved": [
+    "tamga"
+  ],
+  "all_proved": false,
+  "results": {
+    "tamga": {
+      "ok": true,
+      "verdict": "GREEN",
+      "detail": "temiz"
+    }
+  },
+  "sources": {},
+  "anchor_root": "44f88540a13e99db6aec9382c199b7c0571b275e5601d98bd00c8e829ef18b96"
+}

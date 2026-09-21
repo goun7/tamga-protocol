@@ -382,6 +382,10 @@ PY
   kontrol $? "AT-061: donmuş-F1-şekli ↔ gerçek-anchor-kaydı (çıkarımla)"
 
   # ---- kontrol-84: AT-060 RFC-009 anchor-okuma-kapısı (yazma-yolu-yetmez) ----
+  # ---- kontrol-85: AT-064 çoklu-ödeme-kanal-dispatch'ı (B-yönü) ----
+  bash tests/at064_payment_channel_dispatch.sh > /dev/null 2>&1
+  kontrol $? "AT-064: scheme-dispatch + çapraz-scheme-saldırısı-RED"
+
   bash tests/at060_anchor_read_gate.sh > /dev/null 2>&1
   kontrol $? "AT-060: anchor R9-1..R9-5 okuma-tarafında-RED (reason-16)"
 

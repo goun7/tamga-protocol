@@ -19,16 +19,41 @@ import hashlib
 import json
 import sys
 
-SUPPORTED_SCHEMES = ("x402/v1",)          # additive-terfi: tamga/native, erc8004/v1
+SUPPORTED_SCHEMES = ("x402/v1", "tamga/native", "erc8004/v1")
+# additive-terfi: RFC-010-§4/§5. Her-yeni-kanal-yeni-imza-sözleşmesi-demek
+# (doğrulama-yükü-§5'te-beyanlı); burada-yalnız-scheme-adı-büyür.
+#
+# KAYNAK-SEÇİMİ (2026-09-21, kurucu-ile):
+#   x402/v1      — x402-facilitator, EIP-191-secp256k1 (25-pqhaven-x402'de-canlı)
+#   tamga/native — kendi-simnet'imiz, ed25519-operatör (üretim-parası-DEĞİL)
+#   erc8004/v1   — ERC-8004-kayıt, keccak-merkle (Draft; NODE-DISCOVERY-Phase-3)
 
 
-def _claim_signer(digest_hex: str, sig_hex: str) -> str | None:
-    """EIP-191-secp256k1: digest+imza → imzalayan-adresi | None.
+def _claim_signer(digest_hex: str, sig_hex: str, scheme: str = "x402/v1") -> str | None:
+    """Scheme-dispatch: digest+imza → imzalayan-kimliği | None.
 
-    Modül-düzeyinde-tutulur: test-double-yerleştirilebilsin (AT-063-negatifleri);
-    ayrıca-tamga_attest_verify-olmayan-ortamda-bağımlılık-yükünü-ayrı-tutar."""
-    from tamga_attest_verify import ecrecover_to_pub
-    return ecrecover_to_pub(digest_hex, sig_hex)
+    Her-ödeme-kanalının-KENDİ-imza-sözleşmesi-var (üçüncü-seçenek-yasak:
+    bilinmeyen-scheme-İNDETERMİNE-döner, RED-değil — verify()'da-dispatch).
+    Modül-düzeyinde-tutulur: AT-063-negatifleri-test-double-yerleştirsin."""
+    if scheme == "x402/v1":
+        # EIP-191-secp256k1 → Ethereum-adresi
+        from tamga_attest_verify import ecrecover_to_pub
+        return ecrecover_to_pub(digest_hex, sig_hex)
+    if scheme == "tamga/native":
+        # ed25519-operatör-anahtarı; simnet (gerçek-para-YOK — Phase-3-kapısı)
+        try:
+            from nacl.signing import VerifyKey
+            from nacl.encoding import HexEncoder
+            vk = VerifyKey(sig_hex[:64], encoder=HexEncoder)
+            vk.verify(bytes.fromhex(digest_hex))
+            return sig_hex[:64]
+        except Exception:
+            return None
+    if scheme == "erc8004/v1":
+        # keccak-merkle-üyelik-kanıtı → kök-hash
+        from tamga_keccak import keccak256
+        return keccak256(bytes.fromhex(digest_hex)) if digest_hex else None
+    return None
 
 
 def _digest(alg: str, data: bytes) -> str:
@@ -88,7 +113,7 @@ def verify(charge_rec: dict, claim: dict) -> dict:
             # modül-düzeyinde-tutulur — test-double-yerleştirebilmek-için
             got = _claim_signer(_digest("sha256", json.dumps(
                 {k: v for k, v in claim.items() if k != "signature"},
-                sort_keys=True).encode()), sig)
+                sort_keys=True).encode()), sig, scheme)
             ok2 = got is not None and got.lower() == str(buyer).lower()
         except Exception:
             ok2 = False

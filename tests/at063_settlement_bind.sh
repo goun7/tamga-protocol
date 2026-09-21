@@ -89,7 +89,7 @@ claim = json.loads((w/"claim.json").read_text(encoding="utf-8"))
 claim["evidenceHash"]["hex"] = "d"*64   # SWAP — tek-byte-fark
 r = SB.verify(charge, claim)
 # imza-ecrecover-yoksa-2'de-durur; 5'i-doğrudan-sına
-SB._claim_signer = lambda d, s: claim["buyerAddress"]  # test-double
+SB._claim_signer = lambda d, s, scheme="x402/v1": claim["buyerAddress"]  # test-double
 r = SB.verify(charge, claim)
 assert r["verdict"] == "RED", f"swap-RED-beklendi: {r}"
 assert r["reason_code"] == 7, f"evidence_hash_mismatch-beklendi: {r['reason_code']}"
@@ -108,7 +108,7 @@ w = pathlib.Path(sys.argv[1])
 charge = json.loads((w/"charge.json").read_text(encoding="utf-8"))
 claim = json.loads((w/"claim.json").read_text(encoding="utf-8"))
 claim["buyerAddress"], claim["sellerAddress"] = claim["sellerAddress"], claim["buyerAddress"]
-SB._claim_signer = lambda d, s: claim["buyerAddress"]
+SB._claim_signer = lambda d, s, scheme="x402/v1": claim["buyerAddress"]
 r = SB.verify(charge, claim)
 assert r["verdict"] == "RED" and r["reason_code"] == 6, f"party-swap-RED: {r}"
 print("  party-swap-RED (rc6)")
@@ -126,7 +126,7 @@ w = pathlib.Path(sys.argv[1])
 charge = json.loads((w/"charge.json").read_text(encoding="utf-8"))
 claim = json.loads((w/"claim.json").read_text(encoding="utf-8"))
 claim["settlementRef"] = "OTHER-PAY"
-SB._claim_signer = lambda d, s: claim["buyerAddress"]
+SB._claim_signer = lambda d, s, scheme="x402/v1": claim["buyerAddress"]
 r = SB.verify(charge, claim)
 assert r["verdict"] == "RED" and r["reason_code"] == 5, f"ref-RED: {r}"
 print("  settlementRef-mismatch-RED (rc5)")

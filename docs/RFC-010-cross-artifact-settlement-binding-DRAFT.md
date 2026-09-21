@@ -83,6 +83,18 @@ negatif-kontrolle (swap-hash, swap-party, ref-mismatch, sig-invalid, chain-broke
 (f) tokenizen-tarafın-şema-hizalaması (holistis-x402#3379'da-önerdi); (g) `scheme`-
 listesine-`tamga/native`-ve-`erc8004/v1`-eklenmesi (R9-2-additive-terfisiyle).
 
+## 4b. Çoklu-ödeme-kanalı (B-yönü, 2026-09-21)
+
+`SUPPORTED_SCHEMES`-additive-terfisi: **x402/v1** (EIP-191-secp256k1),
+**tamga/native** (ed25519-operatör, simnet), **erc8004/v1** (keccak-merkle).
+
+**Çapraz-kanal-saldırısı-yeni-yüzey:** saldırgan-x402-claim'ini-tamga/native-
+scheme'ine-bağlarsa-ed25519-doğrulaması-farklı-pubkey-üretir → party_mismatch-RED.
+Bu-saldırı-tek-kanal-dünyasında-mümkün-değildi; dispatch-getirdi, AT-064-kilitledi.
+
+**Doğrulama-yükü-büyür** (§5-tekerrür): her-kanal-kendi-imza-sözleşmesi-demek.
+Eklenen-kanallar-mevcut-x402-yolunu-bozmaz (AT-064-kontrol-5-geriye-dönük-uyum).
+
 ## 5. Riskler (dürüst)
 
 - **Doğrulama-yükü-çoğalıyor:** her-scheme-için-ayrı-claim-doğrulama (§3-kontrol-2).

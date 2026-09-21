@@ -1,0 +1,38 @@
+{
+  "spec_version": "0.2.0",
+  "package": {
+    "name": "unpump-bridge",
+    "version": "0.1.0",
+    "code": {
+      "wasm_sha256": "6129007a280fcee3845532d38e4be3ecf9fddb03809c35a335e0b1b9c2b142a5",
+      "hash_algo": "sha256",
+      "target": "wasi-0.3/component"
+    }
+  },
+  "runtime": {
+    "min_proof_level": "P0",
+    "limits": {
+      "memory_mb": 128,
+      "cpu_ms_per_run": 5000,
+      "io_mb_per_run": 10
+    }
+  },
+  "memory": {
+    "snapshot_format": "tamga-snapshot/1",
+    "crypto_suite": "XChaCha20-Poly1305"
+  },
+  "capabilities": [
+    "clock",
+    "random"
+  ],
+  "payment": {
+    "schemes": [
+      "tamga-sim/1"
+    ]
+  },
+  "signature": {
+    "algo": "ed25519",
+    "key": "c44d69368479b4a649f5d9fe916b70c4db149c479f53cc2fae4100253bbf61ac",
+    "sig": "fea9dd6a93d6f2701725c2a448738f497275b678541fff9e5b5783ccdd00fe5e74e243ce0b26afdcb4f5f1371082e079cc97f8172888303a1605341f755d0304"
+  }
+}

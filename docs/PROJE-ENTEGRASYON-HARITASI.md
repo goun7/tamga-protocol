@@ -41,6 +41,13 @@ bunu-söylüyor: *"Sester'ın ChargeIntent/ChargeReceipt'i, Ajan Borsası'nın e
 olur"* (`borsa_core.py:18-19`). Ve-modül-Sester'a-bağımlı-değil — **sadece-okur**,
 yani-loose-coupling.
 
+## 2b. C-sınıfı-ilk-sonuçlar (2026-09-21)
+
+| Proje | Sonuç | Tür |
+|---|---|---|
+| **03-Pacta** | §5.2-açıkça-`TamgaVerifier.verify(receiptHash, signature)`-+`TamgaReceipt`-yazar — **önceden-var-bağ**; §5.3-%20-itiraz-teminatı-RFC-011'e-taşındı | **RFC-011-AT-073-ile-bağlandı** |
+| **68-Kredent/ROBOSEAL** | EigenTrust-itibar-skoru, **K0-sıralama-yasağıyla-çelişiyor** — D-014-duvarı-ROBOSEAL'de-de-var (soğuk-başlangıç-cezası) | **NEGATİF-sonuç** — İNDETERMİNE (çözüm-değil, reddedilmiş-de-değil) |
+
 ## 3. Spec-ONLY — tasarım-değeri-var, kod-yok (henüz)
 
 Bu-projeler **"100/100 Master"**-dokümanları-taşır-ama-çalışan-kod-satırları-14-63

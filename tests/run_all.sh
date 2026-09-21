@@ -395,6 +395,12 @@ PY
   kontrol $? "AT-070: 76-Fleksa W3C-VC+Merkle → RFC-010"
   bash tests/at071_tenderix_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-071: 64-Tenderix ed25519-üç-fallback → RFC-010"
+  # ---- kontrol-94/95: AT-073 RFC-011 dispute + AT-074 ROBOSEAL-çatışma ----
+  bash tests/at073_dispute_pointer.sh > /dev/null 2>&1
+  kontrol $? "AT-073: RFC-011 dispute-pointer (anlaşmazlık-bacağı)"
+  bash tests/at074_roboseal_catisma.sh > /dev/null 2>&1
+  kontrol $? "AT-074: ROBOSEAL-itibar-çatışması (K0 + D-014)"
+
   bash tests/at072_veridrome_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-072: 73-Veridrome RFC-6962-CT-log → RFC-010"
 

@@ -25,7 +25,7 @@ SUPPORTED_SCHEMES = ("x402/v1",)          # additive-terfi: tamga/native, erc800
 def _claim_signer(digest_hex: str, sig_hex: str) -> str | None:
     """EIP-191-secp256k1: digest+imza → imzalayan-adresi | None.
 
-    Modül-düzeyinde-tutulur: test-double-yerleştirilebilsin (AT-060-negatifleri);
+    Modül-düzeyinde-tutulur: test-double-yerleştirilebilsin (AT-063-negatifleri);
     ayrıca-tamga_attest_verify-olmayan-ortamda-bağımlılık-yükünü-ayrı-tutar."""
     from tamga_attest_verify import ecrecover_to_pub
     return ecrecover_to_pub(digest_hex, sig_hex)

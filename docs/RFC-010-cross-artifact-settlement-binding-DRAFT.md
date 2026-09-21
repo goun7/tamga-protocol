@@ -76,7 +76,7 @@ ilkesiyle-uyumlu; `scheme`-listesi-additive: `x402/v1`, `tamga/native`, `erc8004
 ## 4. NE-ŞİMDİ / NE-SONRA
 
 **ŞİMDİ:** (a) bu-tasarım-notu; (b) `settlement_bind`-alanının-additive-tanımı;
-(c) `tools/settlement_bind_verify.py`-beş-kontrollü-üç-verdict; (d) AT-060-testi-beş-
+(c) `tools/settlement_bind_verify.py`-beş-kontrollü-üç-verdict; (d) AT-063-testi-beş-
 negatif-kontrolle (swap-hash, swap-party, ref-mismatch, sig-invalid, chain-broken).
 
 **SONRA (pilot-günü):** (e) gerçek-x402-claim-fixture'ı-ile-canlı-dikiş;

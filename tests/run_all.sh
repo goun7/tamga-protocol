@@ -385,9 +385,12 @@ PY
   bash tests/at060_anchor_read_gate.sh > /dev/null 2>&1
   kontrol $? "AT-060: anchor R9-1..R9-5 okuma-tarafında-RED (reason-16)"
 
-  # ---- kontrol-84: AT-060 RFC-010 cross-artifact-settlement-binding ----
-  bash tests/at060_settlement_bind.sh > /dev/null 2>&1
-  kontrol $? "AT-060: safal207-dikişi beş-kontrol + negatif-üyeler"
+  # ---- kontrol-87: AT-063 RFC-010 cross-artifact-settlement-binding ----
+  # (AT-063'e-yeniden-numaralandırıldı: önceki-oturum-AT-060-numarasını-benim
+  #  anchor-okuma-kapısı-testimle-çakıştırmıştı — benim-AT-060'ım-3-commitle-
+  #  referans-alındığı-için-RFC-010-testi-AT-063'e-taşındı)
+  bash tests/at063_settlement_bind.sh > /dev/null 2>&1
+  kontrol $? "AT-063: safal207-dikişi beş-kontrol + negatif-üyeler"
 
   # ---- kontrol-83: AT-059 RFC-009 external-chain-anchor (pilot-açık) ----
   bash tests/at059_rfc009_anchor.sh > /dev/null 2>&1

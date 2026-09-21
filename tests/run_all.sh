@@ -558,3 +558,7 @@ exit ${PIPESTATUS[0]}
   kontrol $? "AT-108: 73-Veridrome W3C-VC (Ed25519+CT-log) → RFC-010"
   bash tests/at109_pacta_vault_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-109: Pacta-escrow-vault (EIP-1559-keccak) → RFC-010"
+  bash tests/at110_pqhaven_teori_canli_uyumluluk.sh > /dev/null 2>&1
+  kontrol $? "AT-110: PQHaven teori↔canlı uyumluluk (AT-076-düzeltme) → RFC-010"
+  bash tests/at111_aborsa_mainnet_guard_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-111: Ajan-Borsası mainnet-guard (gerçek-keccak) → RFC-010"

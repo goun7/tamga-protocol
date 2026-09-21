@@ -451,6 +451,12 @@ PY
   kontrol $? "AT-097: 99-Yieldix server gerçek-HTTP-endpoint → RFC-010"
   bash tests/at098_gateway_analitik_gunluk.sh > /dev/null 2>&1
   kontrol $? "AT-098: gateway üçüncü-yüz analitik + K5-günlük"
+  bash tests/at099_swarmax_sealing_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-099: 23-Swarmax sealing (Merkle+Ed25519) → RFC-010"
+  bash tests/at100_fiyat_kirilimi_koruma.sh > /dev/null 2>&1
+  kontrol $? "AT-100: fiyat-kırılımı-koruma (underpayment/replay/quote-expiry)"
+  bash tests/at101_d014_duvar_negatif_yuz.sh > /dev/null 2>&1
+  kontrol $? "AT-101: D-014-duvarı-negatif-yüz (ağ-şeridi + soğuk-başlangıç)"
   bash tests/at085_sester_batch_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-085: Sester settlement-batch → RFC-010 (evidence_link-derived)"
 

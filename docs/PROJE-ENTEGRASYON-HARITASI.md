@@ -225,3 +225,32 @@ ROBOSEAL'e). Henüz-doğrudan-AT'si-OLMAYAN-en-büyük-iki-proje: **Sester (5299
 **İkinci-koordinasyon-hatam (kabul):** task-9'u-iki-kişiye-verdim; anında-
 düzelttim (unpump-gateway-task-9, roboseal-k0-task-8). Ders: claim-öncesi-
 tek-sahiplik-kontrolü-zorunlu.
+
+**Üçüncü-döngü (task-10..16):** numara-çakışmaları-sistemik-oldu ( AT-094/095/096
+üçlü-çakışma) — iki-düzeltme: (1) c-derin'in-Syntropion'u-AT-096'ya-taşındı,
+(2) borsa-pacta-Sester-batch'i-BOŞ-AT-085-slotuna-kendisi-taşıdı (akıllı-çözüm).
+Ders: görev-verirken-önce-ls-tests/at*Num* ile-occupied-slot-kontrolü.
+
+## 7g. İkinci-döngü-sonucu — 116/116, 4-gerçek-bulgu-2-üretim-fix
+
+| AT | Proje-yüzü | Takım-arkadaşı | Bulgusu |
+|---|---|---|---|
+| AT-090 | Sester-ledger-doğrudan | borsa-pacta | iki-imza-kanalı (§4d) |
+| AT-085 | Sester-settlement-batch | borsa-pacta | evidence_link-derived-ilk-kez |
+| AT-091 | Veridict-ilk-dikiş | c-derin | son-büyük-boşluk-kapandı |
+| AT-092 | K0-CT-log-üyelik | roboseal-k0 | AT-083-uygulaması |
+| AT-095 | K0-kalan-3-aday | borsa-pacta | AT-083'ün-4/4'ü-tamam |
+| AT-093 | gateway-iç-yüz | unpump-gateway | **GÜVENLİK-AÇIĞI** (fixed) |
+| AT-094 | Pactiva-peer-attestation | c-derin | ikinci-yüz |
+| AT-096 | Syntropion-API | c-derin | 34-hane-IBAN-fixture-bug |
+| AT-097 | Yieldix-server-HTTP | c-derin | kanal-ayrımı |
+| AT-098 | gateway-analitik | unpump-gateway | gelir-dürüstlüğü ($34.45 vs $58.4) |
+
+**2-üretim-fix (Lead-yazdı, teammate-keşfetti):**
+1. `81-OstrakonSOC/ajanguvence/rules.py:78` — matches[0]→max(len(tool)):
+   `proxy/`-allow, `proxy/admin`-deny'yi-goluyordu (admin-rotası-serbest)
+2. `pqhaven/x402_servis.py:188/192` — scan_path→scan_directory:
+   LocalScanner'da-tanımsız → local-tarama-AttributeError→400
+
+**Araştırma→uygulama-döngüsü-kanıtı:** AT-083-araştırma ( 4/4-DÜZ/İKİLİ-uyumlu,
+ağırlıklı-0.6454→0.4892-RED) → AT-092+095-uygulama-AYNI-sayıları-üretti.

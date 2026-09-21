@@ -64,6 +64,7 @@ fi
 
 python3 - "$LOG" <<'PYEOF' >> "$LOG" 2>&1
 import hashlib, inspect, json, os, sqlite3, sys, tempfile
+from pathlib import Path
 sys.path.insert(0, "tools"); sys.path.insert(0, ".")
 # MUTLAK-YOL (§5b-dersi: kabuk-cwd'si-çağrılar-arası-sıfırlanır)
 sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/swarmax/src")
@@ -100,18 +101,42 @@ vs = sw_seal.verify_seals(conn)
 assert vs["all_ok"] is True and vs["seals"] == 1, \
     f"gerçek-seal-doğrulanmalı: {vs}"
 # bağımsız-yeniden-üretim: kök-aynı-olmalı (alıcı-bunu-yapabilir)
+# DİKKAT (AT-099-düzeltme): seal_ledger()-kendi-seal-kaydını-evidence_ledger'a-
+# ekler ( seq-4-oluşur). Kök-sadece-covers_through_seq'e-kadar-yeniden-üretilmeli —
+# tüm-tabloyu-alırsa-seal-kaydı-da-dahil-olur → kök-farklı-olur. sealing.py-
+# deterministiktir (test-hatası-bu).
 hashes = [r["payload_hash"] for r in conn.execute(
-    "SELECT payload_hash FROM evidence_ledger ORDER BY seq")]
+    "SELECT payload_hash FROM evidence_ledger WHERE seq <= ? ORDER BY seq",
+    (seal["covers_through_seq"],))]
 assert sw_seal.merkle_root(hashes) == root, "Merkle-kökü-bağımsız-yeniden-üretimde-aynı"
 print(f"  GERÇEK-seal: 3-evidence → Merkle-kökü {root[:20]}… + Ed25519-imzası")
 print(f"    verify_seals: all_ok=True | kök-bağımsız-yeniden-üretimle-birebir")
 
-# --- 2) ÜRETİCİ-TARAFI-SAĞLAMLIK: tahrif→False, yanlış-anahtar→False, rotate_key
-# tahrif: son-evidence'nın-payload_hash'ini-değiştir → kök-değişir → mismatch
-conn.execute("UPDATE evidence_ledger SET payload_hash=? WHERE seq=3", ("e" * 64))
+# --- 2) ÜRETİCİ-TARAFI-SAĞLAMLIK: DB-trigger + verify_seals + anahtar-doğrulama
+# (a) tahrif-DB-seviyesinde-REDDEDİLİR: evidence_ledger-append-only-trigger
+#     (BEFORE-UPDATE/DELETE-RAISE) — tahrif-girişimi-kanıt-üretmeden-başarısız
+try:
+    conn.execute("UPDATE evidence_ledger SET payload_hash=? WHERE seq=3",
+                 ("e" * 64,))
+    conn.commit()
+    raise AssertionError("append-only-trigger-tahrife-izin-vermemeli")
+except (sqlite3.IntegrityError, sqlite3.OperationalError) as e:
+    assert "append-only" in str(e) or "forbidden" in str(e), \
+        f"beklenen-append-only-hata: {e}"
+    conn.rollback()                                   # hareket-geri-al
+# (b) seal-kayı-tahrifi: evidence_seals-yazılabilir — verify_seals-yakalar
+conn.execute("UPDATE evidence_seals SET root_hash=? WHERE seal_id=?",
+             ("f" * 64, seal["seal_id"]))
+conn.commit()
 vs2 = sw_seal.verify_seals(conn)
-assert vs2["all_ok"] is False, "payload-tahrifi-seal-doğrulamasında-yakalanmalı"
-print("    tahrif: son-payload_hash-değişti → verify_seals-False (fail-closed)")
+assert vs2["all_ok"] is False and vs2["results"][0]["reason"] is not None, \
+    f"sahte-root-yakalanmalı: {vs2}"
+# kanıtı-geri-al: gerçek-seal'ı-restore-et
+conn.execute("UPDATE evidence_seals SET root_hash=? WHERE seal_id=?",
+             (root, seal["seal_id"]))
+conn.commit()
+assert sw_seal.verify_seals(conn)["all_ok"] is True, "geri-yükleme-sonrası-geçerli"
+print("    append-only-trigger: tahrif-IntegrityError; sahte-root→verify_seals-False")
 # anahtar-tutarlılık: swarmax'ın-kendi-verify()-fonksiyonu-çalışıyor
 msg = root.encode() + (3).to_bytes(8, "big")       # F2-seal-mesajı
 assert sw_verify(bytes.fromhex(PUB), msg,
@@ -120,7 +145,8 @@ assert sw_verify(bytes.fromhex("f" * 64), msg,
                  bytes.fromhex(seal["signature"])) is False, \
     "yanlış-anahtar-doğrulamamalı"
 # anahtar-rotasyonu (§14): yeni-anahtar + eski-seal-hâlâ-doğrulanır
-seed2 = sw_seal.rotate_key(conn, seed, path=os.path.join(TMP, "seed2.hex"))
+seed2 = sw_seal.rotate_key(conn, seed,                 # §14: Path-bekler
+                           path=Path(os.path.join(TMP, "seed2.hex")))
 assert secret_to_public(seed2).hex() != PUB
 sw_ev.append_evidence(conn, "job_done", {"job": "scrape-D", "rows": 9, "ok": True})
 seal2 = sw_seal.seal_ledger(conn, seed2)

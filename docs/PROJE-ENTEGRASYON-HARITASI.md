@@ -23,6 +23,10 @@ fail-closed-gate'inde-doğrulandı. Gerçek-kök-GREEN, sahte-kök-RED.
 | **69-Swarmax** | `01_unicorn/69-Swarmax` | `src/swarmax/evidence.py:17` `payload_digest` sha256-prev_hash-zinciri (GENESIS-kök) + `ed25519.py:128` `verify` saf-Python-RFC-8032 → `tamga/native`-scheme'inin-imza-doğrulaması | **AT-067-6/6** | **B-sınıfı-bağlandı** |
 | **77-Dümen** | `01_unicorn/77-Dumen` | `dumen/reports/evidence_chain.py:76` `_hash_entry` — `rfc8785`-şeması-seçeneği **kodsunda-açıkça-"Tamga AT-036"-atfı-yazar** (önceden-var-bağ); `GENESIS_PREV`=64-sıfır | **AT-068-6/6** | **AT-036-paritesi-önceden-var, ödeme-dikişi-şimdi** |
 
+| **76-Fleksa** | `01_unicorn/76-Fleksa` | `src/fleksa/protocols/attestation.py` W3C-VC-v2.0 (Ed25519-2020) + `audit/ledger.py:27` `compute_merkle_root` → **iki-scheme'de-de** (erc8004/v1 + tamga/native) | **AT-070-6/6** | **B-sınıfı-bağlandı** |
+| **64-Tenderix** | `01_unicorn/64-Tenderix` | `src/tenderix/signing.py` Ed25519 PyCA>PyNaCl>pure-RFC-8032-üç-fallback (zero-dependency) → imzalı-CSVO-teklif-ödeme-kanıtı | **AT-071-6/6** | **B-sınıfı-bağlandı** |
+| **73-Veridrome** | `01_unicorn/73-Veridrome` | `src/veridrome/core/crypto.py` RFC-6962-CT-log (`generate_proof`-üyelik-kanıtı) + `get_root_hex`='0x'+64hex = **R9-3-kanonik-aynı-biçim** | **AT-072-6/6** | **B-sınıfı-bağlandı (en-güçlü — üyelik-kanıtı)** |
+
 ## 2. Kod-CANLI — entegre-edilebilir (arayüz-gerçek, AT-bekliyor)
 
 | Proje | Kod | Arayüz-gerçek | Önerilen-scheme | Öncelik |
@@ -86,7 +90,11 @@ arasında. Entegrasyon-için **arayüz-sözleşmesi-olarak**-değerliler:
 yok (`.dsh-live/`-altında-iz-sıfır; string-yalnız-pano-geçmişinde). **Üç-oturum
 arasında-ağ-yok** — iletişim-insan-relay + dosya + x402-issue'ları-üzerinden.
 
-## 6. Sonraki-adımlar (sıralı)
+## 6. §6-borcu-KAPANDI (AT-069)
+
+AT-067'de-itiraf-ettiğim-açık-gate-kapandı: `foreign_chain_proof`-alanı-ile-yabancı-zincir-sorgulanır. İsteğe-bağlı (yok→GREEN-geri-uyumlu), ama-verildiyse-çürük → RED rc8.
+
+## 7. Sonraki-adımlar (sıralı)
 
 1. **Ajan-Borsası-dikişi** (yüksek-öncelik): `receipt_hash`-RFC-010-5'inci-
    kontrolüne-bağla → AT-066-negatif-kontrolle

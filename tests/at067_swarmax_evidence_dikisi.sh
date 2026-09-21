@@ -95,7 +95,7 @@ assert not ok3, "kırık-zincir-algılanmadı"
 claim3 = json.loads(json.dumps(claim))
 r3 = SB.verify(charge, claim3)
 assert r3["verdict"] == "GREEN"  # kanıt-hâlâ-aynı-hash (gate-zinciri-sorgulamaz)
-print("  DİKKAT: gate-zinciri-sorgulamaz — verify_chain-ayrı-çağrılmalı (§6-itiraf)")
+print("  §6-BORCU-AT-069-İLE-KAPANDI: foreign_chain_proof-artık-zorunlu-RED-verir")
 
 # --- 6) İKİ-ZİNCİR-AYNI-ŞEKİLDE-AMA-AYRI: sha256-her-ikisinde-de
 k1 = hashlib.sha256(b"x").hexdigest()

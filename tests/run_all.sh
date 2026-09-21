@@ -388,6 +388,16 @@ PY
   # ---- kontrol-88/89: AT-067 Swarmax + AT-068 Dümen-dikişleri ----
   bash tests/at067_swarmax_evidence_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-067: 69-Swarmax-evidence → RFC-010 tamga/native"
+  # ---- kontrol-90..93: AT-069 §6 + AT-070/071/072 B-sınıfı-sonu ----
+  bash tests/at069_foreign_chain_gate.sh > /dev/null 2>&1
+  kontrol $? "AT-069: §6 yabancı-zincir-sorgulama-borcu-kapandı"
+  bash tests/at070_fleksa_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-070: 76-Fleksa W3C-VC+Merkle → RFC-010"
+  bash tests/at071_tenderix_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-071: 64-Tenderix ed25519-üç-fallback → RFC-010"
+  bash tests/at072_veridrome_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-072: 73-Veridrome RFC-6962-CT-log → RFC-010"
+
   bash tests/at068_dumen_evidence_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-068: 77-Dümen-evidence-chain → RFC-010 (AT-036-bağı)"
 

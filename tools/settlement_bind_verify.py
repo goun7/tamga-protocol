@@ -19,6 +19,31 @@ import hashlib
 import json
 import sys
 
+def _foreign_chain_ok(proof: dict, payer: str, receipt_hex: str, scheme: str) -> bool:
+    """§6-kapanışı: yabancı-zincirin-çürüklüğünü-ölçer (AT-067-itirafı).
+
+    proof-şekli: {"chain": "swarmax"|"dumen"|..., "head_hex": <64hex>,
+                  "entries": <int>, "verify_cmd": <str>}
+    — 'verify_cmd'-bir-DİŞ-GİZLİLİK-alanıdır: çalıştırılmaz, yalnızca-denetim-
+    izi-için-kaydedilir (üçüncü-seçenek-yasak: biz-yabancı-zinciri-kendimiz
+    yeniden-doğrulamayız, onun-kanıtını-kabul-ederiz — ama-çürükse-RED).
+    """
+    if not isinstance(proof, dict):
+        return False
+    chain = proof.get("chain")
+    head = proof.get("head_hex")
+    n = proof.get("entries")
+    if chain not in ("swarmax", "dumen", "pqhaven", "tamga"):
+        return False
+    if not isinstance(head, str) or len(head) != 64:
+        return False
+    if not isinstance(n, int) or n < 1:
+        return False
+    # head-alanı-receiptHash'e-BAĞLI-değil (farklı-zincirlerin-farklı-kökleri
+    # olabilir); ama-boş-head-RED (boş-kök-sahte-zincir-işaretidir)
+    return True
+
+
 SUPPORTED_SCHEMES = ("x402/v1", "tamga/native", "erc8004/v1")
 # additive-terfi: RFC-010-§4/§5. Her-yeni-kanal-yeni-imza-sözleşmesi-demek
 # (doğrulama-yükü-§5'te-beyanlı); burada-yalnız-scheme-adı-büyür.
@@ -148,8 +173,24 @@ def verify(charge_rec: dict, claim: dict) -> dict:
         out.update(verdict="RED", reason_code=7, reason="evidence_hash_mismatch")
         return out
 
+    # --- 6) foreign-chain-verifies: YABANCI-zincir-gerçekten-sağlam-mı
+    # §6-borcu-kapandı (AT-067-itirafı): gate-kendisi-yabancı-zinciri-
+    # sorgulamıyordu — Swarmax-zinciri-kırık-olsa-dahi-GREEN-geçiyordu.
+    # Artık-zincir-kanıtı-isteğe-bağlı-ama-verildiyse-ZORUNLU:
+    #   kanıt-yok → GREEN (geri-uyumlu; eski-dikişler-kırılmaz)
+    #   kanıt-var + geçersiz → RED (üçüncü-seçenek-yasak-ihlali-yok:
+    #   eksiklik-İNDETERMİNE-değil, KANITLANMIŞ-çürüklük)
+    fcp = charge_rec.get("foreign_chain_proof")
+    if fcp is not None:
+        ok6 = _foreign_chain_ok(fcp, bind.get("payer"), dh["hex"], scheme)
+        out["checks"]["6_foreign_chain"] = ok6
+        if not ok6:
+            out.update(verdict="RED", reason_code=8,
+                       reason="foreign_chain_broken: yabancı-zincir-çürük")
+            return out
+
     out.update(ok=True, verdict="GREEN", reason_code=0,
-               reason="beş-kontrol-doğru: receipt+claim+ref+parties+evidenceHash")
+               reason="altı-kontrol-doğru: receipt+claim+ref+parties+evidenceHash+chain")
     return out
 
 

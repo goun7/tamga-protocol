@@ -385,6 +385,12 @@ PY
   # ---- kontrol-85: AT-064 çoklu-ödeme-kanal-dispatch'ı (B-yönü) ----
   # ---- kontrol-86: AT-065 PQHaven-erc8004-dikişi (gerçek-üçüncü-proje) ----
   # ---- kontrol-87: AT-066 Ajan-Borsası receipt_hash-dikişi ----
+  # ---- kontrol-88/89: AT-067 Swarmax + AT-068 Dümen-dikişleri ----
+  bash tests/at067_swarmax_evidence_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-067: 69-Swarmax-evidence → RFC-010 tamga/native"
+  bash tests/at068_dumen_evidence_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-068: 77-Dümen-evidence-chain → RFC-010 (AT-036-bağı)"
+
   bash tests/at066_ajan_borsasi_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-066: 24-ajan-borsasi receipt_hash → RFC-010-5.kontrol"
 

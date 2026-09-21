@@ -20,6 +20,9 @@
 bir-başka-projenin-gerçek-çıktı-formatı (rapor+CBOM→Merkle-kökü) Tamga'nın-
 fail-closed-gate'inde-doğrulandı. Gerçek-kök-GREEN, sahte-kök-RED.
 
+| **69-Swarmax** | `01_unicorn/69-Swarmax` | `src/swarmax/evidence.py:17` `payload_digest` sha256-prev_hash-zinciri (GENESIS-kök) + `ed25519.py:128` `verify` saf-Python-RFC-8032 → `tamga/native`-scheme'inin-imza-doğrulaması | **AT-067-6/6** | **B-sınıfı-bağlandı** |
+| **77-Dümen** | `01_unicorn/77-Dumen` | `dumen/reports/evidence_chain.py:76` `_hash_entry` — `rfc8785`-şeması-seçeneği **kodsunda-açıkça-"Tamga AT-036"-atfı-yazar** (önceden-var-bağ); `GENESIS_PREV`=64-sıfır | **AT-068-6/6** | **AT-036-paritesi-önceden-var, ödeme-dikişi-şimdi** |
+
 ## 2. Kod-CANLI — entegre-edilebilir (arayüz-gerçek, AT-bekliyor)
 
 | Proje | Kod | Arayüz-gerçek | Önerilen-scheme | Öncelik |
@@ -44,6 +47,7 @@ arasında. Entegrasyon-için **arayüz-sözleşmesi-olarak**-değerliler:
 | **03-Pacta** | `PROJE_KAGIDI.md` | escrow+anlaşmazlık-rayi — RFC-010 **mutabakat**ı-kanıtlar, Pacta **anlaşmazlık**ı-taşır: tamamlayıcı-yüz |
 | **68-Kredent/ROBOSEAL** | `ROBOSEAL.md` | ajan-kimlik+itibar — TRM Labs'in-"counterparty-reputation"-önerisinin-alternatifi |
 | **73-Veridrome** | `VERIDROME.md` | sertifikasyon-arenası — anti-gaming-benchmark |
+| **76-Fleksa** | `FLEKSA.md` | (içerik-henüz-okunmadı) |
 | **80-PQHaven** | `PQHAVEN.md` | CBOM-kripto-envanteri (25-x402-servisinin-teorisi) |
 | **99-Yieldix** | `YIELDIX.md` | gelir-motoru — kanıtı-tüketen-ilk-istemci |
 | **76-Fleksa** | `FLEKSA.md` | (içerik-henüz-okunmadı) |

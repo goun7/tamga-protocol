@@ -420,6 +420,22 @@ PY
   bash tests/at084_pacta_anlasmazlik_yuzu.sh > /dev/null 2>&1
   kontrol $? "AT-084: 03-Pacta Tier3-Schelling → RFC-011 canlı-hakemlik"
 
+  # ---- kontrol-103: AT-083 ROBOSEAL-K0 çözüm-uzayı (teammate, araştırma) ----
+  bash tests/at083_roboseal_k0_cozum_uzayi.sh > /dev/null 2>&1
+  kontrol $? "AT-083: ROBOSEAL-K0 ağırlıksız-Sybil-savunması-mümkün-mü"
+
+  # ---- kontrol-104: AT-081 Unpump-X-Bind-Signature gerçek-müşteri-imzası ----
+  bash tests/at081_unpump_x_bind_signature.sh > /dev/null 2>&1
+  kontrol $? "AT-081: Unpump bağ-anahtarı → gerçek-müşteri-imzası (D5-kapsama)"
+
+  # ---- kontrol-105..107: AT-087/088/089 C-sınıfı-ikinci-yüzler (teammate) ----
+  bash tests/at087_pactiva_arbitration_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-087: 22-37-Pactiva arbitration → RFC-011 (pactiva/v1-additive)"
+  bash tests/at088_yieldix_telemetry_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-088: 99-Yieldix telemetry/reporter → RFC-010 (imzalı-SLA)"
+  bash tests/at089_syntropion_vesting_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-089: 18-Syntropion revenue_router/vesting → RFC-010 (FSEK-%20)"
+
   bash tests/at074_roboseal_catisma.sh > /dev/null 2>&1
   kontrol $? "AT-074: ROBOSEAL-itibar-çatışması (K0 + D-014)"
 

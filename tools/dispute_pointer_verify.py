@@ -19,7 +19,10 @@ from __future__ import annotations
 import json
 import sys
 
-SUPPORTED_PROTOCOLS = ("pacta/v1", "holistis/disputeContext")
+# additive-terfi (AT-087): Pactiva'nın-7-üyeli-Schelling-tahkimi-gerçek-bağımsız-
+# bir-protokoldür — pacta/v1'in-adını-ödünç-almamalı. Her-eklenen-protokol-yeni
+# bir-dış-çözüm-hedefi-demek; eskiler-bozulmaz (geriye-dönük-uyum).
+SUPPORTED_PROTOCOLS = ("pacta/v1", "holistis/disputeContext", "pactiva/v1")
 MIN_BOND_PCT = 0.20          # Pacta §5.3 — dışarıdan gelen oyun-teorik değer
 
 

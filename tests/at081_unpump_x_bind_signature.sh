@@ -125,7 +125,8 @@ print("  D5-yeni-fixture-kapsama: True — h = sha256(prev+jcs(h-dışı)), "
       "settlement_bind-ve-payload-dahil")
 
 # --- 4) GERÇEK-6/6-GREEN (test-double-YOK)
-SB.__dict__.pop("_claim_signer", None)   # çift-emniyet: gerçek-yol
+# (AT-075-disiplini: _claim_signer-kaynağı-yukarıda-inspect-ile-doğrulandı —
+#  gerçek-ecrecover'ı-çağırır; modül-fonksiyonunu-pop-etmeye-gerek-yok.)
 r2 = SB.verify(ch2, cl2)
 assert r2["verdict"] == "GREEN" and r2["reason_code"] == 0, \
     f"gerçek-6/6-GREEN-beklendi: {r2}"
@@ -146,8 +147,7 @@ print("  NEGATİF-1: bind.payer=bağ-adresi ↔ claim.buyerAddress=gerçek-alıc
 
 # --- 6) NEGATİF-2: D5-hash-kapsama-False (dikiş-sonra-eklenince) → rc3
 # dıştan-yapışık-tuzağı: settlement_bind-h'-sonra-eklenmiş (AT-075'in-2.-düzeltme-
-# öncesi-hata). h-yeniden-hesaplanmaz → kapsama-False; VEYA-daha-kötüsü-saldırgan
-# sahte-bir-dikiş-yapışık-ekler. İki-belirti-de-ölçülür:
+# öncesi-hatası). h-dikişsiz-hesaplanmış-olur → kapsama-False.
 ch6 = json.loads(json.dumps(ch2))
 bind6 = json.loads(json.dumps(ch6["settlement_bind"]))
 del ch6["settlement_bind"]                       # dikişi-çıkar
@@ -155,22 +155,33 @@ no_h6 = {k: v for k, v in ch6.items() if k != "h"}
 ch6["h"] = hashlib.sha256(                       # h'ı-dikişsiz-hesapla
     (ch6["prev"] + jcs(no_h6).decode()).encode()).hexdigest()
 ch6["settlement_bind"] = bind6                   # dikişi-SONRADAN-yapışık-ekle
-# (a) kapsama-artık-False
+# (a) bağımsız-D5-ölçümü: kapsama-artık-False
 assert d5_kapsiyor(ch6) is False, "dıştan-yapışık-dikiş-kapsama-False-olmalı"
-# (b) gate'in-ölçtüğü-red: settlement_bind-sonradan-eklenince-şekil-bozulur
-#     (h-dışında-kayıt-değişti → h-artık-geçersiz). rc3-receipt_invalid-üret:
+# (b) receipt-geçerliliği = D5-şekil + D5-kapsama (check-1'in-tam-hâli).
+#     Gate'in-_d5_chain_ok-sadece-64hex-şekile-bakar (kaynak-notu: "hash'in-
+#     KENDİSİ-burada-yeniden-hesaplanmaz … tam-zincir-doğrulama-ledger-verify'ın
+#     işidir"). receipt-invalid-kararı-için-kapsama-da-ölçülmelidir:
+def receipt_ok(ch):
+    return SB._d5_chain_ok(ch) and d5_kapsiyor(ch)
+assert SB._d5_chain_ok(ch6) is True, "dıştan-yapışık-dikiş-hâlâ-64hex-şeklinde"
+assert receipt_ok(ch6) is False, \
+    "dıştan-yapışık-dikiş receipt-invalid-olmalı (şekil-geçerli, kapsama-False)"
+# (c) DÜRÜST-KAYIT: gate'in-kendi-yüzü. h'yı-yeniden-hesaplamadığı-için-gate
+#     bu-tuzağı-GREEN-geçirir — AT-075'in-notuyla-birebir-uyumlu (D5-kapsama-
+#     ledger-verify'ın-işidir). Yerine-yeşil-boyanmaz, ölçülür:
 r6 = SB.verify(ch6, cl2)
-# gate h'ı-yeniden-hesaplamaz (sadece-şekil-64hex-ölçer) — bu-yüzden-rc3'ü
-# delivery_hash'in-bozulması-üretir; dikiş-sonrası-h-geçersiz-liakin
-# kanıtlanır. Sahte-dikiş-şekil-bozarsa:
+print("  NEGATİF-2: dıştan-yapışık-dikiş (h'-sonrası-bind) → receipt-invalid")
+print("    D5-kapsama:", d5_kapsiyor(ch6), "| receipt_ok:", receipt_ok(ch6))
+print("    gate'in-yüzü (h'yı-yeniden-hesaplamaz):", r6["verdict"],
+      "rc" + str(r6["reason_code"]),
+      "— D5-kapsama-ledger-verify'ın-işidir (AT-075-notu)")
+# saldırgan-aynı-zamanda-şekli-bozarsa-gerçek-rc3-üretir (gate-check-1):
 ch6b = json.loads(json.dumps(ch6))
 ch6b["delivery_hash"]["hex"] = ch6b["delivery_hash"]["hex"][:-1]  # 63-hex
 r6b = SB.verify(ch6b, cl2)
 assert r6b["verdict"] == "RED" and r6b["reason_code"] == 3, \
-    f"dıştan-yapışık-dikiş rc3-beklendi: {r6b}"
-print("  NEGATİF-2: dıştan-yapışık-dikiş (h'-sonrası-eklenmiş-bind) → "
-      "RED rc3 receipt_invalid; D5-kapsama-False-kanıtlandı")
-print("    kapsama-ölçümü (dikiş-sonrası):", d5_kapsiyor(ch6))
+    f"şekil-bozan-dikiş-rc3-beklendi: {r6b}"
+print("    şekil-bozan-dikiş → RED rc3 receipt_invalid (gate-check-1)")
 PYEOF
 RC=$?
 [ $RC -eq 0 ] && PASS=$((PASS+1)) && note "  PASS: altı-X-Bind-Signature-mod-kontrolü" \

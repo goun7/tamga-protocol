@@ -239,18 +239,20 @@ assert r_bt["verdict"] == "RED" and r_bt["reason_code"] == 9, \
     f"çürük-terms_hash-RED-rc9-beklendi: {r_bt}"
 print("  çürük-terms_hash (64-hex-değil) → RED rc9 (yapısal-bozukluk)")
 
-# --- 10) PACTİVA/V1-ÖLÇÜMÜ: kendi-protokol-adı-listede-yok → İNDETERMİNE-rc11
-# Üçüncü-seçenek-yasak: bilinmeyen-protokol-RED-değil-İNDETERMİNE (sessiz-RED-yok).
-# Pactiva'nın-arbitration-modülü-gerçek-bir-tahkim-sistemidir; RFC-011'in-protokol
-# listesi-additive'dir — 'pactiva/v1'-listed-YOK. Bu-gerçek-bir-additive-alan
-# gereksinimidir (Lead'e-rapor-edilir, araç-dosyasına-dokunulmaz).
+# --- 10) PACTİVA/V1-ÖLÇÜMÜ: kendi-protokol-adı-artık-additive-listede
+# Üçüncü-seçenek-yasak: bilinmeseydi-İNDETERMİNE-rc11-olurdu (sessiz-RED-yok).
+# AT-087'nin-additive-isteği-Lead-tarafından-yerine-getirildi — artık-tanıdık-
+# bir-protokol-olduğu-için-çelişki-düzgün-şekilde-rc12-ÜRETİLİR (üçüncü-seçenek-
+# hala-geçerli: RED-değil-İNDETERMİNE — sadece-protokol-bilindiğinden-tanınır).
+assert "pactiva/v1" in DP.SUPPORTED_PROTOCOLS, \
+    "pactiva/v1-additive-listede-olmalı (Lead-ekledi)"
 charge_pv = json.loads(json.dumps(charge_dp))
 charge_pv["dispute_pointer"]["arbitration"]["protocol"] = "pactiva/v1"
 r_pv = DP.verify(charge_pv)
-assert r_pv["verdict"] == "İNDETERMİNE" and r_pv["reason_code"] == 11, \
-    f"pactiva/v1-İNDETERMİNE-rc11-beklendi (additive-listede-yok): {r_pv}"
-print("  protocol='pactiva/v1' → İNDETERMİNE rc11 (additive-liste-dışı)")
-print("    ADDITIVE-ALAN-GEREKLİ: SUPPORTED_PROTOCOLS'e 'pactiva/v1' eklenmeli")
+assert r_pv["verdict"] == "İNDETERMİNE" and r_pv["reason_code"] == 12, \
+    f"pactiva/v1-İNDETERMİNE-rc12-beklendi (artık-tanıdık-protokol): {r_pv}"
+print("  protocol='pactiva/v1' → İNDETERMİNE rc12 (additive-listede-artık)")
+print("    ADDITIVE-ALAN-KAPANDI: SUPPORTED_PROTOCOLS'e-Lead-ekledi")
 
 # --- 11) MIN_BOND_PCT-sabiti + Pactiva'nın-gerçek-slash-oranı-tabandan-sert
 assert DP.MIN_BOND_PCT == 0.20, "Pacta-§5.3-bond-%20-olmalı"

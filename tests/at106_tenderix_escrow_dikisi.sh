@@ -173,7 +173,7 @@ print("  sahte-imza (65-bayt-sahte + rastgele) → RED rc4")
 # --- 7) NEGATİF-2: emanet-zincirine-tahriz → evidenceHash-swap-RED rc7
 led3 = DisputeLedger()
 e3 = Escrow(on_transition=hayatar(led3))
-e3.authorize("O-7", "r"); e3.resolve("O-7")   # doğrudan-çözüm (dispute-yok)
+e3.authorize("O-7", "r"); e3.resolve("O-7", buyer_wins=False)  # doğrudan-çözüm (dispute-yok)
 head3 = led3._prev[len("sha256:"):]
 assert head3 != HEAD_HEX, "farklı-ömür-döngüsü-farklı-head"
 govde2 = {**govde, "evidenceHash": {"alg": "sha256", "hex": head3}}

@@ -463,6 +463,8 @@ PY
   kontrol $? "AT-103: 13-Dümen reports/signing (üçlü-doğrulama) → RFC-010"
   bash tests/at104_dumen_watch_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-104: 13-Dümen watch süreklilik (fail-loud + kurtarma) → RFC-010"
+  bash tests/at105_sester_policy_signed_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-105: Sester policy-signed (JWS-ES256 + gevşeme-gate) → RFC-010"
   bash tests/at085_sester_batch_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-085: Sester settlement-batch → RFC-010 (evidence_link-derived)"
 

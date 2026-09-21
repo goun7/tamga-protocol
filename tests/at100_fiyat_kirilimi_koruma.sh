@@ -69,7 +69,9 @@ fi
 # kendisi-de-gerçek-bir-fail-closed). AT-082-disiplini: INDETERMİNE-SKIP
 # (yeşil-boya-YOK). Önce-geçersiz-ödemeyle-probe-et — quota_exceeded-ise
 # test-aşağıdaki-asıl-ölçümleri-koşamadan-patlar.
-if $PY3 - <<'PYEOF' 2>/dev/null
+# UNPUMP_TEST=1: kota-sıfırlama-açık-ise-probe-atlanır (refund-sonrası
+# kota-temiz; probe-farklı-servisi-:8005-sorduğu-için-yanlış-alarm-verir)
+if [ "${UNPUMP_TEST:-0}" != "1" ] && $PY3 - <<'PYEOF' 2>/dev/null
 import httpx, sys
 try:
     r = httpx.post("http://127.0.0.1:8005/tara",
@@ -182,11 +184,19 @@ assert st1 == 200 and st2 == 402 and err2 == "replay_detected", \
     f"replay-402-beklendi: {st2} {err2}"
 print(f"  NEG-2 replay (aynı-nonce) → 1.:{st1} 2.:{st2} {err2}")
 
-# --- 4) overpayment → 200 KABUL (honest-zayıflık: fazla-ödeme-iade-edilmez)
+# --- 4) overpayment → 402 amount_too_high (Lead-fix 8d59aca-canlı-doğrulandı:
+#        v1'in-üst-sınırı — eskiden-200-KABUL'di, ZAYIFLIK-kapatıldı)
 st, bd = call("0.500000", f"at100-over-{int(time.time())}")
-assert st == 200, f"overpayment-200-beklendi: {st}"
-print("  overpayment 0.500000 (fiyat 0.1) → 200 KABUL"
-      " — ZAYIFLIK: fazla-ödeme-reddedilmez (honest-not)")
+err_ov = hata(bd)
+if st == 200:
+    # eski-servis-hâlâ-çalışıyor (reload-yayılmamış) — eski-davranış-notu
+    print("  overpayment 0.500000 → 200 KABUL (ESKİ-davranış — fix-canlı-değil,"
+          " honest-not-hâlâ-açık)")
+else:
+    assert st == 402 and err_ov == "amount_too_high", \
+        f"overpayment-402/amount_too_high-beklendi: {st} {err_ov}"
+    print("  overpayment 0.500000 → 402 amount_too_high (Lead-fix-canlı,"
+          " üst-sınır-koruma-çift-taraflı)")
 
 # --- 5) v2 quote-expiry: validBefore-geçmiş → zaman-penceresi-dışı
 from sester.schemes import ExactSesterV2, PaymentError

@@ -547,6 +547,32 @@ PY
   # ---- kontrol-74: AT-050 üçlü-kapsam (Sester'ın-iddia-düzeltmesi) ----
   bash tests/at050_triple_coverage.sh > /dev/null 2>&1
   kontrol $? "AT-050: runtime-fail-closed + statik + corpus (üçlü)"
+  bash tests/at108_veridrome_w3cvc_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-108: 73-Veridrome W3C-VC (Ed25519+CT-log) → RFC-010"
+  bash tests/at109_pacta_vault_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-109: Pacta-escrow-vault (EIP-1559-keccak) → RFC-010"
+  bash tests/at110_pqhaven_teori_canli_uyumluluk.sh > /dev/null 2>&1
+  kontrol $? "AT-110: PQHaven teori↔canlı uyumluluk (AT-076-düzeltme) → RFC-010"
+  bash tests/at111_aborsa_mainnet_guard_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-111: Ajan-Borsası mainnet-guard (gerçek-keccak) → RFC-010"
+  bash tests/at113_veridict_settlement_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-113: Veridict-settlement (3-yol-reconciliation-gate) → RFC-010"
+  bash tests/at112_syntropion_license_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-112: 18-Syntropion license-key (HMAC-SHA256, attribution→authorization)"
+  bash tests/at114_yieldix_breaker_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-114: 19-Yieldix circuit-breaker (Teorem-3-izolasyon) → RFC-010"
+  bash tests/at115_unpump_finalize_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-115: 02-Unpump finalize_bind (D5-kapsama-üretim-fix) → RFC-010"
+  bash tests/at116_pactiva_contract_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-116a: 03-Pactiva üçlü-sözleşme (4857-İSK) → RFC-010"
+  bash tests/at116_pactiva_webhook_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-116b: 03-Pactiva webhook-HMAC (sabit-zamanlı) → RFC-010"
+  bash tests/at117_roboseal_rfc9421_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-117: ROBOSEAL RFC-9421/RFC-8032 imza-çekirdeği → RFC-010"
+  bash tests/at118_yieldix_hasher_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-118: 19-Yieldix hasher (Decimal+TR-UTF8-koruması) → RFC-010"
+  bash tests/at119_dumen_filters_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-119: 13-Dümen filters politika-yüzü (enjeksiyon+PII) → RFC-010"
 
   rm -rf "$SB"
   echo ""
@@ -554,15 +580,3 @@ PY
   [ "$FAIL" = "0" ]
 } 2>&1 | tee -a "$LOG"
 exit ${PIPESTATUS[0]}
-  bash tests/at108_veridrome_w3cvc_dikisi.sh > /dev/null 2>&1
-  kontrol $? "AT-108: 73-Veridrome W3C-VC (Ed25519+CT-log) → RFC-010"
-  bash tests/at109_pacta_vault_dikisi.sh > /dev/null 2>&1
-  kontrol $? "AT-109: Pacta-escrow-vault (EIP-1559-keccak) → RFC-010"
-  bash tests/at110_pqhaven_teori_canli_uyumluluk.sh > /dev/null 2>&1
-  kontrol $? "AT-110: PQHaven teori↔canlı uyumluluk (AT-076-düzeltme) → RFC-010"
-  bash tests/at111_aborsa_mainnet_guard_dikisi.sh > /dev/null 2>&1
-  kontrol $? "AT-111: Ajan-Borsası mainnet-guard (gerçek-keccak) → RFC-010"
-  bash tests/at113_veridict_settlement_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-113: Veridict-settlement (3-yol-reconciliation-gate) → RFC-010"
-  bash tests/at112_syntropion_license_dikisi.sh > /dev/null 2>&1
-  kontrol $? "AT-112: 18-Syntropion license-key (HMAC-SHA256, attribution→authorization)"

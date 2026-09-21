@@ -128,9 +128,9 @@ bad_pair = finalize_bind(build_bind_skeleton(
     delivery_hash_hex=DH, amount=0.01, seq_hint=43),
     {"seq": 43, "ts": 1790018000, "hash": "d" * 64, "prev_hash": "b" * 64},
     payload=dict(skel["charge"]), ev_dir=tempfile.mkdtemp())
-bad = json.loads(json.dumps(bad_pair["claim"]))
-bad["settlementRef"] = "UNPUMP-HATALI-999"   # charge'daki-ile-uyumsuz
-rb = SB.verify(bad_pair["charge"], bad)
+bad = json.loads(json.dumps(bad_pair["charge"]))
+bad["settlement_bind"]["payment_id"] = "UNPUMP-HATALI-999"  # claim'in-ref'i-ile-uyumsuz
+rb = SB.verify(bad, bad_pair["claim"])
 assert rb["verdict"] == "RED" and rb["reason_code"] == 5, \
     f"rc5-beklendi: {rb}"
 print("  NEG-2 payment_id-uyumsuz → RED rc5 (settlement_ref_mismatch)")

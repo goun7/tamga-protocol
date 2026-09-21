@@ -282,7 +282,10 @@ sonuç-esirgenir, yokluk-sayılmaz — §3-sözleşmesi-aynı-tabloyu-kullanır)
 kanıt-koşuya-bağlıdır-commit'e-değil).
 
 **Test:** AT-059-(5/5)-GREEN-yolu + R9-2/R9-3/R9-4-negatifleri + R9-1/R9-5-
-kayıt-içeriği-makine-kilitli.
+kayıt-içeriği-makine-kilitli. AT-061-(2/2)-ayrıca-TASARIM↔PİLOT-PARİTESİNİ-
+kilitler: RFC-009-§2'nin-donmuş-şekli-ile-gerçek-kayıt-aynı-şekli-öğretir —
+parite-elle-listeyle-değil-ALAN-ÇIKARIMIYLA (her-alanı-çıkarıp-okuma-kapısının-
+RED'lemesini-gözlemleyerek-zorunlu/isteğe-bağlı-türetilir).
 
 ### 8.1 Okuma-kapısı — `ledger-verify`-R9-1..R9-5 (AT-060, 2026-09-21)
 

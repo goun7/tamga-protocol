@@ -23,7 +23,7 @@ fi
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'
-tests/run_all.sh — Tamga Protocol acceptance suite (53 controls; 58 with RUN_SLOW=1 — slow-gated: c30 cross-host wall + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-tam-modül + AT-032 agent-rebuild)
+tests/run_all.sh — Tamga Protocol acceptance suite (81 controls; 86 with RUN_SLOW=1 — slow-gated: c30 cross-host wall + AT-019 wheel + AT-020 self-pilot + AT-026 wheel-tam-modül + AT-032 agent-rebuild)
 
 usage: bash tests/run_all.sh            # fast suite (~20 s)
        RUN_SLOW=1 bash tests/run_all.sh # + c30 cross-host control (needs local simnet fixtures)
@@ -372,6 +372,10 @@ PY
   # ---- kontrol-73: AT-049 emitter-doğrulama (yanlış-emitter-sınıfı-kilidi) ----
   bash tests/at049_emitter_verify.sh > /dev/null 2>&1
   kontrol $? "AT-049: op-emitter'ları-koddan-kanıtlandı + gürültü-filtresi"
+
+  # ---- kontrol-85: AT-061 tasarım↔pilot-şekil-paritesi (donmuş-şekil-yazıcıyla-aynı) ----
+  bash tests/at061_design_pilot_shape_parity.sh > /dev/null 2>&1
+  kontrol $? "AT-061: donmuş-F1-şekli ↔ gerçek-anchor-kaydı (çıkarımla)"
 
   # ---- kontrol-84: AT-060 RFC-009 anchor-okuma-kapısı (yazma-yolu-yetmez) ----
   bash tests/at060_anchor_read_gate.sh > /dev/null 2>&1

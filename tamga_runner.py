@@ -53,7 +53,8 @@ USAGE_HINT = {"run": "tamga run <pkg> --seed <hex>", "quickstart": "tamga quicks
                "verify-cr": "tamga verify-cr <doc.json> [--expect sha256:...]",
                "anchor": "tamga anchor <pkg> --foreign-registry <name> "
                          "--foreign-fact <0x+64> --foreign-digest <0x+64> "
-                         "--verified-at <RFC3339Z> [--tool <string>]"}
+                         "--verified-at <RFC3339Z> [--tool <string>] "
+                         "[--foreign-source <url>]"}
 
 def usage_guard(cmd, a):
     """None = geç; int = kullanım-hatası rc'si (message-RED, traceback YOK)."""
@@ -1297,7 +1298,7 @@ engine-free commands (run right after pip install; no wasmtime download needed):
                                   RECORD ONLY, does not verify the fact (presentation-only).
                                   flags: --foreign-registry <name> --foreign-fact <0x+64>
                                          --foreign-digest <0x+64> --verified-at <RFC3339Z>
-                                         [--tool <string>]
+                                         [--tool <string>] [--foreign-source <url>]
 
 engine commands (first 'run' auto-downloads the SHA256-pinned wasmtime; repo clones: tests/setup.sh):
   keygen                          generate an ed25519 agent seed (printed once, never stored)
@@ -1392,7 +1393,8 @@ def cmd_anchor(a):
     ayrı-adımdır (verifier_epoque/epoch-verify); bu-komut-onun-çıktısını-cite-eder.
     """
     usage = ("usage: anchor <pkg> --foreign-registry <name> --foreign-fact <0x+64> "
-             "--foreign-digest <0x+64> --verified-at <RFC3339Z> [--tool <string>]")
+             "--foreign-digest <0x+64> --verified-at <RFC3339Z> "
+             "[--tool <string>] [--foreign-source <url>]")
     if len(a) < 9:
         return out(False, op="anchor", reason_code=1, reason=usage)
     pkg = pathlib.Path(a[0])
@@ -1415,6 +1417,11 @@ def cmd_anchor(a):
            "verified_at": kv["--verified-at"],                   # R9-4
            "tool": kv.get("--tool", "external-verifier (unspecified)"),
            "presentation_only": True}                            # R9-5
+    # foreign_source (RFC-009-§2'de-donmuş-alan; AT-061-parite-testi-için-yazılabilir).
+    # İSTEĞE-BAĞLI-additive: zorunlu-değil — registry'nin-kanıt-URL'i; verifier
+    # kökü-yeniden-hesaplamaz (R9-5), bu-yüzden-bulgu-notu-olup-kanıt-gerekmez.
+    if "--foreign-source" in kv and kv["--foreign-source"]:
+        rec["foreign_source"] = kv["--foreign-source"]
     viol = _anchor_violation(rec)
     if viol:
         key, msg = viol
@@ -1432,7 +1439,9 @@ def cmd_anchor(a):
                             "foreign_digest": rec["foreign_digest"],
                             "verified_at": rec["verified_at"],
                             "tool": rec["tool"],
-                            "presentation_only": True})
+                            "presentation_only": True,
+                            **({"foreign_source": rec["foreign_source"]}
+                               if "foreign_source" in rec else {})})
     if isinstance(r, int):          # out(False,…)-int-döndü
         return r
     return out(True, op="anchor", ledger=str(lp), seq=r.get("seq"),

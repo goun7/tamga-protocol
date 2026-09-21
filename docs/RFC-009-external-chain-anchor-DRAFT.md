@@ -29,10 +29,20 @@ verifier'ın-iddiası-OLMAZ (sunum-paritesi; kök-yeniden-hesap-origin-registry'
  "foreign_registry": "apodix/epoch",
  "foreign_fact": "0x0236…36e2",        // cite-edilen-fact (merkle-leaf; 0x+64-lowercase)
  "foreign_digest": "0xabab…abab",      // registry'nin-own-digest'i (sunum-paritesi)
- "foreign_source": "https://…/v1/anchors/proof/0x0236…",
+ "foreign_source": "https://…/v1/anchors/proof/0x0236…",  // İSTEĞE-BAĞLI (audit-URL'si)
  "verified_at": "2026-09-10T07:32:08Z", // iki-alanlı-iddia: İDDİA-GÜNÜDÜR, süreklilik-DEĞİL
- "tool": "verifier_epoque.py + tamga_keccak (dual-impl)"}
+ "tool": "verifier_epoque.py + tamga_keccak (dual-impl)",
+ "presentation_only": true}             // R9-5-makine-hali: doğrulama-iddiamız-DEĞİL
 ```
+
+**Pilot-sonrası-şekil-düzeltmesi (AT-061, 2026-09-21):** pilot-açılınca-iki-uyumsuzluk
+ortaya-çıktı — (a) `foreign_source`-donmuş-şekilde-olmasına-rağmen-yazılamıyordu (artık
+isteğe-bağlı-`--foreign-source`-bayrağıyla-yazılır); (b) `presentation_only`-yazılıyordu-AMA
+donmuş-tasarım-vector'ünde-yoktu — tasarımın-öğrettiği-şekil-okuma-kapısı-tarafından
+RED'leniyordu. İkisi-de-düzeltildi-ve-AT-061-ile-MAKİNE'ye-kilitlendi: tasarım-ve-yazıcı
+artık-aynı-şekli-öğretir; parite-elle-listeyle-değil-ALAN-ÇIKARIMIYLA-ölçülür (her-alanı
+sırayla-çıkarıp-okuma-kapısının-RED'lemesini-gözlemleyerek-zorunlu/isteğe-bağlı-türetilir —
+AT-047'nin-SPEC_OPS-dersi-gibi-sabit-liste-kirlenmesine-yer-vermez).
 
 **D5-uyumu (bugün-kanıtla-sabit):** `h = sha256(prev ‖ jcs(record − {h, node_sig}))` —
 op-alanı-fark-etmez; anchor-kaydı-zincir-hash'ine-HER-kayıt-gibi-girer

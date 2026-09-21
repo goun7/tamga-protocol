@@ -31,10 +31,21 @@ verifier's claim (presentation parity; root recomputation is the origin registry
  "foreign_registry": "apodix/epoch",
  "foreign_fact": "0x0236…36e2",        // cite-edilen-fact (merkle-leaf; 0x+64-lowercase)
  "foreign_digest": "0xabab…abab",      // registry'nin-own-digest'i (sunum-paritesi)
- "foreign_source": "https://…/v1/anchors/proof/0x0236…",
+ "foreign_source": "https://…/v1/anchors/proof/0x0236…",  // OPTIONAL (audit URL)
  "verified_at": "2026-09-10T07:32:08Z", // iki-alanlı-iddia: İDDİA-GÜNÜDÜR, süreklilik-DEĞİL
- "tool": "verifier_epoque.py + tamga_keccak (dual-impl)"}
+ "tool": "verifier_epoque.py + tamga_keccak (dual-impl)",
+ "presentation_only": true}             // R9-5 machine form: NOT our verification claim
 ```
+
+**Post-pilot shape correction (AT-061, 2026-09-21):** when the pilot opened, two
+divergences surfaced — (a) `foreign_source` was in the frozen shape but could not be
+written (now writable via the optional `--foreign-source` flag); (b) `presentation_only`
+was written but absent from the frozen design vector — i.e. the shape the design taught
+was being RED'ed by the read gate. Both were fixed and machine-locked by AT-061: the
+design and the writer now teach the same shape; parity is measured not with a hand list
+but by FIELD SUBTRACTION (removing each field in turn and observing whether the read gate
+RED's it — deriving required/optional, so no stale constant list, the AT-047 SPEC_OPS
+lesson).
 
 **D5 compliance (proven by evidence today):** `h = sha256(prev ‖ jcs(record − {h, node_sig}))` —
 the op field makes no difference; an anchor record enters the chain hash LIKE EVERY record

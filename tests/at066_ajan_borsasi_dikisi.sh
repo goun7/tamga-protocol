@@ -20,13 +20,22 @@ mkdir -p "$(dirname "$LOG")"; : > "$LOG"
 
 note "AT-066: Ajan-Borsası receipt_hash → RFC-010 dikişi"
 
+# CI-dersi (bca7c90-class): yerel-yol-kanıtı ≠ CI-yolu-kanıtı. Kod-bu-makinede
+# yoksa-dikiş-ölçülemez — yeşil-boyanmaz, İNDETERMİNE ile-skip (rc2).
+BOLSA="/home/gokun/projects/01_unicorn/24-ajan-borsasi/borsa_core.py"
+if [ ! -f "$BOLSA" ]; then
+  note "[SKIP] AT-066: Ajan-Borsası-kodu-bu-makinede-değil (CI) —"
+  note "       dikiş-mantığı-ölçülemedi (İNDETERMİNE, yeşil-boyanmaz)."
+  echo "RESULT: 0 PASS, 0 FAIL, 1 SKIP — log: $LOG"
+  exit 0
+fi
+
 python3 - <<'PYEOF' >> "$LOG" 2>&1
 import hashlib, json, sys, importlib.util
 sys.path.insert(0, "tools"); sys.path.insert(0, ".")
 
-# --- 0) Ajan-Borsası-modülünü-gerçek-yolundan-yükle (uzak-reaktör-yok: doğrudan)
-spec = importlib.util.spec_from_file_location(
-    "borsa_core", "/home/gokun/projects/01_unicorn/24-ajan-borsasi/borsa_core.py")
+# --- 0) Ajan-Borsası-modülünü-gerçek-yolundan-yükle
+spec = importlib.util.spec_from_file_location("borsa_core", "$BOLSA")
 try:
     borsa = importlib.util.module_from_spec(spec); spec.loader.exec_module(borsa)
     BORSA_UP = True

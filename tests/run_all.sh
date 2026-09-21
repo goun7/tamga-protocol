@@ -465,6 +465,10 @@ PY
   kontrol $? "AT-104: 13-Dümen watch süreklilik (fail-loud + kurtarma) → RFC-010"
   bash tests/at105_sester_policy_signed_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-105: Sester policy-signed (JWS-ES256 + gevşeme-gate) → RFC-010"
+  bash tests/at107_fleksa_policy_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-107: 21-Fleksa policy-verifier (Ed25519 + fail-closed) → RFC-010"
+  bash tests/at106_tenderix_escrow_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-106: 26-Tenderix escrow+dispute (S6-fail-closed) → RFC-010/011"
   bash tests/at085_sester_batch_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-085: Sester settlement-batch → RFC-010 (evidence_link-derived)"
 
@@ -550,3 +554,7 @@ PY
   [ "$FAIL" = "0" ]
 } 2>&1 | tee -a "$LOG"
 exit ${PIPESTATUS[0]}
+  bash tests/at108_veridrome_w3cvc_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-108: 73-Veridrome W3C-VC (Ed25519+CT-log) → RFC-010"
+  bash tests/at109_pacta_vault_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-109: Pacta-escrow-vault (EIP-1559-keccak) → RFC-010"

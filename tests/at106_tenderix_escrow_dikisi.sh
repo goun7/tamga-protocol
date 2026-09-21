@@ -218,17 +218,21 @@ assert r11n["verdict"] == "GREEN" and r11n["reason_code"] == 0, \
     f"status:none → GREEN-rc0-beklendi: {r11n}"
 print("  status:none (itiraz-yok) → RFC-011-GREEN-rc0 (protokol-bağımsız)")
 
-# --- 10) RFC-011-negatifleri: bond<%20 → RED-rc10; contradiction+yok → rc12
+# --- 10) RFC-011-negatifleri: rc9 (arbitration-yok) / rc10 (bond<%20)
+CC = {"buyer_signed": True, "delivered": False, "sig": "0x" + "11"*65}
+TH = "c" * 64   # terms_hash 64-hex
 charge11b = dict(charge)
 charge11b["dispute_pointer"] = {
-    "status": "open", "arbitration": {"protocol": "tenderix/v1", "bond_pct": 0.10}}
+    "status": "contradiction", "counter_claim": CC,
+    "arbitration": {"protocol": "tenderix/v1", "terms_hash": TH, "bond_pct": 0.10}}
 r11b = DP.verify(charge11b)
 assert r11b["reason_code"] == 10, f"bond<%20 → rc10-beklendi: {r11b}"
 charge11c = dict(charge)
-charge11c["dispute_pointer"] = {"status": "contradiction"}
+charge11c["dispute_pointer"] = {
+    "status": "contradiction", "counter_claim": CC}
 r11c = DP.verify(charge11c)
-assert r11c["reason_code"] == 12, f"contradiction+yok → rc12-beklendi: {r11c}"
-print("  RFC-011-negatifleri: bond<0.20→rc10 | contradiction+yok→rc12")
+assert r11c["reason_code"] == 9, f"arbitration-yok → rc9-beklendi: {r11c}"
+print("  RFC-011-negatifleri: contradiction+arbitration-yok→rc9 | bond<0.20→rc10")
 
 # --- 11) İKİ-YÜZ-BİRLEŞİMİ: AT-071 (imzalı-teklif) × AT-106 (emanet-çözümü)
 # AT-071-imzalı-CSVO-teklifinin-ödemesi-ancak-emanet-SETTLED-olduğunda-serbest

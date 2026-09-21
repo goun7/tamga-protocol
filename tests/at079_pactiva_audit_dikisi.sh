@@ -112,16 +112,19 @@ assert r["checks"].get("6_foreign_chain") is True, "§6-kanıt-geçmedi"
 print("  gerçek-audit-head → erc8004/v1-GREEN (§6-tamga-zinciriyle)")
 print("    evidence_link='equals': head-delivery_hash'e-içerikten-bağlı")
 
-# --- 4) chain-alanı-kısıtının-gerçek-ölçümü: "pactiva"-scheme-listesinde-YOK
+# --- 4) chain-alanı-kısıtının-gerçek-ölçümü: bilinmeyen-chain-RED-rc8
 # Üçüncü-seçenek-yasak: bilinmeyen-chain-RED-değil-İNDETERMİNE-de-olmamalı-
 # olduğu-için-_foreign_chain_ok-False-döner-ve-RED-rc8-verir (kanıtlı-çürüklük).
+# NOT (AT-079-düzeltme): whitelist-additive-olarak-büyür ( AT-107-fleksa, AT-090-
+# sester, AT-106-tenderix, pactiva-kendisi-EKLENDİ). Bu-yüzden-sabit-bir-isim-
+# değil-kesinlikle-whitelist-dışı-bir-DEĞER-kullanılır.
 charge_x = json.loads(json.dumps(charge))
-charge_x["foreign_chain_proof"]["chain"] = "pactiva"
+charge_x["foreign_chain_proof"]["chain"] = "chain-yok-boyle-bir-zincir"
 rx = SB.verify(charge_x, claim)
 assert rx["verdict"] == "RED" and rx["reason_code"] == 8, \
     f"bilinmeyen-chain-RED-rc8-beklendi: {rx}"
-print("  chain='pactiva'-kısıt-dışı → RED rc8 (foreign_chain_broken)")
-print("    (kısıt-gerçek: whitelist-swarmax/dumen/pqhaven/tamga — yerel-için-tamga)")
+print("  chain='chain-yok-boyle-bir-zincir'-kısıt-dışı → RED rc8 (foreign_chain_broken)")
+print("    (kısıt-gerçek: whitelist-additive-büyür — bilinmeyen-DEĞER-hâlâ-RED)")
 
 # --- 5) NEGATİF-1: sahte-head (defter-dışı) → RED rc8
 # AT-079-BULGUSU: evidence_link-YOKKEN-sahte-head-GREEN-geçiyordu (biçim-yeterliydi);

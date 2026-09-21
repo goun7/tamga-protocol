@@ -33,7 +33,13 @@ def _foreign_chain_ok(proof: dict, payer: str, receipt_hex: str, scheme: str) ->
     chain = proof.get("chain")
     head = proof.get("head_hex")
     n = proof.get("entries")
-    if chain not in ("swarmax", "dumen", "pqhaven", "tamga"):
+    if chain not in ("swarmax", "dumen", "pqhaven", "tamga",
+                     "fleksa",  # AT-107: Fleksa-policy-head'leri-artık-kendi-adında
+                                # (önceden-"tamga"-adı-altında-gidiyordu; her-zincir-
+                                # kendi-kanıt-adında-sunulabilmeli)
+                     "sester",  # AT-090/085/105: üretim-ledgerı/policy-vault'u
+                     "veridict", "pacta", "pactiva", "yieldix", "syntropion",
+                     "tenderix"):
         return False
     if not isinstance(head, str) or len(head) != 64:
         return False

@@ -39,6 +39,17 @@ def _foreign_chain_ok(proof: dict, payer: str, receipt_hex: str, scheme: str) ->
         return False
     if not isinstance(n, int) or n < 1:
         return False
+    # --- additive-evidence_link (AT-079): içerik-bağlantısı-zorla
+    # Eski-kod-yalnızca-BİÇİM-ölçtü-herhangi-64-hex-geçerliydi (sahte-head-
+    # GREEN-geçiyordu — §6-borcunun-kalan-yüzü). link-eksik→eski-davranış:
+    link = proof.get("evidence_link")
+    if link == "equals":
+        if head.lower() != receipt_hex.lower():
+            return False
+    elif link == "derived":
+        if head.lower() != hashlib.sha256(
+                bytes.fromhex(receipt_hex)).hexdigest().lower():
+            return False
     # head-alanı-receiptHash'e-BAĞLI-değil (farklı-zincirlerin-farklı-kökleri
     # olabilir); ama-boş-head-RED (boş-kök-sahte-zincir-işaretidir)
     return True

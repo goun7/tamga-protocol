@@ -402,6 +402,16 @@ PY
   bash tests/at075_unpump_gercek_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-075: Unpump-gerçek-6/6 + ecrecover-stub-gizli-boşluk"
 
+  # ---- kontrol-97..100: AT-076..079 C-sınıfı-kalan-dördü-dikişleri ----
+  bash tests/at076_pqhaven_teori_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-076: 80-PQHaven-teorisi CBOM+Merkle → RFC-010"
+  bash tests/at077_yieldix_ed25519_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-077: 99-Yieldix gerçek-Ed25519 → RFC-010 (tamga/native-boşluk)"
+  bash tests/at078_syntropion_escrow_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-078: 18-Syntropion FSEK-escrow → RFC-010 (gerçek-ecrecover)"
+  bash tests/at079_pactiva_audit_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-079: 22-37-Pactiva audit-ledger → RFC-010/011 (evidence_link)"
+
   bash tests/at074_roboseal_catisma.sh > /dev/null 2>&1
   kontrol $? "AT-074: ROBOSEAL-itibar-çatışması (K0 + D-014)"
 

@@ -428,6 +428,10 @@ PY
   bash tests/at081_unpump_x_bind_signature.sh > /dev/null 2>&1
   kontrol $? "AT-081: Unpump bağ-anahtarı → gerçek-müşteri-imzası (D5-kapsama)"
 
+  # ---- kontrol-105b: AT-082 00-gateway-pilot-Sepolia-anchor (teammate) ----
+  bash tests/at082_gateway_pilot_sepolia_anchor.sh > /dev/null 2>&1
+  kontrol $? "AT-082: 00-gateway 6-x402-pilot → Sepolia anchor (R9-1..5)"
+
   # ---- kontrol-105..107: AT-087/088/089 C-sınıfı-ikinci-yüzler (teammate) ----
   bash tests/at087_pactiva_arbitration_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-087: 22-37-Pactiva arbitration → RFC-011 (pactiva/v1-additive)"

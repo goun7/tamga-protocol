@@ -445,6 +445,12 @@ PY
   kontrol $? "AT-094: 22-37-Pactiva peer-attestation → RFC-010/011"
   bash tests/at095_k0_kalan_adaylar.sh > /dev/null 2>&1
   kontrol $? "AT-095: K0-kalan-3-aday (DepositLock/Zaman/N-imza — DÜZ/İKİLİ)"
+  bash tests/at096_syntropion_api_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-096: 18-Syntropion API/cli FSEK-yüzü → RFC-010"
+  bash tests/at097_yieldix_server_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-097: 99-Yieldix server gerçek-HTTP-endpoint → RFC-010"
+  bash tests/at098_gateway_analitik_gunluk.sh > /dev/null 2>&1
+  kontrol $? "AT-098: gateway üçüncü-yüz analitik + K5-günlük"
   bash tests/at085_sester_batch_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-085: Sester settlement-batch → RFC-010 (evidence_link-derived)"
 

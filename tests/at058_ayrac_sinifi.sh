@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 # AT-058: AYRAÇ-SINIFI-ÖRTÜŞME-DENETİMİ — Kural-7.2'nin-makine-hali.
 #
-# Bu-turun-ölçülen-bulgusu: Sester'ın-ayracı-'INSERT INTO events'-(SQL-metni),
-# Tamga'nınki-'fdopen/O_APPEND/O_TRUNC'-(dosya-deyimi). **Ayraçlar-HİÇ-örtüşmez.**
+# ÖLÇÜLEN-BULGU: Sester'ın-ayraç-sınıfı-SQL-yazım-deyimleri ('INSERT INTO'-
+# TÜM-tablolar + 'copy_from'), Tamga'nınki-dosya-deyimleri ('fdopen/O_APPEND/
+# O_TRUNC'). **Ayraç-sınıfları-HİÇ-örtüşmüyor.**
+#
+# LEAD-DOĞRULAMASIYLA-DÜZELTME (2026-09-21): ilk-halimiz-Sester'ın-ayracını-dar
+# 'INSERT INTO events'-olarak-tanımlıyordu — STALE-çıktı (lead: tarama-artık-
+# 'INSERT INTO'-TÜM-tablolar + 4-gizli-bölge-NON_GATES'te-beyanlı-claim_nonce-×2,
+# insert_nonce, EscalationQueue.park; anchors-events'e-yazmıyor, bridges.py-
+# alıcı-tarafı-yalnız-zarf-üretir). Dar-pattern-'sql-copy'yi-yanlışça-blind-spot
+# sanıyordu. Genişletildi-ve-ölçüm-artık-geçerli — SONUÇ-aynı (ortak-YOK),-ama
+# doğru-yöntemle. Üçüncü-seçenek-her-tarafta-sağlanıyor.
 #
 # Kural-7.2 (K0-rule-8): bir-ürünün-iç-denetimi-yeşilken-çapraz-ürün-soru-
 # disiplini-devam-etmeli. Bu-test-o-disiplinin-makine-halidir: bilinen-yazım-
@@ -70,13 +79,16 @@ PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then PASS=$((PASS+1)); note "  PASS 4) blind-spot-listesi"; else FAIL=$((FAIL+1)); note "  FAIL 4)"; cat "$LOG"; fi
 
-# 5) NEGATİF-KONTROL: ayraçlar-yanlış-eşleşmiyor
-note "5) negatif-kontrol — yorum/masum-satır-yakalanmıyor"
+# 5) NEGATİF-KONTROL: ayraçlar-yanlış-eşleşmiyor (örnek-gerçekten-masun-olmalı:
+# hiçbir-ayracın-literal'ini-taşımayan-satırlar; 'and False' ölü-kodu-kaldırıldı)
+note "5) negatif-kontrol — masum-satır-yakalanmıyor"
 python3 - <<PYEOF >> "$LOG" 2>&1
 import sys; sys.path.insert(0, "tools")
 import ayrac_sinifi_denetle as AD
-for masum in ("# INSERT INTO events — yorum", "print('O_APPEND sözcüğü')", "x = 'fdopen'"):
-    assert not (AD.yakalar(AD.SESTER_PAT, masum) and False), "masum-yakalandı"
+# masun: ne-SQL-yazım-literal'i-ne-dosya-deyimi-taşır
+for masum in ("x = 1 + 2", "print('merhaba')", "# yorum-satiri", "y = deger"):
+    assert not AD.yakalar(AD.SESTER_PAT, masum), f"masun-SQL'e-yakalandi: {masum}"
+    assert not AD.yakalar(AD.TAMGA_PAT, masum), f"masun-Tamga'ya-yakalandi: {masum}"
 print("  masum-satırlar-yakalanmıyor")
 PYEOF
 RC=$?

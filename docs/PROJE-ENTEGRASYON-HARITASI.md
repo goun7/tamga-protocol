@@ -76,26 +76,44 @@ arasında. Entegrasyon-için **arayüz-sözleşmesi-olarak**-değerliler:
 | **holistis/tokenizen PR#7** | D-017 attribution-not-truth | okundu, cevap-bekleniyor |
 | **in-toto#592** | — | **MERGED** |
 
-## 5. Topolojik-gerçek (dürüst)
+## 5. Topolojik-gerçek (dürüst) — 00_TAMGA-MESH-kuruldu 2026-09-21
+
+**ESKİ-DURUM (§5-v1):** üç-ayrı-oturum, aralarında-ağ-YOK, insan-relay.
+**YENİ-DURUM:** `~/projects/00_TAMGA-MESH/` — **14 symlink, hepsi-canlı,
+sıfır-kırık** (her-repo-kendi-git'ini-korur; taşıma-yok):
 
 ```
-                    ┌─────────────────────────────────┐
-                    │   SEN (tek-ajan-workspace)       │
-                    │   subagent'larla-iletişim-yükü   │
-                    └──────────────┬──────────────────┘
-                                   │ (send_message: AYNI-oturum-da-çalışır)
-        ┌──────────────────────────┼──────────────────────────┐
-        │                          │                          │
-   Tamga-oturum             Sester-oturum              Veridict-oturum
-   (bu-lead)               (ayrı)                     (ayrı)
-        │                          │                          │
-        └────── DOSYA + İNSAN-RELAY + İSSUE'LAR ──────────────┘
-                    (gerçek-kanal-bu-üçü)
-```
+                     ┌─────────────────────────────────┐
+                     │   00_TAMGA-MESH/ (TEK-BAŞLIK)    │
+                     │   14-symlink — ortak-görünüm     │
+                     └──────────────┬──────────────────┘
+                                    │ tek-oturum-cwd = MESH-kökü
+         ┌──────────────────────────┼──────────────────────────┐
+         │                          │                          │
+    Tamga-çekirdek             Diğer-13-proje            Subagent'lar
+    (95/95-AT-kilidi)          (hepsi-aynı-ağaçta)      (hepsini-görür)
+         │                          │                          │
+         └──── DOSYA + İNSAN-RELAY + İSSUE'LAR ──────────────┘
+                     (hâlâ-gerçek-kanal-bu-üçü)
+``````
 
-**Kanıt:** `list_agents` → lead-only. Sester'ın-`tamga-resume`-hedefi-bu-oturumda-
-yok (`.dsh-live/`-altında-iz-sıfır; string-yalnız-pano-geçmişinde). **Üç-oturum
-arasında-ağ-yok** — iletişim-insan-relay + dosya + x402-issue'ları-üzerinden.
+**MESH-liste (14):** tamga · veridict · sester · unpump · pqhaven ·
+ajan-borsasi · gateway · swarmax · dumen · fleksa · tenderix · veridrome ·
+pacta · roboseal — hepsi `readlink -f`-ile-çözülür.
+
+**Değişmeyen-dürüst-sınır:** symlink **ağ-değildir**. `send_message`/
+`spawn_teammate` hâlâ-aynı-oturum-içinde-çalışır (DSH-sınırı); 14-repo-birlikte-
+görünür-ama-birbiriyle-konuşmaz. **Gerçek-kanal-hâlâ: dosya + insan-relay +
+issue'lar.** MESH'in-kazandırdığı: *tek-cwd'den-hepsini-okumak* — subagent'ın
+proje-keşfinin-maliyeti-sıfıra-iner; iletişim-değil.
+
+## 5b. Kırık-link-dersi (2026-09-21)
+
+İlk-symlink-listem `01_unicorn/23_unpump`-yazmıştı — **yanlış-yol**. Gerçek-yol:
+`Yeni-Fikirler/oncu_fikirler_havuzu_2026/23_Unpump_Cash_...`. `ln -s`-"Dosya-var"
+dedi (yanlış-link-zaten-kuruluydu), `rm`-de-kabuk-cwd-çağrılar-arası-sıfırlandığı
+için-başarısız-oldu. **Ders:** (1) her-linki-hemen-`ls`-ile-doğrula;
+(2) kabuk-cwd-korunmaz — **mutlak-yol-kullan**.
 
 ## 6. §6-borcu-KAPANDI (AT-069)
 

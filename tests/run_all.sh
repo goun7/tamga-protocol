@@ -564,3 +564,5 @@ exit ${PIPESTATUS[0]}
   kontrol $? "AT-111: Ajan-Borsası mainnet-guard (gerçek-keccak) → RFC-010"
   bash tests/at113_veridict_settlement_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-113: Veridict-settlement (3-yol-reconciliation-gate) → RFC-010"
+  bash tests/at112_syntropion_license_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-112: 18-Syntropion license-key (HMAC-SHA256, attribution→authorization)"

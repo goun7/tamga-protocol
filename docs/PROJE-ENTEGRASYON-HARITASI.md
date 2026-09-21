@@ -164,3 +164,21 @@ ortak-cwd-ise-doğrudan-import'u. İşte-asıl-kanal-bu.
 (2) yazma-kapsamları-ayrı (çakışma-yok); (3) Lead-tek-yazma-noktası-olarak-run_all.sh
 + TESTS.md + gate-kaynaklarını-yönetir (aynı-anda-4-kişinin-edits-birleştirmez);
 (4) iletişim-hem-görev-tahtasında-hem-de-send_message-ile.
+
+## 7d. Takım-sonuçları — 4/5-tamamlandı (106/106-PASS, commit e219a1a)
+
+| Teammate | AT | Bağımsız-teyit | Asıl-kanıt |
+|---|---|---|---|
+| borsa-pacta | **AT-080** | 6/6 + receipt_hash-yeniden-hesaplandı (birebir) | Stock-ecrecover, double-YOK; AT-066'nın-lambda-double'ı-kapatıldı. NEG: sahte-rc7, party-swap-rc6 |
+| borsa-pacta | **AT-084** | 6/6 + Schelling-birebir-yeniden-üretildi | RFC-011-§4-SONRA(a)-borcu-ödendi. ANA-İLKE: aynı-kayıt-GREEN+İNDETERMİNE-rc12-aynı-anda. EscrowPolicy.bond=0.20-paritesi |
+| unpump-gateway | **AT-081** | 6/6 + D5-kapsama-bağımsız-True | Bağ-anahtarı→gerçek-alıcı (0x2F62…302). D5-False→True, çakışma-düzeldi. **DÜRÜST-NEGATİF:** dıştan-yapışık-dikiş-rc0-geçer (_d5_chain_ok-h'yı-hesaplamaz — tasarım-sınırı); kapsam-bağımsız-ölçüldü |
+| roboseal-k0 | **AT-083** | 6/6 + reputation.py:136-okundu | EigenTrust-transitif (delta=0.1561); soğuk-başlangıç→QUARANTINED. **4/4-ağırlıksız-aday-K0-uyumlu → çözüm-uzayı-boş-değil**. ROBOSEAL-İNDETERMİNE (seçimde-ihlal-olanakta-değil) |
+| c-derin | **AT-087** | 6/6 + pactiva/v1-additive-Lead-tarafından | 5/7-çoğunluğa-rağmen-sqrt($400)-azınlık→0.30-split_settled (gerçek-oyun-teorisi). slash_rate=0.30>MIN_BOND_PCT (modül-daha-sert) |
+| c-derin | **AT-088** | 6/6 | 40-lead→KPI→imzalı-SLA-raporu; nacl↔cryptography-paritesi-aynı-seed'le |
+| c-derin | **AT-089** | 6/6 | FSEK-%20-eşitliği: router-EXPERT(0.20)==vesting-Tier-2(20.00); sızıntı-yok |
+
+**Lead'in-additive-değişiklikleri (tek-yazma-noktası-disiplini):**
+1. `dispute_pointer_verify.SUPPORTED_PROTOCOLS + "pactiva/v1"` (AT-087'nin-isteği —
+   Pactiva'nın-7-üyeli-Schelling'i-kendi-adıyla; rc11→rc12, üçüncü-seçenek-yasak-korunarak)
+
+**Bekleyen:** task-3/AT-082 (00-gateway-pilot-trafiği — unpump-gateway-üzerinde).

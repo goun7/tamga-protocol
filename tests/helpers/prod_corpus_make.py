@@ -31,9 +31,12 @@ RECORDS = [
      "engine": "wasmtime-v48.0.1", "cpu_saat": 0.01, "ram_gb_sn": 0.05,
      "io_mb": 0.0, "wall_ms": 12, "fee_birebir": "0",
      "stdout_sha256": "0" * 64, "reason": "at057-uretim-corpus-kaniti"},
-    {"op": "grant", "pkg": "at057-prodrun", "session": 1,
-     "to": "at057-identity", "amount": "1", "unit": "deneme",
-     "reason": "at057-uretim-corpus-kaniti"},
+    # grant: GERÇEK-cmd_grant-şekli {pkg, amount(float), note} — RFC-003-common-fields.
+    # AT-062-öncesi-yan-bulgu: burada-string-amount-ve-uydurma-to/unit-alanları-vardı;
+    # gerçek-bir-üretim-koşusunun-şekli-değildi — AT-057'nin-üretim-kanıtı-gerçekçi-
+    # olmalı. cmd_grant-amount'u-float-yazar; AT-062-okuma-kapısı-sayısal-zorunlu.
+    {"op": "grant", "pkg": "at057-prodrun", "amount": 1.0,
+     "note": "at057-uretim-corpus-kaniti"},
     {"op": "migrate-net", "pkg": "at057-prodrun", "session": 1,
      "from": "old-node", "to": "new-node",
      "reason": "at057-uretim-corpus-kaniti"},

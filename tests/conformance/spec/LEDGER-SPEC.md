@@ -319,3 +319,29 @@ uymuyorsa-RED'dir — bu-iki-farklı-sözleşme, aynı-tablo-değil.
 
 **Test:** AT-060-(7/7) — GREEN-yolu + her-R9-sınıfı-taze-pakette-tek-ihlal +
 `cmd_anchor`-regresyonu (refactor-yazma-yolunu-bozmaz).
+
+## 9. Grant-shape-contract — okuma-kapısı (AT-062, 2026-09-21)
+
+**AT-060'ın-deseni-diğer-şema-yüzeylerine-yayılır.** `cmd_grant`-yazma-yolunda
+üç-shape-kuralı-doğruluyordu — ama-okuma-yolunda-grant-için-HİÇBİR-kapı-yoktu.
+**Kanıtlandı:** `amount:"not-a-number"`-içeren-bir-grant-hem-zincire-giriyor
+hem-de-`ledger-verify`-GREEN-geçiyordu. D5-hash-byteleri-kilitler, **ANLAMI-değil**
+— metinsel-amount-bir-toplam/λ-eşik-tüketicisini-exception'da-kırar (üç-ürün-tek-öz,
+AT-041-yüzeyi).
+
+**Normatif-kurallar (yazma-ve-okuma-aynı-tek-kaynaktan):**
+
+- **G-1** `amount`-sayısal-olmalıdır (`int`/`float`, **`bool`-DEĞİL** —
+  `float(True)==1.0`-tuzakı). Metinsel/eksik → RED (reason 16, `grant_invalid`).
+- **G-2** `amount ∈ (0, 1e6]`-olmalıdır (Audit-4 F18 policy bound). **Negatif-veya-
+  sıfır-RED** — bir-grant-alıcıdan-değer-çekemez; okuma-kapısı-olmasa-el-yazımı
+  negatif-grant-GREEN-geçip-ekonomik-saldırı-yolu-açardı.
+- **G-3** `note`-yayında-`MAX_NOTE_BYTES`'ı-aşamaz (Audit-2 F12).
+
+**Tek-kaynak:** `_grant_violation`-hem-`cmd_grant`-hem-`ledger-verify`-tarafından
+çağrılır — iki-yelde-elle-kural-drift'e-yer-yok (AT-047-`SPEC_OPS`-dersi).
+`cmd_grant`-CLI-kodları-korunur: `parse_error`→1, `memory_limit`→8; okuma-yolu
+tüm-ihlalleri-tek-shape-gate-kodu-16'ya-haritalar (anchor-ile-aynı-aile).
+
+**Test:** AT-062-(10/10) — GREEN + 7-negatif-sınıf (string/bool/eksik/negatif/
+sıfır/>1e6/dev-note) + `cmd_grant`-regresyonu + negatif/sıfır'ın-CLI'dan-da-RED'i.

@@ -389,6 +389,16 @@ def cmd_ledger_verify(a):
                     return out(False, op="ledger-verify", reason_code=16,
                                broken_at=ln,
                                reason=f"anchor_invalid: {viol[1]}")
+            # RFC-003-grant shape-contract (AT-062 — AT-060'ın-deseni-diğer-şema-
+            # yüzeylerine-yayılır). cmd_grant-yazma-yolunda-amount/note'u-doğruluyordu;
+            # okuma-yolunda-kapı-yoktu → metinsel/negatif-amount-GREEN-geçiyordu.
+            # Aynı-tek-kaynak-_grant_violation: iki-yol-drift-edemez.
+            if rec.get("op") == "grant":
+                gviol = _grant_violation(rec)
+                if gviol:
+                    return out(False, op="ledger-verify", reason_code=16,
+                               broken_at=ln,
+                               reason=f"grant_invalid: {gviol[1]}")
     lines = sum(1 for line in open(lp, "r", encoding="utf-8") if line.strip())
     return out(True, op="ledger-verify", lines=lines, head=tip,
                note="chain tip verified (RFC-003 D7 draft)")
@@ -400,13 +410,14 @@ def cmd_grant(a):
         amount = round(float(a[1]), 9)
     except Exception:
         return out(False, op="grant", reason_code=1, reason="parse_error: amount is not a number")
-    if not (0 < amount <= 1e6):                          # Audit-4 F18 (policy bound, not chain break)
-        return out(False, op="grant", reason_code=1,
-                   reason="parse_error: amount outside (0,1e6]")
     note = a[2] if len(a) > 2 else ""
-    if len(note.encode("utf-8")) > MAX_NOTE_BYTES:      # Audit-2 F12 — grant-a-da-uygula
-        return out(False, op="grant", reason_code=8,
-                   reason=f"memory_limit: note > {MAX_NOTE_BYTES}B")
+    # AT-062: shape-contract-artık-TEK-KAYNAK (_grant_violation) — yazma-ve-okuma
+    # aynı-kuralları-uygular. CLI-kodları-korunur: parse_error→1, memory_limit→8.
+    viol = _grant_violation({"amount": amount, "note": note})
+    if viol:
+        key, msg = viol
+        return out(False, op="grant",
+                   reason_code={"note_size": 8}.get(key, 1), reason=msg)
     mf = pkg / "tamga.json"
     name = json.loads(mf.read_text(encoding="utf-8"))["package"]["name"] if mf.exists() else pkg.name
     try:
@@ -1332,12 +1343,47 @@ exit codes: 0 ok · 1 error/usage (RED receipts carry reason_code 1-19) · 2 İN
 # AT-047'de-yaşadık). Yeni-registry-eklemek-buraya-eklemektir (additive-terfi).
 _ANCHOR_VERSION = "TAMGA_EXTERNAL_ANCHOR_V1"
 _KNOWN_FOREIGN_REGISTRIES = ("apodix/epoch",)
+# grant-policy-sınırı (Audit-4 F18) — cmd_grant-ve-_grant_violation-paylaşılan
+_GRANT_MAX = 1e6
 
 
 def _is_canonical_0x64(v) -> bool:
     """R9-3: kanonik-0x+64-lowercase-hex (x402-#3377-disiplini)."""
     return (isinstance(v, str) and v.startswith("0x") and len(v) == 66
             and v[2:].isascii() and all(c in "0123456789abcdef" for c in v[2:]))
+
+
+def _grant_violation(rec) -> tuple | None:
+    """RFC-003-grant shape-contract — KAYIT-içeriği-üzerinden (AT-062).
+
+    AT-060'ın-anchor-deseninin-grant'a-yayılması: cmd_grant-yazma-yolunda-amount'ı-
+    doğruluyordu (parse_error, (0,1e6]-policy, note-MAX_NOTE_BYTES) — AMA-okuma-
+    yolunda-hiçbir-kapı-yoktu. Kanıtlandı: amount="not-a-number"-içeren-bir-grant
+    hem-zincire-giriyor hem-de-ledger-verify-GREEN-geçiyordu. D5-hash-byteleri-
+    kilitler-ANLAMI-değil — metinsel-amount-bir-toplam/λ-eşik-tüketicisini-
+    exception'da-kırar (üç-ürün-tek-öz-yüzeyi).
+
+    AYNI-tek-kaynak-İLKESİ: cmd_grant-ve-ledger_verify-bu-fonksiyonu-paylaşır,
+    iki-yerde-elle-kural-tutmazlar (AT-047-SPEC_OPS-dersi).
+    Returns (key, message)-veya-None."""
+    amt = rec.get("amount")
+    # JSON-bool'u-rede: float(True)==1.0-dır-ama-bool-bir-sayı-değildir (JSON-boolean)
+    if isinstance(amt, bool) or not isinstance(amt, (int, float)):
+        return ("amount_type",
+                "amount must be numeric (int/float, not bool/str) — "
+                "cmd_grant writes a float; a non-numeric amount breaks every "
+                "total/threshold consumer")
+    if not (0 < amt <= _GRANT_MAX):                            # Audit-4 F18
+        return ("amount_policy",
+                f"amount outside (0,{_GRANT_MAX:g}] — grants are positive, "
+                f"bounded (got {amt!r})")
+    note = rec.get("note", "")
+    if not isinstance(note, str):
+        return ("note_type", "note must be a string when present")
+    if len(note.encode("utf-8")) > MAX_NOTE_BYTES:             # Audit-2 F12
+        return ("note_size",
+                f"memory_limit: note > {MAX_NOTE_BYTES}B")
+    return None
 
 
 def _anchor_violation(rec) -> tuple | None:

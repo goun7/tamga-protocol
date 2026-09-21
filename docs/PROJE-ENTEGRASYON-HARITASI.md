@@ -275,3 +275,25 @@ ağırlıklı-0.6454→0.4892-RED) → AT-092+095-uygulama-AYNI-sayıları-üret
 itibarı-0.01→0.95-çıkınca-öznenin-skoru-0.9929→0.5957. Öznenin-kendi-
 davranışına-dokunmadan-sıralama-oynanabilir = K0'ın-ölüm-nedeni. AT-092/095'in-
 DÜZ/İKİLİ-kontrolleri-bu-nedenle-uyumlu-şekil.
+
+## 7i. Beşinci-dalga — 125/125, darboğazlar-kapandı
+
+| AT | Yüz | Takım | Bulgusu |
+|---|---|---|---|
+| AT-105 | Sester-policy-signed | borsa-pacta | gevşeme-gate'i = RFC-010-policy-gate'i |
+| AT-106 | Tenderix-escrow+dispute | c-derin | S6-fail-closed + iki-protokol (tenderix/v1) |
+| AT-107 | Fleksa-policy-verifier | unpump-gateway | fail-closed-INVARIANT'lar-asıl-ölçüm |
+| AT-108 | Veridrome-W3C-VC | roboseal-k0 | RFC-6962-üyelik + K0-notu (transitif-değil) |
+| AT-109 | Pacta-escrow-vault | borsa-pacta | EIP-1559-keccak + zaman-damgalı-tx-çözümü |
+
+**Darboğaz-tarama-sonucu (tek-yüzde-kalan-proje-YOK):**
+```
+fleksa 1→3 | veridrome 1→2 | tenderix 4→6
+en-düşük-artık-2 ( veridrome, veridict)
+```
+
+**§6-chain-whitelist-additive (4.RFC-değişikliği):** swarmax/dumen/pqhaven/
+tamga → +fleksa/sester/veridict/pacta/pactiva/yieldix/syntropion/tenderix.
+Her-zincir-kendi-adında-kanıt-sunabilmeli. AT-079-negatif-kontrolü-sabit-isim
+yerine-kesinlikle-whitelist-dışı-bir-DEĞERE-çekildi ( whitelist-büyürse-bile
+negatif-geçerliliğini-korur).

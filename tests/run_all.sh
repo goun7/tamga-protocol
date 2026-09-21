@@ -457,6 +457,12 @@ PY
   kontrol $? "AT-100: fiyat-kırılımı-koruma (underpayment/replay/quote-expiry)"
   bash tests/at101_d014_duvar_negatif_yuz.sh > /dev/null 2>&1
   kontrol $? "AT-101: D-014-duvarı-negatif-yüz (ağ-şeridi + soğuk-başlangıç)"
+  bash tests/at102_swarmax_loop_breaker_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-102: 23-Swarmax loop-breaker + mad-robust-z → RFC-010"
+  bash tests/at103_dumen_signing_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-103: 13-Dümen reports/signing (üçlü-doğrulama) → RFC-010"
+  bash tests/at104_dumen_watch_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-104: 13-Dümen watch süreklilik (fail-loud + kurtarma) → RFC-010"
   bash tests/at085_sester_batch_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-085: Sester settlement-batch → RFC-010 (evidence_link-derived)"
 

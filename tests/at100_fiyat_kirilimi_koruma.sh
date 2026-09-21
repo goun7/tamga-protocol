@@ -65,6 +65,27 @@ if ! $PY3 -c "import httpx; httpx.get('http://127.0.0.1:8000/healthz',timeout=5)
   echo "RESULT: 0 PASS, 0 FAIL, 1 SKIP — log: $LOG"
   exit 0
 fi
+# Prereq: sandbox-kotası-doluysa-gerçek-ölçüm-imkânsız (günlük-$5-limiti,
+# kendisi-de-gerçek-bir-fail-closed). AT-082-disiplini: INDETERMİNE-SKIP
+# (yeşil-boya-YOK). Önce-geçersiz-ödemeyle-probe-et — quota_exceeded-ise
+# test-aşağıdaki-asıl-ölçümleri-koşamadan-patlar.
+if $PY3 - <<'PYEOF' 2>/dev/null
+import httpx, sys
+try:
+    r = httpx.post("http://127.0.0.1:8005/tara",
+                   headers={"X-Payment": "Sester-EVM-gecersiz",
+                            "X-Payer-Address": "0x26dbfe78d63509f845c147b8480079c6fbd28bfc"},
+                   timeout=8)
+    sys.exit(1 if (r.status_code == 402 and "quota_exceeded" in r.text) else 0)
+except Exception:
+    sys.exit(0)
+PYEOF
+then
+  note "[SKIP] AT-100: sandbox-kota-doldu (\$5/gün) — gerçek-fail-closed (INDETERMİNE)."
+  note "       ( UNPUMP_TEST=1-notu: refund-yolu-yok, AT-082-ile-aynı-SKIP-disiplini)"
+  echo "RESULT: 0 PASS, 0 FAIL, 1 SKIP — log: $LOG"
+  exit 0
+fi
 if [ ! -d "$SE_VENV/sester" ]; then
   note "[SKIP] AT-100: sester-modülü-yok (İNDETERMİNE)."
   echo "RESULT: 0 PASS, 0 FAIL, 1 SKIP — log: $LOG"

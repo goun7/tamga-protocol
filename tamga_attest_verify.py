@@ -61,6 +61,38 @@ def _mul(k: int, pt):
     return acc
 
 
+def ecrecover_to_pub(digest_hex: str, sig_hex: str) -> str | None:
+    """EIP-191 imzasından Ethereum adresi çöz (RFC-010 x402/v1 sözleşmesi).
+
+    settlement_bind_verify._claim_signer bu adı import eder — önceden
+    eksikti, bu yüzden x402/v1 claim'ler ImportError → rc4 ("imza
+    geçersiz") üretiyordu. v=(27|28) kuralı: recid son byte'tan çıkar.
+    """
+    try:
+        raw = bytes.fromhex(sig_hex[2:] if sig_hex.startswith("0x") else sig_hex)
+    except Exception:
+        return None
+    if len(raw) != 65:
+        return None
+    r = int.from_bytes(raw[0:32], "big")
+    s = int.from_bytes(raw[32:64], "big")
+    v = raw[64]
+    rec_id = v - 27 if v >= 27 else v
+    if not 0 <= rec_id <= 3:
+        return None
+    try:
+        z = int(digest_hex, 16)
+        point = _recover(z, r, s, rec_id)
+        if point is None:
+            return None
+        x, y = point
+        pub_bytes = x.to_bytes(32, "big") + y.to_bytes(32, "big")
+        from eth_utils import keccak
+        return "0x" + keccak(pub_bytes)[12:].hex()
+    except Exception:
+        return None
+
+
 def _recover(z: int, r: int, s: int, rec_id: int):
     """Ecrecover → (x,y) public key | None (geçersiz-imza-geometrisi)."""
     if not (1 <= r < N and 1 <= s < N):

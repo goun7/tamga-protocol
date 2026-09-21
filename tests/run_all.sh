@@ -573,6 +573,8 @@ PY
   kontrol $? "AT-118: 19-Yieldix hasher (Decimal+TR-UTF8-koruması) → RFC-010"
   bash tests/at119_dumen_filters_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-119: 13-Dümen filters politika-yüzü (enjeksiyon+PII) → RFC-010"
+  bash tests/at121_swarmax_analitik_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-121: 23-Swarmax analitik-stabilite ( cusum+psi+jsd+FpBudget)"
 
   rm -rf "$SB"
   echo ""

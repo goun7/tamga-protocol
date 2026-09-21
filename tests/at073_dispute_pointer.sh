@@ -21,6 +21,15 @@ mkdir -p "$(dirname "$LOG")"; : > "$LOG"
 
 note "AT-073: RFC-011 dispute-pointer (anlaşmazlık-bacağı)"
 
+# CI-dersi (bca7c90/AT-066/072): dış-yol-yoksa-skip, yeşil-boyanmaz
+RK="/home/gokun/projects/01_unicorn/03-Pacta/PROJE_KAGIDI.md"
+if [ ! -f "$RK" ]; then
+  note "[SKIP] AT-073: Pacta-spec'i-bu-makinede-değil (CI) —"
+  note "       atıf-kanıtı-ölçülemedi (İNDETERMİNE, yeşil-boyanmaz)."
+  echo "RESULT: 0 PASS, 0 FAIL, 1 SKIP — log: $LOG"
+  exit 0
+fi
+
 python3 - <<'PYEOF' >> "$LOG" 2>&1
 import json, sys
 sys.path.insert(0, "tools"); sys.path.insert(0, ".")

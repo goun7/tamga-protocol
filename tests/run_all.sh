@@ -577,6 +577,8 @@ PY
   kontrol $? "AT-121: 23-Swarmax analitik-stabilite ( cusum+psi+jsd+FpBudget)"
   bash tests/at122_roboseal_did_belge_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-122: ROBOSEAL DID-belge + revocation-fail-closed → RFC-010"
+  bash tests/at123_veridict_anchor_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-123: Veridict-anchor (Rekor-RFC-6962+ECDSA-P256) → RFC-010"
 
   rm -rf "$SB"
   echo ""

@@ -432,6 +432,10 @@ PY
   bash tests/at082_gateway_pilot_sepolia_anchor.sh > /dev/null 2>&1
   kontrol $? "AT-082: 00-gateway 6-x402-pilot → Sepolia anchor (R9-1..5)"
 
+  # ---- kontrol-108: AT-092 K0-Sybil-additive (teammate, AT-083'ün-uygulaması) ----
+  bash tests/at092_k0_sybil_additive.sh > /dev/null 2>&1
+  kontrol $? "AT-092: K0-uyumlu-Sybil-üyelik (ağırlıksız-GREEN, ağırlıklı-RED)"
+
   # ---- kontrol-105..107: AT-087/088/089 C-sınıfı-ikinci-yüzler (teammate) ----
   bash tests/at087_pactiva_arbitration_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-087: 22-37-Pactiva arbitration → RFC-011 (pactiva/v1-additive)"

@@ -54,7 +54,9 @@ SUPPORTED_SCHEMES = ("x402/v1", "tamga/native", "erc8004/v1")
 #   erc8004/v1   — ERC-8004-kayıt, keccak-merkle (Draft; NODE-DISCOVERY-Phase-3)
 
 
-def _claim_signer(digest_hex: str, sig_hex: str, scheme: str = "x402/v1") -> str | None:
+def _claim_signer(digest_hex: str, sig_hex: str, scheme: str = "x402/v1",
+                  buyer_hex: str | None = None,
+                  claim_msg=None) -> str | None:
     """Scheme-dispatch: digest+imza → imzalayan-kimliği | None.
 
     Her-ödeme-kanalının-KENDİ-imza-sözleşmesi-var (üçüncü-seçenek-yasak:
@@ -66,12 +68,21 @@ def _claim_signer(digest_hex: str, sig_hex: str, scheme: str = "x402/v1") -> str
         return ecrecover_to_pub(digest_hex, sig_hex)
     if scheme == "tamga/native":
         # ed25519-operatör-anahtarı; simnet (gerçek-para-YOK — Phase-3-kapısı)
+        # AT-077-düzeltmesi (iki-stub-gizli-boşluk, ikisi-de-gerçek-imzayı-
+        # engelliyordu; test-double'lar-gizliyordu-çünkü-gerçek-yol-hiç-koşmadı):
+        #   (1) sig_hex[:64]'ü-GENEL-ANAHTAR-sanıyordu — o-imzanın-R-noktasıdır.
+        #   (2) claim_msg'i-(JSON-metni)-mesaj-sanıyordu — AMA-Ed25519-sözleşmesi
+        #       (RFC-010-§3.2) imzayı-digest'ın-ham-baytları-üzerine-atar.
+        # Doğru-mesaj: digest_hex'in-baytları (x402/v1-ile-aynı-giriş-şekli).
+        if not (isinstance(buyer_hex, str) and len(buyer_hex) == 64
+                and all(c in "0123456789abcdef" for c in buyer_hex)):
+            return None
         try:
             from nacl.signing import VerifyKey
             from nacl.encoding import HexEncoder
-            vk = VerifyKey(sig_hex[:64], encoder=HexEncoder)
-            vk.verify(bytes.fromhex(digest_hex))
-            return sig_hex[:64]
+            vk = VerifyKey(buyer_hex, encoder=HexEncoder)
+            vk.verify(bytes.fromhex(digest_hex), bytes.fromhex(sig_hex))
+            return buyer_hex
         except Exception:
             return None
     if scheme == "erc8004/v1":
@@ -129,16 +140,25 @@ def verify(charge_rec: dict, claim: dict) -> dict:
         out.update(verdict="RED", reason_code=3, reason="receipt_invalid")
         return out
 
-    # --- 2) claim-verifies: imza-buyerAddress'e-çözümlenir (EIP-191-secp256k1)
+    # --- 2) claim-verifies: imza-buyerAddress'e-çözümlenir
     sig = claim.get("signature")
     buyer = claim.get("buyerAddress")
     ok2 = isinstance(sig, str) and isinstance(buyer, str)
     if ok2:
         try:
-            # modül-düzeyinde-tutulur — test-double-yerleştirebilmek-için
-            got = _claim_signer(_digest("sha256", json.dumps(
+            # imzasız-claim-gövdesi — hem-hash'in-hem-de-Ed25519-ham-mesajının-
+            # kaynağı (AT-077: ed25519-ham-mesaj-ister, hash'i-DEĞİL)
+            govde_json = json.dumps(
                 {k: v for k, v in claim.items() if k != "signature"},
-                sort_keys=True).encode()), sig, scheme)
+                sort_keys=True)
+            # modül-düzeyinde-tutulur — test-double-yerleştirebilmek-için.
+            # Geriye-dönük-uyum (AT-063..072'nin-3-argümanlı-lambda'ları-korunur):
+            # eski-double'lar TypeError-verirse-3-argümanlı-çağrıya-düşer.
+            _d = _digest("sha256", govde_json.encode())
+            try:
+                got = _claim_signer(_d, sig, scheme, buyer, govde_json)
+            except TypeError:
+                got = _claim_signer(_d, sig, scheme)
             ok2 = got is not None and got.lower() == str(buyer).lower()
         except Exception:
             ok2 = False

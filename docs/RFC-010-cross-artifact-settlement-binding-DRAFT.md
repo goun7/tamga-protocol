@@ -73,6 +73,31 @@ Kısmi-GREEN-YOK. Bu, "join shape"-gösterme-tuzağını-kapatır.
 **Bilinmeyen-scheme:** İNDETERMİNE (RED-değil — safal207'nin-x402'yı-zorlamama-
 ilkesiyle-uyumlu; `scheme`-listesi-additive: `x402/v1`, `tamga/native`, `erc8004/v1`).
 
+### 3b. İmza-doğrulama-arayüzü (kanal-başına-giriş-şekli) — AT-077-dersi
+
+Kontrol-2'nin-imza-doğrulaması-**scheme-başına-farklı-giriş-ister**. Bu-yüz-
+den-her-üç-kanal-aşağıdaki-tabloda-sabitlenmiştir (AT-077-öncesi-bu-sabitlik-
+yoktu-ve-iki-stub-gizli-boşluk-taşıyordu —bkz-§5b):
+
+| scheme | imzalanan-şey | imzalayan-kimliği-nasıl-çözülür |
+|---|---|---|
+| **x402/v1** | sha256-digest'ın-ham-baytları (`z=raw-sha256`; EIP-191-öneksiz) | `ecrecover_to_pub(digest,sig)` — kayıptan-adres |
+| **tamga/native** | sha256-digest'ın-ham-baytları (RFC-8032-mesaj=32-byte-digest) | genel-anahtar-açıktır: `claim.buyerAddress`=pubkey; nacl-ile-doğrulanır,-esleşirse-yine-pubkey |
+| **erc8004/v1** | üyelik-kanıtı (imza-yok; kök-hash-kimliktir) | kök-hash → `keccak256(digest)` |
+
+**Neden-digest-üzerine (gövde-metni-değil):** gate-ile-producer-aynı-JSON-
+serialization'ı-paylaşmak-zorunda-değildir (gate `sort_keys=True`-varsayılan-
+separatorler-ile, Yieldix `separators=(",",":")`-ile-serialize-eder — baytlar-
+farklı, nesne-aynı). Ed25519-ham-mesaj-üzerine-imza-atıldığında-her-iki-tarafın-
+aynı-baytları-bilmesi-gerekir; digest-üzerine-atıldığında-ise-**sadece-64-hex-
+özütün-eşitliği-yeterlidir** — bu-zaten-kontrol-5'in-talep-ettiği-bayt-eşitliğidir.
+Yani-imza-kanalı-ile-evidenceHash-kanalı-aynı-bağlamda-birleşir.
+
+**AT-075-ile-paralel-gerçek:** `x402/v1`-de-`z=raw-sha256`-kuralı-aynı-şekilde-
+`encode_defunct`-yapılmadan-imzalanmayı-gerekli- kılar; `tamga/native`-de-aynı-
+giriş-şekli-digest-baytlarıdır. Üçüncü-seçenek-yasak: bu-sözleşme-dışında-imza
+RED-değil-İNDETERMİNE-değil — doğrudan-RED rc4 (kanal-tanımlı-ama-imza-yanlış).
+
 ## 4. NE-ŞİMDİ / NE-SONRA
 
 **ŞİMDİ:** (a) bu-tasarım-notu; (b) `settlement_bind`-alanının-additive-tanımı;
@@ -94,6 +119,30 @@ Bu-saldırı-tek-kanal-dünyasında-mümkün-değildi; dispatch-getirdi, AT-064-
 
 **Doğrulama-yükü-büyür** (§5-tekerrür): her-kanal-kendi-imza-sözleşmesi-demek.
 Eklenen-kanallar-mevcut-x402-yolunu-bozmaz (AT-064-kontrol-5-geriye-dönük-uyum).
+
+## 4c. AT-077-stub-gizli-boşluk-kapanışı (2026-09-21)
+
+AT-077 (99-Yieldix-gerçek-Ed25519-dikişi) `_claim_signer`'ın-`tamga/native`-
+branch'ında-**iki-gerçek-boşluk**-buldu — ikisi-de-daha-önce-görünmedi-çünkü
+AT-063/064/065/070/071/072'nin-tümü-`_claim_signer`'ı-test-double-ile-değiştiriyordu
+(AT-075'in-`ecrecover_to_pub`-boşluğuyla-**AYNI-SINIF**: gerçek-yol-hiç-koşmadığı-
+için-hata-hiç-patlamadı):
+
+1. **R-noktası=anahtar-sanısı:** `VerifyKey(sig_hex[:64])` — bir-Ed25519-imzasının
+   ilk-32-byte'ı-genel-anahtar-değil, imzanın-R-noktasıdır. Sonuç: hiçbir-gerçek-
+   imza-doğrulanamıyordu (yanlış-anahtar-her-zaman-Red-edge'de-değildi, None).
+2. **Mesaj=gövde-metni-sanısı:** imzayı-`digest_hex`'in-DEĞİL-claim'in-JSON-metni-
+   üzerinden-doğruluyordu. Ama-producer (Yieldix) `separators=(",",":")`-ile-
+   imzalıyor, gate `(", ",": ")`-ile-serialize-ediyor — **aynı-nesne, farklı-bayt**.
+   Ed25519-ham-mesaj-istediği-için-bu-asla-doğrulanamazdı.
+
+**Düzeltme:** §3b'nin-tablosundaki-giriş-şekli-sabitlendi (her-kanal-için-imzalanan-
+şey + kimlik-çözümü). Artık-gerçek-Ed25519-doğrulaması-stock-yoldan-koşar ve
+AT-077-test-double'sız-6/6-GREEN-verir.
+
+**Süreç-dersi (AT-075-ile-aynı):** her-scheme-başına-en-az-bir-test-**gerçek-
+kütüphane-ile-üretim-yapmadan-koşmalı**; test-double'lar-gerçek-imza-yolunu-asla-
+gizlememeli. Bu-kural-§3b'ye-de-işlendi.
 
 ## 5. Riskler (dürüst)
 

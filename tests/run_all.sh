@@ -383,6 +383,14 @@ PY
 
   # ---- kontrol-84: AT-060 RFC-009 anchor-okuma-kapısı (yazma-yolu-yetmez) ----
   # ---- kontrol-85: AT-064 çoklu-ödeme-kanal-dispatch'ı (B-yönü) ----
+  # ---- kontrol-86: AT-065 PQHaven-erc8004-dikişi (gerçek-üçüncü-proje) ----
+  # ---- kontrol-87: AT-066 Ajan-Borsası receipt_hash-dikişi ----
+  bash tests/at066_ajan_borsasi_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-066: 24-ajan-borsasi receipt_hash → RFC-010-5.kontrol"
+
+  bash tests/at065_pqhaven_erc8004_bind.sh > /dev/null 2>&1
+  kontrol $? "AT-065: 25-pqhaven-x402 Merkle-kökü-ile-erc8004/v1-dikişi"
+
   bash tests/at064_payment_channel_dispatch.sh > /dev/null 2>&1
   kontrol $? "AT-064: scheme-dispatch + çapraz-scheme-saldırısı-RED"
 

@@ -412,6 +412,14 @@ PY
   bash tests/at079_pactiva_audit_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-079: 22-37-Pactiva audit-ledger → RFC-010/011 (evidence_link)"
 
+  # ---- kontrol-101: AT-080 Ajan-Borsası-gerçek-x402/v1-dikiş (teammate) ----
+  bash tests/at080_ajan_borsasi_gercek_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-080: 24-Ajan-Borsası receipt_hash → RFC-010 (gerçek-x402/v1)"
+
+  # ---- kontrol-102: AT-084 Pacta-anlaşmazlık-yüzü (teammate, RFC-011-canlı) ----
+  bash tests/at084_pacta_anlasmazlik_yuzu.sh > /dev/null 2>&1
+  kontrol $? "AT-084: 03-Pacta Tier3-Schelling → RFC-011 canlı-hakemlik"
+
   bash tests/at074_roboseal_catisma.sh > /dev/null 2>&1
   kontrol $? "AT-074: ROBOSEAL-itibar-çatışması (K0 + D-014)"
 

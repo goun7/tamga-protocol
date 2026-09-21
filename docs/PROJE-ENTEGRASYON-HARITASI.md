@@ -126,3 +126,41 @@ AT-067'de-itiraf-ettiğim-açık-gate-kapandı: `foreign_chain_proof`-alanı-ile
 2. **00-gateway-pilot-trafiği**: 6-x402-servisinin-gerçek-receipt'larıyla-Sepolia
    anchor-üret (ücretsiz)
 3. **Pacta-anlaşmazlık-yüzü**: RFC-010'ın-eksik-bacağı-dispute-taşıma
+
+## 7b. C-sınıfı-kalan-dördü — TAMAMLANDI (2026-09-21, 99/99-GREEN)
+
+| Proje | Entegrasyon-noktası | AT | Sonuç |
+|---|---|---|---|
+| **80-PQHaven (teorisi)** | `engine.py:218` `compute_cbom_merkle_root` — gerçek-CBOM+PQRI+Merkle-kökü (CycloneDX-1.6, canonical-repr-yapraklar) | **AT-076** | **erc8004/v1-GREEN** — DÜRÜST-NEGATİF: teori↔canlı-Merkle-paritesi-YOK (teori-bytes, canlı-hex-birleştirir); korunan-arayüz-paritesi |
+| **99-Yieldix** | `crypto/signer.py` `Ed25519ReportSigner` (PyCA-RFC-8032) + `crypto/hasher.py` canonical-JSON | **AT-077** | **tamga/native-GREEN (stock-yol, double-YOK)** — stock-branch'ında-İKİ-stub-gizli-boşluk (AT-075-ile-aynı-sınıf): R-noktası=anahtar-sanısı + mesaj=gövde-metni-sanısı. RFC-010-§3b-sabitlendi |
+| **18-Syntropion** | `security.py` `generate_fsek_clickwrap_hash` (sha256+hmac.compare_digest) + `stake_gate.py` $10-Decimal-escrow | **AT-078** | **x402/v1-GREEN (gerçek-ecrecover)** — FSEK-anlaşma-kanıtı + sign_msg_hash-tuzağı-ölçüldü |
+| **22-37-Pactiva** | `audit_ledger.py` gerçek-Merkle-hash-zinciri (GENESIS-64-sıfır, üç-tahrir-sınıfı) + `arbitration.py` | **AT-079** | **erc8004/v1-GREEN + §6-evidence_link** — §6-borcunun-KALAN-YÜZÜ-kapandı: _foreign_chain_ok-yalnızca-BİÇİM-ölçüyordu; additive-evidence_link-içerik-bağlar |
+
+**RFC-010'a-eklenenler:** **§3b** (imza-doğrulama-arayüz-tablosu — kanal-başına-imzalanan-
+şey + kimlik-çözümü) + **§4c** (AT-077-stub-gizli-boşluk-kapanışı-ve-süreç-dersi).
+**§6'ya-additive-evidence_link** (AT-079): head_hex-artık-opsiyonel-olarak-
+delivery_hash'e-içerikten-bağlı (equals/derived); eski-kanıtlar-bozulmaz.
+
+**Süreç-dersi (AT-075+AT-077):** her-scheme-başına-en-az-bir-test-**gerçek-kütüphane-
+ile-üretim-yapmadan-koşmalı** — test-double'lar-gerçek-imza-yolunu-gizliyordu (AT-
+063..072'nin-hepsi-_claim_signer'ı-double-ile-değiştirmişti). Kural-artık-§3b'de.
+
+## 7c. Kalıcı-takım-kuruldu (2026-09-21 — gerçek-paralel-orkestrasyon)
+
+**Tek-workspace'in-asıl-kazancı bu:** subagent'lar-artık-birbirlerinin-gerçek-kodunu
+`sys.path.insert(0, "../diger_proje/src")`-ile-import-edebilir. Ayrı-workspace'lerde
+bu-imkansızdı — bu-yüzden-iletişim-insan-relay'ından-geçiyordu. Önceki-notumdaki
+"symlink-ağ-değildir"-ifadesi **eksikti**: symlink-gerçek-kodun-görünürlüğünü-sağlar,
+ortak-cwd-ise-doğrudan-import'u. İşte-asıl-kanal-bu.
+
+| Teammate | Kümesi | Görevi | Write-scope |
+|---|---|---|---|
+| `borsa-pacta` | Ajan-Borsası + Pacta | task-1: AT-080 receipt_hash-dikişi (sonra-Pacta-dispute) | tests/at080*, tools/borsa_* |
+| `unpump-gateway` | Unpump + 00-gateway | task-2: AT-081 X-Bind-Signature-gerçek-müşteri-imzası (sonra-task-3: AT-082-pilot) | tests/at081*, UNPUMP-BRIDGE/ |
+| `roboseal-k0` | ROBOSEAL (68-Kredent) | task-4: AT-083 K0-çözüm-araştırması (ağırlıksız-Sybil-savunması-aranıyor) | tests/at083*, ROBOSEAL-K0/ |
+| `c-derin` | Pactiva + Syntropion + Yieldix | AT-084/085/086: ikinci-yüzler (arbitration, telemetry-reporter, vesting) | tests/at08[4-6]* |
+
+**Koordinasyon-ilkeleri:** (1) ortak-görev-tahtası (`team_task_*` — claim/complete);
+(2) yazma-kapsamları-ayrı (çakışma-yok); (3) Lead-tek-yazma-noktası-olarak-run_all.sh
++ TESTS.md + gate-kaynaklarını-yönetir (aynı-anda-4-kişinin-edits-birleştirmez);
+(4) iletişim-hem-görev-tahtasında-hem-de-send_message-ile.

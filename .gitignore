@@ -64,3 +64,8 @@ id_ed25519
 .pypirc
 .npmrc
 secrets/
+
+# Çalışma-zamanı-köprü-çıktısı (Sepolia-anchor-denemeleri) — kanıt-run-bound,
+# commit-bound-değil (Kural-7)
+unpump-bridge/
+

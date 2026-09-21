@@ -146,11 +146,11 @@ Tamga-STATE_ONLY)-olmalı; **sessiz-geçiş-YASAK**.
 
 | Yazım-deyimi-sınıfı | Sester-ayracı | Tamga-ayracı | Ortak |
 |---|---|---|---|
-| `INSERT INTO events` (SQL-metni) | ✓ | ✗ | — |
+| `INSERT INTO …` (SQL; TÜM-tablolar) | ✓ | ✗ | — |
+| `copy_from` (PG-toplu-yükleme) | ✓ | ✗ | — |
 | `fdopen(…,"w")` / `O_APPEND` / `O_TRUNC` (dosya) | ✗ | ✓ | — |
 | `os.write(fd, b…)` (ikili) | ✗ | ✗ | ✗ |
-| `COPY … FROM` (bulk) | ✗ | ✗ | ✗ |
-| `executemany` (toplu-SQL) | ✗ | ✗ | ✗ |
+| `executemany` (toplu-SQL) | ✓ | ✗ | — |
 
 **Ayraçlarımız-HİÇ-örtüşmüyor.** İki-ürün-birlikte-üçüncü-seçeneği-ancak-**kendi-
 deyim-sınıflarında**-tutar; ortak-sınıf-YOK. `anchor`-op'u-her-iki-üründe-de-farklı

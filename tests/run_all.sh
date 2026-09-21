@@ -443,6 +443,8 @@ PY
   kontrol $? "AT-093: 00-gateway iç-yüz guvence-kanca + bekçi + 7-route"
   bash tests/at094_pactiva_peer_attestation_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-094: 22-37-Pactiva peer-attestation → RFC-010/011"
+  bash tests/at095_k0_kalan_adaylar.sh > /dev/null 2>&1
+  kontrol $? "AT-095: K0-kalan-3-aday (DepositLock/Zaman/N-imza — DÜZ/İKİLİ)"
   bash tests/at085_sester_batch_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-085: Sester settlement-batch → RFC-010 (evidence_link-derived)"
 

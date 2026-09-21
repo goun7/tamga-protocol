@@ -144,6 +144,19 @@ AT-077-test-double'sız-6/6-GREEN-verir.
 kütüphane-ile-üretim-yapmadan-koşmalı**; test-double'lar-gerçek-imza-yolunu-asla-
 gizlememeli. Bu-kural-§3b'ye-de-işlendi.
 
+## 4d. İki-uygulama-kanalı-aynı-scheme-altında-farklı-ön-görüntü (AT-090-dersi)
+
+Sester'ın-X-PAYMENT-dozu-EIP-191-**önekli**-kişisel-imzadır
+(`eth_account.encode_defunct("agent|nonce|amount|resource")` — `schemes.py:31`);
+oysa-aynı-`x402/v1`-scheme'inin-RFC-010-claim-kanıtı-sha256-digest'ın-**ham-
+baytları**-üzerine-atılır (z=raw-sha256, öneksiz — §3b). Yani-aynı-özete-iki-farklı
+imza-üretilebilir-ve-her-kanal-yalnızca-kendi-ön-görüntüsünde-geçerlidir.
+
+AT-077'in-canonical-JSON-separator-ayrımıyla-**aynı-sınıf**: kanal-sözleşmesi-
+sabit-değilse-GREEN-asla-üretilemez — bu-nedenle-her-entegrasyon-önce-üretici-
+tarafının-imza-ön-görüntüsünü-§3b-tablosuna-sabitlemelidir. Tek-anahtar-iki-kanalı-
+sözleşme-bağımsız-yapar; RFC-010-yanlızca-kendi-ön-görüntüsünü-doğrular.
+
 ## 5. Riskler (dürüst)
 
 - **Doğrulama-yükü-çoğalıyor:** her-scheme-için-ayrı-claim-doğrulama (§3-kontrol-2).

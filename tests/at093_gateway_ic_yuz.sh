@@ -168,26 +168,32 @@ assert rc == 0 and durum.get("zincir_ok") is True
 print(f"  cron-bekçi: son-K5 {son.name} → sağlıklı (exit-0, zincir_ok=True,"
       f" kayıt={durum.get('kayit')})")
 
-# --- 7) NEG-2: K1-deny-sıralama-bug'ı (G3'ü G2-golüyor)
-#    a) GERÇEK-kural-dosyası: /pqhaven/admin → allow (BUG — 403-beklenir)
+# --- 7) NEG-2: K1-deny-sıralama-bug'ı-KAPANDI (Lead-düzeltti: en-uzun-eşleşme)
+#    a) GERÇEK-kural-dosyası: /pqhaven/admin → deny (DÜZELTME-SONRASI-DOĞRU)
+#    Önce-bug vardı: matches[0]=G2('proxy/')-seçiyordu, G3-deny'yi-goluyordu.
+#    Düzeltme (rules.py:78 max-len-tool)): artık-en-spesifik-G3-kazanır.
 c4, gk4 = kanca_app(TMP / "bug.jsonl")
 r = c4.post("/pqhaven/admin")
 bug_kayit = [json.loads(l) for l in (TMP / "bug.jsonl").read_text().splitlines()]
 bug_karar = [k["event"]["payload"]["decision"]
              for k in bug_kayit if k["event"]["type"] == "permission_decision"]
 print(f"  NEG-2 (a): /pqhaven/admin → {r.status_code} karar={bug_karar}"
-      " — G3-deny-uygulanMAdı (beklenen 403/deny)")
-assert r.status_code == 200 and bug_karar == ["allow"], \
-    "G3-bug-beklendi: allow-geçmeli"
-#    b) KÖK-NEDEN: KuralMotoru matches[0]-seçer (en-spesifik-değil)
+      " — G3-deny-uygulandı (DÜZELTME-SONRASI)")
+assert r.status_code == 403 and bug_karar == ["deny"], \
+    "G3-deny-uygulanmalı (Lead-düzeltmesi-sonrası)"
+#    b) KÖK-NEDEN-kanıtı: KuralMotoru-artık-en-uzun-tool'u-seçer
 from ajanguvence.rules import KuralMotoru
 km = KuralMotoru(json.loads((GW / "guvence_kurallar.json").read_text()))
 k2 = km.decide("pqhaven", "proxy/admin")
-assert k2.karar == "allow", "G3-ilk-eşleşme-G2-olduğu-için-allow"
+assert k2.karar == "deny" and k2.kural_id == "G3", \
+    "en-spesifik-G3-seçilmeli (matches[0]-değil-max-len)"
 k3 = km.decide("pqhaven", "proxy/healthz")
 assert k3.karar == "allow" and k3.kural_id == "G1"
-print("    KÖK-NEDEN: KuralMotoru.decide matches[0]=G2('proxy/')-seçer —"
-      " en-spesifik-G3('proxy/admin')-golunür")
+print("    DÜZELTME-KANITI: decide=max(len(tool)) — G3-deny, G1-healthz-allow")
+#    c) GERİ-UYUM: genel-rotalar-hâlâ-allow (düzeltme-aşırı-sert-değil)
+k4 = km.decide("pqhaven", "proxy/tara")
+assert k4.karar == "allow" and k4.kural_id == "G2", \
+    "genel-proxy/-rotaları-hâlâ-allow (geri-uyum-korundu)"
 #    c) DÜZELTME-YOLU: G2-çıkarılınca-G3-çalışır (sıralama-gerçek-neden)
 dz = TMP / "duzeltilmis.json"
 d = json.loads((GW / "guvence_kurallar.json").read_text())

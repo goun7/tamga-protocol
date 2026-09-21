@@ -436,6 +436,16 @@ PY
   bash tests/at092_k0_sybil_additive.sh > /dev/null 2>&1
   kontrol $? "AT-092: K0-uyumlu-Sybil-üyelik (ağırlıksız-GREEN, ağırlıklı-RED)"
 
+  # ---- kontrol-109..112: AT-091/093/094 + AT-085 (teammate-döngü-2) ----
+  bash tests/at091_veridict_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-091: Veridict-imzalı-sertifika → RFC-010 (tamga/native)"
+  bash tests/at093_gateway_ic_yuz.sh > /dev/null 2>&1
+  kontrol $? "AT-093: 00-gateway iç-yüz guvence-kanca + bekçi + 7-route"
+  bash tests/at094_pactiva_peer_attestation_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-094: 22-37-Pactiva peer-attestation → RFC-010/011"
+  bash tests/at085_sester_batch_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-085: Sester settlement-batch → RFC-010 (evidence_link-derived)"
+
   # ---- kontrol-105..107: AT-087/088/089 C-sınıfı-ikinci-yüzler (teammate) ----
   bash tests/at087_pactiva_arbitration_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-087: 22-37-Pactiva arbitration → RFC-011 (pactiva/v1-additive)"

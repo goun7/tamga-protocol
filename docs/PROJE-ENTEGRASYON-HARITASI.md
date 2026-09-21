@@ -207,3 +207,21 @@ ortak-cwd-ise-doğrudan-import'u. İşte-asıl-kanal-bu.
 bağımsız-teyit-edildi (Lead-yeniden-üretti); üç-gerçek-boşluk-bulundu (§3b-stub,
 §6-biçim-only, üretim-D5); tek-numara-çakışması-koordinasyon-hatası-anında-
 yakalandı-ve-düzeltildi.
+
+## 7f. İkinci-otonom-döngü — kalan-büyük-projeler (task-6..9)
+
+**Tarama-sonucu:** 18-projenin-tamamında-gerçek-kod-var (5299-py-Sester'dan-19-py-
+ROBOSEAL'e). Henüz-doğrudan-AT'si-OLMAYAN-en-büyük-iki-proje: **Sester (5299-py,
+6-x402-servisinin-arkasındaki-ledger)** ve **Veridict (4163-py, hiç-AT-yok)**.
+
+| Teammate | Yeni-küme | Görevi | AT |
+|---|---|---|---|
+| `borsa-pacta` | Sester + Veridict | task-6: ledger-gerçek-append→charge_receipt→gate | AT-090 |
+| | | task-7: Veridict-ilk-dikiş (uyumsuzsa-dürüst-İNDETERMİNE) | AT-091 |
+| `roboseal-k0` | K0-uygulama | task-8: AT-083'ün-sonucu-additive-gate-kontrolü (DÜZ/İKİLİ-zorunlu) | AT-092 |
+| `unpump-gateway` | gateway-iç-yüz | task-9: guvence_bekci+kanca, pqhaven-bug-raporu | AT-093 |
+| `c-derin` | C-üçüncü-yüzler | task-7 (Veridict) → Pactiva-tax/HMAC, Syntropion-api/cli, Yieldix-server | AT-094..096 |
+
+**İkinci-koordinasyon-hatam (kabul):** task-9'u-iki-kişiye-verdim; anında-
+düzelttim (unpump-gateway-task-9, roboseal-k0-task-8). Ders: claim-öncesi-
+tek-sahiplik-kontrolü-zorunlu.

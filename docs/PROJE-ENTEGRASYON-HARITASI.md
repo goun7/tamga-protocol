@@ -181,4 +181,29 @@ ortak-cwd-ise-doğrudan-import'u. İşte-asıl-kanal-bu.
 1. `dispute_pointer_verify.SUPPORTED_PROTOCOLS + "pactiva/v1"` (AT-087'nin-isteği —
    Pactiva'nın-7-üyeli-Schelling'i-kendi-adıyla; rc11→rc12, üçüncü-seçenek-yasak-korunarak)
 
-**Bekleyen:** task-3/AT-082 (00-gateway-pilot-trafiği — unpump-gateway-üzerinde).
+**Bekleyen:** ~~task-3/AT-082~~ — **TÜM-GÖREVLER-TAMAMLANDI (107/107-PASS)**.
+
+## 7e. Takım-tamamlandı — 8-AT + 1-üretim-fix (107/107, commit a24ef4c)
+
+| AT | Teammate | Bağımsız-teyit | Asıl-kanıt |
+|---|---|---|---|
+| AT-080 | borsa-pacta | 6/6 + receipt_hash-yeniden-hesaplandı | Stock-ecrecover; AT-066'nın-double'ı-kapatıldı |
+| AT-081 | unpump-gateway | 6/6 + D5-kapsama-bağımsız-True | Bağ-anahtarı→gerçek-alıcı; D5-False→True, çakışma-düzeldi |
+| AT-082 | unpump-gateway | 6/6 + R9-3-kanonik-teyit | 6-x402-servisi-6-da-receipt→tek-Sepolia-anchor; 402-fail-closed |
+| AT-083 | roboseal-k0 | 6/6 + reputation.py:136-okundu | 4/4-ağırlıksız-aday-K0-uyumlu; çözüm-uzayı-boş-değil |
+| AT-084 | borsa-pacta | 6/6 + Schelling-birebir-yeniden-üretildi | GREEN+İNDETERMİNE-rc12-aynı-anda (ANA-İLKE) |
+| AT-087 | c-derin | 6/6 + pactiva/v1-additive | 5/7'ye-rağmen-sqrt-ağırlık→0.30-split_settled |
+| AT-088 | c-derin | 6/6 | 40-lead→imzalı-SLA; nacl↔cryptography-paritesi |
+| AT-089 | c-derin | 6/6 | FSEK-%20-eşitliği (router==vesting), sızıntı-yok |
+
+**Lead'in-düzeltmeleri (tek-yazma-noktası-disiplini):**
+1. `dispute_pointer_verify.SUPPORTED_PROTOCOLS + "pactiva/v1"` (AT-087'nin-isteği)
+2. **`gateway/tamga_bind.py` finalize_bind-D5-üretim-fix** (unpump-gateway'in-bulduğu,
+   onun-write-scope'unda-değildi): `h`-artık-Sester-hash'i-değil-gövdenin-
+   jcs-hash'i `sha256(prev ‖ jcs(h-dışı))` — AT-081'in-üretimdeki-aynı-kök-nedeni.
+   Commit-8cc75e9 (gateway-repo). 107/107-regresyon-yok.
+
+**Takım-modeli-kanıtladı-kendini:** 8-AT-yedi-günde-değil-tek-oturumda; her-AT
+bağımsız-teyit-edildi (Lead-yeniden-üretti); üç-gerçek-boşluk-bulundu (§3b-stub,
+§6-biçim-only, üretim-D5); tek-numara-çakışması-koordinasyon-hatası-anında-
+yakalandı-ve-düzeltildi.

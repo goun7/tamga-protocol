@@ -254,3 +254,24 @@ Ders: görev-verirken-önce-ls-tests/at*Num* ile-occupied-slot-kontrolü.
 
 **Araştırma→uygulama-döngüsü-kanıtı:** AT-083-araştırma ( 4/4-DÜZ/İKİLİ-uyumlu,
 ağırlıklı-0.6454→0.4892-RED) → AT-092+095-uygulama-AYNI-sayıları-üretti.
+
+## 7h. Üçüncü-döngü — 119/119, 3-üretim-güvenlik-fix'i
+
+| AT | Yüz | Takım | Bulgusu |
+|---|---|---|---|
+| AT-099 | Swarmax-sealing | borsa-pacta | Merkle-asimetrisi + append-only-trigger |
+| AT-100 | Sester-fiyat-kırılımı | unpump-gateway | **overpayment-gap'i** (fixed) |
+| AT-101 | D-014-negatif-yüz | c-derin | ağ-şeridi-ölmez + soğuk-0.0328-tutarlı |
+
+**3-üretim-fix (Lead-yazdı, teammate-keşfetti):**
+1. `81-OstrakonSOC/ajanguvence/rules.py:78` — matches[0]→max(len(tool)):
+   admin-rotası-serbestti (399b637)
+2. `pqhaven/x402_servis.py:188/192` — scan_path→scan_directory:
+   local-tarama-AttributeError→400
+3. `sester/sester/middleware.py:340` — **amount_too_high-üst-sınırı**:
+   overpayment-kabul-ediliyordu ( alıcı-0.5-öde-0.1-fiyat-200)
+
+**AT-101-in-D-014-gerekçesi:** Sybil-manipülasyon-0.3972 — karşı-ajan-
+itibarı-0.01→0.95-çıkınca-öznenin-skoru-0.9929→0.5957. Öznenin-kendi-
+davranışına-dokunmadan-sıralama-oynanabilir = K0'ın-ölüm-nedeni. AT-092/095'in-
+DÜZ/İKİLİ-kontrolleri-bu-nedenle-uyumlu-şekil.

@@ -593,6 +593,8 @@ PY
   kontrol $? "AT-132: Syntropion-shm-IPC-bütünlüğü ( struct-checksum + flock)"
   bash tests/at133_syntropion_revenue_router_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-133: Syntropion-revenue-router ( AT-131+132-kanal-birleşimi)"
+  bash tests/at134_veridrome_vapap_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-134: Veridrome-VAPAP-agent-yetkilendirme ( gerçek-Ed25519)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

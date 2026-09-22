@@ -116,7 +116,7 @@ gg = importlib.import_module("guvence_gunluk")
 gg.GUVENTE_LEDGER = str(test_ledger)
 gg.CIKTI_DIZINI = str(TMP / "gunluk")
 rc = gg.main()
-rapor_yol = TMP / "gunluk" / "2026-09-21.json"
+rapor_yol = TMP / "gunluk" / f"{__import__('datetime').date.today().isoformat()}.json"
 rapor = json.loads(rapor_yol.read_text(encoding="utf-8"))
 assert rc == 0, f"K5-kabul-günü-exit-0-beklendi: {rc}"
 assert rapor["zincir_ok"] is True and rapor["kayit"] > 0
@@ -149,8 +149,11 @@ assert sla["sessiz_gecis"] == 1, \
 gg.GUVENTE_LEDGER = str(silent_ledger)
 gg.CIKTI_DIZINI = str(TMP / "silent_gunluk")
 rc_s = gg.main()
-rapor_s = json.loads((TMP / "silent_gunluk" / "2026-09-21.json")
-                     .read_text(encoding="utf-8"))
+# gg.main() UTC-tarih-yazar (:68), test local-date-ile-okuyamaz —
+# CIKTI_DIZINI'deki-gerçek-rapor-dosyasını-bul (tarih-kaynağı-belirsizliği)
+_raporlar = sorted((TMP / "silent_gunluk").glob("*.json"))
+assert _raporlar, "K5-rapor-dosyası-üretilmedi"
+rapor_s = json.loads(_raporlar[-1].read_text(encoding="utf-8"))
 assert rc_s == 1, f"K5-ihlal-exit-1-beklendi: {rc_s}"
 assert rapor_s["sla"]["sessiz_gecis"] == 1 and rapor_s["kabul_gunu"] is False
 print("  NEG-1 sessiz-geçiş: PASIF-kurallar → karar-None →"

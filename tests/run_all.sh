@@ -579,6 +579,12 @@ PY
   kontrol $? "AT-122: ROBOSEAL DID-belge + revocation-fail-closed → RFC-010"
   bash tests/at123_veridict_anchor_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-123: Veridict-anchor (Rekor-RFC-6962+ECDSA-P256) → RFC-010"
+  bash tests/at126_veridrome_tee_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-126: 73-Veridrome TEE-tasdik ( donanım-ECDSA-P384) → RFC-010"
+  bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
+  bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-125: Pactiva qr-canlılık ( rolling-HMAC + replay-koruması)"
 
   rm -rf "$SB"
   echo ""

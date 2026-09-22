@@ -601,6 +601,8 @@ PY
   kontrol $? "AT-136: Dümen-birleşim-paterni ( 6-kanal-tek-chain-head)"
   bash tests/at137_veridrome_dom_mutator_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-137: Veridrome-dom_mutator ( İNDETERMİNE — HMAC-10hex)"
+  bash tests/at138_swarmax_birlesim_persist_alarm_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-138: Swarmax-_persist_alarm-birleşimi ( 3-kanal-evidence_seq)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

@@ -633,6 +633,8 @@ PY
   kontrol $? "AT-153: consensus-tarama ( INDETERMİNE: Phase-3-erteli; F24-tasima-olcumu)"
   bash tests/at154_pactiva_hmac_sinir_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-154: pactiva-HMAC-sinir + proof-of-audit-zinciri ( §6-tamam)"
+  bash tests/at155_tamga_epoch_seal_dish_fact_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-155: tamga-dis-fact-baglama ( cmd_anchor-R9; tahriz-broken@4)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

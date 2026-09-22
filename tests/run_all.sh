@@ -7,6 +7,9 @@ set -u
 cd "$(dirname "$0")/.."
 TAMGA_RUN_ALL_ABS="$(realpath "$0")"; export TAMGA_RUN_ALL_ABS
 export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
+# AT-162-düzeltmesi: syntropion-sabit-default-key-kaldırıldı → test-ortamı
+# için-zorunlu-env ( üretim-değil; ci-deterministik-test-key)
+export SYNTROPION_SECRET_KEY="${SYNTROPION_SECRET_KEY:-simnet-syntropion-test-key-32b}"
 # concurrency guard (D1 closed 2026-09-15, hardened same-day): the suite shares sandbox
 # dirs — parallel instances produce false FAILs (observed). One mutex, fail-loud.
 # Command-form flock (not exec-fd form): util-linux marks its fd close-on-exec, so test
@@ -647,6 +650,10 @@ PY
   kontrol $? "AT-160: dog-iddia-tarama ( yieldix-SPF/DKIM/DMARC-acigi-KAPANDI)"
   bash tests/at161_veridrome_keccak_erc8004_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-161: veridrome-keccak → erc8004/v1 ( sema-dengesi-3/3)"
+  bash tests/at162_kimlik_sizdiran_ozet_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-162: kimlik-sizdiran-ozet-tarama ( syntropion-sabit-default-key-KAPANDI)"
+  bash tests/at164_rfc010_s6_tutarlilik_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-164: RFC010-s6 ↔ kod-tutarlilik ( standardizasyon)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

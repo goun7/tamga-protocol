@@ -167,3 +167,58 @@ sözleşme-bağımsız-yapar; RFC-010-yanlızca-kendi-ön-görüntüsünü-doğr
   claim'de-ZORUNLU (yoksa RED — "swap"-negatif-kontrolleri-gibi).
 - **Üçüncü-seçenek-yasak-burada-da:** scheme-listesinde-olmayan-bir-kanal-RED-
   VERMEMELİ (İNDETERMİNE) — yoksa-sessizce-işlem-öldürürüz. Bu-§3'te-beyanlı.
+
+## 6. Yabancı-zincir-kanıtı ( foreign_chain_proof) — additive ( 2026-09-23)
+
+Bu-bölüm-varolan-davranışı-belgeler ( additive-only; kod-önceden-uyguluyordu,
+RFC'de-yazılı-değildi — AT-141..161'in-§6-dikişleri-standardize-edildi).
+
+### 6.1 Şema
+
+`charge_rec.foreign_chain_proof` ( opsiyonel-alan):
+
+```json
+{"chain": "swarmax", "head_hex": "<64hex>", "entries": <int>,
+ "evidence_link": "equals"|"derived"|"none", "verify_cmd": "<str>"}
+```
+
+- **chain**: whitelist — `swarmax | dumen | pqhaven | tamga | fleksa | sester |
+  veridict | pacta | pactiva | yieldix | syntropion | tenderix | veridrome`.
+  Listede-olmayan-zincir → RED ( bilinmeyen-İÇİN-İNDETERMİNE-DEĞİL: kanıt-
+  adı-iddiası-yanlış-OLDUĞU-için-çürüktür). Her-zincir-kendi-adında-sunulmalı
+  ( AT-107/134-dersi: önceden-hepsi-"tamga"-adı-altında-gidiyordu).
+- **head_hex**: 64-lowercase-hex-ZORUNLU. Boş/farklı-uzunluk → RED
+  ( boş-kök-sahte-zincir-işaretidir).
+- **entries**: int ≥ 1-ZORUNLU ( sıfır-girişli-zincir-kanıt-değildir).
+- **verify_cmd**: DIŞ-GİZLİLİK-alanıdır — **çalıştırılmaz**, yalnızca-denetim-
+  izi-için-kaydedilir ( üçüncü-seçenek-yasak: biz-yabancı-zinciri-kendimiz
+  yeniden-doğrulamayız, onun-kanıtını-kabul-ederiz — ama-çürükse-RED).
+  KAYDETME-YERİNE-ÇALIŞTIRMA ( AT-067-itirafı).
+
+### 6.2 İçerik-bağlantısı ( evidence_link, AT-079)
+
+Eski-kod-yalnızca-BİÇİM-ölçerdi — herhangi-64-hex-geçerliydi ( sahte-head-
+GREEN-geçiyordu; §6-borcunun-kalan-yüzü). Link-içerik-BAĞLANTISINI-zorlar:
+
+- **`equals`**: `head_hex == receipt_hash` ( kanıt-teslimat-özütüyle-AYNI).
+- **`derived`**: `head_hex == sha256( bytes.fromhex( receipt_hash))` —
+  dikkat: türetme-halkası-GERÇEK-olmalıdır ( AT-156-dersi: keccak-Merkle-kökü
+  sha256-türevine-EŞİT-OLAMAZ; iki-hash-ailesi → anlamsız-türetme-yerine
+  equals-kullan veya İNDETERMİNE-bildir).
+- **`none` / yok**: head-receiptHash'e-BAĞLI-değil ( farklı-zincirlerin-farklı
+  kökleri-olabilir); ama-boş-head-yine-RED.
+
+### 6.3 Gate-davranışı
+
+- **kanıt-YOKSA → GREEN** ( geri-uyumlu; eski-dikişler-kırılmaz). §6-ZORUNLU-
+  DEĞİLDİR — settlement-bind'ın-asıl-kanıtı-claim-imzasıdır (§3-kontrol-2);
+  foreign-chain-ek-doğrulamadır.
+- **kanıt-VAR + geçersiz → RED** ( rc8 `foreign_chain_broken`). Üçüncü-seçenek-
+  yasak-ihlali-yok: eksiklik-İNDETERMİNE-değil, KANITLANMIŞ-çürüklük.
+
+### 6.4 Mesh-uygulama-özetleri ( AT-141..161)
+
+Her-zincir-kendi-kanıt-modelini-korur ( heterojen-federasyon; homojen-blockchain-
+değil): Merkle ( veridrome-RFC-6962, fleksa, dumen), Ed25519 ( swarmax, yieldix,
+tenderix), ECDSA-P256 ( veridict-Rekor-dış-zincir), Proof-of-Audit ( pactiva),
+D5-ledger ( tamga, sester, pacta). Hepsi-§6 üzerinden-ortak-doğrulamaya-bağlanır.

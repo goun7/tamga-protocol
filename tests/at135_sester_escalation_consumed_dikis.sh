@@ -193,8 +193,6 @@ doz3 = sign_exact_sester(SESTER_SK, AGENT, "at135-n3", "0.05", "/weather")
 r3 = client.get("/weather?sehir=istanbul", headers={"X-Payment": doz3})
 assert r3.status_code == 402 and r3.json().get("error", "").startswith(
     "escalation_required:"), "tüketilen-bilet-sonra-yeniden-izin-verilmemeli"
-assert led.export_events(AGENT).count(
-    lambda e: True)  # sayı-sadece-okuma (assert-değil)
 n = sum(1 for e in led.export_events(AGENT)
         if e["event_type"] == "escalation_consumed")
 assert n == 1, f"consume-tekrar-yazıldı (double-YAZMA): {n}"

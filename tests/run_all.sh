@@ -595,6 +595,12 @@ PY
   kontrol $? "AT-133: Syntropion-revenue-router ( AT-131+132-kanal-birleşimi)"
   bash tests/at134_veridrome_vapap_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-134: Veridrome-VAPAP-agent-yetkilendirme ( gerçek-Ed25519)"
+  bash tests/at135_sester_escalation_consumed_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-135: Sester-escalation-consumed ( üretim-HTTP-yolu)"
+  bash tests/at136_dumen_birlesim_paterni_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-136: Dümen-birleşim-paterni ( 6-kanal-tek-chain-head)"
+  bash tests/at137_veridrome_dom_mutator_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-137: Veridrome-dom_mutator ( İNDETERMİNE — HMAC-10hex)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

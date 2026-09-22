@@ -131,15 +131,15 @@ r_f = verify_http_request("POST", AUTH, URI, H5, BODY, RAW, now=float(T0))
 assert (r_f.status_code, r_f.error_code) == (401, "SIGNATURE_EXPIRED")
 # (g) bozuk-signature-header ( parse-hatası) → 400
 H6 = dict(H); H6["signature"] = "malformed_sig_val"
-r_g = verify_http_request("POST", AUTH, URI, H6, BODY, RAW)
+r_g = verify_http_request("POST", AUTH, URI, H6, BODY, RAW, now=float(T0))
 assert (r_g.status_code, r_g.error_code) == (400, "MALFORMED_SIGNATURE")
 # (h) geçersiz-pubkey ( yanlış-uzunluk) → 401
-r_h = verify_http_request("POST", AUTH, URI, H, BODY, bytes(31))
+r_h = verify_http_request("POST", AUTH, URI, H, BODY, bytes(31), now=float(T0))
 assert (r_h.status_code, r_h.error_code) == (401, "INVALID_PUBLIC_KEY")
 # (i) geçersiz-imza ( BAŞKA-gerçek-anahtarla-imzalı) → 401
 priv2, pub2, _ = generate_keypair()
 H7, _, _ = imzali_istek(T0, priv_k=priv2)
-r_i = verify_http_request("POST", AUTH, URI, H7, BODY, RAW)
+r_i = verify_http_request("POST", AUTH, URI, H7, BODY, RAW, now=float(T0))
 assert (r_i.status_code, r_i.error_code) == (401, "INVALID_SIGNATURE")
 print("  6-adım-fail-closed: MISSING-400 / DIGEST-401 / MALFORMED-INPUT-400 / "
       "NO-CREATED-400 / EXPIRED-401 / MALFORMED-SIG-400 / BAD-PUBKEY-401 / "

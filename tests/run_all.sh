@@ -605,6 +605,10 @@ PY
   kontrol $? "AT-138: Swarmax-_persist_alarm-birleşimi ( 3-kanal-evidence_seq)"
   bash tests/at139_roboseal_verifier_replay_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-139: ROBOSEAL-RFC-9421-tam-yol + ReplayCache ( tek-seferlik)"
+  bash tests/at141_tamga_chain_head_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-141: tamga/native-chain-head-blok-üretim ( D5-yeniden-oynama)"
+  bash tests/at143_tamga_bundle_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-143: tamga/native-bundle-kanıt-çekirdeği ( D5 + JCS-mührü)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

@@ -39,7 +39,10 @@ def _foreign_chain_ok(proof: dict, payer: str, receipt_hex: str, scheme: str) ->
                                 # kendi-kanıt-adında-sunulabilmeli)
                      "sester",  # AT-090/085/105: üretim-ledgerı/policy-vault'u
                      "veridict", "pacta", "pactiva", "yieldix", "syntropion",
-                     "tenderix"):
+                     "tenderix",
+                     # AT-134: Veridrome-VAPAP/contracts-kendi-kanıt-adında
+                     # ( AT-126-deseni-gibi; önceden-"tamga"-adı-altında-gidiyordu)
+                     "veridrome"):
         return False
     if not isinstance(head, str) or len(head) != 64:
         return False

@@ -641,6 +641,12 @@ PY
   kontrol $? "AT-157: alici-tarafi-tuketim-denetimi ( zkTLS-acigi-KAPANDI)"
   bash tests/at159_swarmax_tamga_native_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-159: swarmax-seal → tamga/native-semasi ( R-noktasi-koruma)"
+  bash tests/at158_tamga_state_root_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-158: state-root-tarama ( INDETERMİNE; graph_merkle-olcumu)"
+  bash tests/at160_dogrulanmayan_kanit_iddia_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-160: dog-iddia-tarama ( yieldix-SPF/DKIM/DMARC-acigi-KAPANDI)"
+  bash tests/at161_veridrome_keccak_erc8004_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-161: veridrome-keccak → erc8004/v1 ( sema-dengesi-3/3)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

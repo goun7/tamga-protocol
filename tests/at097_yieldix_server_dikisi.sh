@@ -82,7 +82,7 @@ def get(path):
 TASK_ID = STATE.engine.cold_email_l2.enqueue_outbound_draft(
     lead_id="lead-at097", recipient_email="cto@acme-at097.test",
     subject="Q4 Autonomous Sales SLA", body_text="Merhaba, otomatik takip.",
-    company_domain="acme-at097.test")
+    company_domain="google.com")
 assert TASK_ID.startswith("l2_"), f"task_id-l2_-öneki-beklendi: {TASK_ID!r}"
 print(f"  enqueue_outbound_draft: {TASK_ID} (L2-insan-onay-kuyruğu)")
 

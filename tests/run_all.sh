@@ -619,6 +619,8 @@ PY
   kontrol $? "AT-148: Swarmax-seal-anchor-kopru-pru ( merkle+Ed25519, secretsiz)"
   bash tests/at149_pacta_tamga_receipt_alici_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-149: Pacta-tamga-receipt-alici-tarafi ( 3-katman + acik-kapandi)"
+  bash tests/at150_kripto_gecit_kapisi_denetim_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-150: kripto-gecit-kapisi-denetimi ( tenderix+sester-temiz)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

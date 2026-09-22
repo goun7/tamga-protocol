@@ -629,6 +629,8 @@ PY
   kontrol $? "AT-151: veridict-Rekor-dis-zincir-capasi ( gercek-canli-kayit + pin)"
   bash tests/at152_baglanmamis_kanit_yuzleri_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-152: baglanmamis-kanit-yuzleri ( veridrome+fleksa+yieldix-kendi-adlari)"
+  bash tests/at153_tamga_consensus_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-153: consensus-tarama ( INDETERMİNE: Phase-3-erteli; F24-tasima-olcumu)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

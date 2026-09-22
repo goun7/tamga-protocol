@@ -611,6 +611,8 @@ PY
   kontrol $? "AT-143: tamga/native-bundle-kanıt-çekirdeği ( D5 + JCS-mührü)"
   bash tests/at144_tamga_node_cosign_dos_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-144: tamga/native-node-cosign-DoS-direnç ( 3-saldırı-rc14)"
+  bash tests/at142_tamga_node_key_otorite_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-142: tamga/native-node-key-otorite ( node_id-mühür + node_sig-ayrı)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

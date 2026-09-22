@@ -103,9 +103,20 @@ def _claim_signer(digest_hex: str, sig_hex: str, scheme: str = "x402/v1",
         except Exception:
             return None
     if scheme == "erc8004/v1":
-        # keccak-merkle-üyelik-kanıtı → kök-hash
+        # keccak-merkle-üyelik-kanıtı → kök-hash. AT-065/AT-128-protokol-
+        # tanımı: buyer = keccak256(delivery_hash)'dir ( kayıt-özütü), gövde
+        # özeti DEĞİL — gövde buyer'ı içerdiğinden döngüsel-özüt-üretir ve
+        # gerçek-yol-asla-GREEN-veremezdi. delivery-hash dışarıdan-sabit bir
+        # özüttür ( kanıtlanan-şey), gövde-girişi DEĞİL.
         from tamga_keccak import keccak256
-        return keccak256(bytes.fromhex(digest_hex)) if digest_hex else None
+        if not digest_hex:
+            return None
+        got = keccak256(bytes.fromhex(digest_hex))
+        # AT-128-güvenlik-düzeltmesi: keccak256-bytes-döner; got-str(buyer)-
+        # ile-karşılaştırılırken-bytes≠str-asla-eşit-olamazdı → erc8004/v1
+        # gerçek-yoldan-sürekli-RED-rc4-verirdi ( AT-065-test-double'ı-ile-
+        # aşılmıştı). hex'e-çevir-ve-str-olarak-karşılaştır.
+        return got.hex() if isinstance(got, bytes) else got
     return None
 
 
@@ -172,10 +183,15 @@ def verify(charge_rec: dict, claim: dict) -> dict:
             # Geriye-dönük-uyum (AT-063..072'nin-3-argümanlı-lambda'ları-korunur):
             # eski-double'lar TypeError-verirse-3-argümanlı-çağrıya-düşer.
             _d = _digest("sha256", govde_json.encode())
+            # erc8004/v1: döngüsel-özütü-kır — buyer = keccak(delivery-hash),
+            # gövde-özütü-DEĞİL ( gövde-buyer'ı-içerir → asla-sabitlenemez).
+            _evidence = _d
+            if scheme == "erc8004/v1" and isinstance(dh, dict):
+                _evidence = dh.get("hex", _d)
             try:
-                got = _claim_signer(_d, sig, scheme, buyer, govde_json)
+                got = _claim_signer(_evidence, sig, scheme, buyer, govde_json)
             except TypeError:
-                got = _claim_signer(_d, sig, scheme)
+                got = _claim_signer(_evidence, sig, scheme)
             ok2 = got is not None and got.lower() == str(buyer).lower()
         except Exception:
             ok2 = False

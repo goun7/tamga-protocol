@@ -583,6 +583,14 @@ PY
   kontrol $? "AT-126: 73-Veridrome TEE-tasdik ( donanım-ECDSA-P384) → RFC-010"
   bash tests/at129_yieldix_kalan_yuz_taramasi.sh > /dev/null 2>&1
   kontrol $? "AT-129: Yieldix-kalan-yüz-taraması ( İNDETERMİNE + 3-düzeltme)"
+  bash tests/at127_sester_escalation_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-127: Sester-escalation ledger-yüzü ( hash-chain-olayları)"
+  bash tests/at128_veridrome_contracts_dikisi.sh > /dev/null 2>&1
+  kontrol $? "AT-128: Veridrome-contracts ERC-8004 ( keccak-certId)"
+  bash tests/at131_syntropion_audit_ledger_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-131: Syntropion-audit-ledger ( Merkle-hash-chain)"
+  bash tests/at132_syntropion_shm_ipc_butunluk_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-132: Syntropion-shm-IPC-bütünlüğü ( struct-checksum + flock)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

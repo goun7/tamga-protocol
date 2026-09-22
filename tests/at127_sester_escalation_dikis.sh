@@ -8,6 +8,8 @@
 #
 # DİKİŞ: park+approve-geçişlerinin-hash-chain-head'i (evidence.produce_bundle)
 # → RFC-010 x402/v1 (equals-link: head == delivery_hash, gerçek-EIP-191).
+# Anchor anında AGENT için tam-3-olay: parked + approved + parked (deny-biletinin
+# park'ı); deny-kararı anchor'dan-sonra-4.olay-yazılır (geçiş-yine-de-kanıtlanır).
 #
 # NEGATİFLER:
 #   rc4 sahte-imza, rc7 evidenceHash-swap
@@ -69,9 +71,9 @@ print("  park → escalation_parked-ledger'a-yazıldı (kanıt-zinciri-açıldı
 t2 = q.park(AGENT, RES, 0.01, "quota_exceeded", "tekrar-deneme")
 assert t2["esc_id"] == t1["esc_id"], "tek-bilet-disiplini-bozuldu"
 assert len(led.export_events(AGENT)) == 1, "spam-park-ledger'a-yazılmamalı"
-print("  tek-billet-disiplini: 2. park → aynı-bilet, spam-ledger-kirliliği-YOK")
+print("  tek-bilet-disiplini: 2. park → aynı-bilet, spam-ledger-kirliliği-YOK")
 
-# --- 3) approve → escalation_approved-ledger'a-yazılır
+# --- 3) approve → escalation_approved-ledger'a-yazılır; consume SQLite-only
 q.decide(t1["esc_id"], True, "insan-onayci", "mantıklı-aşım")
 ev2 = led.export_events(AGENT)
 tipler = [e["event_type"] for e in ev2]
@@ -80,21 +82,30 @@ assert q.get(t1["esc_id"])["status"] == "approved"
 # consume: bir-kezlik (SQLite-günceller; kanıt-sorumluluğu-decide'da)
 assert q.consume(t1["esc_id"]) is True
 assert q.consume(t1["esc_id"]) is False, "consume-tek-kezlik-olmalı"
+# consume-yazılmaz-ölçümü (:175-183): hâlâ-2-olay (escalation_consumed-yok)
+assert len(led.export_events(AGENT)) == 2, \
+    f"consume-ledger'a-olay-yazmamalı: {[e['event_type'] for e in ev2]}"
 print("  approve → escalation_approved-ledger'a-yazıldı; consume-bir-kezlik"
-      " (kanıt-decide'da-sabitleşti)")
+      " (SQLite-only — kanıt-decide'da-sabitleşti, olay-çiftlenmesi-YOK)")
 
-# --- 4) deny-geçişi-de-ledger'a-yazılır
+# --- 4) deny-bileti-park'ı → 3.escalation-olayı (anchor'a-3-olay-girer)
 t3 = q.park(AGENT, "/test-deny", 0.02, "risk", "riskli")
-q.decide(t3["esc_id"], False, "insan-onayci", "reddedildi")
 ev3 = led.export_events(AGENT)
-assert "escalation_denied" in [e["event_type"] for e in ev3], "deny-yazılmadı"
-print("  deny → escalation_denied-ledger'a-yazıldı (tüm-geçişler-kanıtlandı)")
+assert len(ev3) == 3, f"3.olay-ledger'a-yazılmadı: {[e['event_type'] for e in ev3]}"
+assert all(e["event_type"].startswith("escalation_") for e in ev3), \
+    "escalation-yüzü-dışından-olay-karıştı"
+print("  deny-bileti-park'ı → 3.olay; escalation-yüzü-tam (parked/approved)")
 
 # --- 5) hash-chain-head → RFC-010 x402/v1 GREEN (gerçek-EIP-191)
+# iç HMAC-zinciri-sağlam + dışa-doğrulanabilir-proof-zinciri-sağlam:
+assert led.verify_chain(), "iç-hash-zinciri-bozuk (HMAC-mühür-escalation'da-kopar)"
+assert len(led.chain_head()) == 64, "chain_head-64-hex-değil"
 bundle = produce_bundle(led, AGENT)
 ok, _ = verify_bundle(bundle)
-assert ok and bundle["event_count"] == 3
-digest = bundle["head"]   # equals-link-tutuarlığı
+assert ok and bundle["event_count"] == 3, \
+    f"bundle-3-olay-değil/bozuk: count={bundle['event_count']} ok={ok}"
+assert bundle["head"] != "0" * 64, "head-GENESIS-kaldı (olaylar-zincire-girmedi)"
+digest = bundle["head"]   # equals-link-tutarlılığı
 claim = {"buyerAddress": BUYER, "sellerAddress": "0x" + "2" * 40,
          "settlementRef": "SESTER-ESC-127",
          "evidenceHash": {"alg": "sha256", "hex": digest}, "signature": "_"}
@@ -137,7 +148,15 @@ assert r7["verdict"] == "RED" and r7["reason_code"] == 7, \
     f"rc7-beklendi: {r7}"
 print("  NEG-2 evidenceHash-swap: RED rc7 (onaylı-kanıt-head'i-değiştirilemez)")
 
-# --- 8) escalation'a-özel: negatif-amount-reddi (AT-062-kota-bypass-sınıfı)
+# --- 8) deny-geçişi-de-ledger'a-yazılır (anchor'dan-sonra — 4.olay)
+q.decide(t3["esc_id"], False, "insan-onayci", "reddedildi")
+ev4 = led.export_events(AGENT)
+assert "escalation_denied" in [e["event_type"] for e in ev4], "deny-yazılmadı"
+assert led.verify_chain(), "deny-olayı-iç-zinciri-bozdu"
+print("  deny → escalation_denied-ledger'a-yazıldı (tüm-geçişler-kanıtlandı,"
+      " iç-zincir-sağlam)")
+
+# --- 9) escalation'a-özel: negatif-amount-reddi (AT-062-kota-bypass-sınıfı)
 try:
     q.park(AGENT, "/neg", -0.5, "r")
     raise AssertionError("negatif-amount-kabul-edildi!")
@@ -145,7 +164,7 @@ except ValueError as e:
     assert "kota-bypass" in str(e) or "negatif" in str(e).lower()
 print("  NEG-3 negatif-amount: ValueError (AT-062-kota-bypass-sınıfı-korunur)")
 
-# --- 9) TTL-expire-fail-closed: pending → expired (sessiz-onay-YOK)
+# --- 10) TTL-expire-fail-closed: pending → expired (sessiz-onay-YOK)
 q2 = EscalationQueue(os.path.join(tmp, "at127-ttl.db"), ledger=None,
                      ttl_seconds=0.01)
 import time
@@ -162,7 +181,7 @@ print("  NEG-4 TTL-expire: pending→expired-fail-closed; expired-bilete-karar-Y
       " (sessiz-onay-yolu-kapalı)")
 PYEOF
 RC=$?
-[ $RC -eq 0 ] && { PASS=$((PASS+1)); note "  PASS: dokuz-escalation-kanıt-kontrolü"; } \
+[ $RC -eq 0 ] && { PASS=$((PASS+1)); note "  PASS: on-escalation-kanıt-kontrolü"; } \
               || { FAIL=$((FAIL+1)); note "  FAIL"; sed -n '1,40p' "$LOG"; }
 
 echo

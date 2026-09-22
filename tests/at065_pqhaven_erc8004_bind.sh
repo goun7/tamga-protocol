@@ -41,19 +41,27 @@ import settlement_bind_verify as SB
 assert "erc8004/v1" in SB.SUPPORTED_SCHEMES, "scheme-listede-değil"
 
 # --- 2) GERÇEK-kök-ile-dikiş → GREEN
+# AT-128-güvenlik-düzeltmesi: erc8004/v1'de-buyer = keccak256(delivery_hash)'tir
+# ( kayıt-özütü). Eskiden: (a) keccak256-bytes-dönerdi → str-buyer'a-asla-
+# eşleşmezdi ( sürekli-RED-rc4), (b) özüt-olarak-gövde-özetini-geçirirdi →
+# gövde-buyer'ı-içerir → döngüsel → gerçek-yol-asla-GREEN-veremezdi → AT-065
+# bu-double'ı-geçici-olarak-kullanmıştı. Artık: dışarıdan-sabit-delivery-hash
+# özütü-üzerinden-keccak → buyer; gerçek-yol, double-YOK.
+from tamga_keccak import keccak256 as _k
+erc8004_buyer = _k(bytes.fromhex("c"*64)).hex()   # delivery-hash "c"*64
 charge = {"seq": 1, "prev": "0"*64, "h": "a"*64,
           "delivery_hash": {"alg": "sha256", "hex": "c"*64},
           "settlement_bind": {"scheme": "erc8004/v1", "payment_id": "PQ-SCAN-0001",
                               "claim_evidence_hash": {"alg": "sha256", "hex": "c"*64},
-                              "payer": kok, "payee": "0x2"*40,
+                              "payer": erc8004_buyer, "payee": "0x2"*40,
                               "verified_at": "2026-09-21T00:00:00Z"}}
-claim = {"buyerAddress": kok, "sellerAddress": "0x2"*40,
+claim = {"buyerAddress": erc8004_buyer, "sellerAddress": "0x2"*40,
          "settlementRef": "PQ-SCAN-0001",
-         "evidenceHash": {"alg": "sha256", "hex": "c"*64}, "signature": kok}
-SB._claim_signer = lambda d, s, scheme="x402/v1": (s if scheme == "erc8004/v1" else "0x1")
+         "evidenceHash": {"alg": "sha256", "hex": "c"*64}, "signature": "0x"*130}
+# GERÇEK-yol: test-double-YOK ( AT-128-düzeltmesinden-sonra-gereksiz)
 r = SB.verify(charge, claim)
 assert r["verdict"] == "GREEN", f"gerçek-kök-GREEN-beklendi: {r}"
-print("  gerçek-Merkle-kökü-ile-dikiş-GREEN")
+print("  gerçek-Merkle-kökü-ile-dikiş-GREEN (double-YOK, gerçek-erc8004-yolu)")
 
 # --- 3) NEGATİF: sahte-kök → RED (fail-closed; diğer-dördü-GREEN-olsa-bile)
 claim2 = json.loads(json.dumps(claim))

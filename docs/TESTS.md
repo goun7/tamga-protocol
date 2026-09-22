@@ -164,3 +164,31 @@ issues — see [SECURITY.md](../SECURITY.md) for private disclosure.
 | AT-126 — Veridrome TEE-tasdik (teammate; üçüncü yüz, donanım-ECDSA) | the attestation *verifier* rather than the carrier: AT-108's W3C-VC passed `tee_platform` and `pcr0` as claims, but the module that actually verifies them had never been measured. It is a genuine crypto face — real ECDSA over P-384 (with P-256/SHA256 as fallback) along the production path, plus PCR0 and nonce binding for AMD-SEV-SNP and AWS-Nitro. Both platforms verify through the real verification path, and the fail-closed multiplicities are each a distinct rejection ( wrong PCR0, wrong nonce, forged signature, and unsupported INTEL-TDX), with alias consistency checked. Hardware detection is honest: this machine has no TEE device, so the deterministic emulation path is used and that fact is measured rather than hidden. The two-channel discipline is explicit — the TEE's ECDSA is for hardware attestation, RFC-010's Ed25519 is for the payment claim, same signer family as AT-108 but different purpose. K0 note: TEE verification is unweighted binary, so the D-014 wall is not engaged |
 | AT-120 — Sester bridges K1-köprü (teammate; beşinci yüz, alıcı-tarafı-pür-sha256) | the K1 buyer-contract bridge face: `tamga_anchor` produces a Tamga external-anchor envelope from a real evidence bundle with a deterministic `anchor_id = sha256(head‖merkle_root‖event_count)[:32]`, and `verify_tamga_anchor` verifies it with pure sha256 — no Sester import, no secret, so a buyer can check the anchor without trusting the producer's stack. The bundle comes from a real isolated Sester ledger ( 2 receipts + 1 quota deny), not a fixture. The binding design is notably tight: `delivery_hash` *is* the bundle's chain head, so head == delivery_hash == evidenceHash — one 64-hex value carries the whole §6 equals link, and tampering the anchor dies at `verify_tamga_anchor` before reaching RED rc8, with the hash-swap negative at rc7 |
 | AT-125 — Pactiva qr-canlılık (teammate; altıncı yüz, insan-canlılık) | the human counterpart to AT-116's system-event proof: a 15-second rolling QR token proves the worker is physically on site, so ghost-worker and remote check-in fraud cannot pass. Three independent layers each measured: replay protection ( a repeated token dies `REPLAY_DETECTED` — the nonce cache genuinely works), time ( ±1 drift tolerated, +2 or negative → `TOKEN_EXPIRED`), and HMAC ( tamper or wrong key → `SIGNATURE_MISMATCH` via `compare_digest`, constant time), with all seven error codes exercised. The binding discipline is the important part: the HMAC's 24-hex output is *never* the evidenceHash — that is the same family of mistake as AT-094's 32-hex error, and a full sha256 of the packet is used instead. Bound GREEN as x402/v1, with a stale-window token substitution failing rc7 because the old token is genuinely `EXPIRED` — the cross-evidence is real, not asserted |
+| AT-130 — Pacta fsm (teammate; İNDETERMİNE — yeşil-boyanmadı) | a negative result worth recording: the formal escrow state machine is pure — `ALLOWED_TRANSITIONS` plus set-membership returning an enum, no digest, no signature — so it carries no RFC-010 face of its own. The important observation is that its security value is *already measured*: AT-109's vault test exercises this module's `transition` in the failure path ( a terminal-state transition → `InvalidStateTransitionError` RED), so the fail-closed property is bound inside the vault's proof context rather than standing alone. Externally adding sha256 over a transition would have been a test-double, so the module is reported İNDETERMİNE rather than bound |
+
+## Dış-geri-bildirim (2026-09-22) — iki-yön-doğrulaması
+
+İki-upstream-tartışma-bizim-içsel-kararlarımızı-bağımsız-olarak-doğruladı:
+
+**1. x402 #3389 (Vauban-Pay, stark-receipt)** — issue-sahibi-bizim-AT-082'ün-desenini
+bağımsız-olarak-üretti: 59-testnet-settlement-TK-proof+TK-on-chain-fact'e-katlandı,
+offline-doğrulanabilir, imza-anahtarına-güven-yok. Bağlanan-doğrulayıcı
+( stillmarcus24)-lot-dosyasından-tek-başına-Poseidon252-ile-kökü-birebir-yeniden
+üretti ( MATCH) VE-bir-slot-okuma-hatasını-kendi-düzeltti ( program_hash-değil
+verification_hash — ABI-okuyarak). Registry-round-trip-ediyor.
+**Açık-soru:** sabit-foreign-digest-bir-kez-girip-tekrar-commit-edilmiyor —
+stream-için-ne-yapılacak? **Bizim-AT-104-abonelik-kanıtı-modelimiz-bu-sorunun
+cevabıdır** ( liveness-yorumu-gönderildi: receipt-bir-örnektir-durum-değil,
+fail-loud-doğrulayıcıya-ait, bağımsızlık-ikinci-kanal-gerektirir).
+
+**2. in-toto-attestation-PR-592 (Computation-Receipt)** — re-execution-ile
+bit-identical-doğrulama, trusted-machine-yok, "UNVERIFIABLE-rather-than-overclaim".
+**AT-113'ün-"binding-would-be-cosmetic"-bulgusu-bu-PR-için-somut-saldırı-yüzüdür**
+( cosmetic-binding-yorumu-gönderildi: digest-sağlanan-değer-olarak-değil-
+manifest'ten-YENİDEN-hesaplanmalı; aksi-halde-claim-imzadan-sonra-flip-edilir).
+Aynı-disiplin: UNVERIFIABLE ≈ bizim-İNDETERMİNE.
+
+**Neden-önemli:** her-iki-tartışma-da-mesh'in-üç-temel-kararını-dışarıdan
+doğruluyor — (a) abonelik-kanıtı-recurring-zorunlu, (b) digest-derive-edilmeli-
+suni-değil, (c) fail-closed/UNVERIFIABLE-overclaim'den-iyi. Bu-kararlar-artık
+sadece-bizim-131-testimizin-değil-iki-bağımsız-upstream-tasarımının-ortak-sonucu.

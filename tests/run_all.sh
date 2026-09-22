@@ -581,6 +581,8 @@ PY
   kontrol $? "AT-123: Veridict-anchor (Rekor-RFC-6962+ECDSA-P256) → RFC-010"
   bash tests/at126_veridrome_tee_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-126: 73-Veridrome TEE-tasdik ( donanım-ECDSA-P384) → RFC-010"
+  bash tests/at129_yieldix_kalan_yuz_taramasi.sh > /dev/null 2>&1
+  kontrol $? "AT-129: Yieldix-kalan-yüz-taraması ( İNDETERMİNE + 3-düzeltme)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

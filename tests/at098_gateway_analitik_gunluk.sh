@@ -116,8 +116,10 @@ gg = importlib.import_module("guvence_gunluk")
 gg.GUVENTE_LEDGER = str(test_ledger)
 gg.CIKTI_DIZINI = str(TMP / "gunluk")
 rc = gg.main()
-rapor_yol = TMP / "gunluk" / f"{__import__('datetime').date.today().isoformat()}.json"
-rapor = json.loads(rapor_yol.read_text(encoding="utf-8"))
+# gg.main() UTC-tarih-yazar (:68) — glob-ile-gerçek-raporu-bul
+_raporlar = sorted((TMP / "gunluk").glob("*.json"))
+assert _raporlar, "K5-rapor-dosyası-üretilmedi"
+rapor = json.loads(_raporlar[-1].read_text(encoding="utf-8"))
 assert rc == 0, f"K5-kabul-günü-exit-0-beklendi: {rc}"
 assert rapor["zincir_ok"] is True and rapor["kayit"] > 0
 assert rapor["sla"]["sessiz_gecis"] == 0

@@ -89,21 +89,20 @@ except ValueError:
 HEAD, N = chain_head(pkg)
 
 from nacl.signing import SigningKey
-# x402/v1 = GERÇEK-EIP-191-secp256k1 (§3b: encode_defunct-öneki-var; raw-özüt-DEĞİL)
+# x402/v1 = EIP-191-secp256k1, AMA RFC-010-§3b: imza-raw-özüt-üzerinde
+# ( encode_defunct-EIP-191-ÖNEKİ-YOK — ham-sha256-baytları). ecrecover_to_pub
+# z=int(digest,16)-kullanır; ön ekli-imza farklı-adres-verir → rc4.
 from eth_account import Account
-from eth_account.messages import encode_defunct
 acct = Account.create()
 PUB = acct.address
 govde = {"buyerAddress": PUB, "sellerAddress": "0x" + "2"*40,
          "settlementRef": "TAMGA-CHAIN-144",
          "evidenceHash": {"alg": "sha256", "hex": HEAD}}
 d = hashlib.sha256(json.dumps(govde, sort_keys=True).encode()).hexdigest()
-_sig = Account.sign_message(encode_defunct(hexstr=d), acct.key)
-sig_hex = "0x" + _sig.r.to_bytes(32, "big").hex() + _sig.s.to_bytes(32, "big").hex() + hex(_sig.v)[-2:]
-assert len(sig_hex) == 132, f"EIP-191-imza-132-hex-beklendi: {len(sig_hex)}"
-# özümden-adres == buyer ( gerçek-EIP-191-kanıtı)
-_cek = Account.recover_message(encode_defunct(hexstr=d), vrs=(_sig.v, _sig.r, _sig.s))
-assert _cek.lower() == PUB.lower(), "EIP-191-özüm-buyer'a-uymadı"
+_sig = Account.unsafe_sign_hash(bytes.fromhex(d), acct.key)   # ham-özüt (EIP-191'siz)
+_v = _sig.v if _sig.v >= 27 else _sig.v + 27
+sig_hex = "0x" + _sig.r.to_bytes(32, "big").hex() + _sig.s.to_bytes(32, "big").hex() + bytes([_v]).hex()
+assert len(bytes.fromhex(sig_hex[2:])) == 65, "EIP-191-imza-65-bayt-beklendi"
 claim = dict(govde); claim["signature"] = sig_hex
 charge = {"seq": 144, "prev": "0"*64, "h": "a"*64,
           "delivery_hash": {"alg": "sha256", "hex": HEAD},
@@ -128,7 +127,10 @@ print("  sahte-imza → RED rc4 (fail-closed)")
 # NEG-2: evidenceHash-swap → RED rc7
 g2 = dict(govde); g2["evidenceHash"] = {"alg": "sha256", "hex": "9"*64}
 d2 = hashlib.sha256(json.dumps(g2, sort_keys=True).encode()).hexdigest()
-c2 = dict(g2); c2["signature"] = sk.sign(bytes.fromhex(d2)).signature.hex()
+c2 = dict(g2)
+_s2 = Account.unsafe_sign_hash(bytes.fromhex(d2), acct.key)
+_v2 = _s2.v if _s2.v >= 27 else _s2.v + 27
+c2["signature"] = "0x" + _s2.r.to_bytes(32,"big").hex() + _s2.s.to_bytes(32,"big").hex() + bytes([_v2]).hex()
 r2 = SB.verify(charge, c2)
 assert r2["verdict"] == "RED" and r2["reason_code"] == 7, f"swap-rc7: {r2}"
 print("  evidenceHash-swap → RED rc7 (fail-closed)")

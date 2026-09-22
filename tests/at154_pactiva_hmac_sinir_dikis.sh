@@ -139,37 +139,40 @@ try:
         prev = bh
     print("  integrity-secret'suz-True ( 2/2-blok); bağımsız-pür-sha256-teyit-tam-tutar")
 
-    # --- 5) tahriz-1: payload-değişimi → PAYLOAD_TAMPERED
-    with sqlite3.connect(DB) as c:
+    # --- 5/6/N3) TAHRİZ-negatifleri-taze-DB'de ( durum-kirliliği-yok)
+    TDB = tempfile.mktemp(suffix="-at154-t.db")
+    def _taze_tahriz_db():
+        if os.path.exists(TDB):
+            os.unlink(TDB)
+        with sqlite3.connect(TDB) as c:
+            _schema(c)
+        record_audit_event("escrow_lock", {"escrow_id": "E1", "amount": 100},
+                           db_path=TDB)
+        record_audit_event("payment_release", {"escrow_id": "E1", "amount": 90},
+                           db_path=TDB)
+
+    # 5) tahriz-1: payload-değişimi → PAYLOAD_TAMPERED
+    _taze_tahriz_db()
+    with sqlite3.connect(TDB) as c:
         c.execute("UPDATE audit_blocks SET payload_json='{\"amount\":999}' "
                   "WHERE block_index=1")
-    v2 = verify_audit_ledger_integrity(db_path=DB)
+    v2 = verify_audit_ledger_integrity(db_path=TDB)
     assert v2["is_valid"] is False and v2["error_code"] == "PAYLOAD_TAMPERED", \
         f"payload-tahrizi-yakalanmadı: {v2}"
     print("  tahriz-1: payload-değişimi → PAYLOAD_TAMPERED ( fail-closed, secret'suz)")
 
-    # --- 6) tahriz-2: block_hash-değişimi → BLOCK_HASH_INVALID
-    with sqlite3.connect(DB) as c:
-        c.execute("UPDATE audit_blocks SET payload_json='{\"escrow_id\":\"E1\","
-                  "\"amount\":100}' WHERE block_index=1")   # orijinal-geri
+    # 6) tahriz-2: block_hash-değişimi → BLOCK_HASH_INVALID
+    _taze_tahriz_db()
+    with sqlite3.connect(TDB) as c:
         c.execute("UPDATE audit_blocks SET block_hash='f'*64 WHERE block_index=2")
-    v3 = verify_audit_ledger_integrity(db_path=DB)
+    v3 = verify_audit_ledger_integrity(db_path=TDB)
     assert v3["is_valid"] is False and v3["error_code"] == "BLOCK_HASH_INVALID", \
         f"hash-tahrizi-yakalanmadı: {v3}"
     print("  tahriz-2: block_hash-değişimi → BLOCK_HASH_INVALID ( üç-katmanlı-koruma)")
 
     # --- 7) RFC-010-GREEN ( §6-pactiva-equals; head=block_hash)
-    with sqlite3.connect(DB) as c:
-        # orijinal-2-blokluk-zinciri-geri-yükle ( block_hash-2'yi-geri-al)
-        bh2 = compute_block_hash(2, rows[1]["created_at"], "payment_release",
-            hashlib.sha256(rows[1]["payload_json"].encode()).hexdigest(),
-            compute_block_hash(1, rows[0]["created_at"], "escrow_lock",
-                hashlib.sha256(rows[0]["payload_json"].encode()).hexdigest(),
-                GENESIS_PREV_HASH))
-        c.execute("UPDATE audit_blocks SET block_hash=? WHERE block_index=2", (bh2,))
-    v4 = verify_audit_ledger_integrity(db_path=DB)
-    assert v4["is_valid"] is True and v4["latest_block_hash"] == bh2, "onarım-sonrası-zincir-geçersiz"
-    head = bh2
+    #  ( ana-DB-kanıt-4'ten-beri-temiz — tahrizler-TDB'de)
+    head = v["latest_block_hash"]
     BUYER = ek.PrivateKey(os.urandom(32))
     ADDR = to_checksum_address(BUYER.public_key.to_address())
     govde = {"buyerAddress": ADDR, "sellerAddress": "0x" + "2" * 40,
@@ -215,18 +218,20 @@ try:
     print("  N2-evidenceHash-swap ( yeni-gerçek-imzalı) → RED rc7 (fail-closed)")
 
     # --- N3) zincir-kopması → CHAIN_DISCONTINUITY
-    with sqlite3.connect(DB) as c:
+    _taze_tahriz_db()
+    with sqlite3.connect(TDB) as c:
         c.execute("UPDATE audit_blocks SET prev_block_hash='e'*64 "
                   "WHERE block_index=2")
-    v5 = verify_audit_ledger_integrity(db_path=DB)
+    v5 = verify_audit_ledger_integrity(db_path=TDB)
     assert v5["is_valid"] is False and v5["error_code"] == "CHAIN_DISCONTINUITY", \
         f"N3-zincir-kopması-yakalanmadı: {v5}"
     print("  N3-zincir-kopması ( prev-bağı-değişimi) → CHAIN_DISCONTINUITY")
     print("  SONUÇ: pactiva'da-HMAC-sınırı-GERÇEK ( §6'ya-bağlanamaz) — AMA-açık "
               "Proof-of-Audit-zinciri-§6-pactiva'ya-BAĞLANDI ( secret'suz-doğrulanabilir)")
 finally:
-    if os.path.exists(DB):
-        os.unlink(DB)
+    for _f in (DB, TDB):
+        if os.path.exists(_f):
+            os.unlink(_f)
 PYEOF
 RC=$?
 [ $RC -eq 0 ] && PASS=$((PASS+1)) && note "  PASS: yedi-pactiva-HMAC-sınırı+açık-zincir-dikişi" \

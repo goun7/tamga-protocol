@@ -130,12 +130,11 @@ try:
     head = olay[0]["current_hash"]
     assert re.fullmatch(r"[0-9a-f]{64}", head), f"chain-head-64hex-değil: {head}"
     # chain-bütünlüğü: stored-head-bağımsız-yeniden-hesapla-EŞİT (AT-131-disiplini)
+    ts_satir = dbmod.db.fetchone(
+        "SELECT timestamp FROM audit_ledger WHERE event_type=?",
+        ("REVENUE_SPLIT_PROCESSED",))["timestamp"]
     to_hash = f"{olay[0]['previous_hash']}:{olay[0]['event_type']}:" \
-              f"{olay[0]['actor']}:" \
-              f"{[x for x in dbmod.db.fetchall('SELECT timestamp FROM "
-               f"audit_ledger WHERE event_type=?', "
-               f"('REVENUE_SPLIT_PROCESSED',))][0]['timestamp']}:" \
-              f"{olay[0]['payload_json']}"
+              f"{olay[0]['actor']}:{ts_satir}:{olay[0]['payload_json']}"
     assert hashlib.sha256(to_hash.encode("utf-8")).hexdigest() == head, \
         "audit-chain-head-yeniden-hesapla'ya-uymuyor (AT-131-zinciri-çürük)"
     print(f"  AT-131-beslendi: REVENUE_SPLIT_PROCESSED-zincire-yazıldı; "

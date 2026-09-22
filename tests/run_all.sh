@@ -621,6 +621,10 @@ PY
   kontrol $? "AT-149: Pacta-tamga-receipt-alici-tarafi ( 3-katman + acik-kapandi)"
   bash tests/at150_kripto_gecit_kapisi_denetim_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-150: kripto-gecit-kapisi-denetimi ( tenderix+sester-temiz)"
+  bash tests/at145_tamga_sybil_duz_ikili_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-145: Sybil-tarama ( INDETERMINE: composition_vector-RFC009-Merkle)"
+  bash tests/at146_tamga_chain_head_uretim_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-146: tamga-bundle-ic-chain-head-uretim ( 4-yonlu-capraz-dogrulama)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

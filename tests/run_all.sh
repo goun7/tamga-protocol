@@ -637,6 +637,10 @@ PY
   kontrol $? "AT-155: tamga-dis-fact-baglama ( cmd_anchor-R9; tahriz-broken@4)"
   bash tests/at156_rfc009_sunum_paritesi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-156: RFC009-sunum-paritesi ( derived-baglanmaz, equals-GERCEK-bag)"
+  bash tests/at157_alici_tarafi_tuketim_denetim_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-157: alici-tarafi-tuketim-denetimi ( zkTLS-acigi-KAPANDI)"
+  bash tests/at159_swarmax_tamga_native_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-159: swarmax-seal → tamga/native-semasi ( R-noktasi-koruma)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1

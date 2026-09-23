@@ -65,8 +65,11 @@ print(f"oran C/B = {r2:.2f} (yorumlayıcı-başlangıcı-dominant)")
 # RED-düşürdü; üç-ölçümün-ortancası-flap'leri-filtreler-ama-bandı-zayıflatmaz.
 def measure_r1():
     import statistics
-    ra = [timed(snap, W / "tgt_a", env_bad) for _ in range(3)]
-    rb = [timed(snap, W / "tgt_b", env) for _ in range(3)]
+    # AT-sonrası-flap-sıkılaştırma (2026-09-23): median-3 → median-5; tam-süit
+    # yükü-altında-tek-CPU-spike'ı-bandı-zorluyordu. 5-ölçüm-ortancası- daha-
+    # sağlam-filtre-AMA-band-0.6-1.6-aynı ( yorumlayıcı-başlangıcı-dominant).
+    ra = [timed(snap, W / "tgt_a", env_bad) for _ in range(5)]
+    rb = [timed(snap, W / "tgt_b", env) for _ in range(5)]
     return statistics.median(ra) / statistics.median(rb)
 
 r1 = measure_r1()
@@ -87,8 +90,10 @@ assert 0.6 <= r1 <= 1.6, f"unlock-RED-zamanı-bant-dışı (ortanca): {r1}"
 # bile-band-içe-düşmeli.
 def measure_neg():
     import statistics
-    ra = [timed(snap, W / "tgt_b", env) for _ in range(3)]
-    rb = [timed(snap, W / "tgt_b", env) for _ in range(3)]
+    # AT-sonrası-flap-sıkılaştırma: median-5 ile-aynı-örnek-sayısı ( max-hâlâ-
+    # gürültü-yakalar-AMA-aynı-örnek-havuzu-karşılaştırır).
+    ra = [timed(snap, W / "tgt_b", env) for _ in range(5)]
+    rb = [timed(snap, W / "tgt_b", env) for _ in range(5)]
     # maksimum-oran: gürültü-band'ı-aşarsa-yakalar (median-gizlemez)
     return max(a / b for a, b in zip(ra, rb))
 

@@ -671,6 +671,8 @@ PY
   kontrol $? "AT-169: hata-ayiklama-sizma ( 2-bulgu-kapandi)"
   bash tests/at170_sema_izolasyon_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-170: sema-izolasyonu ( 1-duruust + 5-negatif)"
+  bash tests/at173_rfc010_s6_none_parite_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-173: RFC010-s6.3-none-parite ( 5-kanit)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

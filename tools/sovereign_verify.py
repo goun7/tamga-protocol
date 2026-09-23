@@ -21,6 +21,7 @@ import argparse
 import json
 import os
 import subprocess
+import warnings  # AT-179: 'dev-secret'-uyarısı-doğrulama-araç-çıkışını-bozmamalı
 import sys
 from pathlib import Path
 

@@ -687,6 +687,8 @@ PY
   kontrol $? "AT-177: depolama-tutarliligi ( ct-log-zinciri-kapandi)"
   bash tests/at178_yetki_devri_zinciri_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-178: yetki-devri-zinciri ( trust-fail-closed)"
+  bash tests/at179_yapilandirma_sabiti_guveni_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-179: yapilandirma-sabiti-guveni ( 0644-ve-dev-secret-kapandi)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

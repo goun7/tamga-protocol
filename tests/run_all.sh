@@ -677,6 +677,10 @@ PY
   kontrol $? "AT-171: durum-gecis-atlamasi ( yan-etki-once-FSM)"
   bash tests/at172_sayisal_tasma_kesinlik_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-172: sayisal-tasma-kesinlik ( 2-bulgu-kapandi)"
+  bash tests/at176_tamga_self_chain_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-176: tamga-self-chain ( gercek-D5-head-GREEN)"
+  bash tests/at175_giris_dogrulama_tutarsizligi_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-175: giris-dogrulama-tutarsizligi ( 2-bulgu-kapandi)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

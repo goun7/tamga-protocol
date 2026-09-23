@@ -70,7 +70,7 @@ note "AT-172: Sayısal-taşma/kesinlik-taraması ( 5-proje) — 2-BULGU: sester-
 
 # ============================================ A) BULGU-1: sester-float-kesinlik
 python3 - <<'PYEOF' >> "$LOG" 2>&1
-import sys
+import inspect, sys
 sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/sester")
 from decimal import Decimal, ROUND_HALF_UP
 MINOR = 10 ** 6          # USDC-6-dec ( sester/ledger.py:59)
@@ -109,7 +109,7 @@ print("          akümülasyonu-YOK); middleware:389-391 bu-yolu-kullanır")
 
 # --- KAPALI-KANIT: sester-üretim-yolu-artık-Decimal ( AT-172-düzeltmesi)
 from sester import middleware as MW
-src_mw = inspect.getsource(MW.PaywallMiddleware.__init__)
+src_mw = inspect.getsource(MW.SesterMeter.__init__)
 assert "Decimal(str(price))" in src_mw and "ROUND_HALF_UP" in src_mw, \
     "sester-price-yolu-hâlâ-float ( AT-172-bozulmuş)"
 assert "float(price) * MINOR" not in src_mw, "eski-float-yolu-hâlâ-duruyor"

@@ -691,6 +691,10 @@ PY
   kontrol $? "AT-179: yapilandirma-sabiti-guveni ( 0644-ve-dev-secret-kapandi)"
   bash tests/at180_iptal_geri_alma_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-180: iptal-ve-geri-alma ( revocation-fail-closed-exp-zorunlu)"
+  bash tests/at181_zamanlama_yaris_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-181: zamanlama-ve-yaris ( kota-TOCTOU+ledger-lock-kapandi)"
+  bash tests/at182_giris_siniri_azaltma_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-182: giris-siniri-ve-azaltma ( job_id-carpisma+header-sinir+rate-limit)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

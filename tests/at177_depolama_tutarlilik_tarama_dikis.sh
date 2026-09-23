@@ -214,12 +214,23 @@ print("    kalıcı-kanıt-katmanı-tamga-D5-ledger'dır ( §6-ile-bağlı, AT-1
 print("    Kalıcılık-53-testi+FSM-fon-transferi-sözleşmesini-riske-atır;")
 print("    mimari-sınır-olarak-kayıtlandı ( ömür-boyu-borç-değil-kapsam-kararı).")
 
-# İNDETERMİNE-notu: WAL/mod-karışımı-testi-SQLite-kilit-nedeniyle-ölçülemedi
+# AT-177-İNDETERMİNE-çözüldü: WAL→DELETE-mod-karışımı-artık-ölçülebilir
+# ( öncesi-SQLite-kilit: ledB-hâlâ-açıkken-mod-değiştiriyordu). Önce-temiz-
+# kapat, sonra-ayrı-bağlantı-ile-mod-değiştir, sonra-zinciri-tekrar-doğrula.
+ledB.close()
 try:
     raw2 = sqlite3.connect(db2)
     raw2.execute("PRAGMA journal_mode=DELETE")
+    mod_son = raw2.execute("PRAGMA journal_mode").fetchone()[0]
     raw2.close()
-    print("  NOT: WAL→DELETE-mod-karışımı-ölçüldü")
+    print(f"  NOT: WAL→DELETE-mod-karışımı-ölçüldü — son-mod={mod_son}")
+    assert mod_son == "delete", f"mod-değişmedi: {mod_son}"
+    # mod-karışımı-zinciri-bozmaz-mı?
+    ledC = Ledger(db2)
+    print(f"    mod-karışımı-sonrası-verify_chain={ledC.verify_chain()}")
+    assert ledC.verify_chain() is True, "mod-karışımı-zinciri-bozdu"
+    print("    → WAL→DELETE-geçişi-zinciri-bozmaz ( TEMİZ — tasarım-gerçek)")
+    ledC.close()
 except sqlite3.OperationalError as e:
     print(f"  NOT: WAL/mod-karışımı-testi-İNDETERMİNE (SQLite-kilit: "
           f"{str(e)[:40]}) — RED değil, ölçülemedi")

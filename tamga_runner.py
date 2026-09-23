@@ -11,6 +11,7 @@ D3: the agent key never touches disk. Honest limits: in-use memory is exposed to
 no RAM fee without real measurement (see cmd_run).
 """
 import sys, os, json, hashlib, pathlib, time, getpass, subprocess, resource
+import threading  # AT-181-BULGU-2: _ledger_append-dosya-başına-atomik-bölge
 from nacl.bindings import (crypto_aead_xchacha20poly1305_ietf_encrypt as xenc,
                            crypto_aead_xchacha20poly1305_ietf_decrypt as xdec)
 from nacl.signing import SigningKey, VerifyKey
@@ -20,6 +21,11 @@ MAGIC = b"TSG1"
 SAFE_SNAP_MAX = 64 * 1024 * 1024          # Audit-1 F1
 MAX_NOTE_BYTES = 65536                    # Audit-2 F12
 MAX_INPUT_BYTES = 1 << 20                 # slice-11: input ≤ 1MiB (hash bound into the receipt)
+# AT-181-BULGU-2: _ledger_append-için-dosya-başına-lock ( oku→belirle→yaz
+# yarış-penceresini-kapatır; GIL-tek-satır-yazmayı-atomik-yapar-AMA-seq/prev
+# kararı-hâlâ-yarışabilirdi).
+_LEDGER_LOCKS: dict[str, threading.Lock] = {}
+_LEDGER_LOCK_GUARD = threading.Lock()
 
 def _fnv1a64(b):
     """FNV-1a 64-bit — byte-identical to tests/agent-src/src/main.rs (slice-11)."""
@@ -257,7 +263,17 @@ def _node_key_from(a):
 def _ledger_append(lp, rec, node_key=None, op="append"):
     """Append the record to the chain with seq+prev+h; returns the written line.
     node_key verilirse node-cosign L1: node_id + node_sig(=ed25519(h)) eklenir
-    (DESIGN-node-cosign.md; pre-implementation of RFC-003 Open Question 4)."""
+    (DESIGN-node-cosign.md; pre-implementation of RFC-003 Open Question 4).
+    AT-181-BULGU-2: dosya-başına-lock ile-oku→belirle→yaz-atomik ( paralel-
+    çağrılar AYNI seq+prev-yazmıyor-artık; üretim-tek-yazıcı-AMA-garanti)."""
+    with _LEDGER_LOCK_GUARD:
+        lock = _LEDGER_LOCKS.get(lp)
+        if lock is None:
+            lock = threading.Lock(); _LEDGER_LOCKS[lp] = lock
+    with lock:
+        return _ledger_append_impl(lp, rec, node_key=node_key, op=op)
+
+def _ledger_append_impl(lp, rec, node_key=None, op="append"):
     # Audit-11 D1: streaming append — full-file load yok (F19 disiplin append-tarafında da).
     # Son-GEÇERLİ-h-taşıyan-kayıt aranır (bozuk/yabancı-son-satır-onun-ARDINA-eklenemez —
     # zincir-zaten-RED'li; append fail-closed: son-h-bilinmiyorsa-ekleme-RED).
@@ -1209,6 +1225,15 @@ def cmd_import(a):
                                   "— AT-180")
             if revoked is None:
                 revoked = []   # L0-veya-bayrak-YOK-yolu ( geri-uyumlu)
+            elif pol == "L1" and len(revoked) == 0:
+                # AT-180-BULGU-1 ( yieldix-imza-raporu): L1'de-boş-liste []
+                # ile if-revoked-False-olduğu-için-kontrol-atlanır — "hiç-iptal-
+                # YOK" ile "kontrol-YAPILMADI" birbirine-karışmasın. Açık-uğultu-
+                # lama ( rc=0-AMA-operatör-bilgilendirilir; dict-olarak-sayılabilir).
+                print("UYARI: cosign-policy-L1 + boş-revoked-listesi — iptal-"
+                      "kontrolü-ETKİSİZ ( hiç-node-iptal-edilmemiş). Yanlışlıkla-"
+                      "boş-dosya-geçerseniz-listeyi-doldurun. — AT-180",
+                      file=sys.stderr)
             bad = None
             for rec in recs:
                 if "node_sig" not in rec:

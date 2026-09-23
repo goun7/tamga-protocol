@@ -54,10 +54,15 @@ STATE_ONLY = {
         "ALÇAK-SEVİYE-yardımcı: fdopen-çağrılarını-yaratan-her-fonksiyonun "
         "gövdesinde-bu-ad-geçer (yanlış-pozitif). Kendi-başına-yazmaz — "
         "çağıranları-GATES'te-veya-STATE_ONLY'de-olmalı.",
+    "tamga_runner.py:_ledger_append":
+        "AT-181-atomik-sarmalayıcı: sadece-lock-alıp-_ledger_append_impl'e-"
+        "devreder ( kendisi-yazmaz). Denetim-kapısı-impl'de ( GATES'te).",
 }
 
 GATES = {
-    "tamga_runner.py:_ledger_append": (
+    # AT-181-sonrası: _ledger_append-atomik-sarmalayıcı + _ledger_append_impl
+    # ( gerçek-kapı). Kilidin-kendisi-denetime-taban-değil; kapı-impl'de.
+    "tamga_runner.py:_ledger_append_impl": (
         "KÖR-NOKTA: yalnızca-bu-fonksiyon-içinden-yazılanlar-denetlenir; "
         "dosyaya-dışarıdan-doğrudan-yazılırsa-bu-kapı-atlanır-ve-zincir-yeşil-"
         "geçebilir (unknown_ops-alıcı-yardımcısı-görür)."

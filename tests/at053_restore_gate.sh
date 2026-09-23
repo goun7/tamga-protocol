@@ -57,7 +57,13 @@ import inspect
 src_lines = pathlib.Path("tamga_runner.py").read_text(encoding="utf-8").splitlines()
 restore = []
 for i, l in enumerate(src_lines, 1):
-    if pat.search(l) and "restore" in " ".join(src_lines[max(0,i-25):i]).lower():
+    # AT-181-sonrası-bakım: 25-satır-pencere-yerine-kapsayan-fonksiyon-başına
+    # kadar-geri-ara ( _ledger_append-wrapper-eklenmesi-satır-konumu-oynatır;
+    # bölge-bağlamı-fonksiyondur-satır-penceresi-değil).
+    start = i - 1
+    while start > 0 and not src_lines[start - 1].startswith("def "):
+        start -= 1
+    if pat.search(l) and "restore" in " ".join(src_lines[start:i]).lower():
         restore.append(("tamga_runner.py", i, l.strip()[:50]))
 assert restore, "restore-yazım-bölgesi-bulunamadı!"
 print(f"  toplam-yazım-bölgesi: {len(regions)} (append+truncate)")
@@ -78,8 +84,10 @@ import tamga_runner as TR
 src = inspect.getsource(TR.cmd_import)
 assert "EMITTED_OPS" in src, "cmd_import-EMITTED_OPS-içermiyor — geçit-yok!"
 assert "AT-053-restore-geçidi" in src, "restore-geçidi-sebebi-yok"
-# _ledger_append-geçidi-de-hâlâ-yerinde
-assert "EMITTED_OPS" in inspect.getsource(TR._ledger_append)
+# _ledger_append-geçidi-de-hâlâ-yerinde ( AT-181-sonrası: wrapper-impl'e-
+# bölündü; geçidin-kendisi-impl'de)
+assert "EMITTED_OPS" in inspect.getsource(TR._ledger_append_impl), \
+    "_ledger_append_impl-EMITTED_OPS-içermiyor — geçit-yok!"
 print("  cmd_import + _ledger_append — ikisinde-de-geçit")
 PYEOF
 RC=$?

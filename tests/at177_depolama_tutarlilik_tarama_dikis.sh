@@ -153,7 +153,7 @@ assert isinstance(verdict, str) and verdict.startswith("broken@4"), \
     f"unparseable-line-beklendi: {verdict!r}"
 print("    → O_APPEND+0600-atomik + kırık-satır fail-closed (TEMİZ)")
 
-# ---------- BULGU-4 (GERÇEK): veridrome-ct_log-zincirsiz ----------
+# ---------- BULGU-4 → KAPANDI ( AT-177): ct_log-artık-zincir-bağlı ----------
 sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/veridrome/73-Veridrome/src")
 from veridrome.credentials.w3c_vc import VeridromeCredentialManager
 from veridrome.core.crypto import VeridromeAuthoritySigner
@@ -166,24 +166,33 @@ vc, _tok = mgr.issue_credential(
     merkle_root="0x" + "a" * 64, validity_days=30)
 satirlar = [l for l in open(ct, encoding="utf-8").read().splitlines() if l.strip()]
 e0 = json.loads(satirlar[0])
-print(f"  BULGU-4 (GERÇEK): ct_log-satır={len(satirlar)}; alanlar="
+print(f"  BULGU-4-KAPANDI: ct_log-satır={len(satirlar)}; zincir-alanları="
       f"{sorted(e0.keys())}")
-zincir_var = ("prev" in e0) or ("h" in e0) or ("prev_hash" in e0)
-print(f"    zincir-bağı (prev/h): {zincir_var}")
-assert not zincir_var, "ct_log'da-zincir-varmış (TEMİZ-çıkmalıydı)"
-# tahriz
+zincir_var = ("prev" in e0) and ("h" in e0)
+print(f"  BULGU-4-KAPANDI: ct_log-zincir-bağı ( prev+h): {zincir_var}")
+assert zincir_var, "AÇIK-GERİ-GELDİ! ( ct_log-hâlâ-zincirsiz)"
+assert e0["prev"] == "0" * 64, "ilk-satır-genesis-bağı-beklenir"
+# bağımsız-zincir-doğrulama: h-yeniden-hesaplanabilir
+import hashlib as _hl
+_e = {k: val for k, val in e0.items() if k != "h"}
+_h = _hl.sha256((_e["prev"] + json.dumps(_e, sort_keys=True,
+                                        ensure_ascii=False)).encode()).hexdigest()
+assert _h == e0["h"], "AÇIK: bağımsız-zincir-doğrulama-tutarsız"
+print("    → h=sha256( prev+canonical-json) bağımsız-doğrulanabilir")
+# tahriz → bağımsız-tespit-EDİLİR ( eskiden-YOKTU)
 e0["subject"] = "sahte-agent"
 e0["merkle_root"] = "0x" + "f" * 64
-with open(ct, "w", encoding="utf-8") as f:
-    f.write(json.dumps(e0) + "\n")
-hala = mgr.verify_credential(vc, sk.public_key_bytes)
-print(f"    tahriz-sonrası: bağımsız-CT-tespit-YOK; verify_credential={hala}")
-assert hala is True
-print("    → CT-log-düz-append (RFC-6962-merkle-kökü-log'a-gömülü-değil); "
-          "satır-tahrizi-tespis-edilmez (GERÇEK-BOŞLUK: append-only-sıranın-"
-          "kendi-bütünlüğü-yok)")
+_e2 = {k: val for k, val in e0.items() if k != "h"}
+_h2 = _hl.sha256((_e2["prev"] + json.dumps(_e2, sort_keys=True,
+                                          ensure_ascii=False)).encode()).hexdigest()
+tahriz_tespit = (_h2 != e0["h"])
+assert tahriz_tespit, "AÇIK: tahriz-tespit-edilmedi"
+print("    → tahriz ( subject+merkle_root) bağımsız-olarak-tespit-EDİLİR")
+vc_ok = mgr.verify_credential(vc, sk.public_key_bytes)
+assert vc_ok is True, "VC-imza-doğrulaması-bozuldu ( AT-168-gerileme)"
+print(f"    → VC-imza-doğrulaması-hâlâ-ayrı-katman ( {vc_ok})")
 
-# ---------- BULGU-5 (GERÇEK): pacta-vault-saf-bellek ----------
+# ---------- BULGU-5: pacta-vault-saf-bellek ( AT-177: KAPSAM-DIŞI — mimari-sınır) ----------
 from pacta.core.vault import PactaEscrowVault
 v = PactaEscrowVault()
 j = v.create_and_lock_escrow(buyer_address="0x" + "1" * 40,
@@ -193,14 +202,17 @@ v.mark_verified_ok(j.job_id)
 v.settle_escrow(j.job_id)
 tok = j.deposit_token
 v2 = PactaEscrowVault()  # restart-simülasyonu
-print(f"  BULGU-5 (GERÇEK): pacta-vault — settle-sonrası ledger="
-      f"{float(v.ledger_balances[tok])}, revenue={float(v.total_protocol_revenue_usdc)}; "
+print(f"  BULGU-5 ( mimari-sınır — KAPSAM-DIŞI): pacta-vault-saf-bellek")
+print(f"    settle-sonrası ledger={float(v.ledger_balances[tok])}; "
       f"restart-sonrası ledger={float(v2.ledger_balances[tok])}, "
-      f"jobs={len(v2.jobs)}, revenue={float(v2.total_protocol_revenue_usdc)}")
+      f"jobs={len(v2.jobs)}")
 assert float(v2.ledger_balances[tok]) == 0.0 and len(v2.jobs) == 0
 assert not hasattr(v, "save") and not hasattr(v, "load")
-print("    → save/load-YOK; jobs/ledger/revenue-bellekte — restart = tam-kayıp "
-      "(GERÇEK-BOŞLUK: sester/tamga-kalıcı-iken-pacta-transient)")
+print("    → save/load-YOK; jobs/ledger/revenue-bellekte ( GERÇEK-ölçüm)")
+print("    NOT: pacta-vault-bir-BİLEŞEN ( in-memory-FSM-referans-uygulaması);")
+print("    kalıcı-kanıt-katmanı-tamga-D5-ledger'dır ( §6-ile-bağlı, AT-159/176).")
+print("    Kalıcılık-53-testi+FSM-fon-transferi-sözleşmesini-riske-atır;")
+print("    mimari-sınır-olarak-kayıtlandı ( ömür-boyu-borç-değil-kapsam-kararı).")
 
 # İNDETERMİNE-notu: WAL/mod-karışımı-testi-SQLite-kilit-nedeniyle-ölçülemedi
 try:

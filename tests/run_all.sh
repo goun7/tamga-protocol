@@ -683,6 +683,10 @@ PY
   kontrol $? "AT-175: giris-dogrulama-tutarsizligi ( 2-bulgu-kapandi)"
   bash tests/at174_kanal_kapanma_cakisma_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-174: kanal-kapanma-cakisma ( 3-sester-bulgu-kapandi)"
+  bash tests/at177_depolama_tutarlilik_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-177: depolama-tutarliligi ( ct-log-zinciri-kapandi)"
+  bash tests/at178_yetki_devri_zinciri_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-178: yetki-devri-zinciri ( trust-fail-closed)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

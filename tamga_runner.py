@@ -1055,12 +1055,22 @@ def _cosign_policy(a):
     except IndexError:
         pol = "L0"   # Audit-9 B11: değer-siz-bayrak varsayılan-demek, çöküş-değil
     if pol not in ("L0", "L1"): pol = "L0"
+    # AT-178-BULGU-1-düzeltmesi: --node-trust-YOKSA-veya-BOZUKSA trust=None-
+    # veriliyordu → cmd_import'daki- "if trust is not None"-koşulu-tamamen-
+    # atlıyordu ( L1-dokümantasyonu-'HER-kayıt-trust-list'te-olmalı'-der-AMA
+    # trust-verilmezse-atlar; saldırgan-kendi-node-anahtarını-üretir).
+    # Ayrıca-bozuk-JSON → except → sessiz-None ( fail-OPEN).
+    # Artık-fail-closed: L1 + eksik/bozuk-trust → callable-için-hata-sinyali
+    # ( cmd_import → out(False, node_trust_required)); L0-etkilenmez ( opt-in).
     trust = None
     if "--node-trust" in a:
         try:
             trust = set(json.loads(pathlib.Path(a[a.index("--node-trust") + 1]).read_text(encoding="utf-8")))
         except Exception:
-            trust = None
+            if pol == "L1":
+                return pol, "TRUST_BROKEN"   # fail-closed-sinyali ( None-DEĞİL)
+    elif pol == "L1":
+        return pol, "TRUST_MISSING"          # L1- trust-ZORUNLU (AT-178)
     return pol, trust
 
 def cmd_import(a):
@@ -1145,12 +1155,22 @@ def cmd_import(a):
             return out(False, op="import", reason_code=14,
                        reason="ledger_broken: embedded chain " + why_emb)
         pol, trust = _cosign_policy(a)
+        # AT-178: L1 + eksik/bozuk-trust → fail-closed ( sessiz-atlama-YOK)
+        if isinstance(trust, str) and trust.startswith("TRUST_"):
+            return out(False, op="import", reason_code=6,
+                       reason=f"node_trust_required: cosign-policy-L1-için-"
+                              f"--node-trust-zorunlu ( bozuk-veya-eksik — "
+                              f"{trust}) — AT-178")
         if pol == "L1":
             # node-cosign L1 (opt-in; F25-closure 2026-09-17):
             # gömülü zincirdeki her kayıt node_sig imzalı olmalı (imza geçersizse RED),
             # VE node_id trust-list'te-olmalı. --node-trust verilmezse trust=None
             # → trust-kontrolü-atlanır (sadece imza-tesisi-istenir); node-cosign
             # açık-seçimdir: operator hangi-node'lara-güvendiğini-beyan-etmelidir.
+            # AT-178-BULGU-1: önceden-trust-YOKSA/bozuksa-None → "if trust is not
+            # None"-koşulu-tamamen-atlıyordu ( sessiz-fail-OPEN). Artık-yukarıda-
+            # fail-closed-sinyali-döner ( TRUST_MISSING/TRUST_BROKEN → RED).
+            # L1-ile-operator-trust-beyanı-ZORUNLU ( dokümantasyon-ile-tutarlı).
             # OQ-3 (founder decision 2026-09-05): revocation list — the signatures of a retired
             # node are ALSO invalid (dropping it from the list is not enough; closes the
             # key-theft scenario). Revocation file: JSON array [node_id, ...].

@@ -65,31 +65,33 @@ import inspect, json, os, pathlib, sys, tempfile
 sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/tamga")
 import tamga_runner as T
 
-# --- 1) L1 trust-YOK → ('L1', None) — trust-kontrolü-atlanır
+# --- 1) BULGU-1 → KAPANDI ( AT-178): L1 trust-YOK → TRUST_MISSING ( fail-closed)
+# Önceden- ('L1', None)-veriyordu → import-yolundaki- "if trust is not None"-
+# koşulu-tamamen-atlıyordu ( L1-'HER-kayıt-trust-list'te-olmalı'-der-AMA-atlar).
 pol, trust = T._cosign_policy(["--cosign-policy", "L1"])
-assert pol == "L1" and trust is None, f"L1-beklenmedik: {pol} / {trust}"
-print("  1-B1: --cosign-policy L1 ( --node-trust-YOK) → trust=None")
-print("        → import-yolu: 'if trust is not None' → KONTROL-ATLANIR ( L1-")
+assert pol == "L1" and trust == "TRUST_MISSING", \
+    f"AÇIK-GERİ-GELDİ! ( L1-trust-yok): {pol} / {trust}"
+print("  1-B1-KAPANDI: --cosign-policy L1 ( --node-trust-YOK) → TRUST_MISSING")
+print("        → import-yolu: RED ( node_trust_required) — kontrol-atlanmaz")
 
-# --- 2) BOZUK-trust-dosyası → sessiz-None ( except-fail-OPEN)
+# --- 2) BOZUK-trust → TRUST_BROKEN ( eskiden-sessiz-None = FAIL-OPEN!)
 tf = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
 tf.write("{BOZUK-JSON-TAMGA"); tf.close()
 pol2, trust2 = T._cosign_policy(["--cosign-policy", "L1", "--node-trust", tf.name])
 os.unlink(tf.name)
-assert pol2 == "L1" and trust2 is None, f"bozuk-trust-beklenmedik: {pol2} / {trust2}"
-print("  2-B1: --node-trust BOZUK-dosya → except → sessizce trust=None ( FAIL-OPEN!)")
-print("        → operator yanlış-yol/bozuk-dosya-verirse güvenlik-sessiz-açılır")
+assert pol2 == "L1" and trust2 == "TRUST_BROKEN", \
+    f"AÇIK-GERİ-GELDİ! ( bozuk-trust-sessiz-None): {pol2} / {trust2}"
+print("  2-B1-KAPANDI: --node-trust BOZUK-dosya → TRUST_BROKEN ( fail-closed)")
+print("        → operator yanlış-yol/bozuk-dosya → sessiz-açılma-YERİNE-RED")
 
-# --- 3) trust-None-iken-bilinmeyen-node-kabul ( mantıksal-kanıt)
+# --- 3) kaynak-teyidi: fail-closed-sinyal-yolu-canlı
 src = inspect.getsource(T._cosign_policy)
-assert "if \"--node-trust\" in a:" in src, "trust-yolu-kaynakta-yok"
-# import-yolunun-kaynak-teyidi ( atlama-kodu)
+assert "TRUST_MISSING" in src and "TRUST_BROKEN" in src, \
+    "AÇIK: fail-closed-sinyalleri-kaynakta-yok"
 src_imp = inspect.getsource(T.cmd_import)
-assert "if trust is not None and rec.get(\"node_id\") not in trust:" in src_imp, \
-    "trust-atlama-kodu-kaynakta-yok ( tutarsız)"
-print("  3-B1: kaynak-teyidi — cmd_import'ta 'if trust is not None …' ( atlama)")
-print("        → L1-dokümantasyon 'HER kayıt trust-list'te-olmalı'-der-AMA-trust")
-print("          verilmezse-atlar — yetki-devri: B'nin-sınırı-A'yı-bağlamaz")
+assert "node_trust_required" in src_imp, "AÇIK: import-yolu-fail-closed-RED-yok"
+print("  3-B1: kaynak-teyidi — _cosign_policy TRUST_MISSING/TRUST_BROKEN;")
+print("        cmd_import → node_trust_required RED ( atlama-kodu-gitti)")
 
 # --- N1) L1+geçerli-trust → bilinmeyen-node RED ( dürüst-yol-çalışır)
 good = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
@@ -107,19 +109,17 @@ assert pol0 == "L0", f"L0-varsayılan-bozuk: {pol0}"
 print("  N2-L0-varsayılan ( node_sig-YOKSA-legacy-kabul — belgeli-back-compat)")
 
 # --- N3) node_sig-geçersiz → node_sig_invalid@n ( imza-kontrolü-canlı)
+# mint-yoluyla-üret: node_id = SigningKey(key).verify_key.encode().hex();
+#                   node_sig = SigningKey(key).sign(h.encode()).signature.hex()
 from nacl.signing import SigningKey
-from nacl.encoding import HexEncoder
 sk = SigningKey.generate()
-node_id = sk.encode(encoder=HexEncoder).decode()
-rec = {"seq": 1, "h": "a" * 64, "node_id": node_id,
-       "node_sig": "0" * 128}            # geçersiz-imza
-assert T._node_sig_ok(rec) is False, "geçersiz-node_sig-geçti ( imza-bozuk!)"
-# geçerli-imza ile düzeltilmiş-rec ( h-üzerinden)
-import hashlib
-h = hashlib.sha256(b"AT-178-test").hexdigest()
-sig = sk.sign(h.encode()).signature.hex()
-rec2 = {"seq": 1, "h": h, "node_id": node_id, "node_sig": sig}
-assert T._node_sig_ok(rec2) is True, "geçerli-node_sig-reddedildi ( beklenmedik)"
+node_id = sk.verify_key.encode().hex()     # mint-formu ( L283)
+h = "a" * 64
+sig = sk.sign(h.encode()).signature.hex()  # mint-formu ( L299)
+rec_bad = {"seq": 1, "h": h, "node_id": node_id, "node_sig": "0" * 128}
+assert T._node_sig_ok(rec_bad) is False, "geçersiz-node_sig-geçti ( imza-bozuk!)"
+rec_ok = {"seq": 1, "h": h, "node_id": node_id, "node_sig": sig}
+assert T._node_sig_ok(rec_ok) is True, "geçerli-node_sig-reddedildi ( beklenmedik)"
 print("  N3-node_sig-geçersiz → RED; geçerli-Ed25519-imza → KABUL ( imza-tesisi")
 print("      zorunlu — AMA trust-kontrolü-ayrı; bu-bulgünün-o-yönü)")
 PYEOF

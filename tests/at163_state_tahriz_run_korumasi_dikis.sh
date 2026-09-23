@@ -98,7 +98,11 @@ else:
     print("     → Lead-yanlıştı: run-yolu-KORUNUYOR (dürüst-teyit)")
 
 # --- 2) RUN-YOLU-KISMI-KORUMA: agent_id-tahrizi → RED rc18 (nüans)
+# AT-163-düzeltmesi-sonrası: state-graph_merkle-artık-doğrulanır; agent_id-
+# testi-için-memory'yi-TUTARLI-hale-getir ( graph_merkle'ı-yeniden-hesapla)
 st = json.loads(sp.read_text(encoding="utf-8"))
+from tamga_runner import _graph_merkle   # üretim-fonksiyonu
+st["graph_merkle"] = _graph_merkle(st["memory"])
 st["agent_id"] = "f" * 64
 sp.write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
 r2 = sh("run", str(PKG), "--seed", SEED, "--note", "at163-ownership")

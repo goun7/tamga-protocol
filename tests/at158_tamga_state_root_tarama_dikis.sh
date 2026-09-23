@@ -104,21 +104,23 @@ print("  KANIT-2: ledger-grant → head DEĞİŞTİ, graph_merkle AYNI — zinci
       "ile-durum-özü BAĞIMSIZ (iki-ayrı-ökzeti-yüz; Ethereum-gibi-tek-birleştirik-"
       "state-root-YOK)")
 
-# --- 3) BULGU: graph_merkle run-yolunda-doğrulanmaz (sadece-import-yolunda)
+# --- 3) BULGU → DÜZELTİLDİ ( AT-163-sonrası): graph_merkle run-yolunda-artık-
+# DOĞRULANIR. Önceden-tahrizli-state-yeşil-geçerdi ( yeniden-hesaplayıp-yazardı);
+# artık-RED rc5. Bu-iddia-açık-geri-gelirse-YAKALAR.
 st = json.loads(st_path.read_text(encoding="utf-8"))
 st["memory"]["nodes"][0]["text"] = "TAHRIF-DURUM"
 st_path.write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
 r3 = sh("run", str(PKG), "--seed", SEED, "--note", "at158-tahriz")
 j3 = json.loads(r3.stdout) if r3.stdout.strip().startswith("{") else {"ok": None}
-assert j3.get("ok") is True, f"tahrizli-state-run-başarısız-oldu: {j3}"
-# run graph_merkle'ı-yeniden-hesaplar (tahriz-yutulur) — doğrulama-yok
-g3 = gmerkle(st_path)
+assert j3.get("ok") is False, f"AÇIK-GERİ-GELDİ! ( tahrizli-state-run-yeşil): {j3}"
+assert j3.get("reason_code") == 5 and "graph_merkle" in j3.get("reason", ""), \
+    f"rc5-graph_merkle-mismatch-beklendi: {j3}"
 src = (ROOT / "tamga_runner.py").read_text(encoding="utf-8")
-import_check = bool(re.search(r'if ["\']graph_merkle["\'] in parsed', src))
-print(f"  BULGU: state.json-durum-tahrizi → run YEŞİL-geçer (graph_merkle run-yolunda-"
-      f"doğrulanmaz; yeniden-hesaplar {g3[:12]}…). graph_merkle-mismatch-check SADECE-"
-      f"import-yolunda ({'satır-1112' if import_check else 'KOD-YOK'} — sunum-özü-"
-      f"değil-gerçek-bulgu)")
+assert "_graph_merkle(st[\"memory\"]) != st[\"graph_merkle\"]" in src, \
+    "run-yolu-doğrulaması-kayboldu"
+print(f"  3) DÜZELTİLDİ: state.json-durum-tahrizi → run RED-rc5 "
+      f"( graph_merkle-mismatch; run-yolu-artık-doğrular — AT-163'ün-ölçtüğü-"
+      f"eksiklik-kapandı)")
 
 # --- 4) project(head): presentation-only-SUNUM (blok-özeti-değil)
 head, n = chain_head(PKG)

@@ -126,8 +126,13 @@ PY
   bekle_red $? "merkle kurcalama reason-17 RED"
 
   echo "--- migration: moving to a fresh node + embedded chain (F24 closure)"
-  python3 tamga_runner.py run "$SB/pkg" --seed "$SEED" > /dev/null   # zinciri onar (charge ekle)
-  python3 tamga_runner.py export "$SB/pkg" -o "$SB/snap3.tsg" --seed "$SEED" > /dev/null
+  # AT-163-düzeltmesi: run-artık-tahriz-edilmiş-state'i-reddeder ( graph_merkle-
+  # mismatch); migration-için-TEMİZ-paket-gerekir — eskiden-run-tahrizi-yutuyordu
+  # ( sessiz-yeşil-geçiş), şimdi-fail-closed. Yukarıdaki-KURCALANDI-pkg'ı-kullanma.
+  rm -rf "$SB/pkg-mig"; mkdir -p "$SB/pkg-mig"
+  cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$SB/pkg-mig/"
+  python3 tamga_runner.py run "$SB/pkg-mig" --seed "$SEED" > /dev/null   # temiz-zincir
+  python3 tamga_runner.py export "$SB/pkg-mig" -o "$SB/snap3.tsg" --seed "$SEED" > /dev/null
   mkdir -p "$SB/pkg3"; cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$SB/pkg3/"
   python3 tamga_runner.py import "$SB/snap3.tsg" "$SB/pkg3" | grep -q '"ok": true'; kontrol $? "migration ACCEPT"
   python3 tamga_runner.py ledger-verify "$SB/pkg3" | grep -q '"ok": true'; kontrol $? "embedded chain verified on target (F24)"

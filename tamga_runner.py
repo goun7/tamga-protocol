@@ -110,6 +110,16 @@ def _load_state(sp):
                         "nodes": [{"id": f"m{i+1}", "kind": "note", "text": t}
                                   for i, t in enumerate(probes)],
                         "edges": []}
+    # AT-163-güvenlik-düzeltmesi: run-yolu-graph_merkle'i-DOĞRULAMIYORDU
+    # (sadece-import-kapısında-kontrol-ediliyordu). Tahriz-edilmiş-state
+    # yeniden-hesaplanıp-üzerine-yazılıyordu → sessiz-yeşil-geçiş. Artık
+    # diskteki-graph_merkle-hafıza-ile-tutarsızsa-RED ( import-rc17-ile-aynı-
+    # sınıf). Eski-dosyalarda-graph_merkle/memory-yoksa-atlanır ( geri-uyumlu).
+    if st.get("graph_merkle") and st.get("memory"):
+        if _graph_merkle(st["memory"]) != st["graph_merkle"]:
+            raise SystemExit(out(False, op="run", reason_code=5,
+                                 reason="state_invalid: graph_merkle mismatch "
+                                        "(run-yolu) — fail-closed; restore from export snapshot"))
     return st
 
 def _mem(st):

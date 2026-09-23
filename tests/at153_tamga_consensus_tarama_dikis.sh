@@ -89,6 +89,7 @@ print(f"  gerçek-zincir: {len(recs)}-kayıt, hepsi-nodeA-cosign'lı "
 sh("export", str(PKG), "-o", str(W / "snap.tsg"), "--seed", SEED)
 assert (W / "snap.tsg").stat().st_size > 0, "export-boş-snap"
 (W / "trust.json").write_text(json.dumps([nA]), encoding="utf-8")
+(W / "revoked.json").write_text(json.dumps([]), encoding="utf-8")  # AT-180: L1-iptal-ZORUNLU
 
 from tamga_project_head import chain_head
 
@@ -99,7 +100,8 @@ for ad in ("impA", "impB"):
     for f in ("tamga.json", "agent.wasm"):
         shutil.copy(VEC / f, d / f)
     r = sh("import", str(W / "snap.tsg"), str(d), "--cosign-policy", "L1",
-           "--node-trust", str(W / "trust.json"))
+           "--node-trust", str(W / "trust.json"),
+           "--node-revoked", str(W / "revoked.json"))   # AT-180
     rr = json.loads(r.stdout) if r.stdout.strip().startswith("{") else {"ok": False}
     assert rr.get("ok") is True, f"{ad}-import-başarısız: {rr}"
     lv = json.loads(sh("ledger-verify", str(d)).stdout)

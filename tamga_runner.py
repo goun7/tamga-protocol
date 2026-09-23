@@ -1174,14 +1174,41 @@ def cmd_import(a):
             # OQ-3 (founder decision 2026-09-05): revocation list — the signatures of a retired
             # node are ALSO invalid (dropping it from the list is not enough; closes the
             # key-theft scenario). Revocation file: JSON array [node_id, ...].
-            revoked = []
-            try:
-                idx = a.index("--node-revoked") if "--node-revoked" in a else -1
-                if idx >= 0 and idx + 1 < len(a):
-                    revoked = json.loads(pathlib.Path(a[idx + 1]).read_text(encoding="utf-8"))
-            except Exception:
-                return out(False, op="import", reason_code=2,
-                           reason="snapshot_header_invalid: --node-revoked file unreadable")
+            # AT-180-BULGU-1-düzeltmesi: revoked=None-ile-başla ( boş-[]-ile-
+            # DEĞİL) — değer-siz-bayrak-veya-okunamayan-liste-artık-fail-closed.
+            revoked = None
+            if "--node-revoked" in a:
+                try:
+                    idx = a.index("--node-revoked")
+                    # AT-180: değer-siz-bayrak ( argv-sonunda) → sessiz-atlama-
+                    # YOLU-kapandı. idx+1-koşulu-yerine-açık-kontrol.
+                    if idx + 1 >= len(a):
+                        return out(False, op="import", reason_code=6,
+                                   reason="revocation_broken: --node-revoked-"
+                                          "değer-siz-bayrak ( dosya-yolu-eksik) "
+                                          "— sessiz-atlama-YOK — AT-180")
+                    revoked = json.loads(pathlib.Path(a[idx + 1])
+                                        .read_text(encoding="utf-8"))
+                    if not isinstance(revoked, list):
+                        return out(False, op="import", reason_code=6,
+                                   reason="revocation_broken: iptal-listesi-"
+                                          "liste-değil — AT-180")
+                except Exception:
+                    return out(False, op="import", reason_code=2,
+                               reason="snapshot_header_invalid: --node-revoked file unreadable")
+            # AT-180-BULGU-1 (devam): --node-revoked-OPSIYONEL-olduğu-için
+            # boş-revoked-listesi-KONTROLÜ-TAMAMEN-ATLIYORDU ( fail-OPEN: eski-
+            # anahtar-ile-üretilen-imzalar-geçerli-kabul-ediliyordu; OQ-3-iddiası
+            # L1-ile-çalışıyorsa-uygulanmıyordu). Artık-L1-modunda-ZORUNLU
+            # ( boş-liste-[]-açıkça-geçilebilir — dürüst-yol-korunur).
+            if pol == "L1" and revoked is None:
+                return out(False, op="import", reason_code=16,
+                           reason="revocation_required: cosign-policy-L1-için-"
+                                  "--node-revoked-ZORUNLU ( anahtar-çalınma-"
+                                  "senaryosu — OQ-3; boş-liste-[]-geçilebilir) "
+                                  "— AT-180")
+            if revoked is None:
+                revoked = []   # L0-veya-bayrak-YOK-yolu ( geri-uyumlu)
             bad = None
             for rec in recs:
                 if "node_sig" not in rec:

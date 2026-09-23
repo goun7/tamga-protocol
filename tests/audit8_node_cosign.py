@@ -24,6 +24,7 @@ import tamga_runner as tr
 from nacl.signing import SigningKey
 
 SB = ROOT / "tests/simnet/.audit8"
+REVOKED = SB / "revoked_empty.json"  # AT-180: L1-iptal-listesi-ZORUNLU ( boş-[])
 OUT = []
 
 
@@ -81,6 +82,11 @@ def fresh(name):
     return p
 
 
+def _write_revoked():
+    REVOKED.parent.mkdir(parents=True, exist_ok=True)  # SB-dizini-garanti
+    REVOKED.write_text("[]", encoding="utf-8")
+
+
 def main():
     shutil.rmtree(SB, ignore_errors=True)
     (SB / "pkg").mkdir(parents=True)
@@ -95,6 +101,7 @@ def main():
     trust = SB / "trust.json"
     pathlib.Path(trust).write_text(json.dumps([(node / "node_pub.hex").read_text().strip()]))
     attacker_nk = SigningKey.generate().encode().hex()
+    _write_revoked()  # AT-180: L1-iptal-listesi-[]-hazırla
 
     log(f"# Audit-8 node-cosign attacks — {time.strftime('%FT%T%z')}")
 
@@ -103,7 +110,8 @@ def main():
     forged.write_bytes(craft_cosigned(base, attacker_nk, lambda recs, nk: forge_chain(recs, nk)))
     r_l0 = json.loads(sh("import", str(forged), str(fresh("pkgL0"))))
     r_l1 = json.loads(sh("import", str(forged), str(fresh("pkgL1")),
-                         "--cosign-policy", "L1", "--node-trust", str(trust)))
+                         "--cosign-policy", "L1", "--node-trust", str(trust),
+                         "--node-revoked", str(REVOKED)))
     log(f"A1 whole-chain forgery (attacker node key):")
     log(f"  L0: ok={r_l0.get('ok')} — known remnant: policy decision OQ-1 (simnet acceptance)")
     log(f"  L1: ok={r_l1.get('ok')} reason={r_l1.get('reason_code')} {r_l1.get('reason','')}")
@@ -138,7 +146,8 @@ def main():
     forged3 = SB / "a3.tsg"
     forged3.write_bytes(craft_cosigned(base, honest_nk, a3_mutate))
     r3 = json.loads(sh("import", str(forged3), str(fresh("pkgA3")),
-                       "--cosign-policy", "L1", "--node-trust", str(trust)))
+                       "--cosign-policy", "L1", "--node-trust", str(trust),
+                         "--node-revoked", str(REVOKED)))
     log(f"A3 partially/fully cosign-dropped chain under L1: ok={r3.get('ok')} reason={r3.get('reason_code')} {r3.get('reason','')}")
     log(f"A3 SONUÇ: {'L1 node_sig_missing RED (expected)' if r3.get('ok') is False and 'node_sig_eksik' in str(r3.get('reason')) else 'UNEXPECTED'}")
 

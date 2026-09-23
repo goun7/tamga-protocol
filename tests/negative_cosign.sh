@@ -25,14 +25,15 @@ bekle_red() { kontrol "$@"; }
 import sys, json, pathlib
 pub = pathlib.Path('$SB/node/node_pub.hex').read_text().strip()
 pathlib.Path('$SB/trust.json').write_text(json.dumps([pub]))
-pathlib.Path('$SB/trust-yabanci.json').write_text(json.dumps(['ab' * 32]))"
+pathlib.Path('$SB/trust-yabanci.json').write_text(json.dumps(['ab' * 32]))
+pathlib.Path('$SB/revoked.json').write_text(json.dumps([]))  # AT-180: L1-iptal-listesi-ZORUNLU"
 
   # precondition: a cosigned chain (grant + export)
   python3 tamga_runner.py grant "$SB/pkg" 0.05 "at003" --node-key "$NK" > /dev/null
   python3 tamga_runner.py export "$SB/pkg" -o "$SB/cosign.tsg" --seed "$S" > /dev/null
 
   # tc-n1: cosigned chain on target with L1 + correct trust → ACCEPT
-  python3 tamga_runner.py import "$SB/cosign.tsg" "$SB/freshL1" --cosign-policy L1 --node-trust "$SB/trust.json" | grep -q '"ok": true'
+  python3 tamga_runner.py import "$SB/cosign.tsg" "$SB/freshL1" --cosign-policy L1 --node-trust "$SB/trust.json" --node-revoked "$SB/revoked.json" | grep -q '"ok": true'  # AT-180
   kontrol $? "tc-n1: L1 + trusted node → ACCEPT (positive control)"
 
   # tc-n2: node_sig kurcalama → ledger-verify RED
@@ -63,11 +64,11 @@ PY
   mkdir -p "$SB/pkg-legacy"; cp tests/vectors/tc-a1/tamga.json tests/vectors/tc-a1/agent.wasm "$SB/pkg-legacy/"
   python3 tamga_runner.py grant "$SB/pkg-legacy" 0.02 "legacy" > /dev/null
   python3 tamga_runner.py export "$SB/pkg-legacy" -o "$SB/legacy.tsg" --seed "$S" > /dev/null
-  python3 tamga_runner.py import "$SB/legacy.tsg" "$SB/freshL1b" --cosign-policy L1 --node-trust "$SB/trust.json" | grep -q '"reason_code": 14'
+  python3 tamga_runner.py import "$SB/legacy.tsg" "$SB/freshL1b" --cosign-policy L1 --node-trust "$SB/trust.json" --node-revoked "$SB/revoked.json" | grep -q '"reason_code": 14'
   bekle_red $? "tc-n4: chain without node_sig under L1 → RED"
 
   # tc-n5: L1 + foreign node_id list → RED
-  python3 tamga_runner.py import "$SB/cosign.tsg" "$SB/freshL1b" --cosign-policy L1 --node-trust "$SB/trust-yabanci.json" | grep -q '"reason_code": 14'
+  python3 tamga_runner.py import "$SB/cosign.tsg" "$SB/freshL1b" --cosign-policy L1 --node-trust "$SB/trust-yabanci.json" --node-revoked "$SB/revoked.json" | grep -q '"reason_code": 14'
   bekle_red $? "tc-n5: L1 + untrusted node_id → RED (node_id_untrusted)"
 
   # tc-n6: legacy chain + L0 → ACCEPT (back-compat; L0 default unchanged)

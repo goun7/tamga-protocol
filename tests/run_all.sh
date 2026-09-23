@@ -665,6 +665,12 @@ PY
   kontrol $? "AT-165: zaman-mantigi-replay ( 2-bulgu-kapandi)"
   bash tests/at166_yetki_yukseltme_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-166: yetki-yukseltme-taramasi ( 2-bulgu-kapandi)"
+  bash tests/at168_kanit_butunlugu_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-168: kanit-butunlugu ( 2-bulgu-kapandi)"
+  bash tests/at169_hata_ayiklama_sizma_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-169: hata-ayiklama-sizma ( 2-bulgu-kapandi)"
+  bash tests/at170_sema_izolasyon_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-170: sema-izolasyonu ( 1-duruust + 5-negatif)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

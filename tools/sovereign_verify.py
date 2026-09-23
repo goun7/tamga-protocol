@@ -85,8 +85,15 @@ def verify_sester_ledger(path: str, secret: str | None = None) -> dict:
     except ImportError:
         return {"product": "sester", "ok": False, "error": "sester-kurulu-değil"}
     # RISK-2: üretim-secret'ı — parametre > ortam > default
+    # AT-179 ( sovereign-yüzeyi): 'dev-secret'-BİLİNEN-değer-kullanılıyorsa
+    # açıkça-bildir ( araç-zaten-üretim-zincirini-RED-düşürür — RISK-2-kanıtı).
     if secret is None:
         secret = os.environ.get("SESTER_LEDGER_SECRET", "dev-secret")
+    if secret == "dev-secret":
+        warnings.warn(
+            "sovereign-verify: 'dev-secret'-BİLİNEN-değer — üretim-zinciri "
+            "RED-düşürülür ( RISK-2); SESTER_LEDGER_SECRET-veya---secret-geçin "
+            "— AT-179", stacklevel=2)
     try:
         # RISK-1 (boş-zincir): Ledger'ın-olay-sayısı-API'si-imza-steril-değil
         # (count_today-agent_id-ister); doğrudan-SQLite-sayalım — yüzey-bağımsız

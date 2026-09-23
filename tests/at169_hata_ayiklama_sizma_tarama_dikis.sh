@@ -150,6 +150,23 @@ except Exception as e:
     assert "amount" in str(e).lower(), f"negatif-hatası-beklenmedik: {e}"
 print("  5-KARŞIT: negatif-amount → ValidationError ( amount-ve-adres-doğrulaması")
 print("            artık-TUTARLI — her-ikisi-de-üretim-kapısında-doğrulanır)")
+
+# --- AT-169-ÖMÜR-BOYU-BORCU-ÖDENDİ: KATI-HEX-doğrulaması
+# Eski-zayıf-kural: '0x'+len>=4 → "0xZZ"-GEÇERLI ( hex-DEĞİL-AMA-kabul).
+# Yeni: 0x-önek + >=2-hex-karakter. Saldırgan-yolu: "0xZZ"-artık-reddedilir.
+for bad in ("0xZZ", "0xBuyer", "0xMerchant", "0xAlphaSignalBot_BaseL2"):
+    try:
+        v.create_and_lock_escrow(bad, "0x" + "2" * 40, Decimal("1"))
+        raise AssertionError(f"AÇIK! hex-olmayan-adres-kabul: {bad!r}")
+    except ValueError:
+        pass
+print("  AT-169-BORÇ-ÖDENDİ: '0xZZ'/'0xBuyer'/sembolik-adresler → ValueError")
+print("                      ( KATI-hex; önceden '0x'+len>=4-zayıf-kural)")
+
+# --- KARŞIT: dürüst-yol-gerçek-hex-ile-çalışır ( 0xA1-gibi-kısa-da-OK)
+_job = v.create_and_lock_escrow("0xA1", "0xA2", Decimal("0.5"))
+assert _job is not None, "dürüst-yol-bozuldu ( geçerli-hex-kabul-edilmeli)"
+print("  KARŞIT-TEMİZ: 0xA1/0xA2-kısa-hex-geçerli ( dürüst-yol-korunur)")
 PYEOF
 [ $? -eq 0 ] && PASS=$((PASS+1)) && note "  PASS: B) pacta-boş-adres-escrow-bulgu (rol-kenarı)" \
               || { FAIL=$((FAIL+1)); note "  FAIL: B) pacta"; cat "$LOG"; }

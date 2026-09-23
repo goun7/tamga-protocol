@@ -146,6 +146,9 @@ print("  B2-TEMİZ: tenderix dispute.verify_chain sha256+prev-yeniden-hesaplar; 
           "tahriz → LEDGER_BROKEN")
 
 # 6) syntropion HMAC — sahte-session-token → ValueError
+#    ( AT-162-düzeltmesi-sonrası-SYNTROPION_SECRET_KEY-ZORUNLU: fail-closed-env-guard)
+import os
+os.environ.setdefault("SYNTROPION_SECRET_KEY", "at160-test-anahtari-16-karakter")
 sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/syntropion")
 from syntropion_core.security import (create_tenant_session_token,
     verify_tenant_session_token, verify_lifetime_license_key)

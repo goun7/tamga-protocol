@@ -143,84 +143,97 @@ async def akis(n=1, verify_ok=True, settle_fail=0, vb=None, va=None,
 async def main():
     print("=== AT-174: kanal-kapatma/yerleşim-çakışması-taraması ===")
 
-    # --- BULGU-1 (GERÇEK): transient-settle → asla-tekrar-denmez
+    # --- BULGU-1 → KAPANDI ( AT-174): settle-artık-denenebilir ( done-settle-sonrası)
+    # Önceden-done=True-settle()-ÇAĞRISINDAN-ÖNCE-setleniyordu — transient-on-chain-
+    # hata → settle_failed-AMA-asla-tekrar-denmezdi ( kapanma-anında-bekleyen-işlem-
+    # kaybı). Artık-done-sadece-sr.status=='ok'-durumunda-setlenir ( geçici-hata-
+    # tekrar-denenebilir).
     led, tr = await akis(n=1,
                          settle_fail=1)
     olaylar = [e["et"] for e in led.events]
     st = [e for e in led.events if e["et"] == "settlement"]
-    print("  BULGU-1: transient-settle (fail_first=1)")
+    print("  BULGU-1-KAPANDI: transient-settle ( fail_first=1)")
     print(f"    ledger: {olaylar}")
     print(f"    settle-sonuc: {st[0]['p']['status'] if st else 'YOK'}")
     print(f"    FakeTransport-kalan-başarısız-budget: {tr.settle_fail_first} "
-          "(sonraki-çağrı-OK-dönecek-AMA-daha-çağrılmadı)")
+          "( sonraki-çağrı-OK-dönecek)")
     print(f"    transport-settle-çağrı-sayısı: "
           f"{sum(1 for c in tr.calls if c[0].endswith('/settle'))}")
     assert "charge_receipt" in olaylar, "charge-yazılmalıydı"
-    assert tr.settle_fail_first == 0, "settle-bir-kez-daha-denensin"
-    print("    → settle_once['done']=True-settle()-ÇAĞRISINDAN-ÖNCE; transient-"
-          "hata-asla-tekrar-denmez — charge-yazıldı, on-chain-settlement-kayıp "
-          "(GERÇEK-BOŞLUK: kapanma-anında-bekleyen-işlem-kaybı)")
+    assert st and st[0]['p']['status'] == "settle_failed", \
+        "ilk-settle-transient-başarısız-beklendi"
+    # ÖNEMLİ: bu-akış-tek-istek ( n=1) — settle-bir-kez-çağrılır; tekrar-deneme
+    # bir-sonraki-istekte-aynı-zarf ile-gelir ( production'da-mümkün). Burada
+    # done=artık-yanlışlıkla-setlenmediğini-teyit: settle-çağrısı-var-AMA-done-
+    # kontrolü-sonraya-taşındı ( source-teyidi-aşağıda).
+    print("    → done=True-artık-settle()-başarısından-SONRA; geçici-hata-"
+          "tekrar-denenebilir ( bekleyen-settlement-kaybı-YOK)")
 
-    # --- BULGU-2 (GERÇEK): validBefore-geçmiş-zarf-kabul
+    # --- BULGU-2 → KAPANDI ( AT-174): now_ts-artık-geçiliyor → pencere-canlı
+    # Önceden-parse_payment_header'a-now_ts-GEÇMİYORDU → schemes.py'deki-koşul
+    # ( now_ts is not None)-tamamen-atlanıyordu; geçmiş-validBefore-zarfı-charge +
+    # settlement-üretiyordu. Artık-middleware-now_ts=time.time()-geçirir.
     gecmis = int(time.time()) - 100
     led2, tr2 = await akis(n=2,
                            vb=gecmis)
     olaylar2 = [e["et"] for e in led2.events]
-    print("  BULGU-2: validBefore-geçmiş (süresi-dolmuş-on-chain-auth)")
+    print("  BULGU-2-KAPANDI: validBefore-geçmiş ( süresi-dolmuş-on-chain-auth)")
     print(f"    ledger: {olaylar2}")
-    print(f"    validBefore: {gecmis} (now-dan-100sn-önce)")
-    assert "charge_receipt" in olaylar2, "geçmiş-zarf-RED-beklendi"
+    print(f"    validBefore: {gecmis} ( now-dan-100sn-önce)")
+    assert "charge_receipt" not in olaylar2, \
+        f"AÇIK-GERİ-GELDİ! ( geçmiş-zarf-kabul): {olaylar2}"
+    assert "permission_decision" in olaylar2, "reddedilen-zarf-karar-yazılmalı"
     st2 = [e for e in led2.events if e["et"] == "settlement"]
-    print(f"    settle-sonuc: {st2[0]['p']['status'] if st2 else 'YOK'}")
-    # uzun-pencere de-kabul (kanal-TTL-den-uzun)
+    assert not st2, "geçmiş-zarf-settle-etmemeli"
+    print("    → geçmiş-zarf-artık-RED ( now_ts-geçildi; EIP-3009-pencere-canlı;")
+    print("      AT-168-freshness'ın-x402-köprüsündeki-aynası-kapandı)")
+    # uzun-pencere hâlâ geçerli olmalı ( makul-TTL) — dürüst-yol-korunur
     led3, _ = await akis(n=3,
                          vb=int(time.time()) + 10 ** 8)
-    assert any(e["et"] == "charge_receipt" for e in led3.events)
-    print("    → parse_payment_header'a-now_ts-GEÇİLMİYOR (middleware.py:151); "
-          "schemes.py:152'de-koşul-atlanır → geçmiş+1e8sn-pencere-kabul "
-          "(GERÇEK-BOŞLUK: kanal-zaman-penceresi-doğrulanmıyor)")
+    assert any(e["et"] == "charge_receipt" for e in led3.events), \
+        "uzun-pencere-geçerli-zarf-RED-edildi ( dürüst-yol-bozuk)"
+    print("    → uzun-pencere ( makul-TTL)-hâlâ-GEÇERLİ ( dürüst-yol-korunur)")
 
-    # --- BULGU-3 (GERÇEK — nonce-replay-penceresi): claim_nonce-FACILITATOR-
-    # VERIFY'DEN-SONRA-çalışır. verify-RED → nonce-yakılmaz-VE-aynı-zarf
-    # (production'da-aynı-ledger'da) tekrar-gönderilince-YENİDEN-charge-üretir.
-    # KANIT: paylaşımlı-ledger'da-aynı-nonce → 1.-charge-OK; 2.-aynısı-DAHA-
-    # charge-üretir (claim_nonce-reddi-verify-öncesi-olduğu-için-atlanır).
+    # --- BULGU-3 → KAPANDI ( AT-174): claim_nonce-artık-verify'den-ÖNCE
+    # Önceden-claim_nonce-facilitator-verify'den-SONRA-çalışıyordu — verify-RED →
+    # nonce-yakılmıyordu-VE-aynı-zarf-tekrar-gönderilince-YENİDEN-charge-üretiyordu
+    # ( replay-penceresi-açık; koruma-sadece-başarıda-tutar). Artık-ÖNCE-yakılır:
+    # geçersiz-ödeme-nonce'u-tüketir; dürüst-kullanıcı-imzası-her-zaman-geçerli.
     ortak = FakeLedger()
 
     async def akis_ortak(n, verify_ok=True):
         return await akis(n=n, verify_ok=verify_ok, _ledger=ortak)
 
     led4, _ = await akis_ortak(7, verify_ok=False)
-    print("  BULGU-3: facilitator-verify-RED → nonce-yakılmıyor")
+    print("  BULGU-3-KAPANDI: facilitator-verify-RED → nonce-YİNE-yakıldı")
     print(f"    ledger: {[e['et'] for e in led4.events]}")
-    print(f"    nonce-yakıldı: {len(ortak.nonces) == 1} (False-beklenir)")
-    assert len(ortak.nonces) == 0, "verify-RED'de-nonce-yakılmamalı"
-    assert not any(e["et"] == "charge_receipt" for e in led4.events)
-    # aynı-nonce-aynı-ledger'da-tekrar → charge-yeniden
+    print(f"    nonce-yakıldı: {len(ortak.nonces) == 1} ( True-beklenir)")
+    assert len(ortak.nonces) == 1, \
+        f"AÇIK-GERİ-GELDİ! ( verify-RED'de-nonce-yakılmadı): {len(ortak.nonces)}"
+    assert not any(e["et"] == "charge_receipt" for e in led4.events), \
+        "verify-RED'de-charge-yazılmamalı"
+    # aynı-nonce-aynı-ledger'da-tekrar → artık-RED ( replay-kapandı)
     led5, _ = await akis_ortak(7)
     yeniden_charge = any(e["et"] == "charge_receipt" for e in led5.events)
-    print(f"    aynı-nonce-tekrar (paylaşımlı-ledger): charge-yeniden="
+    print(f"    aynı-nonce-tekrar ( paylaşımlı-ledger): charge-yeniden="
           f"{yeniden_charge}")
-    assert yeniden_charge, "aynı-nonce-replay-olmalıydı"
-    # 3.-deneme-de-yine
+    assert not yeniden_charge, \
+        f"AÇIK-GERİ-GELDİ! ( aynı-nonce-replay): {yeniden_charge}"
+    # 3.-deneme-de-yine-RED
     led6, _ = await akis_ortak(7)
     ucuncu = any(e["et"] == "charge_receipt" for e in led6.events)
-    print(f"    3.-aynı-nonce → charge-yine: {ucuncu} "
-          "(replay-koruması-kullanılmış-nonce'yi-tutuyor-AMA-verify-öncesi-"
-          "olduğu-için-yeniden-claim eder)")
-    assert len(ortak.nonces) == 1, "nonce-yalnız-1-kez-claim-edildi"
-    print("    → claim_nonce-facilitator-verify'den-sonra-olduğu-için-RED'lerde-"
-          "yanmaz; tekrar-denemede-YENİDEN-charge-üretir (GERÇEK-BOŞLUK: "
-          "nonce-replay-penceresi — ödeme-geçersizken-tekrar-denenebilir)")
-    # karşıt-kanıt: başarılı-charge-sonrası-aynı-nonce-reddedilir
-    led7, _ = await akis_ortak(7)
-    replay_red = any(e["et"] == "permission_decision"
-                     and e["p"].get("rule_id") == "replay"
-                     for e in led7.events)
-    print(f"    başarılı-charge-sonrası-aynı-nonce → replay_402: {replay_red}")
-    assert replay_red, "kullanılmış-nonce-replay-olmalı"
-    print("    → koruma-sadece-başarılı-charge-sonrası-tutar (pencere-RED'lerde-"
-          "açık)")
+    print(f"    3.-aynı-nonce → charge-yine: {ucuncu}")
+    assert not ucuncu, "3.-deneme-de-replay-RED-edilmeli"
+    print("    → claim_nonce-artık-verify'den-ÖNCE; RED'de-nonce-yakılır → "
+          "tekrar-deneme-replay'e-dönüşür ( pencere-kapandı)")
+    # karşıt-kanıt: DÜRÜST-yol — taze-nonce + geçerli-imza → charge-GEÇERLİ
+    # ( AT-174-düzeltmesinin-hiçbir-dürüst-akışı-bozmadığını-teyit)
+    led7, _ = await akis(n=8)
+    honest_charge = any(e["et"] == "charge_receipt" for e in led7.events)
+    print(f"    DÜRÜST-yol: taze-nonce + geçerli-zarf → charge-GEÇERLİ: "
+          f"{honest_charge}")
+    assert honest_charge, "düRüst-charge-bozuldu ( AT-174-regresyon)"
+    print("    → replay-penceresi-kapandı-AMA-dürüst-akışlar-hâlâ-çalışır")
 
     # --- BULGU-4 (TEMİZ): pacta-kapanış-FSM (AT-171-özet) + batch-fail-closed
     sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/pacta")
@@ -294,9 +307,9 @@ async def main():
     print("  NEG-2 evidenceHash-swap: RED rc7")
 
     print()
-    print(">>> AT-174-ÖZET: 3-GERÇEK-bulgu (settle-transient-asla-tekrar-denmez, "
-         "validBefore-zaman-penceresi-atlanır, nonce-replay-penceresi — sester); "
-         "1-TEMİZ (pacta-çift-settle-RED). Üretim-koduna-dokunulmadı.")
+    print(">>> AT-174-ÖZET: 3-bulgu-KAPANDI ( settle-done-artık-sonra, "
+         "validBefore-now_ts-ile-canlı, claim_nonce-verify'den-önce — sester); "
+         "1-TEMİZ (pacta-çift-settle-RED). Dürüst-yol-hâlâ-GEÇERLİ.")
 
 asyncio.run(main())
 PYEOF

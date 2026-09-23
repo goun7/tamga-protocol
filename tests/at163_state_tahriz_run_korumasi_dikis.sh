@@ -75,13 +75,11 @@ sh("run", str(PKG), "--seed", SEED, "--note", "at163-1")
 lines = [l for l in (PKG / "ledger.jsonl").read_text(encoding="utf-8").splitlines()
          if l.strip()]
 if len(lines) < 1:
-    print("  [İNDETERMİNE] kurulum-kayıt-üretmedi — engine-yoksa-koşum-yeşil-"
-          "sayılamaz; sonuç-esirgenir")
+    print("  [İNDETERMİNE] kurulum-kayıt-üretmedi — engine-yoksa-koşum-yeşil-" "sayılamaz; sonuç-esirgenir")
     sys.exit(0)
 sp = PKG / "state.json"
 st0 = json.loads(sp.read_text(encoding="utf-8"))
-print(f"  gerçek-paket: {len(lines)}-kayıtlık-defter + state.json "
-      f"(graph_merkle={st0.get('graph_merkle','')[:16]}…)")
+print(f"  gerçek-paket: {len(lines)}-kayıtlık-defter + state.json " f"(graph_merkle={st0.get('graph_merkle','')[:16]}…)")
 
 # --- 1) RUN-YOLU-ÖLÇÜM: memory-node-tahrizi → run YEŞİL mi? (AT-158-teyidi)
 st = json.loads(sp.read_text(encoding="utf-8"))
@@ -93,13 +91,10 @@ g_after = json.loads(sp.read_text(encoding="utf-8")).get("graph_merkle")
 if j1.get("ok") is True:
     # run graph_merkle'ı-yeniden-hesaplar (tahriz-yutulur) — eksiklik-kanıtı
     assert g_after and len(g_after) == 64, "graph_merkle-yeniden-yazılmadı"
-    print(f"  1) RUN-YOLU-graph_merkle: state-tahrizi → run **YEŞİL** "
-          f"(graph_merkle-yeniden-hesaplandı {g_after[:16]}…; _load_state'de-check-yok)"
-    print("     → AT-158-bulgusu-TEYİT-EDİLDİ: GERÇEK-GÜVENLİK-EKSİKLİĞİ "
-          "(üretim-koduna-dokunulmadı; Lead-düzeltme-yapar)")
+    print(f"  1) RUN-YOLU-graph_merkle: state-tahrizi → run **YESIL** " f"(graph_merkle-yeniden-hesaplandı {g_after[:16]}…; _load_state'de-check-yok)")
+    print("     → AT-158-bulgusu-TEYİT-EDİLDİ: GERÇEK-GÜVENLİK-EKSİKLİĞİ " "(üretim-koduna-dokunulmadı; Lead-düzeltme-yapar)")
 else:
-    print(f"  1) RUN-YOLU-graph_merkle: state-tahrizi → run **RED** "
-          f"({j1.get('reason_code')}: {j1.get('reason','')[:60]})")
+    print(f"  1) RUN-YOLU-graph_merkle: state-tahrizi → run **RED** " f"({j1.get('reason_code')}: {j1.get('reason','')[:60]})")
     print("     → Lead-yanlıştı: run-yolu-KORUNUYOR (dürüst-teyit)")
 
 # --- 2) RUN-YOLU-KISMI-KORUMA: agent_id-tahrizi → RED rc18 (nüans)
@@ -110,8 +105,7 @@ r2 = sh("run", str(PKG), "--seed", SEED, "--note", "at163-ownership")
 j2 = json.loads(r2.stdout) if r2.stdout.strip().startswith("{") else {"ok": None}
 assert j2.get("ok") is False and j2.get("reason_code") == 18, \
     f"agent_id-tahrizi-rc18-beklendi: {j2}"
-print("  2) RUN-YOLU-agent_id: tahriz → RED rc18 (agent_ownership-canlı) — "
-      "run-yolu-TAMAMEN-korunmuyor: sahibi-doğruluyor, DURUM-özünü-doğrulAMIYOR")
+print("  2) RUN-YOLU-agent_id: tahriz → RED rc18 (agent_ownership-canlı) — " "run-yolu-TAMAMEN-korunmuyor: sahibi-doğruluyor, DURUM-özünü-doğrulAMIYOR")
 
 # --- 3) IMPORT-YOLU-POZİTİF-KANIT: snap-içi-tutarsız-graph_merkle → RED rc17
 st = json.loads(sp.read_text(encoding="utf-8"))
@@ -129,8 +123,7 @@ d_ok = bos_hedef(PKG, "hedef_ok")
 r_ok = sh("import", str(W / "snap_ok.tsg"), str(d_ok))
 j_ok = json.loads(r_ok.stdout) if r_ok.stdout.strip().startswith("{") else {"ok": None}
 assert j_ok.get("ok") is True, f"tutarlı-snap-import-YEŞİL-beklendi: {j_ok}"
-print("  3a) KONTROL: tutarlı-snap → import YEŞİL (ölçüm-özgür; sonraki-RED'ler-"
-      "tahrizden-kaynaklanır, yanlış-red-değil)")
+print("  3a) KONTROL: tutarlı-snap → import YEŞİL (ölçüm-özgür; sonraki-RED'ler-" "tahrizden-kaynaklanır, yanlış-red-değil)")
 # 3b) tutarsız-snap: node'u-tahriz-et, graph_merkle'ı-eski-bırak → export → RED rc17
 st = json.loads(sp.read_text(encoding="utf-8"))
 st["memory"]["nodes"][0]["text"] = "TAHRIF-IMPORT-KANIT"
@@ -142,12 +135,10 @@ j_bad = json.loads(r_bad.stdout) if r_bad.stdout.strip().startswith("{") else {"
 assert j_bad.get("ok") is False and j_bad.get("reason_code") == 17, \
     f"tutarsız-snap-rc17-beklendi: {j_bad}"
 assert "graph_merkle mismatch" in j_bad.get("reason", ""), "reason-metni-bozuk"
-print("  3b) IMPORT-YOLU-POZİTİF-KANIT: snap-içi-tutarsız-graph_merkle → RED rc17 "
-      "\"state_invalid: graph_merkle mismatch\" (satır-1112) — koruma-CANLI")
+print("  3b) IMPORT-YOLU-POZİTİF-KANIT: snap-içi-tutarsız-graph_merkle → RED rc17 " "\"state_invalid: graph_merkle mismatch\" (satır-1112) — koruma-CANLI")
 
 # --- 4) ÖZET-ölçüm: iki-yol-karşılaştırma
-print("  ÖZET: import-yolu-durum-özünü-doğrular (rc17); run-yolu-doğrulAMAZ "
-      "(yeniden-hesaplar-yazar) — eksiklik-run-yolunda; koruma-import-kapısında")
+print("  ÖZET: import-yolu-durum-özünü-doğrular (rc17); run-yolu-doğrulAMAZ " "(yeniden-hesaplar-yazar) — eksiklik-run-yolunda; koruma-import-kapısında")
 
 # --- 5) ADDITIVE-DİKİŞ: zincir-head → RFC-010 x402/v1 GREEN
 from tamga_project_head import chain_head
@@ -180,8 +171,7 @@ charge = {"seq": 1, "prev": "0" * 64, "h": "a" * 64,
 r = SB.verify(charge, claim)
 assert r["verdict"] == "GREEN" and r["reason_code"] == 0, \
     f"head-dikişi-GREEN-beklendi: {r}"
-print(f"  5) ADDITIVE-DİKİŞ: D5-head → x402/v1 GREEN rc0 ({n}-blok, §6-equals) — "
-      f"eksiklik-raporuyla-birlikte-ölçülen-yüzün-ödeme-kanıtı")
+print(f"  5) ADDITIVE-DİKİŞ: D5-head → x402/v1 GREEN rc0 ({n}-blok, §6-equals) — " f"eksiklik-raporuyla-birlikte-ölçülen-yüzün-ödeme-kanıtı")
 
 # --- 6) NEG-1: sahte-imza → rc4
 bad = json.loads(json.dumps(claim))

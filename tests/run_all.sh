@@ -659,6 +659,8 @@ PY
   kontrol $? "AT-162: kimlik-sizdiran-ozet-tarama ( syntropion-sabit-default-key-KAPANDI)"
   bash tests/at164_rfc010_s6_tutarlilik_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-164: RFC010-s6 ↔ kod-tutarlilik ( standardizasyon)"
+  bash tests/at167_rfc010_s6_derived_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-167: RFC010-s6.2-derived-turetme ( 5-kanit + 4-negatif)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

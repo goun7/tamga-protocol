@@ -107,6 +107,16 @@ assert spent == 1000000, f"tam-sayı-quota-bozuk: {spent}"
 print("  5-TEMİZ: sester-quota-kapısı spent_today_minor-TAM-SAYI ( round-")
 print("          akümülasyonu-YOK); middleware:389-391 bu-yolu-kullanır")
 
+# --- KAPALI-KANIT: sester-üretim-yolu-artık-Decimal ( AT-172-düzeltmesi)
+from sester import middleware as MW
+src_mw = inspect.getsource(MW.PaywallMiddleware.__init__)
+assert "Decimal(str(price))" in src_mw and "ROUND_HALF_UP" in src_mw, \
+    "sester-price-yolu-hâlâ-float ( AT-172-bozulmuş)"
+assert "float(price) * MINOR" not in src_mw, "eski-float-yolu-hâlâ-duruyor"
+print("  KAPANDI: sester price/quota-yolu artık-Decimal-ROUND_HALF_UP ( float-YOK")
+print("           — AT-172-BULGU-1-düzeltmesi-canlı; yukarıdaki-1/2/3-kanıtları")
+print("           MATEMATİKSEL-regression-guard-olarak-kalır ( float'ın-sapması)")
+
 # --- 7) TEMİZ: negatif-charge_receipt-reddi ( kota-bypass-koruma)
 try:
     ld.append("charge_receipt", "a2", amount=-5.0)
@@ -130,23 +140,26 @@ from decimal import Decimal
 from pacta.core.vault import PactaEscrowVault
 from pacta.models import ArbitrationVote
 
-# --- 4) B2: 3-arbitrator-ödül-kalanı-yakılır
+# --- 4) B2 → KAPANDI ( AT-172): ödül-kalanı-artık-dağıtılır ( yakılmaz)
+# Önceden-bölüm-sonrası-quantize-kalanı-atıyordu ( 0.0001-havuz/3 → 0.000099;
+# 0.000001-YAKILIRDI). Artık-kalan-son-çoğunluk-arbitratoruna-eklenir
+# ( atomik-kalan-deseni; havuz-tamamen-dağıtılır).
 v = PactaEscrowVault()
 B, S = "0x" + "1" * 40, "0x" + "2" * 40
 j = v.create_and_lock_escrow(B, S, Decimal("0.001"))   # bond %20 → 0.0002
 v.submit_output(j.job_id, {"r": 1})
 d = v.raise_dispute(j.job_id, B, "x", "h" * 64)
-pool = d.bond_amount_usdc * Decimal("0.5")
+pool = (d.bond_amount_usdc * Decimal("0.5")).quantize(Decimal("0.000001"))
 votes = [ArbitrationVote(arbitrator_address="0x" + str(i) * 40,
                          vote_favor_buyer=True, rationale_hash="r" * 64)
          for i in (7, 8, 9)]       # bağımsız ( taraf-DEĞIL)
 out = v.resolve_arbitration(d.dispute_id, votes)
 toplam = sum(out.arbitrator_rewards.values())
 kalan = pool - toplam
-assert kalan > 0, f"kalan-kayıp-YOK ( beklenmedik): {kalan}"
-print(f"  4-B2: 0.001-escrow → bond {d.bond_amount_usdc} → havuz {pool} →")
-print(f"        3-arbitrator-toplam {toplam} → YAKILAN-KALAN {kalan} USDC")
-print("        → quantize-sonu-bölüm-kalanı-atılır; para-sisteme-geri-dönmez")
+assert kalan == 0, f"AÇIK-GERİ-GELDİ! ( kalan-hâlâ-yakılıyor): {kalan}"
+print(f"  4-B2-KAPANDI: 0.001-escrow → bond {d.bond_amount_usdc} → havuz {pool} →")
+print(f"        3-arbitrator-toplam {toplam} → YAKILAN-KALAN {kalan} ( TAM-dağıtım)")
+print("        → kalan-artık-son-çoğunluk-arbitratoruna-eklenir; para-yakılmaz")
 
 # --- 6) TEMİZ: pacta-solvency-Decimal-çift-tutarlı
 v2 = PactaEscrowVault()

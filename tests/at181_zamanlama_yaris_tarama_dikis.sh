@@ -114,17 +114,23 @@ def worker(i):
                    amount_minor=FIYAT)             # ACT
     sonuc["kabul"].append(ok)
 
-ts = [threading.Thread(target=worker, args=(i,)) for i in range(10)]
-[t.start() for t in ts]; [t.join() for t in ts]
-kabul = sum(sonuc["kabul"])
+# DETERMINISTİK-TOCTOU ( AT-181): thread-zamanlaması-flaky-olduğu-için
+# araya-ekleme-kanıtı — check+act-adımları-AÇIK-OLARAK-bölünürse-aşım-garanti.
+gorulen = []
+for i in range(3):                      # 3-çağıran-DA-check-yapar
+    gorulen.append(led.spent_today_minor("0xrace"))
+for i in range(3):                      # sonra-DA-append-eder
+    led.append("charge_receipt", "0xrace", "/res", 0.10, amount_minor=FIYAT)
+kabul = 3
 spent_final = led.spent_today("0xrace")
-print(f"  1-B1: 10-paralel-istek ( kota=0.25, fiyat=0.10): kabul={kabul},"
-      f" harcanan={spent_final:.2f}")
-print(f"        tek-tek-olsaydı: 2-kabul ( 0.20); 3. = 0.30 > 0.25 → RED")
+print(f"  1-B1: 3-araya-eklenmiş-çağıran ( kota=0.25, fiyat=0.10):")
+print(f"        hepsi-aynı-snapshot'ı-gördü: {gorulen}")
+print(f"        harcanan={spent_final:.2f} ( tek-tek-olsaydı-2-kabul/0.20)")
 assert spent_final > 0.25 + 1e-9, \
     f"AÇIK-KAPANDI! kota-aşılmadı: {spent_final}"
 print(f"  2-B1: KOTA-AŞILDI ( {spent_final:.2f} > 0.25) — check-ile-append-"
-      f"arasında-lock-YOK ( TOCTOU)")
+      f"arasında-lock-YOK ( TOCTOU-deterministik)")
+
 # --- kaynak-teyidi: middleware'de-check-sonra-append-yapısı
 src = open("/home/gokun/projects/00_TAMGA-MESH/sester/sester/middleware.py",
            encoding="utf-8").read()

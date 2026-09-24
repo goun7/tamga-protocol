@@ -69,3 +69,10 @@ secrets/
 # commit-bound-değil (Kural-7)
 unpump-bridge/
 
+
+# AT-183+-test-eserleri ( yerel-veritabanları-ve-simnet-çıktıları)
+syntropion.db
+tests/simnet/.at*/
+*.db-journal
+*.db-wal
+*.db-shm

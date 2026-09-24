@@ -169,9 +169,11 @@ print("           → numaralandırma-SADECE-caller-job_id-verdiğinde")
 # --- kaynak-teyidi: çakışma-kontrolü-YOK
 import inspect
 src = inspect.getsource(PactaEscrowVault.create_and_lock_escrow)
-assert "if job_id:" in src, "job_id-yolu-kaynakta-yok"
-assert "job_id_collision" in src, "çakışma-kontrolü-yok ( AT-182-bozulmuş)"
-print("  kaynak-teyidi-B2: job_id_collision-RED-canlı ( AT-182-düzeltmesi)")
+assert "if job_id is not None" in src or "if job_id:" in src, \
+    "job_id-yolu-kaynakta-yok"
+assert "job_id_collision" in src, "çakışma-kontrolü-yok ( AT-182-bozulmış)"
+assert "job_id-invalid" in src, "null-byte-guard-yok ( AT-188-bozulmuş)"
+print("  kaynak-teyidi-B2: job_id_collision + null-byte-RED-canlı ( AT-182/188)")
 PYEOF
 [ $? -eq 0 ] && PASS=$((PASS+1)) && note "  PASS: B) pacta-job_id-numaralandırma+çakışma" \
               || { FAIL=$((FAIL+1)); note "  FAIL: B) pacta"; cat "$LOG"; }

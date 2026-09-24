@@ -703,6 +703,10 @@ PY
   kontrol $? "AT-185: kanit-uretim-tesisi ( validFrom-gelecek-RED+ts-monotonluk)"
   bash tests/at186_guvenlik_borcu_teknik_bakim_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-186: guvenlik-borcu-bakim ( AT-036-notu+env-guard+gen_lang_index)"
+  bash tests/at187_dogrulama_yolu_kanca_noktasi_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-187: dogrulama-yolu-kanca ( TSA-PKI-openssl+fail-closed)"
+  bash tests/at188_sinir_kosulu_hata_yolu_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-188: sinir-kosulu ( job_id-null/boş-RED+amount<=0-RED)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

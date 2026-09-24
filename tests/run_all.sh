@@ -695,6 +695,10 @@ PY
   kontrol $? "AT-181: zamanlama-ve-yaris ( kota-TOCTOU+ledger-lock-kapandi)"
   bash tests/at182_giris_siniri_azaltma_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-182: giris-siniri-ve-azaltma ( job_id-carpisma+header-sinir+rate-limit)"
+  bash tests/at183_hata_yayilmazlik_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-183: hata-yayilmazlik ( yanlis-imza-sayildi+job_id-sizinti+ct_log-fail-closed)"
+  bash tests/at184_dagitik_tutarlilik_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-184: dagitik-tutarlilik ( event_id+idempotency+zorunlu-rol-kapisi)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

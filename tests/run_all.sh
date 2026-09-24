@@ -711,6 +711,10 @@ PY
   kontrol $? "AT-189: yardimci-arac-denetim-iz ( self_pilot-0600-atomik)"
   bash tests/at190_gizli_varsayilan_deger_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-190: gizli-varsayilan-deger ( secret-zorunlu+boş-RED)"
+  bash tests/at191_kanit_uretim_tutarlilik_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-191: kanit-uretim-tutarlilik ( head_source-dangling-RED)"
+  bash tests/at192_hata_mesaji_sizintisi_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-192: hata-mesaji-sizintisi ( AuthorizationError+help-flag)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

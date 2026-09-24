@@ -18,6 +18,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+import pathlib
 
 def _foreign_chain_ok(proof: dict, payer: str, receipt_hex: str, scheme: str) -> bool:
     """§6-kapanışı: yabancı-zincirin-çürüklüğünü-ölçer (AT-067-itirafı).
@@ -59,6 +60,23 @@ def _foreign_chain_ok(proof: dict, payer: str, receipt_hex: str, scheme: str) ->
         if head.lower() != hashlib.sha256(
                 bytes.fromhex(receipt_hex)).hexdigest().lower():
             return False
+    # AT-191-BULGU-1: chain-adı-gerçek-zincire-ÇÖZÜLMÜYORDU ( dangling) —
+    # head_hex-64hex-format-+formül-tutarlı-yeterliydi; swarmax-deposu-açıl-
+    # madan-sahte-foreign-proof-GEÇİYORDU. additive-çözüm: proof-opsiyonel
+    # 'head_source'-taşırsa-kaynağı-AÇ-ve-gerçek-kök-ile-KARŞILAŞTIR.
+    # ( RFC-010 §6.1-sözleşmesi-korunur: head_source-YOKSA-eski-davranış;
+    #   yabancı-zinciri-kendimiz-yeniden-doğrulamayız-AMA-kök-çözülebilir.)
+    src = proof.get("head_source")
+    if isinstance(src, str) and src:
+        try:
+            p = pathlib.Path(src).expanduser()
+            if not p.is_file():
+                return False
+            real_head = p.read_text(encoding="utf-8").strip().lower()
+            if not real_head or real_head != head.lower():
+                return False
+        except Exception:
+            return False   # çözülemez-kaynak → fail-closed
     # head-alanı-receiptHash'e-BAĞLI-değil (farklı-zincirlerin-farklı-kökleri
     # olabilir); ama-boş-head-RED (boş-kök-sahte-zincir-işaretidir)
     return True

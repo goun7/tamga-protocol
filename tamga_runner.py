@@ -1404,7 +1404,7 @@ engine commands (first 'run' auto-downloads the SHA256-pinned wasmtime; repo clo
                                   execute the agent (wasmtime), charge fee, append ledger
   export <pkg> -o <file> --seed <hex>
                                   seal a snapshot (memory + embedded chain) for migration
-  import <file> <pkg> [--cosign-policy L0|L1] [--node-trust f]
+  import <file> <pkg> [--cosign-policy L0|L1] [--node-trust f] [--node-revoked f]
                                   import a snapshot (deep verification)
   memory <pkg> [--search q] [--import-json f] [--export-json f]
                                   memory operations on the node state (flags, not subcommands)

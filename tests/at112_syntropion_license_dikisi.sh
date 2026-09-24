@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# AT-186-BULGU-2: run_all-dışı-bağımsız-çalıştırmada-AT-162-koruması-kırılıyordu
+export SYNTROPION_SECRET_KEY="${SYNTROPION_SECRET_KEY:-simnet-syntropion-test-key-32b}"
 # AT-112: SYNTROPION-ÜÇÜNCÜ-YÜZ → RFC-010-DİKİŞİ (C-sınıfı — license-key-HMAC).
 #
 # 18-Syntropion: AT-078 FSEK-clickwrap-hash'i ( security.py:27) + AT-089

@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# AT-186-BULGU-2: run_all-disinda-calistirmada-AT-162-korumasi-kirilmasin
+export SYNTROPION_SECRET_KEY="${SYNTROPION_SECRET_KEY:-simnet-syntropion-test-key-32b}"
+
 # AT-096: SYNTROPION-API/CLI → RFC-010-DİKİŞİ (C-sınıfı — üçüncü-yüz).
 #
 # AT-078-FSEK-hash'ini-bağladı-AMA-onu-ÜRETEN-yüzler-ölçülmedi:

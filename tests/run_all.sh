@@ -699,6 +699,10 @@ PY
   kontrol $? "AT-183: hata-yayilmazlik ( yanlis-imza-sayildi+job_id-sizinti+ct_log-fail-closed)"
   bash tests/at184_dagitik_tutarlilik_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-184: dagitik-tutarlilik ( event_id+idempotency+zorunlu-rol-kapisi)"
+  bash tests/at185_kanit_uretim_tesis_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-185: kanit-uretim-tesisi ( validFrom-gelecek-RED+ts-monotonluk)"
+  bash tests/at186_guvenlik_borcu_teknik_bakim_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-186: guvenlik-borcu-bakim ( AT-036-notu+env-guard+gen_lang_index)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# AT-186-BULGU-2: run_all-disinda-calistirmada-AT-162-korumasi-kirilmasin
+export SYNTROPION_SECRET_KEY="${SYNTROPION_SECRET_KEY:-simnet-syntropion-test-key-32b}"
+
 # AT-078: SYNTROPION → RFC-010-DİKİŞİ (C-sınıfı — 18-Syntropion).
 #
 # 18-Syntropion: syntropion_core/security.py — generate_fsek_clickwrap_hash

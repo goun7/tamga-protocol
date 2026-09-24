@@ -90,10 +90,11 @@ dt = time.perf_counter() - t0
 rate = 1000 / dt if dt > 0 else float("inf")
 assert n == 1000, f"reddir-beklenmedik: {n}"
 sayac = SEC._verify_fail_counts.get("anon", 0)
+assert sayac == 1000, f"anon-sayaç-beklenmedik: {sayac} ( 1000-deneme)"
 print(f"  1-B1: 1000-hatalı-İMZALI-deneme → {n}-reddi, {dt*1000:.1f}ms")
-print(f"        → {rate:,.0f}-deneme/sn — rate-limit-sayaç={sayac} ( ARTMAZ!)")
-print("        GECİKMİŞ-UYGULAMA: hatalı-imza-yolu _record_verify_failure-ÇAĞIRMAZ")
-print("        ( düzeltme-yarım — brute-force-yolu-hâlâ-sınırsız)")
+print(f"        → {rate:,.0f}-deneme/sn — rate-limit-sayaç={sayac} ( ARTAR!)")
+print("        GECİKMİŞ-UYGULAMA-KAPALDI: hatalı-imza-da-anon-bucket'te-SAYILIR")
+print("        ( AT-183-düzeltmesi; sayaç-brute-force-hacmini-gözlemlenebilir-kılar)")
 print("        DÜRÜST-NOT: HMAC-128-bit-kırılamaz ( bulgu-GERÇEK-AMA-düşük-etki)")
 
 # --- N1) geçerli-token-hâlâ-çalışır ( 1000-redden-sonra)

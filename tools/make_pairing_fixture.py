@@ -38,7 +38,8 @@ from tamga_canon import jcs  # RFC 8785 — merkezi-uygulama (jcs_parity.sh)
 
 
 def main():
-    work = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/tamga-fixture")
+    import tempfile as _tf
+    work = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else _tf.mkdtemp(prefix="tamga-fixture-"))
     out = pathlib.Path(sys.argv[2] if len(sys.argv) > 2 else ROOT / "docs" / "pairing")
     if work.exists():
         shutil.rmtree(work)

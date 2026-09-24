@@ -707,6 +707,10 @@ PY
   kontrol $? "AT-187: dogrulama-yolu-kanca ( TSA-PKI-openssl+fail-closed)"
   bash tests/at188_sinir_kosulu_hata_yolu_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-188: sinir-kosulu ( job_id-null/boş-RED+amount<=0-RED)"
+  bash tests/at189_yardimci_arac_denetim_iz_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-189: yardimci-arac-denetim-iz ( self_pilot-0600-atomik)"
+  bash tests/at190_gizli_varsayilan_deger_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-190: gizli-varsayilan-deger ( secret-zorunlu+boş-RED)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

@@ -19,9 +19,33 @@ Cikti donuk-kanittir: <evidence>/self-pilot-evidence.json + acceptance.json.
 Kullanim:
   python3 tools/self_pilot.py [pkg-dir] [evidence-dir]
 """
-import sys, json, shutil, subprocess, pathlib, datetime, tempfile
+import sys, json, shutil, subprocess, pathlib, datetime, tempfile, os
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+# AT-189-BULGU-1+2-düzeltmesi: kanıt-dosyaları-artık-ATOMİK-ve-0600-yazılır
+# ( üretim-deseni _secure_open ile tutarlı). tmp-oluştur → chmod-0600 →
+# os.replace ( tek-uyarımsal-atomik-taşıma). Crash'te-kısmi-kanıt-YOK:
+# okuyucı ya-eski-dosyayı-ya-da-yeni-tam-dosyayı-görür — ASLA-yarım-satır.
+def _secure_write(path: pathlib.Path, data: bytes) -> None:
+    """Atomik-0600-yazım ( tamga-üretim-deseni — Audit-9-B6)."""
+    import os
+    fd = tempfile.NamedTemporaryFile(
+        dir=path.parent, prefix=".at189-", suffix=".tmp", delete=False)
+    try:
+        fd.write(data)
+        fd.flush()
+        os.fsync(fd.fileno())
+        os.fchmod(fd.fileno(), 0o600)
+    except Exception:
+        os.unlink(fd.name)
+        raise
+    finally:
+        fd.close()
+    os.replace(fd.name, path)   # atomik: ya-tam-eski-ya-da-tam-yeni
+
+def _secure_write_text(path: pathlib.Path, text: str) -> None:
+    _secure_write(path, text.encode("utf-8"))
 
 def run_cmd(args, cwd, env=None):
     return subprocess.run(args, cwd=str(cwd), env=env, capture_output=True, text=True)
@@ -109,9 +133,15 @@ def main(argv):
             "legs": legs,
             "verdict": "ALL-THREE-LEGS-GREEN" if all(l["ok"] for l in legs) else "SOME-LEG-RED",
         }
-        (evdir / "self-pilot-evidence.json").write_text(json.dumps(evidence, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        (evdir / "acceptance.json").write_text(json.dumps(acceptance, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        (evdir / "delivered.out").write_bytes(delivered)   # teslim-edilen-baytlar (kanit)
+        # delivered.out-ÖNCE-yazılır ( kanıt-baytları-en-önemli); verdict-
+        # evidence-sonra → crash'te-verdict-yoksa-kanıt-YARIM-görülmez.
+        _secure_write(evdir / "delivered.out", delivered)   # teslim-edilen-baytlar (kanit)
+        _secure_write_text(
+            evdir / "self-pilot-evidence.json",
+            json.dumps(evidence, indent=2, ensure_ascii=False) + "\n")
+        _secure_write_text(
+            evdir / "acceptance.json",
+            json.dumps(acceptance, indent=2, ensure_ascii=False) + "\n")
 
         print(json.dumps(evidence, ensure_ascii=False))
         for l in legs:

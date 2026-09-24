@@ -129,9 +129,13 @@ src = open("/home/gokun/projects/00_TAMGA-MESH/sester/sester/middleware.py",
 zayif = 'secret: str = "dev-secret"' in src
 low = src.lower()
 uyari = ("warning" in low and "dev-secret" in low)
+zorunlu = "secret: str | None = None" in src
 print(f"  BULGU-2: sester 'dev-secret'-varsayılanı={zayif}; "
-      f"uyarı-var={uyari}")
-assert zayif, "zayıf-varsayılan-bulunamadı (TEMİZ-çıkmalıydı)"
+      f"uyarı-var={uyari}; zorunlu-mod={zorunlu}")
+# AT-190-BULGU-1-KAPALDI: varsayılan-artık-YOK ( secret: str | None = None)
+# — AT-179'un-varsayılan-açıklığı-AT-190-ile-tamamen-kapatıldı.
+assert zorunlu, "varsayılan-hâlâ-'dev-secret' ( AT-190-bozulmuş)"
+assert not zayif, "zayıf-varsayılan-geri-geldi ( gerileme!)"
 # AT-179-BULGU-2-KAPANDI: gürültülü-uyarı + üretim-kilidi-eklendi. Artık
 # 'warning'-var-LIĞI-başarı-değil; üretim-kilidi-SESTER_REQUIRE_SECURE_SECRET
 # ile-bilinen-değer-reddediliyor ( fail-closed).

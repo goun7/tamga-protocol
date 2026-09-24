@@ -80,6 +80,11 @@ atfını-kanıtla (önceden-var-bağ).
 **SONRA:** (a) Pacta-hakemlik-simülasyonu-ile-canlı-test; (b) holistis-
 `disputeContext`-şema-hizalaması; (c) `protocol`-listesine-`pacta/v1`-ekle.
 
+> **DURUM-GÜNCELLEMESİ ( 2026-09-24, AT-187-doğrulaması):** (c) **TAMAMLANDI**
+> — `tools/dispute_pointer_verify.py:27`-SUPPORTED_PROTOCOLS-artık `pacta/v1` +
+> `pactiva/v1`-taşır ( AT-187-taramasında-teyit-edildi). (a)-ve-(b)-hâlâ-açık
+> ( pilot-günü-öğeleri — bu-RFC TASLAK-kalar; §0-durum-satırı-değişmedi).
+
 ## 5. Riskler (dürüst)
 
 - **"Yeşil-giydirme"-tehlikesi-BUYÜK:** `6/6-GREEN`-iddiası-tam-burada-

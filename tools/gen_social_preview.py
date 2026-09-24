@@ -40,7 +40,8 @@ def main() -> int:
 <text x="100" y="440" font-family="Liberation Sans" font-size="22" fill="#64748b">ed25519 · XChaCha20-Poly1305 · hash-chain ledger · WASI re-execution</text>
 <text x="100" y="560" font-family="Liberation Sans" font-size="26" fill="#94a3b8">github.com/goun7/tamga-protocol · Apache-2.0</text>
 </svg>"""
-    tmp = pathlib.Path("/tmp/social-preview.svg")
+    import tempfile as _tf
+    tmp = pathlib.Path(_tf.mktemp(suffix=".svg", prefix="social-preview-"))
     tmp.write_text(svg, encoding="utf-8")
     out = ROOT / "docs" / "assets" / "social-preview.png"
     r = subprocess.run(["rsvg-convert", "-w", "1200", "-h", "640", "-o", str(out), str(tmp)])

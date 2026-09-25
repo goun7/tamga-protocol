@@ -57,8 +57,12 @@ except Exception:
     print('')
 " 2>/dev/null)"
 if [ -n "$ZBAD" ]; then
-  note "[SKIP] AT-098: x402-servis-zincirleri-geçersiz ($ZBAD) — gateway-up-7/7-ama-chain_valid=False (İNDETERMİNE)."
-  echo "SKIP: gateway-down — x402 zincir geçersiz: $ZBAD"
+  note "[SKIP] AT-098: x402-servis-zincirleri-geçersiz ($ZBAD) — gateway-up-8/8-ama-chain_valid=False (İNDETERMİNE)."
+  echo "SKIP: dis-zincir-state — x402 servisleri up ama chain_valid=False: $ZBAD"
+  echo "  (kök-neden: servis-ledger'larında tarihsel secret-geçişi; örn callsnap"
+  echo "   seq1-385 'dev-secret' ile mühürlü, seq386+ demo-secret ile — yeniden-"
+  echo "   mühürleme-yok → verify_chain False. Bu-deponun-regresyonu-DEĞİL;"
+  echo "   onarım dış-repo 86-CallSnap/* ve servis-restart yetkisinde.)"
   echo "RESULT: 0 PASS, 0 FAIL, 1 SKIP — log: $LOG"
   exit 0
 fi

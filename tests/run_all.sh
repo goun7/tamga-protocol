@@ -779,6 +779,10 @@ PY
     echo "  AT-204/AT-205: SKIP (TAMGA_LIVE=1 değil — canlı-gas-korunuyor)"
     echo "  AT-204/AT-205: SKIP (TAMGA_LIVE=1 değil — canlı-gas-korunuyor)" >&2
   fi
+  # AT-206: canlı-tx BAĞIMSIZ-DOĞRULAMA — IVerifier.verify-tx. Okuma-yalnız
+  # (gas-YOK; sabit immutable-tx'ler) → TAMGA_LIVE-gerektirmez; ağ-yoksa-SKIP.
+  bash tests/at206_canli_tx_dogrulama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-206: canlı-tx doğrulama ( IVerifier.verify-tx; okuma-yalnız 5/5)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

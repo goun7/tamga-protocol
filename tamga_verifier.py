@@ -22,6 +22,7 @@ Doğruladığı kanıt ailesi (relayer'ın TAMGA_FULFILL/1 çıktısı):
 
 Kullanım:
   python3 tamga_verifier.py verify-bundle <bundle.json>
+  python3 tamga_verifier.py verify-tx <tx-hash> <rpc-url>   # canlı-zincir (okuma-yalnız)
   python3 tamga_verifier.py stamp <stdout-file> <hex16>
   python3 tamga_verifier.py snapshot <snap.tsg> <digest-hex>
   python3 tamga_verifier.py payload <payload.json>
@@ -236,6 +237,70 @@ class IVerifier:
         return {"ok": True, "sha256": got}
 
     # --- üst-seviye: relayer'ın tam kanıt-paketini tek-seferde doğrula ----------
+    # fulfillExecution(uint256,bytes32,bytes,bytes) — keccak-256 legacy-padding
+    # (tamga_keccak ile-hesaplandı; sha3_256 DEĞİL — AT-201 3-kaynak-paritesi)
+    FULFILL_SELECTOR = bytes.fromhex("e266d3c7")
+
+    @staticmethod
+    def verify_tx(tx_hash: str, rpc_url: str) -> dict:
+        """Zincirdeki bir fulfillExecution tx'inin olgularını doğrular (OKUMA-YALNIZ).
+
+        Gas-harcamaz: tx'i RPC'den-çeker, calldata'yı ABI-decode-eder ve tx-in-
+        olgularının-BİRBİRİYLE-TUTARLI olduğunu-kanıtlar:
+          selector    fulfillExecution(uint256,bytes32,bytes,bytes) == 0xe266d3c7
+          request_id  pozitif-tamsayı
+          payload     jcs(json.loads(payload)) == payload-baytları (byte-parite)
+          digest      tx-argümanı == payload-içindeki-snapshot-digest (uyum)
+
+        Off-chain mühürler (stdout/snapshot/charge/delivery/input) tx-inde-YOK —
+        onlar için verify-bundle; bu-yol ZİNCİR-FACT-tutarlılığını-doğrular
+        (tx'i-imzalayan-kişi-digest'i-payload-ile-tutarlı-göndermiş-olmalıdır).
+        web3/eth-abi zorunlu (KATMAN-2); IVerifier'ın-stdlib-çekirdeği
+        verify-bundle-yoluyla-korunur — bu-metot web3-yoksa message-RED-döner.
+        """
+        verified: list = []
+        try:
+            from web3 import Web3
+            from eth_abi import decode as abi_decode
+        except ImportError:
+            return {"ok": False, "checks": 0, "reason":
+                    "web3-yok: KATMAN-2-bağımlılık (pip install .[relayer])"}
+        try:
+            w3 = Web3(Web3.HTTPProvider(rpc_url, request_kwargs={"timeout": 30}))
+            if not w3.is_connected():
+                return {"ok": False, "checks": 0, "reason": f"rpc-unreachable: {rpc_url}"}
+            raw = w3.eth.get_transaction(tx_hash)["input"]
+            raw = bytes(raw) if isinstance(raw, (bytes, bytearray)) else bytes.fromhex(
+                raw[2:] if raw.startswith("0x") else raw)
+            if raw[:4] != IVerifier.FULFILL_SELECTOR:
+                return {"ok": False, "checks": 0, "reason":
+                        f"selector-değil: {raw[:4].hex()} (fulfillExecution-beklenir)"}
+            verified.append("selector")
+            rid, digest, output_data, _proof = abi_decode(
+                ["uint256", "bytes32", "bytes", "bytes"], raw[4:])
+            rid = int(rid) if not isinstance(rid, (bytes, bytearray)) else int.from_bytes(rid, "big")
+            if rid <= 0:
+                return {"ok": False, "checks": 1, "verified": verified,
+                        "reason": f"request_id-geçersiz: {rid}"}
+            verified.append("request_id")
+            payload = bytes(output_data)
+            pr = IVerifier.verify_payload(payload)
+            if not pr["ok"]:
+                return {"ok": False, "checks": 2, "verified": verified,
+                        "reason": "payload: " + pr["reason"]}
+            verified.append("payload")
+            want = (digest.hex() if isinstance(digest, (bytes, bytearray)) else str(digest)).lower()
+            got = str(json.loads(payload.decode()).get("encrypted_snapshot_digest") or "").lower()
+            if not got or got != want:
+                return {"ok": False, "checks": 3, "verified": verified,
+                        "reason": f"digest-uyumsuz: tx={want[:16]}… payload={got[:16]}…"}
+            verified.append("digest-uyumu")
+        except Exception as e:
+            return {"ok": False, "checks": len(verified), "verified": verified,
+                    "reason": f"tx-okuma-hatası: {type(e).__name__}: {str(e)[:120]}"}
+        return {"ok": True, "checks": 4, "verified": verified,
+                "note": "zincir-fact-tutarlılığı; off-chain mühürler için verify-bundle"}
+
     @staticmethod
     def verify_bundle(bundle: dict) -> dict:
         """bundle: {stdout_b64, snapshot_b64, payload (JCS text), charge, prev_h,
@@ -310,6 +375,8 @@ def main(argv):
             return _ok(IVerifier.verify_snapshot(open(a[0], "rb").read(), a[1]))
         if cmd == "payload":
             return _ok(IVerifier.verify_payload(open(a[0], "rb").read()))
+        if cmd == "verify-tx":
+            return _ok(IVerifier.verify_tx(a[0], a[1]))
         if cmd == "charge":
             rec = json.loads(a[0])
             return _ok(IVerifier.verify_charge(rec, a[1], a[2]))

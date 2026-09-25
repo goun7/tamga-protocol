@@ -45,9 +45,23 @@ fi
 LOG="${TAMGA_EVIDENCE_DIR:-.evidence}/REGRESYON/$(date +%F)/run_all-$(date +%H%M%S).log"
 mkdir -p "$(dirname "$LOG")"
 SB="tests/simnet/.sandbox"
-PASS=0; FAIL=0
+PASS=0; FAIL=0; SKIP=0
 say() { echo "  [$1] $2"; }
 kontrol() { if [ "$1" = "0" ]; then PASS=$((PASS+1)); say PASS "$2"; else FAIL=$((FAIL+1)); say FAIL "$2"; fi; }
+# dış-servis-kesintisi-ilkeleri (2026-09-25): test "SKIP: <neden>" satırı basıp
+# exit-0-dönerse-PASS-değil-SKIP-sayılır — dış-bağımlılık-bu-deponun-regresyonu
+# değildir-ve-yanlış-KIRMIZI-üretmez (AT-082/093/098: 00-gateway x402-upstream).
+# Test-kendisi-SKIP-korumasını-uygular (services_up-okuma); run_all.sh-sadece-sayar.
+kontrol_skip() {
+  local out rc desc neden
+  out="$1"; rc="$2"; desc="$3"
+  neden="$(printf '%s\n' "$out" | grep -m1 '^SKIP:' || true)"
+  if [ -n "$neden" ]; then
+    SKIP=$((SKIP+1)); say SKIP "$desc — $neden"
+  else
+    kontrol "$rc" "$desc"
+  fi
+}
 bekle_red() { kontrol "$@"; }  # semantic alias for expected-RED greps (grep -q based); single implementation (Tur-2 cleanup)
 
 {
@@ -437,8 +451,9 @@ PY
   kontrol $? "AT-081: Unpump bağ-anahtarı → gerçek-müşteri-imzası (D5-kapsama)"
 
   # ---- kontrol-105b: AT-082 00-gateway-pilot-Sepolia-anchor (teammate) ----
-  bash tests/at082_gateway_pilot_sepolia_anchor.sh > /dev/null 2>&1
-  kontrol $? "AT-082: 00-gateway 6-x402-pilot → Sepolia anchor (R9-1..5)"
+  # dış-servis-kesintisi-SKIP-korumalı (x402-upstream-down → SKIP, FAIL-değil)
+  _out="$(bash tests/at082_gateway_pilot_sepolia_anchor.sh 2>&1)"; _rc=$?
+  kontrol_skip "$_out" "$_rc" "AT-082: 00-gateway 6-x402-pilot → Sepolia anchor (R9-1..5)"
 
   # ---- kontrol-108: AT-092 K0-Sybil-additive (teammate, AT-083'ün-uygulaması) ----
   bash tests/at092_k0_sybil_additive.sh > /dev/null 2>&1
@@ -447,8 +462,9 @@ PY
   # ---- kontrol-109..112: AT-091/093/094 + AT-085 (teammate-döngü-2) ----
   bash tests/at091_veridict_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-091: Veridict-imzalı-sertifika → RFC-010 (tamga/native)"
-  bash tests/at093_gateway_ic_yuz.sh > /dev/null 2>&1
-  kontrol $? "AT-093: 00-gateway iç-yüz guvence-kanca + bekçi + 7-route"
+  # dış-servis-kesintisi-SKIP-korumalı (x402-upstream-down → SKIP, FAIL-değil)
+  _out="$(bash tests/at093_gateway_ic_yuz.sh 2>&1)"; _rc=$?
+  kontrol_skip "$_out" "$_rc" "AT-093: 00-gateway iç-yüz guvence-kanca + bekçi + 7-route"
   bash tests/at094_pactiva_peer_attestation_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-094: 22-37-Pactiva peer-attestation → RFC-010/011"
   bash tests/at095_k0_kalan_adaylar.sh > /dev/null 2>&1
@@ -457,8 +473,9 @@ PY
   kontrol $? "AT-096: 18-Syntropion API/cli FSEK-yüzü → RFC-010"
   bash tests/at097_yieldix_server_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-097: 99-Yieldix server gerçek-HTTP-endpoint → RFC-010"
-  bash tests/at098_gateway_analitik_gunluk.sh > /dev/null 2>&1
-  kontrol $? "AT-098: gateway üçüncü-yüz analitik + K5-günlük"
+  # dış-servis-kesintisi-SKIP-korumalı (x402-upstream-down → SKIP, FAIL-değil)
+  _out="$(bash tests/at098_gateway_analitik_gunluk.sh 2>&1)"; _rc=$?
+  kontrol_skip "$_out" "$_rc" "AT-098: gateway üçüncü-yüz analitik + K5-günlük"
   bash tests/at099_swarmax_sealing_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-099: 23-Swarmax sealing (Merkle+Ed25519) → RFC-010"
   bash tests/at100_fiyat_kirilimi_koruma.sh > /dev/null 2>&1
@@ -728,7 +745,7 @@ PY
 
   rm -rf "$SB"
   echo ""
-  echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
+  echo "RESULT: $PASS PASS, $SKIP SKIP, $FAIL FAIL — log: $LOG"
   [ "$FAIL" = "0" ]
 } 2>&1 | tee -a "$LOG"
 exit ${PIPESTATUS[0]}

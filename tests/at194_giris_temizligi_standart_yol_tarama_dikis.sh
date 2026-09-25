@@ -79,9 +79,13 @@ for kok in kokler:
                 and "/build/" not in l and "/tests/" not in l
                 and "/test_" not in l and ".sh:" not in l
                 and ".md:" not in l and "progress" not in l
-                and "/.evidence/" not in l and ".log:" not in l]
+                and "/.evidence/" not in l and ".log:" not in l
+                and "/.git/" not in l]
+    # /32a (2026-09-25): .git/-metadata-üretim-kodu-değildir — commit-mesajları
+    # "shell=True-yok"-gibi-tarama-kelimesi-içerebilir (false-positive); ayrıca
+    # COMMIT_EDITMSG/packed-refs-gerçek-injection-yüzü-değil.
     toplam += len(dosyalar)
-assert toplam == 0, f"shell-injection-yüzü-bulundu: {toplam}"
+assert toplam == 0, f"shell-injection-yüzü-bulundu: {toplam}: {dosyalar[:3]}"
 print(f"  1-TEMİZ: shell=True/os.system/os.popen-sayısı={toplam} ( 5-projede)")
 print("        → tüm-subprocess-çağrılar LİSTE-form ( injection-imkânsız)")
 

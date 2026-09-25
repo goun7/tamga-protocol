@@ -20,10 +20,24 @@ mkdir -p "$(dirname "$LOG")"; : > "$LOG"
 
 note "AT-082: 00-gateway pilot-trafiği — 6 x402-servisi → Sepolia anchor"
 
-# Gateway-canlı-değilse-SKIP (INDETERMİNE — yeşil-boyanmaz)
-if ! python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=5)" 2>/dev/null; then
-  note "[SKIP] AT-082: gateway-8000-canlı-değil (CI/yerel-sandbox-yok) —"
-  note "       pilot-traffic-ölçülemedi (İNDETERMİNE)."
+# Gateway-canlı-değilse-veya-x402-servisleri-down-ise-SKIP (INDETERMİNE —
+# yeşil-boyanmaz). Dış-servis-kesintisi bu deponun-regresyonu-değildir:
+# gateway-process-up-olabilir-ama-services_up < 6 (upstream pilot-servisleri
+# planlock/pqhaven/... down). İki durum-da-aynı-şekilde-atlanır-ve-run_all.sh
+# "SKIP: gateway-down" ile-sayar (varsayım-yerine-kanıt: 2026-09-25).
+UP="$(python3 -c "
+import urllib.request, json
+try:
+    h = json.loads(urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=5).read())
+    up = str(h.get('services_up', '0/0'))
+    print(up.split('/')[0] if '/' in up else '0')
+except Exception:
+    print('0')
+" 2>/dev/null)"
+if [ "${UP:-0}" -lt 6 ]; then
+  note "[SKIP] AT-082: gateway-x402-yüzü-canlı-değil (services_up=${UP:-0}/7) —"
+  note "       pilot-traffic-ölçülemedi (INDETERMİNE; dış-servis-kesintisi)."
+  echo "SKIP: gateway-down — services_up=${UP:-0}/7 (pilot x402 servisleri)"
   echo "RESULT: 0 PASS, 0 FAIL, 1 SKIP — log: $LOG"
   exit 0
 fi

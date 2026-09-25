@@ -26,10 +26,21 @@ else PY3=python3; fi
 
 note "AT-093: 00-gateway iç-yüz — guvence-kanca + bekçi + 7-route"
 
-# Prereq: gateway-canlı (gerçek-trafiğin-yolu); yoksa-SKIP
-if ! $PY3 -c "import httpx; httpx.get('http://127.0.0.1:8000/healthz',timeout=5)" \
-     >/dev/null 2>&1; then
-  note "[SKIP] AT-093: gateway :8000-canlı-değil (İNDETERMİNE)."
+# Prereq: gateway-canlı-VE-x402-servisleri-up (gerçek-trafiğin-yolu);
+# gateway-process-up-olup-servisler-down-olabilir (services_up < 6) → ikisi-de-SKIP
+# (INDETERMİNE). Dış-servis-kesintisi bu deponun-regresyonu-değildir (2026-09-25).
+UP="$($PY3 -c "
+import httpx, json
+try:
+    h = httpx.get('http://127.0.0.1:8000/healthz', timeout=5).json()
+    up = str(h.get('services_up', '0/0'))
+    print(up.split('/')[0] if '/' in up else '0')
+except Exception:
+    print('0')
+" 2>/dev/null)"
+if [ "${UP:-0}" -lt 6 ]; then
+  note "[SKIP] AT-093: gateway-x402-yüzü-canlı-değil (services_up=${UP:-0}/7) (İNDETERMİNE)."
+  echo "SKIP: gateway-down — services_up=${UP:-0}/7 (pilot x402 servisleri)"
   echo "RESULT: 0 PASS, 0 FAIL, 1 SKIP — log: $LOG"
   exit 0
 fi

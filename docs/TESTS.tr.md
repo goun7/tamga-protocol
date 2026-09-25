@@ -1,4 +1,9 @@
 > Çeviri notu: bu dosya docs/TESTS.md'nin Türkçe-parçasıdır; kanıt-dili İngilizce-kalır (kontrol-adları, komutlar). Kaynak-dosya-değişirse-bu-ikiz-güncellenmelidir.
+>
+> **Güncelleme-notu (2026-09-25):** bu ikiz AT-036'da kalır; AT-037…AT-205
+> yalnızca İngilizce `docs/TESTS.md`'dedir (218 PASS, 1 SKIP, 0 FAIL — canlı
+> zincir AT-204/205 dahil). Güncel kanıt için `docs/TESTS.md`'e bakın; bu
+> dosya tarihsel-kaynak olarak-kalır.
 
 # Testler
 

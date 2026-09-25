@@ -742,6 +742,8 @@ PY
   kontrol $? "AT-197: relayer-KATMAN-1 ( Ledger-secret-zorunlu; dev-secret-RED-25)"
   bash tests/at198_relayer_cpu_kisit_registry_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-198: relayer-KATMAN-1 ( cpu-çift-kısıt + registry-dışı-modül-RED)"
+  bash tests/at196_relayer_evm_uctan_uca_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-196: relayer-KATMAN-2 ( uçtan-uca EVM→WASI→chain; status:1 + gasUsed)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

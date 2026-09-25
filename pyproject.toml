@@ -13,15 +13,6 @@ authors = [{ name = "Tamga Protocol" }]
 keywords = ["ai-agents", "receipts", "hash-chain", "tamper-evident", "wasm", "wasi", "x402", "cryptography", "agent-memory"]
 urls = { Homepage = "https://github.com/goun7/tamga-protocol", Documentation = "https://github.com/goun7/tamga-protocol/tree/main/docs", Changelog = "https://github.com/goun7/tamga-protocol/blob/main/CHANGELOG.md", "Bug Tracker" = "https://github.com/goun7/tamga-protocol/issues" }
 dependencies = ["PyNaCl>=1.5"]
-
-# Relayer (KATMAN-2) opsiyonel-yüzeyi — core zero-dependency prensibi KORUNUR:
-# web3 yalnız relayer daemon'ında (eth_getLogs + EIP-1559 fulfill tx). Import'ta
-# web3 yoksa message-RED (usage_guard doktrini). Karar dosyası §3 (onaylı).
-[project.optional-dependencies]
-relayer = ["web3<7"]
-# EVM test-düğümü (AT-196): gerçek py-evm state machine (anvil/solc GEREKMEZ;
-# test-double YOK — AT-075). .venv-evm bootstrap'ı test içinde deterministik.
-evm-test = ["web3<7", "eth-tester<0.10", "py-evm", "setuptools<81"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: Apache Software License",
@@ -35,6 +26,15 @@ classifiers = [
     "Topic :: Security",
     "Topic :: Security :: Cryptography",
 ]
+
+# Relayer (KATMAN-2) opsiyonel-yüzeyi — core zero-dependency prensibi KORUNUR:
+# web3 yalnız relayer daemon'ında (eth_getLogs + EIP-1559 fulfill tx). Import'ta
+# web3 yoksa message-RED (usage_guard doktrini). Karar dosyası §3 (onaylı).
+[project.optional-dependencies]
+relayer = ["web3<7"]
+# EVM test-düğümü (AT-196): gerçek py-evm state machine (anvil/solc GEREKMEZ;
+# test-double YOK — AT-075). .venv-evm bootstrap'ı test içinde deterministik.
+evm-test = ["web3<7", "eth-tester<0.10", "py-evm", "setuptools<81"]
 
 [project.scripts]
 tamga = "tamga_bootstrap:main"

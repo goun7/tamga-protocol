@@ -54,7 +54,7 @@ __all__ = [
     "load_registry", "resolve_module", "effective_cpu_ms", "run_module",
     "export_snapshot", "open_ledger", "execute_request",
     # KATMAN-2
-    "OracleTransport",
+    "OracleTransport", "daemon_loop",
     # reason-code sabitleri (tamga_runner ile paylaşılan doktrin)
     "RC_OK", "RC_OUTPUT_PROOF_MISMATCH", "RC_SNAPSHOT_BAD_MAGIC",
     "RC_SNAPSHOT_HEADER", "RC_SNAPSHOT_TOO_LARGE",
@@ -307,7 +307,15 @@ def load_registry(path) -> dict:
     if not isinstance(reg, dict) or not reg:
         raise TamgaRelayerError(RC_REGISTRY_INVALID,
                                 "registry_invalid: boş veya obje-değil")
-    for hsh, entry in reg.items():
+    # _-önekli anahtarlar METADATA'dır (registry dokümantasyonu; örn _aciklama,
+    # _atomic_reload). Entry sayılmaz — hex-olmadıkları için zaten entry olamazlar,
+    # ama açık-atlama sözleşmesi bunu belirsiz bırakmaz (üretim-registry'leri
+    # insan-açıklaması taşıyabilsin diye).
+    entries = {k: v for k, v in reg.items() if not k.startswith("_")}
+    if not entries:
+        raise TamgaRelayerError(RC_REGISTRY_INVALID,
+                                "registry_invalid: entry-yok (yalnızca _-metadata)")
+    for hsh, entry in entries.items():
         if not isinstance(entry, dict):
             raise TamgaRelayerError(RC_REGISTRY_INVALID,
                                     f"registry_invalid: {hsh[:12]}… entry-obje-değil")
@@ -692,6 +700,53 @@ class OracleTransport:
                 "gas_used": int(rcpt["gasUsed"]), "block": int(rcpt["blockNumber"])}
 
 
+def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
+                ledger_secret=None, workdir: str = ".", interval_s: int = 15,
+                once: bool = False, log=print):
+    """KATMAN-2 daemon döngüsü: poll → execute → fulfill (sistemd daemon modu).
+
+    Replay koruması: request_id → tx_hash kümesi (process-ömrü boyunca; AT-196
+    N1 bulgusu — fulfill tx'i emitter'ı tekrar çağırıp yeni log üretebilir).
+    Hatalar message-RED olarak log'lanır, döngü DURMAZ (systemd Restart=always
+    ile çift-katman; watchdog'a gerek bırakmaz).
+    """
+    fulfilled = {}
+    while True:
+        try:
+            for req in transport.fetch_requests(0):
+                rid = req["request_id"]
+                if rid in fulfilled:
+                    continue
+                exec_req = {
+                    "wasi_module_hash": req["wasi_module_hash"],
+                    "max_cpu_ms_allowed": req["max_cpu_ms_allowed"],
+                    "request_id": rid,
+                    "input_payload": (bytes(req["input_payload"])
+                                      if req["input_payload"] else None),
+                }
+                try:
+                    res = execute_request(exec_req, registry, seed_hex,
+                                          workdir=workdir,
+                                          ledger_secret=ledger_secret)
+                    out = transport.submit_fulfillment(
+                        rid, res["digest"], res["payload"].encode(),
+                        res["receipt"]["stdout_sha256"].encode())
+                except TamgaRelayerError as e:
+                    log(f"[relayer] request {rid} RED: {e.reason_code} {e.reason}")
+                    continue
+                fulfilled[rid] = out["tx_hash"]
+                log(f"[relayer] request {rid} fulfilled: tx={out['tx_hash'][:18]}… "
+                    f"status={out['status']} gasUsed={out['gas_used']} "
+                    f"digest={res['digest'][:12]}…")
+        except TamgaRelayerError as e:
+            log(f"[relayer] poll-hatası (devam): {e.reason_code} {e.reason}")
+        except OSError as e:
+            log(f"[relayer] ağ-hatası (devam): {e}")
+        if once:
+            return fulfilled
+        time.sleep(interval_s)
+
+
 # === CLI (KATMAN-0 yüzü: üretilen kanıtları bağımsız denetle) ===================
 
 USAGE = {
@@ -700,6 +755,8 @@ USAGE = {
     "registry-check": "registry-check <registry.json>",
     "run-request": "run-request --registry <json> --seed <hex> --module-hash <hex> "
                    "[--cpu-ms N] [--input <file>] [--ledger-secret S]",
+    "daemon": "daemon --registry <json> --seed <hex> --rpc-url <url> --oracle <hex> "
+              "--key <hex> [--ledger-secret S] [--interval N] [--once] [--workdir D]",
 }
 
 
@@ -751,9 +808,37 @@ def cmd_registry_check(a):
         reg = load_registry(a[0])
     except TamgaRelayerError as e:
         return out(False, op="registry-check", reason_code=e.reason_code, reason=e.reason)
+    mods = [k for k in reg if not k.startswith("_")]
     return out(True, op="registry-check", file=a[0],
-               modules=len(reg),
-               hashes=[h[:16] for h in reg])
+               modules=len(mods), hashes=[h[:16] for h in mods])
+
+
+def cmd_daemon(a):
+    if len(a) < 1:
+        return out(False, op="daemon", reason_code=2,
+                   reason=f"kullanim: {USAGE['daemon']}")
+    reg_path = _opt(a, "--registry")
+    seed = _opt(a, "--seed")
+    rpc = _opt(a, "--rpc-url") or os.environ.get("TAMGA_RELAYER_RPC_URL")
+    oracle = _opt(a, "--oracle") or os.environ.get("TAMGA_RELAYER_ORACLE")
+    key = _opt(a, "--key") or os.environ.get("TAMGA_RELAYER_KEY")
+    sec = _opt(a, "--ledger-secret") or os.environ.get("TAMGA_RELAYER_LEDGER_SECRET")
+    workdir = _opt(a, "--workdir", ".")
+    interval = int(_opt(a, "--interval", "15"))
+    once = "--once" in a
+    if not (reg_path and seed and rpc and oracle and key):
+        return out(False, op="daemon", reason_code=2,
+                   reason=f"kullanim: {USAGE['daemon']} (registry/seed/rpc-url/"
+                          "oracle/key zorunlu)")
+    try:
+        reg = load_registry(reg_path)
+        t = OracleTransport(rpc, oracle, key)
+    except TamgaRelayerError as e:
+        return out(False, op="daemon", reason_code=e.reason_code, reason=e.reason)
+    fulfilled = daemon_loop(t, reg, seed, ledger_secret=sec, workdir=workdir,
+                            interval_s=interval, once=once)
+    return out(True, op="daemon", registry=reg_path, fulfilled=len(fulfilled),
+               requests=fulfilled)
 
 
 def cmd_run_request(a):
@@ -803,6 +888,8 @@ def main():
         return cmd_registry_check(a)
     if cmd == "run-request":
         return cmd_run_request(a)
+    if cmd == "daemon":
+        return cmd_daemon(a)
     return out(False, op=cmd, reason_code=2,
                reason=f"bilinmeyen-komut: {cmd} (kullanım: {', '.join(USAGE)})")
 

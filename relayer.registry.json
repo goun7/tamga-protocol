@@ -1,0 +1,11 @@
+{
+  "_aciklama": "Tamga Protocol on-chain oracle relayer — ÜRETİM registry'si. Karar dosyası TAMGA_RELAYER_KARARLARI_2026-09-24 §2: relayer YALNIZCA burada kayıtlı wasiModuleHash değerlerini çalıştırır (fail-closed). Registry'de OLMAYAN hash → RED-20, hiçbir modül spawn edilmez — relayer bir RCE vektörü DEĞİLDİR (AT-198 ile doğrulandı).",
+  "_atomic_reload": "Bu dosya daemon BAŞINDA bir KEZ yüklenir (load_registry). SICAK-yeniden-yükleme YOK — değişiklik restart gerektirir (TOCTOU: config'i değiştirip pending request'leri farklı modülle çalıştırma açığı kapalı).",
+  "_cpu_olcum": "cpu_ms_per_run değeri ÖLÇÜME dayanır, tahmin değil: templates/agent.wasm 3 gerçek wasmtime koşumunda wall_ms=30/79/30 (medyan 30ms) ölçüldü (2026-09-25); 5000ms bütçe ölçülenin ~65x üzerindedir — cold-start ve JIT ısınması için güvenli marj. Yeni modül eklerken kendi ölçümünüzü yapın (tamga_runner.py run --require-proof ile wall_ms okuyun).",
+  "_secret": "cpu_ms_per_run registry'deki değer PAKET MANİFESTİ (paket/tamga.json runtime.limits.cpu_ms_per_run) ile BİREBİR uyumlu OLMALIDIR — execute_request çapraz-dogrulama yapar, uyumsuzluk RED-23 (AT-198 N4).",
+  "6129007a280fcee3845532d38e4be3ecf9fddb03809c35a335e0b1b9c2b142a5": {
+    "pkg_path": "templates/",
+    "cpu_ms_per_run": 5000,
+    "max_input_bytes": 262144
+  }
+}

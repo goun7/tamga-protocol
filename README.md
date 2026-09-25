@@ -188,6 +188,52 @@ bash tools/demo.sh   # born → input-bound work → dies → travels → revive
 Recorded session: [docs/assets/demo.cast](docs/assets/demo.cast) (play with `asciinema`) —
 expected flow: [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md).
 
+## On-chain oracle relayer
+
+`tamga_oracle_relayer.py` is the off-chain side of the oracle: it listens for
+`RequestExecution` events on an EVM chain, runs the registered WASI module
+inside the real wasmtime sandbox, and posts the proof back via
+`fulfillExecution`. It is built in three layers, each independently tested
+against the real production path (no test-doubles — AT-075):
+
+- **KATMAN-0** — proof-production core (zero new PyPI deps): `fnv1a64` stamp
+  verification (byte-identical copy of `tamga_runner.py`'s), snapshot
+  `SHA-256(ct)` digest (the *encrypted body*, not the whole blob — portable
+  across exports), JCS canonical fulfill payload.
+- **KATMAN-1** — production-path driver (subprocess → `tamga_runner`):
+  registry **fail-closed** (an unregistered `wasiModuleHash` is refused — the
+  relayer is *not* an RCE vector), `maxCpuMsAllowed = min(request, manifest)`
+  with `[1,60000]` validation, mandatory `Ledger(path, secret=)`.
+- **KATMAN-2** — EVM transport (optional `pip install tamga-protocol[relayer]`):
+  `eth_getLogs` poll → event decode, EIP-1559 signed fulfill tx with real
+  receipt verification.
+
+End-to-end, tested against a real py-evm state machine (no anvil/solc needed):
+event → decode → real wasmtime run (stamp `7c9a2cbcd4684b55`) →
+XChaCha20-Poly1305 export → `SHA-256(ct)` → JCS payload → fulfill tx with
+receipt `status=1`, `gasUsed=39959` — AT-196.
+
+```bash
+# one request through the full path (production uses daemon mode — see DEPLOYMENT)
+tamga keygen | tee agent.json                # agent identity (never printed again)
+SEED=$(python3 -c "import json;print(json.load(open('agent.json'))['seed_hex'])")
+
+tamga-relayer registry-check relayer.registry.json
+tamga-relayer run-request --registry relayer.registry.json \
+    --seed "$SEED" --module-hash 6129007a280fcee3845532d38e4be3ecf9fddb03809c35a335e0b1b9c2b142a5
+# → {"ok": true, "digest": "87ab8c35…", "stamp": "da4cba53a97ca717",
+#    "effective_cpu_ms": 5000, "payload": "{…JCS canonical…}"}
+
+# audit the two proofs independently
+tamga-relayer verify-stamp pkg/session-1.stdout    # mühür-2: TAMGA:<fnv1a64>
+tamga-relayer snapshot-digest snap.tsg             # mühür-1: SHA-256(ct)
+```
+
+Full deployment (systemd unit with watchdog, secret management, registry
+discipline): **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
+Test evidence: AT-195 (proof core), AT-196 (end-to-end EVM), AT-197 (Ledger
+secret), AT-198 (registry fail-closed / RCE proof).
+
 ## Importing your memory
 
 Bring existing agent memory in via JSON-lines (`--import-json`): the merge is

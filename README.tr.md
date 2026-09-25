@@ -162,6 +162,52 @@ hafızası-bozulmadan-dirilir → makbuz-defteri doğrulanır → zincir-ucu yab
 yansıtılır → tarafımızda yabancı çıpa doğrulanır. Kendin-oyna: `bash tools/demo.sh`, ya da
 ham-oturumu-izle: [docs/assets/demo.cast](docs/assets/demo.cast).
 
+## Zincir-üstü oracle relayer
+
+`tamga_oracle_relayer.py` oracle'ın zincir-dışı tarafıdır: bir EVM zincirindeki
+`RequestExecution` olaylarını dinler, kayıtlı WASI modülünü GERÇEK wasmtime
+sandbox'unda çalıştırır ve kanıtı `fulfillExecution` ile zincire geri yazar.
+Üç katmanda inşa edilmiştir, her biri gerçek üretim-yoluyla bağımsız test
+edilmiştir (test-double YOK — AT-075):
+
+- **KATMAN-0** — kanıt-üretim çekirdeği (sıfır yeni PyPI bağımlılığı):
+  `fnv1a64` damga-dogrulaması (`tamga_runner.py`'ın BYTE-IDENTICAL kopyası),
+  snapshot `SHA-256(ct)` digest'i (şifreli GÖVDE — tüm-blob DEĞİL; export'lar
+  arası portabl), JCS canonical fulfill payload'u.
+- **KATMAN-1** — üretim-yolu sürücüsü (subprocess → `tamga_runner`): registry
+  **fail-closed** (registry'de OLMAYAN `wasiModuleHash` reddedilir — relayer
+  bir RCE vektörü DEĞİLDİR), `maxCpuMsAllowed = min(request, manifest)` +
+  `[1,60000]` doğrulaması, `Ledger(path, secret=)` üretimde ZORUNLU.
+- **KATMAN-2** — EVM transport (opsiyonel `pip install tamga-protocol[relayer]`):
+  `eth_getLogs` poll → olay decode, EIP-1559 imzalı fulfill tx gerçek makbuz
+  doğrulaması ile.
+
+Uçtan-uca, GERÇEK py-evm state machine ile test edildi (anvil/solc GEREKMEZ):
+olay → decode → gerçek wasmtime koşumu (damga `7c9a2cbcd4684b55`) →
+XChaCha20-Poly1305 export → `SHA-256(ct)` → JCS payload → fulfill tx ile
+makbuz `status=1`, `gasUsed=39959` — AT-196.
+
+```bash
+# tek request tam yoldan (üretimde daemon modu — DEPLOYMENT'a bakın)
+tamga keygen | tee agent.json                # ajan kimliği (tekrar basılmaz)
+SEED=$(python3 -c "import json;print(json.load(open('agent.json'))['seed_hex'])")
+
+tamga-relayer registry-check relayer.registry.json
+tamga-relayer run-request --registry relayer.registry.json \
+    --seed "$SEED" --module-hash 6129007a280fcee3845532d38e4be3ecf9fddb03809c35a335e0b1b9c2b142a5
+# → {"ok": true, "digest": "87ab8c35…", "stamp": "da4cba53a97ca717",
+#    "effective_cpu_ms": 5000, "payload": "{…JCS canonical…}"}
+
+# iki kanıtı bağımsız denetle
+tamga-relayer verify-stamp pkg/session-1.stdout    # mühür-2: TAMGA:<fnv1a64>
+tamga-relayer snapshot-digest snap.tsg             # mühür-1: SHA-256(ct)
+```
+
+Tam dağıtım (watchdog'lı systemd unit, sırrın yönetimi, registry disiplini):
+**[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
+Test kanıtları: AT-195 (kanıt çekirdeği), AT-196 (uçtan-uca EVM), AT-197
+(Ledger secret), AT-198 (registry fail-closed / RCE-kanıtı).
+
 ## Hızlı başlangıç
 
 ```bash

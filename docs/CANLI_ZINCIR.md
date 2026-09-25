@@ -108,9 +108,22 @@ Zincire gönderilen kanıtı relayer'ı **kurmadan** doğrulayabilirsiniz
 ([IVerifier — DEPLOYMENT.md §8](DEPLOYMENT.md#8-counterparty-verification-iverifier)):
 
 ```bash
+# (a) elinizde bundle varsa — 6 off-chain mührün tamamı:
 tamga-verify verify-bundle bundle.json
 # {"ok": true, "checks": 6, "verified": ["payload","stamp","snapshot","charge","delivery","input"]}
+
+# (b) elinizde yalnızca TX-HASH varsa — zincir-fact tutarlılığı (gas YOK, okuma):
+tamga-verify verify-tx 0x391f4ea9… https://mainnet.base.org
+# {"ok": true, "checks": 4, "verified": ["selector","request_id","payload","digest-uyumu"]}
 ```
+
+`(b)` yolunun gücü: **sadece bir tx-hash ve bir RPC** ile, relayer'a hiç güven
+etmeden, zincirdeki olguların birbiriyle tutarlı olduğunu kanıtlar — selector
+`fulfillExecution`'a, `request_id` pozitif tamsayıya, payload JCS
+byte-paritesine ve tx'in `digest` argümanı payload içindeki
+`encrypted_snapshot_digest` alanına birebir uymalı. Başarısızlık hep
+`{"ok": false, "reason": …}` result-dict'idir — asla exception (otomatik
+denetçi doğrudan karar verebilir).
 
 ## 6. Canlı-kanıt (Base mainnet, 2026-09-25)
 

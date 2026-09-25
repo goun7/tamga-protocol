@@ -248,3 +248,14 @@ and `tools/verify_pairing_fixture.py` implement, so the three independent
 implementations are pinned to one canonical computation instead of three
 similar ones. Individual checks are also exposed as CLI subcommands
 (`tamga-verify stamp|snapshot|payload|charge|delivery|input`).
+
+**Tx-only path (`tamga-verify verify-tx <hash> <rpc>`):** when the verifier
+holds only a transaction hash, it pulls the transaction from any RPC and
+ABI-decodes the calldata itself — computing the `fulfillExecution` selector
+from the signature rather than importing the relayer's contract ABI — then
+proves the on-chain facts are internally consistent: the selector matches, the
+request id is a positive integer, the embedded payload re-serializes
+byte-identically through the verifier's own JCS, and the digest passed as a
+transaction argument equals the `encrypted_snapshot_digest` field inside the
+payload. It costs no gas and touches no state, so a counterparty can poll a
+chain for evidence long after the fact (AT-206).

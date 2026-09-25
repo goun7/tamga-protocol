@@ -215,6 +215,20 @@ tamga-relayer daemon --registry relayer.registry.json \
 #   her-adımda fail-closed: registry-yok → RED-20; gas-yetersiz → RED-28, crash-yok
 #   replay-koruma: aynı request process-içinde yalnızca-bir-kez fulfill-edilir
 #   (tam-yürüyüş için docs/CANLI_ZINCIR.md)
+
+## Canlı-kanıt (Base mainnet, 2026-09-25)
+
+Tam-döngü **gerçek Base mainnet** üzerinde koşuldu — [docs/CANLI_ZINCIR.md §6](docs/CANLI_ZINCIR.md):
+
+| Adım | Sonuç |
+|---|---|
+| Emitter deploy | `status=1 gasUsed=124936` — [0x897D7abD…](https://basescan.org/address/0x897D7abDe35124EEB41F0BC0d04d2cF81653442f) |
+| **`fulfillExecution`** | **`status=1 gasUsed=68150`** — [tx 0x391f4ea9…](https://basescan.org/tx/0x391f4ea94789a171437916e075dc8adb34863cbe3b5d7283db8a76ef1c20ce73) |
+| delivery keccak canlıda | zincir-`outputData` keccak = log'daki `dc6f72f2…` — **birebir** |
+| anahtar-gizlilik | anahtar-prefix'i tüm log/reason'larda **yok** |
+
+Toplam maliyet ~$0.001 (Base baseFee ~0.005 gwei). Testler `TAMGA_LIVE=1` olmadıkça
+gas-korumalı-SKIP verir.
 ```
 
 Tam dağıtım (watchdog'lı systemd unit, sırrın yönetimi, registry disiplini):

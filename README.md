@@ -241,6 +241,20 @@ tamga-relayer daemon --registry relayer.registry.json \
 #   fail-closed every step: registry-miss → RED-20; gas-too-low → RED-28, no crash
 #   replay protection: the same request is fulfilled only once per process
 #   (see docs/CANLI_ZINCIR.md for the full walkthrough)
+
+## Live proof (Base mainnet, 2026-09-25)
+
+The full loop ran on **real Base mainnet** — [docs/CANLI_ZINCIR.md §6](docs/CANLI_ZINCIR.md):
+
+| Step | Result |
+|---|---|
+| Emitter deploy | `status=1 gasUsed=124936` — [0x897D7abD…](https://basescan.org/address/0x897D7abDe35124EEB41F0BC0d04d2cF81653442f) |
+| **`fulfillExecution`** | **`status=1 gasUsed=68150`** — [tx 0x391f4ea9…](https://basescan.org/tx/0x391f4ea94789a171437916e075dc8adb34863cbe3b5d7283db8a76ef1c20ce73) |
+| delivery keccak, live | keccak of on-chain `outputData` == logged `dc6f72f2…` — **exact** |
+| key secrecy | key prefix absent from every log and reason field |
+
+Total cost ~$0.001 (Base baseFee ~0.005 gwei). The live tests are gas-guarded:
+they SKIP unless `TAMGA_LIVE=1` is set.
 ```
 
 Full deployment (systemd unit with watchdog, secret management, registry

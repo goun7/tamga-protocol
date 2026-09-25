@@ -119,6 +119,11 @@ TimeoutStopSec=30
 StandardOutput=append:/var/log/tamga/relayer.log
 StandardError=append:/var/log/tamga/relayer.log
 
+# Log-tailing note: public RPCs load-balance across nodes whose eth_getLogs
+# index can lag the receipt state. The daemon tracks a block cursor (starts
+# near tip, advances every cycle) and polls repeatedly, so a stale node only
+# delays a request by one interval — never drops it (AT-205 live finding).
+
 # Resource bounds (consistent with D4: the sandbox is already fs/network-free)
 MemoryMax=1G
 TasksMax=64

@@ -204,6 +204,11 @@ tamga-relayer snapshot-digest snap.tsg             # mühür-1: SHA-256(ct)
 
 # ya da TÜM bundle'ı relayer'ı KURMADAN doğrula (karşı-taraf yolu):
 # tamga-verify verify-bundle bundle.json  → 6/6 check, saf-stdlib
+#
+# ...veya SADECE bir tx-hash + RPC ile (relayer'sız, bundle'sız, gas'sız):
+# tamga-verify verify-tx 0x<tx> https://mainnet.base.org  → 4/4 check
+#   selector=fulfillExecution, request_id>0, payload JCS bayt-paritesi,
+#   digest argümanı == payload.encrypted_snapshot_digest (zincir-fact tutarlılığı)
 
 # CANLI ZİNCİR (Base mainnet/sepolia): daemon modu — sırlar env'den, CLI'da asla
 export TAMGA_RELAYER_RPC_URL=https://mainnet.base.org
@@ -225,6 +230,7 @@ Tam-döngü **gerçek Base mainnet** üzerinde koşuldu — [docs/CANLI_ZINCIR.m
 | Emitter deploy | `status=1 gasUsed=124936` — [0x897D7abD…](https://basescan.org/address/0x897D7abDe35124EEB41F0BC0d04d2cF81653442f) |
 | **`fulfillExecution`** | **`status=1 gasUsed=68150`** — [tx 0x391f4ea9…](https://basescan.org/tx/0x391f4ea94789a171437916e075dc8adb34863cbe3b5d7283db8a76ef1c20ce73) |
 | delivery keccak canlıda | zincir-`outputData` keccak = log'daki `dc6f72f2…` — **birebir** |
+| **karşı-taraf doğrulaması** | fulfill tx'inde `verify-tx` → **`checks:4 ok:true`** — relayer'sız, gas'sız |
 | anahtar-gizlilik | anahtar-prefix'i tüm log/reason'larda **yok** |
 
 Toplam maliyet ~$0.001 (Base baseFee ~0.005 gwei). Testler `TAMGA_LIVE=1` olmadıkça

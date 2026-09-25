@@ -230,6 +230,11 @@ tamga-relayer snapshot-digest snap.tsg             # mühür-1: SHA-256(ct)
 
 # or verify the whole bundle WITHOUT installing the relayer (counterparty path):
 # tamga-verify verify-bundle bundle.json  → 6/6 checks, pure stdlib
+#
+# ...or with ONLY a transaction hash and an RPC (no relayer, no bundle, no gas):
+# tamga-verify verify-tx 0x<tx> https://mainnet.base.org  → 4/4 checks
+#   selector=fulfillExecution, request_id>0, payload JCS byte-parity,
+#   digest arg == payload.encrypted_snapshot_digest (chain-fact consistency)
 
 # LIVE CHAIN (Base mainnet/sepolia): daemon mode — secrets via env, never CLI/keys
 export TAMGA_RELAYER_RPC_URL=https://mainnet.base.org
@@ -251,6 +256,7 @@ The full loop ran on **real Base mainnet** — [docs/CANLI_ZINCIR.md §6](docs/C
 | Emitter deploy | `status=1 gasUsed=124936` — [0x897D7abD…](https://basescan.org/address/0x897D7abDe35124EEB41F0BC0d04d2cF81653442f) |
 | **`fulfillExecution`** | **`status=1 gasUsed=68150`** — [tx 0x391f4ea9…](https://basescan.org/tx/0x391f4ea94789a171437916e075dc8adb34863cbe3b5d7283db8a76ef1c20ce73) |
 | delivery keccak, live | keccak of on-chain `outputData` == logged `dc6f72f2…` — **exact** |
+| **counterparty verify** | `verify-tx` on the fulfillment tx → **`checks:4 ok:true`** — no relayer, no gas |
 | key secrecy | key prefix absent from every log and reason field |
 
 Total cost ~$0.001 (Base baseFee ~0.005 gwei). The live tests are gas-guarded:

@@ -257,9 +257,17 @@ def build_fulfill_payload(request_id: int, wasi_module_hash: str, run_receipt: d
         "session": run_receipt.get("session"),
         "fee_sim": run_receipt.get("fee_sim"),
         "wall_ms": run_receipt.get("wall_ms"),
+        "cpu_saat": run_receipt.get("cpu_saat"),
+        "io_mb": run_receipt.get("io_mb"),
+        "ram_gb_sn": run_receipt.get("ram_gb_sn"),
+        "input_sha256": run_receipt.get("input_sha256"),
+        "payment_scheme": run_receipt.get("payment_scheme"),
         "created": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
     }
     if ledger_tip is not None:
+        # unpump-bridge JSONL paritesi: h/prev/seq üçlüsü (mühür-3). Sester'in
+        # append() dönüş-değeri {seq, ts, hash, prev_hash} — burada {h, prev}
+        # adlarıyla x402/pairing-fixture alan-yapısıyla hizalanır.
         payload["ledger_tip"] = ledger_tip                  # mühür-3
     return jcs(payload)
 
@@ -506,6 +514,7 @@ def execute_request(request: dict, registry: dict, seed_hex: str,
 
     inp = request.get("input_payload")
     inp_path = None
+    input_sha256 = None
     if inp is not None and not isinstance(inp, (str, pathlib.PurePath)):
         data = bytes(inp)
         if len(data) > entry["max_input_bytes"]:
@@ -516,8 +525,11 @@ def execute_request(request: dict, registry: dict, seed_hex: str,
         tf = pathlib.Path(workdir) / f".relayer-input-{os.getpid()}.bin"
         tf.write_bytes(data)
         inp_path = tf
+        input_sha256 = hashlib.sha256(data).hexdigest()   # bağımsız (runner'a değil)
     elif isinstance(inp, (str, pathlib.PurePath)):
         inp_path = pathlib.Path(inp)
+        input_sha256 = hashlib.sha256(
+            inp_path.read_bytes()).hexdigest() if inp_path.is_file() else None
 
     receipt = run_module(entry["pkg_path"], seed_hex, inp_path)
     try:
@@ -531,25 +543,57 @@ def execute_request(request: dict, registry: dict, seed_hex: str,
                                 str(pathlib.Path(workdir) / f".relayer-snap-{os.getpid()}.tsg"))
     snap = snapshot_body_digest(snap_path)           # mühür-1: SHA-256(ct)
 
-    ledger_rec = None
+    # unpump-bridge charge_record paritesi: runner-ölçümleri + bağımsız input
+    # hash'i (hepsi özyinelemesiz — outputData'dan ÖNCE kararır).
+    charge = {
+        "op": "charge",
+        "pkg": manifest["package"]["name"],
+        "request_id": str(request.get("request_id")),
+        "engine": RUNNER_ENGINE,
+        "cpu_saat": receipt.get("cpu_saat"),
+        "fee_sim": receipt.get("fee_sim"),
+        "fee_birebir": receipt.get("fee_birebir"),
+        "io_mb": receipt.get("io_mb"),
+        "ram_gb_sn": receipt.get("ram_gb_sn"),
+        "wall_ms": receipt.get("wall_ms"),
+        "stdout_sha256": receipt.get("stdout_sha256"),
+        "input_sha256": input_sha256,
+    }
+
+    ledger_tip = None
     if ledger_secret is not None:
         led = open_ledger(str(pathlib.Path(workdir) / "relayer-ledger.sqlite3"),
                           ledger_secret)
         # event-tipi sester taksonomisindedir (ERRATUM-K0.2; 'oracle_fulfill' yeni
         # tip ekler — mevcut 'charge_receipt' ailesi ile uyumlu, AT-193 yolu)
-        led.append("charge_receipt", str(request.get("request_id")),
-                   entry["pkg_path"], float(receipt.get("fee_sim", 0)))
-        ledger_tip = getattr(led, "tip", None)
-        ledger_rec = ledger_tip() if callable(ledger_tip) else ledger_tip
-    else:
-        ledger_rec = None
+        led_rec = led.append("charge_receipt", str(request.get("request_id")),
+                             entry["pkg_path"], float(receipt.get("fee_sim", 0)),
+                             payload=charge)
+        # mühür-3 canlı-yol: append() dönüşü {seq, ts, hash, prev_hash} —
+        # getattr(led,'tip') YOK (önceden ölü-koddu; 2026-09-25 bulgusu).
+        ledger_tip = {"seq": led_rec.get("seq"), "h": led_rec.get("hash"),
+                      "prev": led_rec.get("prev_hash")}
+
+    receipt["input_sha256"] = input_sha256
+    receipt["payment_scheme"] = (manifest.get("payment", {}).get("schemes") or [None])[0]
 
     payload = build_fulfill_payload(
         int(request.get("request_id", 0)), request["wasi_module_hash"],
-        receipt, snap, ledger_tip=str(ledger_rec) if ledger_rec else None)
+        receipt, snap, ledger_tip=ledger_tip)
+
+    # delivery_hash: keccak256(outputData) — x402 durable-evidence bağlantısı
+    # (pairing-fixture: keccak-legacy-padding; hashlib.sha3_256 UYUŞMAZ).
+    # outputData'da DEĞİL — özyinelemesiz (keccak payload-baytları üzerinden).
+    try:
+        from tamga_keccak import keccak256
+        delivery_hash = keccak256(payload).hex()
+    except Exception:
+        delivery_hash = None
+
     return {"receipt": receipt, "stamp": stamp, "digest": snap["digest"],
             "blob_sha256": snap["blob_sha256"], "payload": payload.decode("utf-8"),
-            "effective_cpu_ms": eff}
+            "effective_cpu_ms": eff, "delivery_hash": delivery_hash,
+            "ledger_tip": ledger_tip}
 
 
 # === KATMAN-2: EVM transport (opsiyonel extras: pip install tamga[relayer]) =====
@@ -737,7 +781,8 @@ def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
                 fulfilled[rid] = out["tx_hash"]
                 log(f"[relayer] request {rid} fulfilled: tx={out['tx_hash'][:18]}… "
                     f"status={out['status']} gasUsed={out['gas_used']} "
-                    f"digest={res['digest'][:12]}…")
+                    f"digest={res['digest'][:12]}… "
+                    f"delivery={res.get('delivery_hash') or '-'}")
         except TamgaRelayerError as e:
             log(f"[relayer] poll-hatası (devam): {e.reason_code} {e.reason}")
         except OSError as e:

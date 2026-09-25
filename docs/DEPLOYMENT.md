@@ -144,6 +144,7 @@ systemctl daemon-reload
 systemctl enable --now tamga-relayer
 journalctl -u tamga-relayer -f
 # daemon log line: [relayer] request 42 fulfilled: tx=0x… status=1 gasUsed=39935
+#                    digest=87ab8c35… delivery=9cec8dbc… (keccak over outputData)
 ```
 
 The daemon loop **does not stop on errors** — every failure is logged as a
@@ -154,11 +155,14 @@ The daemon loop **does not stop on errors** — every failure is logged as a
 
 | Property | Enforcement | Test |
 |---|---|---|
-| Not an RCE vector | unregistered hash → RED-20, no spawn | AT-198 N1 |
+| Not an RCE vector | unregistered hash → RED-20, no spawn (daemon path too) | AT-198 N1, AT-199 K7 |
 | CPU double-bind | `min(request, manifest)` + [1,60000]; out-of-range → RED-21 | AT-198 K1–K5 |
 | Ledger secret mandatory | None → RED-24; dev-secret → RED-25 | AT-197 K1–K6 |
 | Independent proof verification | fnv1a64 stamp recomputed by the relayer (seal-2) | AT-195 |
 | Portable seal-1 | digest = SHA-256(encrypted body), not the whole blob | AT-195 |
+| Seal-3 live (ledger tip) | `{seq, h, prev}` taken from `append()`'s return — never a `led.tip` attribute that does not exist | AT-199 K2 |
+| input_sha256 independent | recomputed by the relayer, not trusted from the runner | AT-199 K3 |
+| delivery_hash | keccak-256 legacy-padding over the actual outputData bytes; *not* inside the payload (recursion-free) | AT-199 K4 |
 | Sandbox | wasmtime D4: no fs preopens, no network | AT-194 (clean scan) |
 | Message-RED | every error is `out(ok=False, reason_code, reason)` JSON — no traceback | AT-192 |
 

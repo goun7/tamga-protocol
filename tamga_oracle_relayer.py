@@ -833,7 +833,8 @@ USAGE = {
     "run-request": "run-request --registry <json> --seed <hex> --module-hash <hex> "
                    "[--cpu-ms N] [--input <file>] [--ledger-secret S]",
     "daemon": "daemon --registry <json> --seed <hex> --rpc-url <url> --oracle <hex> "
-              "--key <hex> [--ledger-secret S] [--interval N] [--once] [--workdir D]",
+              "--key <hex> [--ledger-secret S] [--interval N] [--once] [--workdir D] "
+              "[--from-block N] [--backfill N]",
 }
 
 
@@ -903,6 +904,9 @@ def cmd_daemon(a):
     workdir = _opt(a, "--workdir", ".")
     interval = int(_opt(a, "--interval", "15"))
     once = "--once" in a
+    from_block = _opt(a, "--from-block")
+    from_block = int(from_block) if from_block else None
+    backfill = int(_opt(a, "--backfill", "100"))
     if not (reg_path and seed and rpc and oracle and key):
         return out(False, op="daemon", reason_code=2,
                    reason=f"kullanim: {USAGE['daemon']} (registry/seed/rpc-url/"
@@ -913,7 +917,8 @@ def cmd_daemon(a):
     except TamgaRelayerError as e:
         return out(False, op="daemon", reason_code=e.reason_code, reason=e.reason)
     fulfilled = daemon_loop(t, reg, seed, ledger_secret=sec, workdir=workdir,
-                            interval_s=interval, once=once)
+                            interval_s=interval, once=once,
+                            from_block=from_block, backfill=backfill)
     return out(True, op="daemon", registry=reg_path, fulfilled=len(fulfilled),
                requests=fulfilled)
 

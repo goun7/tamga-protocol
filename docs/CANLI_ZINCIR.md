@@ -89,6 +89,9 @@ tamga-relayer daemon --registry /etc/tamga/relayer.registry.json \
     --rpc-url "$TAMGA_RELAYER_RPC_URL" --oracle "$TAMGA_RELAYER_ORACLE" \
     --key "$TAMGA_RELAYER_KEY" --ledger-secret "$TAMGA_RELAYER_LEDGER_SECRET" \
     --interval 15
+# cursor-ayarı (opsiyonel): --from-block N (belirli-block'tan-başla) veya
+# --backfill N (başlangıçta-kaç-block-geriye-tara; varsayılan 100 — tüm-zinciri
+# taramaz, public RPC eth_getLogs-limitleriyle-uyumlu; AT-205 bulgusu)
 ```
 
 Log çıkışı (anahtar YOK):

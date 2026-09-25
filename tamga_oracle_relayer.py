@@ -53,6 +53,8 @@ __all__ = [
     # KATMAN-1
     "load_registry", "resolve_module", "effective_cpu_ms", "run_module",
     "export_snapshot", "open_ledger", "execute_request",
+    # KATMAN-2
+    "OracleTransport",
     # reason-code sabitleri (tamga_runner ile paylaşılan doktrin)
     "RC_OK", "RC_OUTPUT_PROOF_MISMATCH", "RC_SNAPSHOT_BAD_MAGIC",
     "RC_SNAPSHOT_HEADER", "RC_SNAPSHOT_TOO_LARGE",
@@ -540,6 +542,154 @@ def execute_request(request: dict, registry: dict, seed_hex: str,
     return {"receipt": receipt, "stamp": stamp, "digest": snap["digest"],
             "blob_sha256": snap["blob_sha256"], "payload": payload.decode("utf-8"),
             "effective_cpu_ms": eff}
+
+
+# === KATMAN-2: EVM transport (opsiyonel extras: pip install tamga[relayer]) =====
+#
+# Karar dosyası §3 (onaylı): web3<7 yalnız [project.optional-dependencies]
+# relayer altındadır; core zero-dependency prensibi KORUNUR. Import'ta web3 yoksa
+# message-RED (usage_guard). KATMAN-2: eth_getLogs poll → RequestExecution decode
+# + EIP-1559 imzalı fulfillExecution tx.
+#
+# Mühürlü arayüz (Orkestratör 2026-09-24):
+#   event RequestExecution(uint256 indexed requestId, address indexed caller,
+#       bytes32 wasiModuleHash, bytes inputPayload, uint32 maxCpuMsAllowed,
+#       address indexed callbackContract, bytes4 callbackSelector);
+#   function fulfillExecution(uint256 requestId, bytes32 encryptedSnapshotDigest,
+#       bytes outputData, bytes nodeSignatureOrProof) external;
+
+RC_WEB3_MISSING = 27             # web3 kurulu değil (pip install tamga[relayer])
+RC_TX_FAILED = 28                # fulfill tx revert etti veya makbuz alınamadı
+
+ORACLE_ABI = [
+    {"anonymous": False, "inputs": [
+        {"indexed": True, "internalType": "uint256", "name": "requestId", "type": "uint256"},
+        {"indexed": True, "internalType": "address", "name": "caller", "type": "address"},
+        {"indexed": False, "internalType": "bytes32", "name": "wasiModuleHash", "type": "bytes32"},
+        {"indexed": False, "internalType": "bytes", "name": "inputPayload", "type": "bytes"},
+        {"indexed": False, "internalType": "uint32", "name": "maxCpuMsAllowed", "type": "uint32"},
+        {"indexed": True, "internalType": "address", "name": "callbackContract", "type": "address"},
+        {"indexed": False, "internalType": "bytes4", "name": "callbackSelector", "type": "bytes4"},
+     ], "name": "RequestExecution", "type": "event"},
+    {"inputs": [
+        {"internalType": "uint256", "name": "requestId", "type": "uint256"},
+        {"internalType": "bytes32", "name": "encryptedSnapshotDigest", "type": "bytes32"},
+        {"internalType": "bytes", "name": "outputData", "type": "bytes"},
+        {"internalType": "bytes", "name": "nodeSignatureOrProof", "type": "bytes"},
+     ], "name": "fulfillExecution", "outputs": [],
+     "stateMutability": "nonpayable", "type": "function"},
+]
+
+
+class OracleTransport:
+    """KATMAN-2: EVM iletişim katmanı (web3 opsiyonel; anvil/solc gerekmez).
+
+    • fetch_requests(from_block): eth_getLogs → RequestExecution event'lerini
+      decode eder → KATMAN-1'in işleyeceği request dict'leri.
+    • submit_fulfillment(...): EIP-1559 tx imzalar + fulfillExecution'ı gönderir;
+      gerçek makbuz (status + gasUsed) döner (AT-196 receipt-doğrulaması).
+    """
+
+    def __init__(self, rpc_url, oracle_address, account_private_key, chain_id=None):
+        try:
+            from web3 import Web3
+        except ImportError as e:
+            raise TamgaRelayerError(
+                RC_WEB3_MISSING,
+                f"web3-missing: EVM transport için 'pip install tamga[relayer]': {e}"
+            ) from None
+        self._w3 = Web3(Web3.HTTPProvider(rpc_url))
+        if not self._w3.is_connected():
+            raise TamgaRelayerError(RC_TX_FAILED,
+                                    f"rpc-unreachable: {rpc_url}")
+        self._acct = self._w3.eth.account.from_key(account_private_key)
+        self._chain_id = chain_id or self._w3.eth.chain_id
+        self._oracle = self._w3.eth.contract(
+            address=self._w3.to_checksum_address(oracle_address), abi=ORACLE_ABI)
+
+    # --- RequestExecution okuma (eth_getLogs poll) ---------------------------
+    # Event'in imzalı-alan-yapısı (ABI'den sabit; indexed + data ayrımı):
+    #   indexed topics[1..3]: requestId, caller, callbackContract
+    #   data (ABI-encoded): (bytes32 wasiModuleHash, bytes inputPayload,
+    #                        uint32 maxCpuMsAllowed, bytes4 callbackSelector)
+    # Manuel decode: web3<7 process_log ABI-çözümünde HexBytes/bytes uyuşmazlığı
+    # patlar (AT-196 keşfi); decode doğrudan eth_abi ile — test-double YOK,
+    # log formatı ve ABI-encoding gerçektir.
+    REQ_DECODER = ["bytes32", "bytes", "uint32", "bytes4"]
+
+    def fetch_requests(self, from_block=0):
+        logs = self._w3.eth.get_logs({
+            "fromBlock": from_block, "toBlock": "latest",
+            "address": self._oracle.address,
+            "topics": [self._request_topic()],
+        })
+        reqs = []
+        for lg in logs:
+            tops = lg["topics"]
+            raw = lg["data"]
+            if isinstance(raw, (bytes, bytearray)):
+                raw_hex = raw.hex() if not raw.hex().startswith("0x") else raw.hex()[2:]
+            else:
+                raw_hex = raw[2:] if raw.startswith("0x") else raw
+            try:
+                from eth_abi import decode as _abi_decode
+                vals = _abi_decode(self.REQ_DECODER, bytes.fromhex(raw_hex))
+            except Exception as e:
+                raise TamgaRelayerError(
+                    RC_SNAPSHOT_HEADER,
+                    f"request-decode-hatası (log #{lg.get('logIndex')}): {e}") from None
+            reqs.append({
+                "request_id": int.from_bytes(tops[1], "big"),
+                "caller": "0x" + bytes(tops[2][-20:]).hex(),
+                "wasi_module_hash": vals[0].hex(),
+                "input_payload": bytes(vals[1]),
+                "max_cpu_ms_allowed": int(vals[2]),
+                "callback_contract": "0x" + bytes(tops[3][-20:]).hex(),
+                "callback_selector": bytes(vals[3]),
+                "tx_hash": (bytes(lg["transactionHash"]).hex()
+                            if isinstance(lg.get("transactionHash"), (bytes, bytearray))
+                            else str(lg.get("transactionHash", ""))),
+                "log_index": lg.get("logIndex"),
+                "block_number": lg.get("blockNumber"),
+            })
+        return reqs
+
+    def _request_topic(self):
+        # keccak256("RequestExecution(uint256,address,bytes32,bytes,uint32,address,bytes4)")
+        # — web3 event imza topic'i ile aynı. HexBytes GİBİSİ olmadan: eth-tester'ın
+        # topic-filtre karşılaştırması HexBytes.hex()'in "0x"-önekini yanlış
+        # eşler (AT-196 keşfi); saf-bytes gönderilir.
+        return bytes(self._w3.keccak(text="RequestExecution(uint256,address,bytes32,"
+                                        "bytes,uint32,address,bytes4)"))
+
+    # --- fulfillExecution gönderme (EIP-1559 imzalı) -------------------------
+    def submit_fulfillment(self, request_id, encrypted_snapshot_digest_hex,
+                           output_data_bytes, proof_bytes, gas=500000):
+        digest = bytes.fromhex(encrypted_snapshot_digest_hex)
+        if len(digest) != 32:
+            raise TamgaRelayerError(
+                RC_SNAPSHOT_HEADER,
+                f"digest-uzunluğu: {len(digest)} (bytes32 = 32 beklenir)")
+        nonce = self._w3.eth.get_transaction_count(self._acct.address)
+        tx = self._oracle.functions.fulfillExecution(
+            request_id, digest, output_data_bytes, proof_bytes
+        ).build_transaction({
+            "from": self._acct.address,
+            "nonce": nonce,
+            "chainId": self._chain_id,
+            "gas": gas,
+            "maxFeePerGas": self._w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": self._w3.to_wei(1, "gwei"),
+        })
+        signed = self._acct.sign_transaction(tx)
+        h = self._w3.eth.send_raw_transaction(signed.rawTransaction)
+        rcpt = self._w3.eth.wait_for_transaction_receipt(h)
+        if rcpt["status"] != 1:
+            raise TamgaRelayerError(
+                RC_TX_FAILED,
+                f"fulfill-tx-revert: status={rcpt['status']} tx={h.hex()[:18]}…")
+        return {"tx_hash": h.hex(), "status": rcpt["status"],
+                "gas_used": int(rcpt["gasUsed"]), "block": int(rcpt["blockNumber"])}
 
 
 # === CLI (KATMAN-0 yüzü: üretilen kanıtları bağımsız denetle) ===================

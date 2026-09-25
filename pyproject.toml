@@ -13,6 +13,15 @@ authors = [{ name = "Tamga Protocol" }]
 keywords = ["ai-agents", "receipts", "hash-chain", "tamper-evident", "wasm", "wasi", "x402", "cryptography", "agent-memory"]
 urls = { Homepage = "https://github.com/goun7/tamga-protocol", Documentation = "https://github.com/goun7/tamga-protocol/tree/main/docs", Changelog = "https://github.com/goun7/tamga-protocol/blob/main/CHANGELOG.md", "Bug Tracker" = "https://github.com/goun7/tamga-protocol/issues" }
 dependencies = ["PyNaCl>=1.5"]
+
+# Relayer (KATMAN-2) opsiyonel-yüzeyi — core zero-dependency prensibi KORUNUR:
+# web3 yalnız relayer daemon'ında (eth_getLogs + EIP-1559 fulfill tx). Import'ta
+# web3 yoksa message-RED (usage_guard doktrini). Karar dosyası §3 (onaylı).
+[project.optional-dependencies]
+relayer = ["web3<7"]
+# EVM test-düğümü (AT-196): gerçek py-evm state machine (anvil/solc GEREKMEZ;
+# test-double YOK — AT-075). .venv-evm bootstrap'ı test içinde deterministik.
+evm-test = ["web3<7", "eth-tester<0.10", "py-evm", "setuptools<81"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: Apache Software License",
@@ -29,10 +38,11 @@ classifiers = [
 
 [project.scripts]
 tamga = "tamga_bootstrap:main"
+tamga-relayer = "tamga_oracle_relayer:main"
 
 [tool.setuptools]
 packages = ["templates"]
-py-modules = ["tamga_runner", "tamga_validator", "tamga_canon", "tamga_netproxy", "tamga_net_shim", "tamga_bootstrap", "tamga_verify_mini", "tamga_bundle", "tamga_explain", "tamga_keccak", "tamga_project_head", "tamga_pugio_receiver", "tamga_pugio_ingest", "tamga_epoch_verify", "tamga_liveness", "tamga_attest_verify", "tamga_cr_verify"]
+py-modules = ["tamga_runner", "tamga_validator", "tamga_canon", "tamga_netproxy", "tamga_net_shim", "tamga_bootstrap", "tamga_verify_mini", "tamga_bundle", "tamga_explain", "tamga_keccak", "tamga_project_head", "tamga_pugio_receiver", "tamga_pugio_ingest", "tamga_epoch_verify", "tamga_liveness", "tamga_attest_verify", "tamga_cr_verify", "tamga_oracle_relayer"]
 include-package-data = false
 
 [tool.setuptools.package-data]

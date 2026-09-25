@@ -227,6 +227,9 @@ tamga-relayer run-request --registry relayer.registry.json \
 # audit the two proofs independently
 tamga-relayer verify-stamp pkg/session-1.stdout    # mühür-2: TAMGA:<fnv1a64>
 tamga-relayer snapshot-digest snap.tsg             # mühür-1: SHA-256(ct)
+
+# or verify the whole bundle WITHOUT installing the relayer (counterparty path):
+# tamga-verify verify-bundle bundle.json  → 6/6 checks, pure stdlib
 ```
 
 Full deployment (systemd unit with watchdog, secret management, registry

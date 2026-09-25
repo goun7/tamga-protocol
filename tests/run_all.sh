@@ -749,6 +749,10 @@ PY
   # tamga-sim/1 scheme, charge-record paritesi, daemon fail-closed, sester zinciri
   bash tests/at199_relayer_daemon_parite_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-199: relayer-DAEMON ( poll→execute→fulfill + unpump-bridge paritesi)"
+  # AT-200: IVerifier — relayer kanıtlarını BAĞIMSIZ doğrular (saf-stdlib,
+  # relayer'siz; 6/6 yeşil + 7 tahriz-RED + gerçek ledger.jsonl üyeliği)
+  bash tests/at200_iverifier_basimsiz_dogrulama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-200: IVerifier ( bağımsız-doğrulama-arayüzü; 10/10)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

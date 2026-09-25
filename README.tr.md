@@ -201,6 +201,9 @@ tamga-relayer run-request --registry relayer.registry.json \
 # iki kanıtı bağımsız denetle
 tamga-relayer verify-stamp pkg/session-1.stdout    # mühür-2: TAMGA:<fnv1a64>
 tamga-relayer snapshot-digest snap.tsg             # mühür-1: SHA-256(ct)
+
+# ya da TÜM bundle'ı relayer'ı KURMADAN doğrula (karşı-taraf yolu):
+# tamga-verify verify-bundle bundle.json  → 6/6 check, saf-stdlib
 ```
 
 Tam dağıtım (watchdog'lı systemd unit, sırrın yönetimi, registry disiplini):

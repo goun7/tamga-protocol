@@ -210,3 +210,36 @@ The proof chain: **EVM event → decode → real wasmtime run → `TAMGA:<fnv1a6
 stamp (verified independently) → real XChaCha20-Poly1305 export →
 `SHA-256(ct)` digest → JCS canonical fulfill payload → EIP-1559 signed tx →
 on-chain receipt (`status:1` + `gasUsed`).
+
+## 8. Counterparty verification (IVerifier)
+
+A party that did not produce a proof must still be able to verify it (AT-075).
+`tamga_verifier.py` is the standalone interface for that: **pure stdlib**
+(hashlib/json/base64), **no PyNaCl, and no import of the relayer** — an x402
+node, a Solidity/JS implementer, or an auditor can verify a `TAMGA_FULFILL/1`
+proof without ever installing the relayer.
+
+```bash
+tamga-verify verify-bundle bundle.json
+# {"ok": true, "checks": 6, "verified": ["payload","stamp","snapshot","charge","delivery","input"]}
+```
+
+The bundle carries what the relayer produced — agent stdout, the snapshot file,
+the JCS payload, the charge record, the delivery hash, and the input. Every
+check is a message-RED result dict (`{"ok": false, "reason": ...}`), never a
+traceback (AT-192), so a denial is machine-parseable on the receiving side:
+
+| Check | Rule | Seal |
+|---|---|---|
+| payload | `jcs(json.loads(bytes)) == bytes` — byte-exact re-serialization | canonical parity |
+| stamp | `fnv1a64(stdout-before-stamp-line) == TAMGA:<hex16>` | seal-2 |
+| snapshot | TSG1 parse → `SHA-256(ct)` == digest (encrypted body, not blob) | seal-1 |
+| charge | `sha256(prev + jcs(record-without-h)) == h` | chain membership |
+| delivery | `keccak-256` legacy padding over the actual outputData bytes | x402 durable evidence |
+| input | `sha256(input)` — recomputed, not trusted from the runner | input commitment |
+
+The chain-membership rule is deliberately the same one `tamga_verify_mini.py`
+and `tools/verify_pairing_fixture.py` implement, so the three independent
+implementations are pinned to one canonical computation instead of three
+similar ones. Individual checks are also exposed as CLI subcommands
+(`tamga-verify stamp|snapshot|payload|charge|delivery|input`).

@@ -99,7 +99,7 @@ print("        → 53-bit-mantissa-sınırı; büyük-kurumsal-miktarlarda-para-
 
 # --- 5) TEMİZ: sester-quota-kapısı-tam-sayı ( spent_today_minor)
 from sester.ledger import Ledger
-ld = Ledger(":memory:")
+ld = Ledger(":memory:", secret="test-secret-32byte-2026-aaaa")
 assert hasattr(ld, "spent_today_minor"), "tam-sayı-quota-yolu-YOK"
 ld.append("charge_receipt", "agent1", amount=1.0, amount_minor=1000000)
 spent = ld.spent_today_minor("agent1")

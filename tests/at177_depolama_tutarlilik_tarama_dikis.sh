@@ -80,7 +80,7 @@ print("=== AT-177: depolama-katmanı-tutarlılığı-taraması ===")
 tmp = tempfile.mkdtemp()
 db = os.path.join(tmp, "at177.db")
 from sester.ledger import Ledger
-led = Ledger(db)
+led = Ledger(db, secret="test-secret-32byte-2026-aaaa")
 r1 = led.append("charge_receipt", "0xag", "res", 0.05)
 r2 = led.append("charge_receipt", "0xag", "res", 0.05)
 assert led.verify_chain() is True
@@ -113,14 +113,14 @@ except ValueError as e:
 
 # ---------- BULGU-2 (TEMİZ): restart-tutarlılık ----------
 db2 = os.path.join(tmp, "at177-r.db")
-ledA = Ledger(db2)
+ledA = Ledger(db2, secret="test-secret-32byte-2026-aaaa")
 ledA.append("charge_receipt", "0xag", "res", 0.05)
 assert ledA.claim_nonce("0xag", "n1") is True
 assert ledA.claim_nonce("0xag", "n1") is False
 ledA.append("charge_receipt", "0xag", "res", 0.05)
 spent_once = ledA.spent_today("0xag")
 del ledA  # restart-simülasyonu
-ledB = Ledger(db2)
+ledB = Ledger(db2, secret="test-secret-32byte-2026-aaaa")
 print(f"  BULGU-2: restart-sonrası — verify_chain={ledB.verify_chain()}, "
       f"spent_today={ledB.spent_today('0xag')} (önceki={spent_once}), "
       f"nonce_count={ledB.nonce_count()}, n1-replay-RED="
@@ -226,7 +226,7 @@ try:
     print(f"  NOT: WAL→DELETE-mod-karışımı-ölçüldü — son-mod={mod_son}")
     assert mod_son == "delete", f"mod-değişmedi: {mod_son}"
     # mod-karışımı-zinciri-bozmaz-mı?
-    ledC = Ledger(db2)
+    ledC = Ledger(db2, secret="test-secret-32byte-2026-aaaa")
     print(f"    mod-karışımı-sonrası-verify_chain={ledC.verify_chain()}")
     assert ledC.verify_chain() is True, "mod-karışımı-zinciri-bozdu"
     print("    → WAL→DELETE-geçişi-zinciri-bozmaz ( TEMİZ — tasarım-gerçek)")

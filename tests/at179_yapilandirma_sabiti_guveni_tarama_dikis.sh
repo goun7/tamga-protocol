@@ -168,7 +168,7 @@ for yol, isi in (
     assert "dev-secret" in t, f"{yol}-dev-secret-yok (beklenmedik)"
 # --- SAHTE-ZİNCİR-SEALİ: bilinen-sır ile-sahte-ödeme-zinciri-verify-GEÇER
 tmpS = tempfile.mkdtemp()
-fake = Ledger(os.path.join(tmpS, "fake.sqlite3"))   # secret-YOK → 'dev-secret'
+fake = Ledger(os.path.join(tmpS, "fake.sqlite3"), secret="test-secret-32byte-2026-aaaa")   # secret-YOK → 'dev-secret'
 fake.append("charge_receipt", "0xSALDIRGAN", "res", 999.0)
 fake.append("settlement", "0xSALDIRGAN", "res", 999.0)
 sahte_gecer = fake.verify_chain()
@@ -198,7 +198,7 @@ print("    → AYNI-projenin-kendisinde-paradox: facilitator-zorunlu-AMA-Ledger-
 tmp2 = tempfile.mkdtemp()
 os.chdir(tmp2)
 try:
-    led = Ledger("ledger.db")
+    led = Ledger("ledger.db", secret="test-secret-32byte-2026-aaaa")
     led.append("charge_receipt", "0xag", "res", 0.05)
     led.claim_nonce("0xag", "n179")
     dosyalar = sorted(os.listdir("."))

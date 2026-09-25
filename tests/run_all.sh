@@ -715,6 +715,10 @@ PY
   kontrol $? "AT-191: kanit-uretim-tutarlilik ( head_source-dangling-RED)"
   bash tests/at192_hata_mesaji_sizintisi_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-192: hata-mesaji-sizintisi ( AuthorizationError+help-flag)"
+  bash tests/at193_geri_uyumluluk_kirilma_yuzeyi_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-193: geri-uyumluluk ( Ledger-secret-zorunlu+buyer-rol)"
+  bash tests/at194_giris_temizligi_standart_yol_tarama_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-194: giris-temizligi ( TEMIZ: shell=True-yok)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

@@ -41,6 +41,7 @@ tests/simnet/.demo/
 kanit/
 .mergen-id
 .venv-jsonschema/
+.venv-evm/
 
 # python release artifacts (never enter the repo)
 build/

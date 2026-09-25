@@ -105,7 +105,7 @@ python3 - <<'PYEOF' >> "$LOG" 2>&1
 import sys
 sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/sester")
 from sester.ledger import Ledger
-ld = Ledger(":memory:")
+ld = Ledger(":memory:", secret="test-secret-32byte-2026-aaaa")
 
 # --- 3) AT-188-BULGU-2-KAPALDI: amount=0.0-artık-RED ( sıfır-boşluk-kapandı)
 try:

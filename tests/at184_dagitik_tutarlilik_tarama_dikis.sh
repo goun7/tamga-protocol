@@ -194,7 +194,7 @@ print("           ( ChainError) + symlink-savunma — dağıtık-tutarlılık-TE
 # --- 6) TEMİZ: claim_nonce-replay-reddi ( sınıf-4)
 sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/sester")
 from sester.ledger import Ledger as SL
-sl = SL(":memory:")
+sl = SL(":memory:", secret="test-secret-32byte-2026-aaaa")
 assert sl.claim_nonce("a1", "n1") is True
 assert sl.claim_nonce("a1", "n1") is False
 print("  6-TEMİZ: sester claim_nonce-atomik-first-writer-wins ( replay-reddi;")

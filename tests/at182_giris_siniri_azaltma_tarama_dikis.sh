@@ -214,7 +214,7 @@ print("  kaynak-teyidi: _parse_exact-MAX_HEADER_BYTES=8192-guard-canlı")
 
 # --- 7) TEMİZ: claim_nonce-replay-koruması ( first-writer-wins)
 from sester.ledger import Ledger
-ld = Ledger(":memory:")
+ld = Ledger(":memory:", secret="test-secret-32byte-2026-aaaa")
 a1 = ld.claim_nonce("agent1", "nonce-X")
 a2 = ld.claim_nonce("agent1", "nonce-X")
 assert a1 is True and a2 is False, f"replay-koruması-bozuk: {a1}/{a2}"

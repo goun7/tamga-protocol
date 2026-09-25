@@ -56,7 +56,7 @@ AGENT = "0x26dbfe78d63509f845c147b8480079c6fbd28bfc"
 RES = "/test-escalation"
 
 tmp = tempfile.mkdtemp()
-led = Ledger(os.path.join(tmp, "at127-ledger.db"))
+led = Ledger(os.path.join(tmp, "at127-ledger.db"), secret="test-secret-32byte-2026-aaaa")
 q = EscalationQueue(os.path.join(tmp, "at127-esc.db"), ledger=led, ttl_seconds=900)
 
 # --- 1) park → escalation_parked-ledger'a-yazılır

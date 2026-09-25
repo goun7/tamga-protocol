@@ -125,7 +125,7 @@ if os.environ.get("UNPUMP_TEST", "0") == "1" and DB.exists():
         " AND date(ts,'unixepoch')=?", (AGENT, bugun)).fetchone()[0]
     c.close()
     if harc > 0:
-        Ledger(str(DB)).append("refund", AGENT, "/dogrula", amount=float(harc),
+        Ledger(str(DB), secret="test-secret-32byte-2026-aaaa").append("refund", AGENT, "/dogrula", amount=float(harc),
                                payload={"reason": "AT100-pilot-kota-sifirlama",
                                         "sandbox": True})
         print(f"[quota] cleartag: ${harc:.2f} iade-edildi (kota-sıfırlandı)",

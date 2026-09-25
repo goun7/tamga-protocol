@@ -54,7 +54,7 @@ AGENT = "0x26dbfe78d63509f845c147b8480079c6fbd28bfc"
 def bundle_uret():
     """Gerçek-Sester-ledger'ından-gerçek-kanıt-bundle üret (izole-DB)."""
     tmp = tempfile.mkdtemp()
-    led = Ledger(os.path.join(tmp, "at120.db"))
+    led = Ledger(os.path.join(tmp, "at120.db"), secret="test-secret-32byte-2026-aaaa")
     led.append("charge_receipt", AGENT, "/test", 0.01, "{}")
     led.append("charge_receipt", AGENT, "/test", 0.02, "{}")
     led.append("permission_decision", AGENT, "/test", 0.0,

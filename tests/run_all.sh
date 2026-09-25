@@ -753,6 +753,10 @@ PY
   # relayer'siz; 6/6 yeşil + 7 tahriz-RED + gerçek ledger.jsonl üyeliği)
   bash tests/at200_iverifier_basimsiz_dogrulama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-200: IVerifier ( bağımsız-doğrulama-arayüzü; 10/10)"
+  # AT-201: keccak-parite — tamga_keccak == eth_utils.keccak == GERÇEK-EVM-opcode
+  # (py-evm state-machine; keccak-256 legacy-padding; sha3_256 tuzak-kanıtı)
+  bash tests/at201_keccak_parite_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-201: keccak-parite ( 3-kaynak; 6/6)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

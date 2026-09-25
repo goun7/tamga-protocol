@@ -112,6 +112,33 @@ tamga-verify verify-bundle bundle.json
 # {"ok": true, "checks": 6, "verified": ["payload","stamp","snapshot","charge","delivery","input"]}
 ```
 
+## 6. Canlı-kanıt (Base mainnet, 2026-09-25)
+
+Tam döngü AT-204 + AT-205 ile **gerçek Base mainnet** üzerinde koşuldu:
+
+| Adım | Sonuç |
+|---|---|
+| Emitter deploy | `status=1 gasUsed=124936` — [`0x897D7abD…`](https://basescan.org/address/0x897D7abDe35124EEB41F0BC0d04d2cF81653442f) |
+| `RequestExecution` emit | 1 log, topic `0x1bf6f1fa…` — [tx](https://basescan.org/tx/0xcc9365af8ca17ac6588416730173e90293eb114c287c4e99289bed66b94d2ade) |
+| **daemon canlı RPC** | `fulfilled=[205]`, crash-YOK |
+| **`fulfillExecution`** | `status=1 gasUsed=68150` — [tx](https://basescan.org/tx/0x391f4ea94789a171437916e075dc8adb34863cbe3b5d7283db8a76ef1c20ce73) |
+| calldata paritesi | selector `0xe266d3c7` (fulfillExecution), outputData 1026 bayt |
+| **delivery keccak canlıda** | zincir outputData'sından keccak = log'daki `delivery=dc6f72f2…` — **birebir** |
+
+> Toplam maliyet: ~$0.001 — Base mainnet baseFee ~0.005 gwei.
+
+**Üretime-geçiş bulguları** (canlı zincirde-çıktı, AT-205 ile-düzeltildi):
+
+1. **Public RPC account'ları unlock-ETMEZ** — `send_transaction` → `unknown account`.
+   Çözüm: `sign_transaction` + `send_raw_transaction` (relayer'ın kullandığı yol).
+2. **`eth_getLogs` block-limiti** — daemon `from_block=0` ile 51M block-taramaya
+   kalkar (public sağlayıcı reddeder). **daemon_loop artık cursor-takibi-yapar**:
+   başlangıç `latest-100`, her-cycle `block_number`'a-güncellenir — hiçbir request
+   kaçırılmaz, tüm-zincir-taranmaz.
+3. **Log-indeks gecikmesi** — load-balanced RPC'lerde receipt'te-log varken
+   `get_logs` stale-dönebilir; daemon çok-cycle'lı-poll ile-aşar (receipt'ten
+   okuma tercih edilir).
+
 ## Başarısızlık kipleri (fail-closed)
 
 | Durum | Sonuç | Test |

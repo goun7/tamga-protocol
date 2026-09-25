@@ -757,7 +757,8 @@ class OracleTransport:
 def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
                 ledger_secret=None, workdir: str = ".", interval_s: int = 15,
                 once: bool = False, max_cycles: int | None = None,
-                gas: int = 500000, log=print):
+                gas: int = 500000, from_block: int | None = None,
+                backfill: int = 100, log=print):
     """KATMAN-2 daemon döngüsü: poll → execute → fulfill (sistemd daemon modu).
 
     Replay koruması: request_id → tx_hash kümesi (process-ömrü boyunca; AT-196
@@ -768,13 +769,22 @@ def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
     Hatalar message-RED olarak log'lanır, döngü DURMAZ (systemd Restart=always
     ile çift-katman; watchdog'a gerek bırakmaz).
     max_cycles: None=sonsuz (üretim); sayı=kaç-poll-cycle-sonra-dön (test).
+    Canlı-zincir-uyumu: from_block=0 tüm-zinciri-tarar (public-RPC limitlerini
+    aşar — Base mainnet 51M block). daemon cursor-takibi-yapar: başlangıçta
+    latest-backfill, her-cycle'da block-number'a-güncellenir (AT-205 bulgusu).
     """
     fulfilled = {}
     cycle = 0
+    cursor = from_block
+    if cursor is None:
+        try:
+            cursor = max(0, int(transport._w3.eth.block_number) - backfill)
+        except Exception:
+            cursor = 0
     while True:
         cycle += 1
         try:
-            for req in transport.fetch_requests(0):
+            for req in transport.fetch_requests(cursor):
                 rid = req["request_id"]
                 if rid in fulfilled:
                     continue
@@ -802,6 +812,11 @@ def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
                     f"delivery={res.get('delivery_hash') or '-'}")
         except TamgaRelayerError as e:
             log(f"[relayer] poll-hatası (devam): {e.reason_code} {e.reason}")
+        # sonraki-cycle: cursor'u-güncelle (stale-yok; public-RPC için-ardışık-tarama)
+        try:
+            cursor = int(transport._w3.eth.block_number)
+        except Exception:
+            pass
         except OSError as e:
             log(f"[relayer] ağ-hatası (devam): {e}")
         if once or (max_cycles is not None and cycle >= max_cycles):

@@ -764,6 +764,14 @@ PY
   # AT-203: gas-limit fail-closed — gas=21000 → RC_TX_FAILED, daemon crash-ETMEZ
   bash tests/at203_gas_limit_fail_closed_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-203: gas-limit fail-closed ( 5/5)"
+  # AT-204: CANLI ZİNCİR — Base mainnet'te gerçek imza+receipt. Anahtar
+  # KULLANICI tarafından ~/.tamga/relayer-live.env (0600) — yoksa GEÇERLİ-SKIP.
+  bash tests/at204_canli_zincir_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-204: canlı-zincir ( Base mainnet; anahtar-varsa 5/5)"
+  # AT-205: CANLI ORACLE+FULFILL — Base mainnet'te deploy→emit→daemon→receipt.
+  # Canlı-stateful: her-koşum ~$0.01 gas-harcar (nonce-tüketir). Anahtar-yoksa SKIP.
+  bash tests/at205_canli_oracle_fulfill_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-205: canlı oracle+fulfillExecution ( Base mainnet; anahtar-varsa 7/7)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

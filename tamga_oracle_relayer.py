@@ -40,7 +40,9 @@ KATMAN-2'de opsiyonel import edilir; yokluğunda message-RED (usage_guard).
 
 import hashlib
 import json
+import os
 import pathlib
+import subprocess
 import sys
 import time
 
@@ -48,9 +50,15 @@ __all__ = [
     # KATMAN-0
     "fnv1a64", "verify_output_stamp", "parse_snapshot", "snapshot_body_digest",
     "build_fulfill_payload", "out", "TamgaRelayerError",
+    # KATMAN-1
+    "load_registry", "resolve_module", "effective_cpu_ms", "run_module",
+    "export_snapshot", "open_ledger", "execute_request",
     # reason-code sabitleri (tamga_runner ile paylaşılan doktrin)
     "RC_OK", "RC_OUTPUT_PROOF_MISMATCH", "RC_SNAPSHOT_BAD_MAGIC",
     "RC_SNAPSHOT_HEADER", "RC_SNAPSHOT_TOO_LARGE",
+    "RC_MODULE_NOT_FOUND", "RC_CPU_MS_OUT_OF_RANGE", "RC_RUN_FAILED",
+    "RC_REGISTRY_INVALID", "RC_LEDGER_SECRET_REQUIRED", "RC_INSECURE_SECRET",
+    "RC_LEDGER_UNAVAILABLE",
 ]
 
 # --- reason-code'ları (tamga_runner.py ile uyumlu, message-RED) -----------------
@@ -60,6 +68,14 @@ RC_OUTPUT_PROOF_MISMATCH = 12      # TAMGA:<fnv1a64> stamp eşleşmedi
 RC_SNAPSHOT_BAD_MAGIC = 1          # MAGIC b"TSG1" yok
 RC_SNAPSHOT_HEADER = 2             # header JCS/şema çözülemedi
 RC_SNAPSHOT_TOO_LARGE = 7          # SAFE_SNAP_MAX aşımı (trivyal-RED, kaynak-tüketimi)
+# KATMAN-1 reason-code'ları (oracle-sözleşmesi semantiği)
+RC_MODULE_NOT_FOUND = 20           # registry-dışı wasiModuleHash (fail-closed; RCE yok)
+RC_CPU_MS_OUT_OF_RANGE = 21        # maxCpuMsAllowed [1,60000] dışında
+RC_RUN_FAILED = 22                 # tamga_runner run/export başarısız (rc!=0)
+RC_REGISTRY_INVALID = 23           # registry JSON/şema geçersiz
+RC_LEDGER_SECRET_REQUIRED = 24     # ledger secret yok (AT-190/193: dev-secret YOK)
+RC_INSECURE_SECRET = 25            # bilinen-secret ('dev-secret'/boş) reddedildi
+RC_LEDGER_UNAVAILABLE = 26         # sester.ledger modülü bulunamadı (mesh-modülü)
 
 # tamga_runner.py:20 — snapshot format sabitleri (yeniden icat etme: aynı değerler)
 SNAPSHOT_MAGIC = b"TSG1"
@@ -246,11 +262,294 @@ def build_fulfill_payload(request_id: int, wasi_module_hash: str, run_receipt: d
     return jcs(payload)
 
 
+# === KATMAN-1: üretim-yolu sürücüsü (subprocess → tamga_runner) =================
+#
+# Karar dosyası §2 sert kısıtları (TAMGA_RELAYER_KARARLARI_2026-09-24):
+#   1. fail-closed ZORUNLU — registry'de OLMAYAN wasiModuleHash → RED (skip+log),
+#      ASLA keyfi modül çalıştırma. Relayer bir RCE vektörü DEĞİLDİR.
+#   2. cpu_ms_per_run çift-kısıtlı: effective = min(request, manifest) + [1,60000]
+#      aralık doğrulaması; dışarıda → RED.
+#   3. Registry ATOMIC yeniden yükleme: sıcak-yeniden-yükleme YOK — değişim
+#      restart gerektirir (TOCTOU: config'i değiştir → pending request'leri farklı
+#      modülle çalıştır). load_registry() bir KEZ (daemon başında) çağrılır;
+#      modül-düzey cache YOK — execute_request registry'yi argüman alır.
+
+CPU_MS_MIN = 1
+CPU_MS_MAX = 60000
+RUNNER = "tamga_runner.py"
+# registry entry'deki zorunlu alanlar (karar dosyası §2 örneği)
+REGISTRY_ENTRY_FIELDS = ("pkg_path", "cpu_ms_per_run", "max_input_bytes")
+
+
+def load_registry(path) -> dict:
+    """KATMAN-1: wasiModuleHash → paket registry'sini BİR KEZ yükler (daemon başı).
+
+    Atomic-reload kısıtı: bu fonksiyon çağrıldığında dosya TAM okunur ve doğrulanır;
+    dönen dict dondurulmuş kabul edilir. Sıcak-yeniden-yükleme YAPILMAZ — config
+    değişirse relayer RESTART edilir (TOCTOU açığı kapatılmıştır).
+
+    Yapı (karar dosyası §2):
+        {"<wasiModuleHash hex>": {"pkg_path": "unpump-bridge/agent",
+                                  "cpu_ms_per_run": 5000,
+                                  "max_input_bytes": 262144}, ...}
+    """
+    try:
+        text = pathlib.Path(path).read_text(encoding="utf-8")
+        reg = json.loads(text)
+    except OSError as e:
+        raise TamgaRelayerError(RC_REGISTRY_INVALID,
+                                f"registry_invalid: okunamadı: {e}") from None
+    except json.JSONDecodeError as e:
+        raise TamgaRelayerError(RC_REGISTRY_INVALID,
+                                f"registry_invalid: JSON hatası: {e}") from None
+    if not isinstance(reg, dict) or not reg:
+        raise TamgaRelayerError(RC_REGISTRY_INVALID,
+                                "registry_invalid: boş veya obje-değil")
+    for hsh, entry in reg.items():
+        if not isinstance(entry, dict):
+            raise TamgaRelayerError(RC_REGISTRY_INVALID,
+                                    f"registry_invalid: {hsh[:12]}… entry-obje-değil")
+        for f in REGISTRY_ENTRY_FIELDS:
+            if f not in entry:
+                raise TamgaRelayerError(RC_REGISTRY_INVALID,
+                                        f"registry_invalid: {hsh[:12]}… alan-eksik: {f}")
+        cpu = entry["cpu_ms_per_run"]
+        if not isinstance(cpu, int) or isinstance(cpu, bool) \
+                or not (CPU_MS_MIN <= cpu <= CPU_MS_MAX):
+            raise TamgaRelayerError(
+                RC_REGISTRY_INVALID,
+                f"registry_invalid: {hsh[:12]}… cpu_ms_per_run={cpu!r} [1,60000] dışı")
+        if not isinstance(entry["max_input_bytes"], int) or entry["max_input_bytes"] <= 0:
+            raise TamgaRelayerError(
+                RC_REGISTRY_INVALID,
+                f"registry_invalid: {hsh[:12]}… max_input_bytes geçersiz")
+        if not pathlib.Path(entry["pkg_path"]).is_dir():
+            raise TamgaRelayerError(
+                RC_REGISTRY_INVALID,
+                f"registry_invalid: {hsh[:12]}… pkg_path yok: {entry['pkg_path']}")
+    return reg
+
+
+def resolve_module(registry: dict, wasi_module_hash: str) -> dict:
+    """KATMAN-1: wasiModuleHash → registry entry. FAIL-CLOSED.
+
+    Registry'de OLMAYAN hash → RC_MODULE_NOT_FOUND RED'i. Relayer ASLA keyfi
+    modül çalıştırmaz — bu, relayer'ın bir RCE vektörü OLMADIĞININ garantisi
+    (Orkestratör AT-198 alt-vakası: kanıtlanması gereken budur).
+    """
+    if not isinstance(wasi_module_hash, str) or not wasi_module_hash:
+        raise TamgaRelayerError(RC_MODULE_NOT_FOUND,
+                                "module-not-registered: wasiModuleHash boş/değil")
+    try:
+        bytes.fromhex(wasi_module_hash)
+    except ValueError:
+        raise TamgaRelayerError(
+            RC_MODULE_NOT_FOUND,
+            f"module-not-registered: wasiModuleHash hex-değil: {wasi_module_hash[:16]}…"
+        ) from None
+    entry = registry.get(wasi_module_hash)
+    if entry is None:
+        raise TamgaRelayerError(
+            RC_MODULE_NOT_FOUND,
+            f"module-not-registered: {wasi_module_hash[:16]}… registry'de-YOK "
+            f"(fail-closed: keyfi-modül-çalıştırma-YOK — RCE-vektörü-değil)"
+        )
+    return entry
+
+
+def effective_cpu_ms(request_ms, manifest_cpu_ms) -> int:
+    """KATMAN-1: çift-kısıtlı CPU bütçesi = min(request, manifest) + [1,60000].
+
+    Oracle sözleşmesi maxCpuMsAllowed'ı [1,60000] aralığında göndermek zorundadır
+    (EVM gas DEĞİL — wasmtime cpu_ms). Relayer bu sözleşmeyi doğrular:
+      • aralık-dışı request → RC_CPU_MS_OUT_OF_RANGE RED (sözleşme-ihlali)
+      • request > manifest → manifest kazanır (ASLA aşılmaz; runner manifest'i
+        kaynaktan okur, relayer sadece ihlali raporlar)
+    """
+    bad = (not isinstance(request_ms, int) or isinstance(request_ms, bool)
+           or not (CPU_MS_MIN <= request_ms <= CPU_MS_MAX))
+    if bad:
+        raise TamgaRelayerError(
+            RC_CPU_MS_OUT_OF_RANGE,
+            f"cpu_ms_out_of_range: maxCpuMsAllowed={request_ms!r} "
+            f"[{CPU_MS_MIN},{CPU_MS_MAX}] dışında (sözleşme-ihlali)")
+    eff = min(request_ms, manifest_cpu_ms)
+    if eff < CPU_MS_MIN:
+        raise TamgaRelayerError(
+            RC_CPU_MS_OUT_OF_RANGE,
+            f"cpu_ms_out_of_range: effective={eff} < {CPU_MS_MIN} "
+            f"(manifest cpu_ms_per_run={manifest_cpu_ms})")
+    return eff
+
+
+def _runner(argv: list, cwd: str = None) -> dict:
+    """tamga_runner.py subprocess'ini çalıştırır; JSON out()'u parse eder.
+
+    Üretim yolu doktrini (AT-075): test-double YOK — gerçek wasmtime, gerçek
+    sandbox (D4: fs preopen/network yok). argv her zaman LİSTE-form (shell=False)
+    — AT-194 sınıf-1 injection taraması ile uyumlu.
+    cwd varsayılanı: tamga_oracle_relayer.py'nin-dizini (runner orada; workdir
+    yalnız geçici-dosyalar içindir — kirlilik-yok).
+    """
+    if cwd is None:
+        cwd = str(pathlib.Path(__file__).resolve().parent)
+    try:
+        r = subprocess.run([sys.executable, RUNNER, *argv], capture_output=True,
+                           text=True, cwd=cwd)
+    except OSError as e:
+        raise TamgaRelayerError(RC_RUN_FAILED,
+                                f"runner_unavailable: {RUNNER} başlatılamadı: {e}") from None
+    if r.returncode != 0:
+        tail = (r.stdout + r.stderr).strip().replace("\n", " ")[-160:]
+        raise TamgaRelayerError(
+            RC_RUN_FAILED, f"runner rc={r.returncode}: {tail}")
+    try:
+        return json.loads(r.stdout.splitlines()[-1])
+    except (json.JSONDecodeError, IndexError) as e:
+        raise TamgaRelayerError(RC_RUN_FAILED,
+                                f"runner çıktı JSON değil: {e}") from None
+
+
+def run_module(pkg_path, seed_hex, input_path=None, cwd=".") -> dict:
+    """KATMAN-1: gerçek wasmtime koşumu (tamga_runner run --require-proof).
+
+    --require-proof: agent stdout'una TAMGA:<fnv1a64> damgasını basar; runner ve
+    KATMAN-0 BAĞIMSIZ olarak doğrular (mühür-2). Dönüş: runner out() JSON'u
+    (stdout_file, stdout_sha256, session, fee_sim, ...).
+    """
+    argv = ["run", str(pkg_path), "--seed", seed_hex, "--require-proof"]
+    if input_path is not None:
+        argv += ["--input", str(input_path)]
+    res = _runner(argv, cwd)
+    if res.get("ok") is not True:
+        raise TamgaRelayerError(
+            RC_RUN_FAILED,
+            f"run ok=false: {res.get('reason_code')} {res.get('reason')}")
+    return res
+
+
+def export_snapshot(pkg_path, seed_hex, out_path, cwd=".") -> str:
+    """KATMAN-1: gerçek XChaCha20-Poly1305 snapshot export'u (mühür-1 kaynağı).
+
+    Dönüş: snapshot dosya yolu (caller snapshot_body_digest ile parse eder).
+    """
+    res = _runner(["export", str(pkg_path), "-o", str(out_path), "--seed", seed_hex], cwd)
+    if res.get("ok") is not True:
+        raise TamgaRelayerError(
+            RC_RUN_FAILED,
+            f"export ok=false: {res.get('reason_code')} {res.get('reason')}")
+    return str(out_path)
+
+
+def open_ledger(db_path, secret):
+    """KATMAN-1: oracle-operatör maliyet-ledger'ı (sester Ledger; AT-190/193).
+
+    Secret ZORUNLU — 'dev-secret' varsayılanı KALDIRILDI (AT-190), bilinen-değer
+    reddedilir (AT-179/193). Doğrulama relayer'da ÖNCE yapılır (testlerin
+    sester'e bağımlı olmadan RED yollarını doğrulayabilmesi için); sester.ledger
+    aynı doğrulamayı tekrar yapar (çift-katman).
+    """
+    if secret is None:
+        raise TamgaRelayerError(
+            RC_LEDGER_SECRET_REQUIRED,
+            "ledger-secret-required: Ledger-secret-ZORUNLU — 'dev-secret'-"
+            "varsayılanı-YOK (AT-190/193); açık-secret-geçin")
+    if secret in ("dev-secret", ""):
+        raise TamgaRelayerError(
+            RC_INSECURE_SECRET,
+            "insecure-secret: 'dev-secret'/boş BİLİNEN-değer — sahte-HMAC-"
+            "üretilebilir; üretimde-gerçek-secret-geçin — AT-179/AT-193")
+    # mesh-modül yolu (üretimde PYTHONPATH'te; testler/dağıtım env ile bildirir)
+    se = os.environ.get("TAMGA_SESTER_PATH")
+    if se and se not in sys.path:
+        sys.path.insert(0, se)
+    try:
+        from sester.ledger import Ledger          # mesh-modülü
+    except ImportError as e:
+        raise TamgaRelayerError(
+            RC_LEDGER_UNAVAILABLE,
+            f"ledger-unavailable: sester.ledger bulunamadı (mesh-modülü): {e}") from None
+    return Ledger(db_path, secret=secret)
+
+
+def execute_request(request: dict, registry: dict, seed_hex: str,
+                    workdir: str = ".", ledger_secret=None) -> dict:
+    """KATMAN-1: tam üretim-yolu — RequestExecution → fulfill kanıtına.
+
+    Akış: resolve(fail-closed) → cpu-çift-kısıt → run(gerçek wasmtime) →
+    stamp(mühür-2) → export(gerçek AEAD) → digest(mühür-1) → fulfill(JCS).
+
+    request: {"wasi_module_hash", "input_payload" (bytes/dosya-yolu/None),
+              "max_cpu_ms_allowed", "request_id"}
+    Dönüş: {receipt, stamp, digest, payload, blob_sha256, effective_cpu_ms}
+    """
+    entry = resolve_module(registry, request["wasi_module_hash"])
+    manifest = json.loads((pathlib.Path(entry["pkg_path"]) / "tamga.json")
+                          .read_text(encoding="utf-8"))
+    manifest_cpu = int(manifest["runtime"]["limits"]["cpu_ms_per_run"])
+    if entry["cpu_ms_per_run"] != manifest_cpu:
+        raise TamgaRelayerError(
+            RC_REGISTRY_INVALID,
+            f"registry_invalid: cpu-ms-uyumsuz registry={entry['cpu_ms_per_run']} "
+            f"manifest={manifest_cpu} ({entry['pkg_path']})")
+    eff = effective_cpu_ms(int(request["max_cpu_ms_allowed"]), manifest_cpu)
+
+    inp = request.get("input_payload")
+    inp_path = None
+    if inp is not None and not isinstance(inp, (str, pathlib.PurePath)):
+        data = bytes(inp)
+        if len(data) > entry["max_input_bytes"]:
+            raise TamgaRelayerError(
+                RC_CPU_MS_OUT_OF_RANGE,
+                f"input-too-large: {len(data)} > {entry['max_input_bytes']} "
+                f"(registry max_input_bytes)")
+        tf = pathlib.Path(workdir) / f".relayer-input-{os.getpid()}.bin"
+        tf.write_bytes(data)
+        inp_path = tf
+    elif isinstance(inp, (str, pathlib.PurePath)):
+        inp_path = pathlib.Path(inp)
+
+    receipt = run_module(entry["pkg_path"], seed_hex, inp_path)
+    try:
+        stdout = pathlib.Path(receipt["stdout_file"]).read_bytes()
+        stamp = verify_output_stamp(stdout)          # mühür-2: bağımsız fnv1a64
+    finally:
+        if inp_path is not None and isinstance(inp, (bytes, bytearray)):
+            pathlib.Path(inp_path).unlink(missing_ok=True)
+
+    snap_path = export_snapshot(entry["pkg_path"], seed_hex,
+                                str(pathlib.Path(workdir) / f".relayer-snap-{os.getpid()}.tsg"))
+    snap = snapshot_body_digest(snap_path)           # mühür-1: SHA-256(ct)
+
+    ledger_rec = None
+    if ledger_secret is not None:
+        led = open_ledger(str(pathlib.Path(workdir) / "relayer-ledger.sqlite3"),
+                          ledger_secret)
+        # event-tipi sester taksonomisindedir (ERRATUM-K0.2; 'oracle_fulfill' yeni
+        # tip ekler — mevcut 'charge_receipt' ailesi ile uyumlu, AT-193 yolu)
+        led.append("charge_receipt", str(request.get("request_id")),
+                   entry["pkg_path"], float(receipt.get("fee_sim", 0)))
+        ledger_tip = getattr(led, "tip", None)
+        ledger_rec = ledger_tip() if callable(ledger_tip) else ledger_tip
+    else:
+        ledger_rec = None
+
+    payload = build_fulfill_payload(
+        int(request.get("request_id", 0)), request["wasi_module_hash"],
+        receipt, snap, ledger_tip=str(ledger_rec) if ledger_rec else None)
+    return {"receipt": receipt, "stamp": stamp, "digest": snap["digest"],
+            "blob_sha256": snap["blob_sha256"], "payload": payload.decode("utf-8"),
+            "effective_cpu_ms": eff}
+
+
 # === CLI (KATMAN-0 yüzü: üretilen kanıtları bağımsız denetle) ===================
 
 USAGE = {
     "verify-stamp": "verify-stamp <stdout-file>",
     "snapshot-digest": "snapshot-digest <snap.tsg>",
+    "registry-check": "registry-check <registry.json>",
+    "run-request": "run-request --registry <json> --seed <hex> --module-hash <hex> "
+                   "[--cpu-ms N] [--input <file>] [--ledger-secret S]",
 }
 
 
@@ -285,6 +584,59 @@ def cmd_snapshot_digest(a):
                agent_id=s["header"]["agent_id"])
 
 
+def _opt(a, flag, default=None):
+    """--flag value argüman çıkarıcı (LİSTE-form; shell-injection yüzü YOK)."""
+    if flag in a:
+        i = a.index(flag)
+        if i + 1 < len(a):
+            return a[i + 1]
+    return default
+
+
+def cmd_registry_check(a):
+    if len(a) < 1:
+        return out(False, op="registry-check", reason_code=2,
+                   reason=f"kullanim: {USAGE['registry-check']} (en-az 1 argman)")
+    try:
+        reg = load_registry(a[0])
+    except TamgaRelayerError as e:
+        return out(False, op="registry-check", reason_code=e.reason_code, reason=e.reason)
+    return out(True, op="registry-check", file=a[0],
+               modules=len(reg),
+               hashes=[h[:16] for h in reg])
+
+
+def cmd_run_request(a):
+    if len(a) < 1:
+        return out(False, op="run-request", reason_code=2,
+                   reason=f"kullanim: {USAGE['run-request']}")
+    reg_path = _opt(a, "--registry")
+    seed = _opt(a, "--seed")
+    mh = _opt(a, "--module-hash")
+    cpu = _opt(a, "--cpu-ms")
+    inp = _opt(a, "--input")
+    sec = _opt(a, "--ledger-secret")
+    workdir = _opt(a, "--workdir", ".")
+    sec = os.environ.get("TAMGA_RELAYER_LEDGER_SECRET", sec) if sec else sec
+    if not (reg_path and seed and mh):
+        return out(False, op="run-request", reason_code=2,
+                   reason=f"kullanim: {USAGE['run-request']} (registry/seed/"
+                          "module-hash zorunlu)")
+    try:
+        reg = load_registry(reg_path)
+        request = {"wasi_module_hash": mh,
+                   "max_cpu_ms_allowed": int(cpu) if cpu is not None else 5000,
+                   "request_id": 1, "input_payload": inp}
+        res = execute_request(request, reg, seed, workdir=workdir,
+                              ledger_secret=sec)
+    except TamgaRelayerError as e:
+        return out(False, op="run-request", reason_code=e.reason_code, reason=e.reason)
+    except (ValueError, KeyError, OSError) as e:
+        return out(False, op="run-request", reason_code=2, reason=f"parse-hatası: {e}")
+    return out(True, op="run-request", **{k: v for k, v in res.items()},
+               module=mh[:16])
+
+
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
         print(__doc__)
@@ -297,6 +649,10 @@ def main():
         return cmd_verify_stamp(a)
     if cmd == "snapshot-digest":
         return cmd_snapshot_digest(a)
+    if cmd == "registry-check":
+        return cmd_registry_check(a)
+    if cmd == "run-request":
+        return cmd_run_request(a)
     return out(False, op=cmd, reason_code=2,
                reason=f"bilinmeyen-komut: {cmd} (kullanım: {', '.join(USAGE)})")
 

@@ -775,6 +775,11 @@ PY
     kontrol $? "AT-204: canlı-zincir ( Base mainnet; anahtar-varsa 5/5)"
     bash tests/at205_canli_oracle_fulfill_dikis.sh > /dev/null 2>&1
     kontrol $? "AT-205: canlı oracle+fulfillExecution ( Base mainnet; anahtar-varsa 7/7)"
+    # AT-207: canlı replay-protection — daemon-restart simülasyonü (ayrı-daemon_loop
+    # çağrısı; in-memory set-her-çağrıda-boş). Ya replay-guard-aktif (0-fulfill) ya
+    # da GÜVENLİK-AÇIĞI kanıtlanır. Para-harcar (~$0.008) → TAMGA_LIVE-guard'lı.
+    bash tests/at207_canli_replay_koruma_dikis.sh > /dev/null 2>&1
+    kontrol $? "AT-207: canlı replay-protection ( Base mainnet; 4/4 veya açık-kanıtı)"
   else
     echo "  AT-204/AT-205: SKIP (TAMGA_LIVE=1 değil — canlı-gas-korunuyor)"
     echo "  AT-204/AT-205: SKIP (TAMGA_LIVE=1 değil — canlı-gas-korunuyor)" >&2

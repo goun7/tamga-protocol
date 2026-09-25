@@ -722,20 +722,30 @@ class OracleTransport:
             raise TamgaRelayerError(
                 RC_SNAPSHOT_HEADER,
                 f"digest-uzunluğu: {len(digest)} (bytes32 = 32 beklenir)")
-        nonce = self._w3.eth.get_transaction_count(self._acct.address)
-        tx = self._oracle.functions.fulfillExecution(
-            request_id, digest, output_data_bytes, proof_bytes
-        ).build_transaction({
-            "from": self._acct.address,
-            "nonce": nonce,
-            "chainId": self._chain_id,
-            "gas": gas,
-            "maxFeePerGas": self._w3.to_wei(2, "gwei"),
-            "maxPriorityFeePerGas": self._w3.to_wei(1, "gwei"),
-        })
-        signed = self._acct.sign_transaction(tx)
-        h = self._w3.eth.send_raw_transaction(signed.rawTransaction)
-        rcpt = self._w3.eth.wait_for_transaction_receipt(h)
+        try:
+            nonce = self._w3.eth.get_transaction_count(self._acct.address)
+            tx = self._oracle.functions.fulfillExecution(
+                request_id, digest, output_data_bytes, proof_bytes
+            ).build_transaction({
+                "from": self._acct.address,
+                "nonce": nonce,
+                "chainId": self._chain_id,
+                "gas": gas,
+                "maxFeePerGas": self._w3.to_wei(2, "gwei"),
+                "maxPriorityFeePerGas": self._w3.to_wei(1, "gwei"),
+            })
+            signed = self._acct.sign_transaction(tx)
+            h = self._w3.eth.send_raw_transaction(signed.rawTransaction)
+            rcpt = self._w3.eth.wait_for_transaction_receipt(h)
+        except TamgaRelayerError:
+            raise
+        except Exception as e:
+            # web3/eth-tester hataları (gas-yetersiz, intrinsic-gas-too-low,
+            # nonce/validasyon): daemon crash-ETMEMELİ — RC_TX_FAILED fail-closed.
+            # EIP-1559 yolundaki tüm istisnalar message-RED'e döner (AT-203).
+            raise TamgaRelayerError(
+                RC_TX_FAILED,
+                f"fulfill-tx-hata: {type(e).__name__}: {str(e)[:160]}")
         if rcpt["status"] != 1:
             raise TamgaRelayerError(
                 RC_TX_FAILED,
@@ -746,16 +756,23 @@ class OracleTransport:
 
 def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
                 ledger_secret=None, workdir: str = ".", interval_s: int = 15,
-                once: bool = False, log=print):
+                once: bool = False, max_cycles: int | None = None,
+                gas: int = 500000, log=print):
     """KATMAN-2 daemon döngüsü: poll → execute → fulfill (sistemd daemon modu).
 
     Replay koruması: request_id → tx_hash kümesi (process-ömrü boyunca; AT-196
     N1 bulgusu — fulfill tx'i emitter'ı tekrar çağırıp yeni log üretebilir).
+    Aynı request ikinci poll'de fulfilled'de-zaten-var → TEKRAR fulfill
+    EDİLMEZ (AT-202). Restart-sonrası dayanıklı-koruma zincir-üyeliğindedir
+    (oracle kontratı fulfillExecution'ı replay-korumalı-imzalamalıdır).
     Hatalar message-RED olarak log'lanır, döngü DURMAZ (systemd Restart=always
     ile çift-katman; watchdog'a gerek bırakmaz).
+    max_cycles: None=sonsuz (üretim); sayı=kaç-poll-cycle-sonra-dön (test).
     """
     fulfilled = {}
+    cycle = 0
     while True:
+        cycle += 1
         try:
             for req in transport.fetch_requests(0):
                 rid = req["request_id"]
@@ -774,7 +791,7 @@ def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
                                           ledger_secret=ledger_secret)
                     out = transport.submit_fulfillment(
                         rid, res["digest"], res["payload"].encode(),
-                        res["receipt"]["stdout_sha256"].encode())
+                        res["receipt"]["stdout_sha256"].encode(), gas=gas)
                 except TamgaRelayerError as e:
                     log(f"[relayer] request {rid} RED: {e.reason_code} {e.reason}")
                     continue
@@ -787,7 +804,7 @@ def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
             log(f"[relayer] poll-hatası (devam): {e.reason_code} {e.reason}")
         except OSError as e:
             log(f"[relayer] ağ-hatası (devam): {e}")
-        if once:
+        if once or (max_cycles is not None and cycle >= max_cycles):
             return fulfilled
         time.sleep(interval_s)
 

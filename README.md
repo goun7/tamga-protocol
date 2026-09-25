@@ -230,6 +230,17 @@ tamga-relayer snapshot-digest snap.tsg             # mühür-1: SHA-256(ct)
 
 # or verify the whole bundle WITHOUT installing the relayer (counterparty path):
 # tamga-verify verify-bundle bundle.json  → 6/6 checks, pure stdlib
+
+# LIVE CHAIN (Base mainnet/sepolia): daemon mode — secrets via env, never CLI/keys
+export TAMGA_RELAYER_RPC_URL=https://mainnet.base.org
+export TAMGA_RELAYER_ORACLE=0x<ITamgaOracle>     # deployed oracle contract
+export TAMGA_RELAYER_KEY=0x<signing-key>         # or Ledger — never logged
+tamga-relayer daemon --registry relayer.registry.json \
+    --seed "$SEED" --interval 15
+# → [relayer] request 42 fulfilled: tx=0x1fb4… status=1 gasUsed=39935
+#   fail-closed every step: registry-miss → RED-20; gas-too-low → RED-28, no crash
+#   replay protection: the same request is fulfilled only once per process
+#   (see docs/CANLI_ZINCIR.md for the full walkthrough)
 ```
 
 Full deployment (systemd unit with watchdog, secret management, registry

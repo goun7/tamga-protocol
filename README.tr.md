@@ -204,6 +204,17 @@ tamga-relayer snapshot-digest snap.tsg             # mühür-1: SHA-256(ct)
 
 # ya da TÜM bundle'ı relayer'ı KURMADAN doğrula (karşı-taraf yolu):
 # tamga-verify verify-bundle bundle.json  → 6/6 check, saf-stdlib
+
+# CANLI ZİNCİR (Base mainnet/sepolia): daemon modu — sırlar env'den, CLI'da asla
+export TAMGA_RELAYER_RPC_URL=https://mainnet.base.org
+export TAMGA_RELAYER_ORACLE=0x<ITamgaOracle>     # deploy-edilmiş oracle kontratı
+export TAMGA_RELAYER_KEY=0x<imzalama-anahtarı>   # veya Ledger — log'a asla-yazılmaz
+tamga-relayer daemon --registry relayer.registry.json \
+    --seed "$SEED" --interval 15
+# → [relayer] request 42 fulfilled: tx=0x1fb4… status=1 gasUsed=39935
+#   her-adımda fail-closed: registry-yok → RED-20; gas-yetersiz → RED-28, crash-yok
+#   replay-koruma: aynı request process-içinde yalnızca-bir-kez fulfill-edilir
+#   (tam-yürüyüş için docs/CANLI_ZINCIR.md)
 ```
 
 Tam dağıtım (watchdog'lı systemd unit, sırrın yönetimi, registry disiplini):

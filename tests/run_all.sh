@@ -757,6 +757,13 @@ PY
   # (py-evm state-machine; keccak-256 legacy-padding; sha3_256 tuzak-kanıtı)
   bash tests/at201_keccak_parite_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-201: keccak-parite ( 3-kaynak; 6/6)"
+  # AT-202: daemon replay-protection — aynı request iki-kez fulfill-edilemez
+  # (fulfilled-seti; 2 özdeş-log + max_cycles=2 → tek-fulfill)
+  bash tests/at202_daemon_replay_koruma_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-202: daemon replay-protection ( 4/4)"
+  # AT-203: gas-limit fail-closed — gas=21000 → RC_TX_FAILED, daemon crash-ETMEZ
+  bash tests/at203_gas_limit_fail_closed_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-203: gas-limit fail-closed ( 5/5)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

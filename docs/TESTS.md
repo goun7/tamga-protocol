@@ -3,7 +3,9 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 53/53 controls, ~70–110 s on a laptop; CI runs it on every push
+bash tests/run_all.sh     # 198/198 AT suites — 220 PASS, 0 SKIP, 0 FAIL (default)
+TAMGA_LIVE=1 bash tests/run_all.sh   # +2 live-gas suites (Base mainnet) → 222 PASS
+# CI runs the default on every push; live suites are opt-in (they spend gas)
 ```
 
 ## Adversarial audits and benchmark (CI-hosted)

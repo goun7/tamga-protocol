@@ -736,6 +736,8 @@ PY
   kontrol $? "AT-193: geri-uyumluluk ( Ledger-secret-zorunlu+buyer-rol)"
   bash tests/at194_giris_temizligi_standart_yol_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-194: giris-temizligi ( TEMIZ: shell=True-yok)"
+  bash tests/at195_relayer_katman0_kanit_uretim_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-195: relayer-KATMAN-0 ( fnv1a64-byte-identical + SHA-256(ct)-digest + JCS)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

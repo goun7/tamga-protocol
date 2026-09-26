@@ -10,6 +10,11 @@ Checks, in order (first failure exits 1 with a JSON error line):
      == fixture delivery_bytes.sha256
   4. derived digest: keccak256(delivery.stdout) == fixture delivery_bytes.keccak256
   5. input commitment: sha256(input.json) == charge input_sha256
+  6. settlement anchor: x402_settlement.settlement_ref MUST exist and equal
+     receiptHash == charge.h — a settlement with no reference to the receipt it
+     pays for is a RED ("missing settlement reference"), i.e. the fixture fails
+     closed instead of silently presenting an unanchored settlement (the
+     #3379 settlementRef/anchor question: what ties a settlement to the work)
 
 Usage: python3 tools/verify_pairing_fixture.py <dir>
 """
@@ -108,6 +113,29 @@ def main():
                                        "delivery.stdout (envelope contentHash chain broken)"}))
             sys.exit(1)
         checks.append("delivery_hash_chain")
+
+    # 7) settlement anchor (doteyeso-ops/holistis #3379 — settlementRef/anchor):
+    #    the settlement side MUST reference the exact receipt it settles against.
+    #    Missing = RED, not silence: a fixture presenting a settlement with no
+    #    binding to the work receipt fails closed. This is the fixture-level twin
+    #    of the F25 closure — an embedded chain with no node declaration was an
+    #    agent claim on a fresh node; here, a settlement with no anchor is a
+    #    payment claim on unbound work. The anchor is charge.h, which is
+    #    node-certified (node_id inside h, node_sig signing it — RFC-003 D8).
+    anchor = fx.get("x402_settlement", {}).get("settlement_ref")
+    if anchor is None:
+        print(json.dumps({"ok": False, "where": "settlement_anchor",
+                          "error": "missing settlement reference — x402_settlement "
+                                   "carries no settlement_ref bound to the receipt "
+                                   "(fails closed: a settlement must name the work "
+                                   "it pays for)"}))
+        sys.exit(1)
+    if anchor.get("value") != h or anchor.get("value") != charge.get("h"):
+        print(json.dumps({"ok": False, "where": "settlement_anchor",
+                          "error": "settlement_ref != receiptHash/charge.h — the "
+                                   "settlement is anchored to a different receipt"}))
+        sys.exit(1)
+    checks.append("settlement_anchor")
 
     print(json.dumps({"ok": True, "receiptHash": h,
                       "stdout_sha256": d_sha,

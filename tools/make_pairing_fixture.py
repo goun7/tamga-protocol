@@ -73,6 +73,15 @@ def main():
         "x402_settlement": {
             "scheme": {"value": "tamga-sim/1", "source": "simulated"},
             "payment_id": {"value": "SIM-PAY-0001", "source": "simulated"},
+            "settlement_ref": {"value": charge["h"], "source": "derived",
+                               "note": "the x402 envelope's settlement anchor — this "
+                                       "(simulated) settlement is bound to receiptHash "
+                                       "== charge.h. A fixture without it fails closed "
+                                       "(verifier check 7, 'missing settlement "
+                                       "reference'). The anchor is node-certified: "
+                                       "node_id is inside h and node_sig signs h "
+                                       "(RFC-003 D8, F25-closure), so the anchor carries "
+                                       "the node's declaration, not a bare agent claim."},
             "note": {"value": "no real payment occurred; replace with a real "
                               "settlement to make this a live pairing",
                      "source": "simulated"},

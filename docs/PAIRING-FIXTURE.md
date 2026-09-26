@@ -38,13 +38,46 @@ and every field states its origin via the labeling discipline:
    the fixture carries both, labeled (`sha256` = observed, `keccak256` = derived).
 4. **Input commitment** — `sha256(input.json)` equals the receipt's `input_sha256` (D11):
    the run's input is bound as well as its output.
+5. **Settlement anchor** — `x402_settlement.settlement_ref` names the exact receipt the
+   (simulated) settlement settles against, and it must equal `receiptHash` == `charge.h`.
+   This is the [#3379 settlementRef/anchor question](https://github.com/x402-foundation/x402/issues/3379)
+   (raised by @doteyeso-ops/@holistis): *what ties a settlement to the work it pays for.*
+   The answer here is the ledger hash — and it is **failing closed**: a fixture whose
+   settlement carries no reference to the receipt is a RED, not a silent omission
+   (the check is item 7 of the verifier, see *Negative controls* below). The anchor is
+   not a bare agent claim either: it is `h`, which is node-certified — `node_id` is
+   inside the hash input and `node_sig` signs `h` (RFC-003 §8 D8, the F25 closure) —
+   so the anchor carries the node operator's declaration.
+
+## Negative controls (failing closed)
+
+The verifier is not a positive-only check. `tests/at007_pairing_fixture.sh` feeds it
+deliberately broken fixtures and asserts each one yields `"ok": false`:
+
+| control | tamper | expected RED |
+|---|---|---|
+| AT-007c | one flipped `delivery.stdout` byte | `delivery_bytes` (observed sha256 mismatch) |
+| AT-007d | `receiptHash` swapped | `membership` (recomputed `h` != `receiptHash`) |
+| AT-007e | a field's `source` label deleted | `labeling` (safal207 discipline) |
+| AT-007f | `input.json` swapped | `input_commitment` |
+| AT-007g | record doctored, `receiptHash` re-signed, stale `charge.h` | `membership` |
+| AT-007h | input re-committed, stale `charge.input_sha256` | `input_commitment` |
+| **AT-007i** | **`settlement_ref` removed** | **`settlement_anchor` — missing settlement reference** |
+| **AT-007j** | **`settlement_ref` pointed at a different receipt** | **`settlement_anchor` — unanchored settlement** |
+
+AT-007i is the answer to *“can a settlement float free of the work?”* — no. Without a
+bound reference the verifier rejects the whole fixture, exactly as an import under
+`--cosign-policy L1` rejects an unlisted node key (RED reason 14,
+`node_id_untrusted@<seq>`): both are the same discipline at different layers — a claim
+that names no accountable counterparty is not a partial result, it is no result.
 
 ## Verify it yourself
 
 ```bash
 python3 tools/verify_pairing_fixture.py docs/pairing
 # {"ok": true, "checks": ["labeling", "membership", "delivery_sha256",
-#                         "delivery_keccak256", "input_sha256"]}
+#                         "delivery_keccak256", "input_sha256",
+#                         "delivery_hash_chain", "settlement_anchor"]}
 ```
 
 The verifier enforces the labeling discipline too: a value-field without a `source`

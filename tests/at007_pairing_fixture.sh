@@ -16,7 +16,7 @@ trap 'rm -rf "$W"' EXIT
 python3 tools/make_pairing_fixture.py "$W/work" "$W/fx" > "$W/gen.json" 2> "$W/gen.err" || {
   echo "  FAIL: fixture generation crashed"; cat "$W/gen.err"; exit 1; }
 python3 tools/verify_pairing_fixture.py "$W/fx" > "$W/v.json" 2>&1
-ok $? "AT-007a: fresh fixture verifies (5 checks: labeling+membership+sha256+keccak256+input)"
+ok $? "AT-007a: fresh fixture verifies (labeling+membership+sha256+keccak256+input+delivery-hash+settlement-anchor)"
 
 # the committed fixture verifies too (bytes in the tree are self-consistent)
 python3 tools/verify_pairing_fixture.py docs/pairing > "$W/vc.json" 2>&1
@@ -101,6 +101,33 @@ json.dump(fx, open(p, "w"))                 # commitment made consistent...
 PY
 python3 tools/verify_pairing_fixture.py "$W/t6" 2>/dev/null | grep -q '"ok": false'
 ok $? "AT-007h: re-signed input commitment but stale charge.input_sha256 -> RED"
+
+# ---------- negative 7: settlement anchor removed -> settlement_anchor RED
+# (doteyeso-ops/holistis #3379: settlementRef/anchor — a settlement with no
+# reference to the receipt it pays for fails CLOSED, it is not silent) ----------
+cp -r "$W/fx" "$W/t7"
+python3 - "$W/t7/pairing-fixture.json" <<'PY'
+import json, sys
+p = sys.argv[1]
+fx = json.load(open(p))
+del fx["x402_settlement"]["settlement_ref"]   # unanchored settlement
+json.dump(fx, open(p, "w"))
+PY
+python3 tools/verify_pairing_fixture.py "$W/t7" 2>/dev/null | grep -q '"where": "settlement_anchor"'
+ok $? "AT-007i: settlement anchor removed -> settlement_anchor RED (missing settlement reference)"
+
+# ---------- negative 8: settlement anchor pointing at a DIFFERENT receipt
+# -> settlement_anchor RED (the settlement is bound to the wrong work) ----------
+cp -r "$W/fx" "$W/t8"
+python3 - "$W/t8/pairing-fixture.json" <<'PY'
+import json, sys
+p = sys.argv[1]
+fx = json.load(open(p))
+fx["x402_settlement"]["settlement_ref"]["value"] = "0" * 64   # another receipt
+json.dump(fx, open(p, "w"))
+PY
+python3 tools/verify_pairing_fixture.py "$W/t8" 2>/dev/null | grep -q '"where": "settlement_anchor"'
+ok $? "AT-007j: settlement anchor to a different receipt -> RED (unanchored settlement)"
 
 echo "RESULT: $PASS PASS, $FAIL FAIL"
 [ "$FAIL" = 0 ]

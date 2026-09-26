@@ -50,7 +50,8 @@ def out(ok, **kw):
 # invocation is a message, not a traceback. Both dispatch paths (console `tamga` →
 # tamga_bootstrap; repo-script `python3 tamga_runner.py`) share this single choke point.
 REQUIRED_ARGS = {"run": 1, "quickstart": 1, "export": 1, "memory": 1, "keygen-node": 1,
-                 "ledger": 1, "ledger-verify": 1, "grant": 2, "attest-verify": 1, "verify-cr": 1}
+                 "ledger": 1, "ledger-verify": 1, "ledger-verify-batch": 1,
+                 "grant": 2, "attest-verify": 1, "verify-cr": 1}
 USAGE_HINT = {"run": "tamga run <pkg> --seed <hex>", "quickstart": "tamga quickstart <dir> [--name n]",
               "export": "tamga export <pkg> -o <out.tsg> --seed <hex>", "memory": "tamga memory <pkg> <op> ...",
               "keygen-node": "tamga keygen-node <dir>", "ledger": "tamga ledger <pkg>",
@@ -428,6 +429,54 @@ def cmd_ledger_verify(a):
     lines = sum(1 for line in open(lp, "r", encoding="utf-8") if line.strip())
     return out(True, op="ledger-verify", lines=lines, head=tip,
                note="chain tip verified (RFC-003 D7 draft)")
+
+def cmd_ledger_verify_batch(a):
+    """AT-208: N paketin ledger zincirini TEK cagrida toplu dogrula.
+
+    Müşteri değeri: "100 paketi tek seferde denetleyin" — her biri için
+    ayrı komut koşmak yerine tek invocation + özet JSON.
+
+    Kullanım: tamga ledger-verify-batch <pkg1> <pkg2> ... [--summary-only]
+    rc=0 yalnızca TÜM paketler geçerse; herhangi biri kırıksa rc=1 ve
+    özette broken_at ile birlikte listelenir.
+    """
+    import contextlib, io
+    if not a:
+        return out(False, op="ledger-verify-batch",
+                   reason="kullanim: tamga ledger-verify-batch <pkg1> <pkg2> ...")
+    pkgs = [x for x in a if not x.startswith("-")]
+    summary_only = "--summary-only" in a
+    if not pkgs:
+        return out(False, op="ledger-verify-batch", reason="paket_dizini_verilmedi")
+    results, n_ok, n_fail = [], 0, 0
+    for p in pkgs:
+        pkg = pathlib.Path(p)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = cmd_ledger_verify([str(pkg)])
+        try:
+            detail = json.loads(buf.getvalue().strip())
+        except Exception:
+            detail = {"ok": False, "reason": "cozumlenemedi", "pkg": str(pkg)}
+        ok = rc == 0 and detail.get("ok") is True
+        n_ok += 1 if ok else 0
+        n_fail += 0 if ok else 1
+        entry = {"pkg": str(pkg), "ok": ok}
+        if not ok:
+            entry["reason"] = detail.get("reason", "bilinmiyor")
+            if detail.get("broken_at"):
+                entry["broken_at"] = detail["broken_at"]
+        elif detail.get("lines") is not None:
+            entry["lines"] = detail["lines"]
+            entry["head"] = detail.get("head")
+        results.append(entry)
+        if not summary_only:
+            print(json.dumps({"op": "ledger-verify-batch-item", **entry},
+                             ensure_ascii=False))
+    return out(n_fail == 0, op="ledger-verify-batch",
+               verified=n_ok, failed=n_fail, total=len(pkgs),
+               results=results,
+               note="toplu dogrulama tamam — tum paketler tek geciste denetlendi")
 
 def cmd_grant(a):
     """RFC-003 D5/D8: simnet grant record — appended to the chain."""
@@ -1579,6 +1628,7 @@ if __name__ == "__main__":
     cmds = {"keygen": cmd_keygen, "quickstart": cmd_quickstart, "run": cmd_run,
             "export": cmd_export, "import": cmd_import, "ledger": cmd_ledger,
             "memory": cmd_memory, "grant": cmd_grant, "ledger-verify": cmd_ledger_verify,
+            "ledger-verify-batch": cmd_ledger_verify_batch,
             "keygen-node": cmd_keygen_node, "migrate-net": cmd_migrate_net,
             "anchor": cmd_anchor}
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):

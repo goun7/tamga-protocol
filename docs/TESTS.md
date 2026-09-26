@@ -3,8 +3,8 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 198/198 AT suites — 220 PASS, 0 SKIP, 0 FAIL (default)
-TAMGA_LIVE=1 bash tests/run_all.sh   # +2 live-gas suites (Base mainnet) → 222 PASS
+bash tests/run_all.sh     # 202/202 AT suites — 223 PASS, 0 SKIP, 0 FAIL (default)
+TAMGA_LIVE=1 bash tests/run_all.sh   # +3 live-gas suites (Base mainnet) → 226 PASS
 # CI runs the default on every push; live suites are opt-in (they spend gas)
 ```
 

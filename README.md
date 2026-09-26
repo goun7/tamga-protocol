@@ -157,6 +157,29 @@ python3 tamga_runner.py export <pkg> -o snapshot.tsg --seed "$AGENT_SEED"
 python3 tamga_runner.py import snapshot.tsg <new-pkg>
 python3 tamga_runner.py ledger-verify <new-pkg>
 
+## Hızlı Başlangıç (Quick Start — 5 adım)
+
+```bash
+# 1. Kurulum + anahtar
+pip install tamga-protocol
+tamga keygen-node ~/.tamga
+
+# 2. Konfig — ~/.tamga/relayer-live.env
+TAMGA_RELAYER_KEY=0x...
+TAMGA_ETH_RPC=https://mainnet.base.org
+
+# 3. Registry yedeği (üretim zorunlu — AT-209)
+tamga registry-backup my-agent
+
+# 4. Daemon başlat
+tamga daemon
+
+# 5. Denetim (AT-208 — N paketi tek çağrıda)
+tamga ledger-verify-batch my-agent --summary-only
+```
+
+Üretim kontrol listesi: [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md)
+
 # ── PRODUCTION (AT-208/AT-209) ─────────────────────────────────────────
 # audit N packages in ONE call (customer value: "100 packages at once"):
 python3 tamga_runner.py ledger-verify-batch pkg1 pkg2 pkg3 --summary-only

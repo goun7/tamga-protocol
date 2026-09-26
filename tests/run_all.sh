@@ -826,6 +826,11 @@ PY
   # preopen-YOK), sock_open → tanımsız (network-YOK). docs/RESEARCH.md §3.
   bash tests/at212_wasi_default_deny_sandbox_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-212: WASI default-deny sandbox ( CVE-2026-47261/34987 bağışıklık 7/7)"
+  # AT-213: LEDGER FUZZ robustness — 50-bozuk-enjeksiyon (hash/prev/amount/ts/
+  # payload) hepsi-verify_chain-RED; OracleTrust-vaadinin-robustness-kanıtı
+  # (docs/RESEARCH.md §2). Yerel-sqlite (para-YOK).
+  bash tests/at213_ledger_fuzz_robustness_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-213: ledger fuzz robustness ( 50/50-RED fail-closed + self-heal)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

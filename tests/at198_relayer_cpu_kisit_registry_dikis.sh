@@ -29,6 +29,10 @@ note() { echo "  $*"; }
 LOG=".evidence/RELAYER/$(date +%F)/at198.log"
 mkdir -p "$(dirname "$LOG")"; : > "$LOG"
 export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
+# open_ledger sester.ledger import eder (mesh-modülü); run-request --ledger-secret
+# verilmese bile TAMGA_RELAYER_LEDGER_SECRET env'de-seçilince import tetiklenir
+# (AT-197 ile-aynı gerekçe — live-env test koşullarında import'un çözülmesi-icin)
+export TAMGA_SESTER_PATH="${TAMGA_SESTER_PATH:-/home/gokun/projects/00_TAMGA-MESH/sester}"
 
 note "AT-198: relayer-KATMAN-1 — cpu-çift-kısıt + registry-dışı-modül-RED (RCE-yok)"
 

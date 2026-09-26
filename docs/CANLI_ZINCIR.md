@@ -94,6 +94,21 @@ tamga-relayer daemon --registry /etc/tamga/relayer.registry.json \
 # taramaz, public RPC eth_getLogs-limitleriyle-uyumlu; AT-205 bulgusu)
 ```
 
+> **Replay-koruması (daemon)**: daemon fulfill-edilen request-id'leri
+> `workdir/.tamga-fulfilled.json` dosyasına yazar (atomik tmp+os.replace) ve
+> açılışta okur → **daemon-restart sonrası aynı request TEKRAR fulfill-edilmez**
+> (AT-202/AT-207). Bu, oracle kontratında replay-guard YOKSA bile process-
+> seviyesinde koruma sağlar; kontratınızda guard varsa (AT-210 deseni:
+> `SLOAD(requestId)` → dolu-ise-REVERT) zincir kendisi de reddeder ve iki
+> daemon aynı anahtarı paylaşsa bile çift-fulfill imkansızlaşır (AT-211,
+> Base mainnet'te kanıtlandı).
+>
+> **Gas-fiyatlandırması**: `maxFeePerGas` zincirin `baseFeePerGas`'inin 2×'i
+> artı makul bir priority-fee olarak hesaplanır — sabit 2 gwei DEĞİL. Sabit
+> 2 gwei, baseFee'nin ~0.005 gwei olduğu Base gibi zincirlerde 400× aşırı
+> ödemeye ve düşük bakiyeli hesaplarda daemon'ın `insufficient funds for gas *
+> price` ile çökmesine neden oluyordu (AT-211 bulgusu).
+
 Log çıkışı (anahtar YOK):
 
 ```

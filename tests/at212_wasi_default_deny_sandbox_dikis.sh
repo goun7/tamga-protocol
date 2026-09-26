@@ -55,29 +55,8 @@ if leaks: print("K1-sızıntı:", leaks[:3])
 print(f"K1 üretim-invocation preopen-YOK: {len(calls)}-çağrı ([run wasm]); sızıntı={leaks[:2]}")
 
 # --- WAT modülü: path_open (fd=3 preopen varsayar) + sock_open denemesi -----
-WAT = r'''
-(module
-  ;; path_open(fd, dirflags, path, path_len, oflags, fs_rights_base,
-  ;;           fs_rights_inheriting, fdflags, out_fd_ptr) -> errno
-  (import "wasi_snapshot_preview1" "path_open"
-    (func $path_open (param i32 i32 i32 i32 i32 i64 i64 i32 i32) (result i32)))
-  (import "wasi_snapshot_preview1" "sock_open"
-    (func $sock_open (param i32 i32 i32 i32) (result i32)))
-  (import "wasi_snapshot_preview1" "proc_exit" (func $exit (param i32)))
-  (memory (export "memory") 1)
-  (data (i32.const 0) "secret.txt")
-  (func (export "_start")
-    ;; path_open(3=varsayılan-preopen, 0, 0="secret.txt", 9, 0, 0, 0, 0, 64)
-    ;;   oflags=0 (OFLAGS_TRUNC=1 kullanılmadı; CVE preopen-koşulu yok-zaten)
-    (call $path_open (i32.const 3) (i32.const 0) (i32.const 0) (i32.const 9)
-                      (i32.const 0) (i64.const 0) (i64.const 0) (i32.const 0)
-                      (i32.const 64))
-    ;; sonucu-64'e-yaz; sock-open-da-128'e
-    (i32.store (i32.const 64) ... )
-  )
-)
-'''
-# WAT'ı-basitleştir: sonucu memory'e yazmak-yerine proc_exit ile-döndür
+# path_open ile CVE-2026-47261'nin sömürü-yolu (oflags=1=OFLAGS_TRUNC, fd=3);
+# preopen YOKKEN fd-3 açma-denemesi EBADF/ECAPABILITY ile reddedilir.
 WAT = r'''
 (module
   (import "wasi_snapshot_preview1" "path_open"

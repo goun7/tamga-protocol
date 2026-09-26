@@ -116,8 +116,8 @@ pre-open kaydı yok → saldırı yüzeyi **yok**. Ayrıca network de kapalıdı
 (`-S allow-ip denied`).
 
 **Dürüst sonuç:** Her iki CVE'den de **etkilenmiyoruz** — 34987 sürüm/sürüm-arch
-sebebiyle, 47261 tasarım (default-deny) sebebiyle. Bu, AT testiyle **kanıtlanabilir**
-(sıradaki adım: AT-212, aşağıda).
+sebebiyle, 47261 tasarım (default-deny) sebebiyle. Bu, AT-212 ile **programatik
+olarak kanıtlanmıştır** (7/7, aşağıda).
 
 ---
 
@@ -130,11 +130,11 @@ Mevcut testlerin araştırma-temelini özetleyen tablo:
 | Oracle replay (OracleTrust) | AT-210 (yerel) + AT-211 (canlı) + KATMAN-1 disk-cache | ✓ kapandı |
 | Delivery-hash bayt-bayt | AT-205 canlı keccak exact | ✓ |
 | Karşı-taraf bağımsız doğrulama | AT-206 verify-tx 4/4 | ✓ |
-| Sandbox default-deny | (kanıt yok) | **→ AT-212** |
+| Sandbox default-deny | AT-212 (7/7, CVE-47261/34987) | ✓ shipped |
 | x402 challenge-response | AT-004/AT-005 | ✓ |
 | HMAC zincir bütünlüğü | AT-002/AT-005 + AT-208 batch | ✓ |
 
-### AT-212 (önerilen): WASI default-deny sandbox denetimi
+### AT-212 (SHIPPED 2026-09-27, 7/7): WASI default-deny sandbox denetimi
 
 **Gerekçe:** CVE-2026-47261 (filesystem bypass) ve CVE-2026-34987 (memory escape)
 sandbox'un güvenlik vaadini sorguluyor. Tamga'nın `default-deny` tasarımının
@@ -155,3 +155,7 @@ sandbox'un güvenlik vaadini sorguluyor. Tamga'nın `default-deny` tasarımını
 
 - **2026-09-26**: Bu belge oluşturuldu — x402 V2, OracleTrust (PLOS ONE),
   Wasmtime CVE'leri (2026) araştırması; AT-212 önerildi.
+- **2026-09-27**: AT-212 shipped — 7/7 (K1 preopen-YOK kaynak+semantik, K2
+  preopensiz `path_open` EBADF/ECAPABILITY red, K3 `sock_open` wasmtime-WASI'da
+  tanımsız → ağ-yok, K4 `env={}` host-env sızdırmaz, K5 CVE-47261'ın
+  `DirPerms::MUTATE+FilePerms::READ` koşulu kaynakta-YOK). run_all.sh'a kayıtlı.

@@ -50,13 +50,15 @@ def out(ok, **kw):
 # invocation is a message, not a traceback. Both dispatch paths (console `tamga` →
 # tamga_bootstrap; repo-script `python3 tamga_runner.py`) share this single choke point.
 REQUIRED_ARGS = {"run": 1, "quickstart": 1, "export": 1, "memory": 1, "keygen-node": 1,
-                 "ledger": 1, "ledger-verify": 1, "ledger-verify-batch": 1,
+                 "ledger": 1, "ledger-verify": 1, "ledger-verify-batch": 1, "registry-backup": 1, "registry-restore": 1,
                  "grant": 2, "attest-verify": 1, "verify-cr": 1}
 USAGE_HINT = {"run": "tamga run <pkg> --seed <hex>", "quickstart": "tamga quickstart <dir> [--name n]",
               "export": "tamga export <pkg> -o <out.tsg> --seed <hex>", "memory": "tamga memory <pkg> <op> ...",
               "keygen-node": "tamga keygen-node <dir>", "ledger": "tamga ledger <pkg>",
               "ledger-verify": "tamga ledger-verify <pkg>",
               "ledger-verify-batch": "tamga ledger-verify-batch <pkg1> <pkg2> ... [--summary-only]",
+              "registry-backup": "tamga registry-backup <pkg> [-o backup.json]",
+              "registry-restore": "tamga registry-restore <pkg> [-i backup.json]",
               "grant": "tamga grant <pkg> <amount>",
                "attest-verify": "tamga attest-verify <claim.json> [--registry R]",
                "verify-cr": "tamga verify-cr <doc.json> [--expect sha256:...]",
@@ -1140,6 +1142,74 @@ def _cosign_policy(a):
         return pol, "TRUST_MISSING"          # L1- trust-ZORUNLU (AT-178)
     return pol, trust
 
+def _registry_file(pkg):
+    """Registry yolunu çözer (daemon ile aynı dosya)."""
+    return pkg / "reg.json"
+
+def cmd_registry_backup(a):
+    """AT-209: registry'i güvenli yedekle (atomik yazim)."""
+    if len(a) < 1:
+        return out(False, op="registry-backup",
+                   reason="kullanim: tamga registry-backup <pkg> [-o backup.json]")
+    pkg = pathlib.Path(a[0])
+    rf = _registry_file(pkg)
+    if not rf.exists():
+        return out(False, op="registry-backup", reason_code=19,
+                   reason=f"registry_yok: {rf}")
+    try:
+        import shutil
+        dst = pathlib.Path(a[a.index("-o") + 1]) if "-o" in a else pkg / "reg.json.bak"
+        # atomik: önce tmp yaz, sonra rename (yarım yedek olmaz)
+        tmp = dst.with_suffix(dst.suffix + ".tmp")
+        shutil.copy2(rf, tmp)
+        tmp.replace(dst)
+    except Exception as e:
+        return out(False, op="registry-backup", reason_code=23,
+                   reason=f"yedek_hatasi: {e}")
+    return out(True, op="registry-backup", entries=len(json.loads(rf.read_text())),
+               backup=str(dst), note="registry yedeklendi (atomik)")
+
+def cmd_registry_restore(a):
+    """AT-209: registry'i yedekten geri yükle — mayinlar hayatta kalsin.
+
+    Üretim dayanıklılığı: registry (mayin dizini) silinirse daemon ölüdür.
+    Bu komut yedeği atomik olarak geri yükler ve yüklenen registry DOĞRULANIR.
+    """
+    if len(a) < 1:
+        return out(False, op="registry-restore",
+                   reason="kullanim: tamga registry-restore <pkg> [-i backup.json]")
+    pkg = pathlib.Path(a[0])
+    src = pathlib.Path(a[a.index("-i") + 1]) if "-i" in a else pkg / "reg.json.bak"
+    if not src.exists():
+        return out(False, op="registry-restore", reason_code=19,
+                   reason=f"yedek_yok: {src} (once registry-backup calistirin)")
+    try:
+        # yedek gecerli JSON + şema mi? Bozuk yedek = RED (fail-closed)
+        data = json.loads(src.read_text())
+        if not isinstance(data, dict) or not data:
+            return out(False, op="registry-restore", reason_code=23,
+                       reason="yedek_gecersiz: bos veya dict degil")
+        for h, meta in data.items():
+            if not isinstance(h, str) or not isinstance(meta, dict) \
+                    or "pkg_path" not in meta or "cpu_ms_per_run" not in meta:
+                return out(False, op="registry-restore", reason_code=23,
+                           reason=f"yedek_gecersiz: kayit bozuk ({h[:16]}...)")
+        rf = _registry_file(pkg)
+        tmp = rf.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(data, indent=1))
+        tmp.replace(rf)
+        # geri yüklenen registry gerçekten yükleniyor mu?
+        import tamga_oracle_relayer as R
+        reg = R.load_registry(str(rf))
+        if len(reg) != len(data):
+            return out(False, op="registry-restore", reason_code=23,
+                       reason="restore_sonrasi_kayip: yuklenen boyut farkli")
+    except Exception as e:
+        return out(False, op="registry-restore", reason_code=23,
+                   reason=f"restore_hatasi: {e}")
+    return out(True, op="registry-restore", entries=len(data),
+               note="registry geri yuklendi + dogrulandi (mayinlar hayatta)")
+
 def cmd_import(a):
     if len(a) < 2: return out(False, op="import", reason_code=2, reason="snapshot_header_invalid: missing argument")
     snap = pathlib.Path(a[0]); pkg = pathlib.Path(a[1])
@@ -1439,6 +1509,8 @@ engine-free commands (run right after pip install; no wasmtime download needed):
   ledger <pkg>                    print the ledger
   ledger-verify <pkg>             recompute and verify the hash chain
   ledger-verify-batch <p1> <p2>.. AT-208: verify N packages in one call
+  registry-backup <pkg> [-o f]    AT-209: registry yedegi (atomik yazim)
+  registry-restore <pkg> [-i f]   AT-209: yedekten geri yukle + dogrula
                                   (--summary-only: items suppressed, CI-friendly)
   anchor <pkg>                    RFC-009: cite a foreign-registry fact in our chain —
                                   RECORD ONLY, does not verify the fact (presentation-only).
@@ -1633,6 +1705,7 @@ if __name__ == "__main__":
             "export": cmd_export, "import": cmd_import, "ledger": cmd_ledger,
             "memory": cmd_memory, "grant": cmd_grant, "ledger-verify": cmd_ledger_verify,
             "ledger-verify-batch": cmd_ledger_verify_batch,
+            "registry-backup": cmd_registry_backup, "registry-restore": cmd_registry_restore,
             "keygen-node": cmd_keygen_node, "migrate-net": cmd_migrate_net,
             "anchor": cmd_anchor}
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):

@@ -978,7 +978,12 @@ def cmd_run_request(a):
     inp = _opt(a, "--input")
     sec = _opt(a, "--ledger-secret")
     workdir = _opt(a, "--workdir", ".")
-    sec = os.environ.get("TAMGA_RELAYER_LEDGER_SECRET", sec) if sec else sec
+    # argv öncelikli, env yalnızca fallback (cmd_daemon_fulfill:947 ile aynı desen).
+    # Önceki 'env.get(ENV, sec) if sec' argv-VERİLDİĞİNDE-argv'i-ezdi: dev-secret
+    # sessizce-yok-sayıldı → K5 GREEN (AT-197 bulgusu); ve argv-YOKKEN env'i
+    # hiç-okumadan RC-24'e-düşürdü. Açık-talep kazanır — bilinen-değer-reddi
+    # (AT-179/193) env-kirliliğinde-baypas-edilemez.
+    sec = sec or os.environ.get("TAMGA_RELAYER_LEDGER_SECRET")
     if not (reg_path and seed and mh):
         return out(False, op="run-request", reason_code=2,
                    reason=f"kullanim: {USAGE['run-request']} (registry/seed/"

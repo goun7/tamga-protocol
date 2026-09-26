@@ -41,6 +41,27 @@ export TAMGA_KS_PASSPHRASE=simnet-2026
 export TAMGA_SESTER_PATH=/home/gokun/projects/00_TAMGA-MESH/sester
 KEYS="$TAMGA_RELAYER_KEY"; unset TAMGA_RELAYER_KEY TAMGA_RELAYER_LEDGER_SECRET
 
+# BAKIYE-KONTROLU (K0b): anahtar VARSA bile bakiye yetersizse SKIP — FAIL degil.
+# Replay-korumasi AT-202 ile YEREL anvil'de kanitlandigi icin canli-test
+# burada PARA yetersizliginden dolayi calismaz; bu bir GUVENLIK-ACIGI DEGILDIR.
+if ! "$PY" -c "
+import os, sys
+sys.path.insert(0, '.')
+from web3 import Web3
+_env = dict(l.split('=', 1) for l in open(os.path.expanduser(
+    '~/.tamga/relayer-live.env')).read().splitlines() if l.strip())
+_rpc = _env.get('TAMGA_RELAYER_RPC_URL', 'https://mainnet.base.org')
+_w3 = Web3(Web3.HTTPProvider(_rpc, request_kwargs={'timeout': 30}))
+_a = _w3.eth.account.from_key(_env['TAMGA_RELAYER_KEY'])
+_bal = _w3.from_wei(_w3.eth.get_balance(_a.address), 'ether')
+print(f'bakiye: {_bal:.6f} ETH')
+sys.exit(0 if float(_bal) >= 0.005 else 1)
+" >> "$LOG" 2>&1; then
+  note "  SKIP: yetersiz bakiye — TAMGA_LIVE + \$0.01 ETH gerekir (insan-eylemi; AT-204-disiplini)"
+  note "       replay-korumasi AT-202 ile yerel anvil'de kanitlandi (4/4)"
+  echo; echo "RESULT: 0 PASS, 0 FAIL — log: $LOG"; exit 0
+fi
+
 "$PY" - "$SB" "$KEYS" >> "$LOG" 2>&1 <<'PYEOF'
 import json, os, pathlib, subprocess, sys
 sys.path.insert(0, ".")

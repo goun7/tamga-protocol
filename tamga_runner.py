@@ -55,7 +55,9 @@ REQUIRED_ARGS = {"run": 1, "quickstart": 1, "export": 1, "memory": 1, "keygen-no
 USAGE_HINT = {"run": "tamga run <pkg> --seed <hex>", "quickstart": "tamga quickstart <dir> [--name n]",
               "export": "tamga export <pkg> -o <out.tsg> --seed <hex>", "memory": "tamga memory <pkg> <op> ...",
               "keygen-node": "tamga keygen-node <dir>", "ledger": "tamga ledger <pkg>",
-              "ledger-verify": "tamga ledger-verify <pkg>", "grant": "tamga grant <pkg> <amount>",
+              "ledger-verify": "tamga ledger-verify <pkg>",
+              "ledger-verify-batch": "tamga ledger-verify-batch <pkg1> <pkg2> ... [--summary-only]",
+              "grant": "tamga grant <pkg> <amount>",
                "attest-verify": "tamga attest-verify <claim.json> [--registry R]",
                "verify-cr": "tamga verify-cr <doc.json> [--expect sha256:...]",
                "anchor": "tamga anchor <pkg> --foreign-registry <name> "
@@ -1436,6 +1438,8 @@ engine-free commands (run right after pip install; no wasmtime download needed):
                                   = three-verdict check, without it = measurement, not verdict
   ledger <pkg>                    print the ledger
   ledger-verify <pkg>             recompute and verify the hash chain
+  ledger-verify-batch <p1> <p2>.. AT-208: verify N packages in one call
+                                  (--summary-only: items suppressed, CI-friendly)
   anchor <pkg>                    RFC-009: cite a foreign-registry fact in our chain —
                                   RECORD ONLY, does not verify the fact (presentation-only).
                                   flags: --foreign-registry <name> --foreign-fact <0x+64>

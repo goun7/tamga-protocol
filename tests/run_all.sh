@@ -798,6 +798,12 @@ PY
   # load_registry ile-DOĞRULA; bozuk-yedek RED (fail-closed). 4/4.
   bash tests/at209_registry_restore.sh > /dev/null 2>&1
   kontrol $? "AT-209: registry-backup/restore ( 4/4; mayınlar-hayatta)"
+  # AT-210: CONTRACT-side replay-guard — AT-207'nin-canlı-açığının-2.-katmanı.
+  # El-yazımı EVM runtime: SLOAD(requestId) → REVERT-if-dolu; SSTORE. YEREL
+  # anvil'de (para-YOK) → 3x-idempotent; daemon-disk-önbelleği-katman-1,
+  # contract-guard'ı-katman-2 (kullanıcı-onayı: 'önce-daemon-sonra-contract').
+  bash tests/at210_contract_replay_guard_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-210: contract replay-guard ( oracle fulfillExecution tek-seferlik 5/5)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

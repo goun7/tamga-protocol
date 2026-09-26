@@ -788,6 +788,16 @@ PY
   # (gas-YOK; sabit immutable-tx'ler) → TAMGA_LIVE-gerektirmez; ağ-yoksa-SKIP.
   bash tests/at206_canli_tx_dogrulama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-206: canlı-tx doğrulama ( IVerifier.verify-tx; okuma-yalnız 5/5)"
+  # AT-208: batch-verify — N paketi TEK çağrıda denetler (müşteri-değeri:
+  # "100 paketi tek seferde"). 5 kontrol: kullanım-hatası + 2-geçerli +
+  # bozuk-ledger RED + özet-modu.
+  bash tests/at208_batch_verify.sh > /dev/null 2>&1
+  kontrol $? "AT-208: batch-verify ( 5/5; N-paket-tek-çağrı)"
+  # AT-209: registry backup/restore — mayınlar registry-kaybında-hayatta.
+  # Üretim-dayanıklılığı: registry sil → atomik-yedekten-geri-yükle +
+  # load_registry ile-DOĞRULA; bozuk-yedek RED (fail-closed). 4/4.
+  bash tests/at209_registry_restore.sh > /dev/null 2>&1
+  kontrol $? "AT-209: registry-backup/restore ( 4/4; mayınlar-hayatta)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

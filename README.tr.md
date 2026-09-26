@@ -231,6 +231,7 @@ Tam-döngü **gerçek Base mainnet** üzerinde koşuldu — [docs/CANLI_ZINCIR.m
 | **`fulfillExecution`** | **`status=1 gasUsed=68150`** — [tx 0x391f4ea9…](https://basescan.org/tx/0x391f4ea94789a171437916e075dc8adb34863cbe3b5d7283db8a76ef1c20ce73) |
 | delivery keccak canlıda | zincir-`outputData` keccak = log'daki `dc6f72f2…` — **birebir** |
 | **karşı-taraf doğrulaması** | fulfill tx'inde `verify-tx` → **`checks:4 ok:true`** — relayer'sız, gas'sız |
+| **replay-guard (canlı)** | aynı request'te ikinci daemon-çağrısı → kontrat **revert**, 0 çift-fulfill (AT-211) |
 | anahtar-gizlilik | anahtar-prefix'i tüm log/reason'larda **yok** |
 
 Toplam maliyet ~$0.001 (Base baseFee ~0.005 gwei). Testler `TAMGA_LIVE=1` olmadıkça

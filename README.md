@@ -268,6 +268,7 @@ The full loop ran on **real Base mainnet** — [docs/CANLI_ZINCIR.md §6](docs/C
 | **`fulfillExecution`** | **`status=1 gasUsed=68150`** — [tx 0x391f4ea9…](https://basescan.org/tx/0x391f4ea94789a171437916e075dc8adb34863cbe3b5d7283db8a76ef1c20ce73) |
 | delivery keccak, live | keccak of on-chain `outputData` == logged `dc6f72f2…` — **exact** |
 | **counterparty verify** | `verify-tx` on the fulfillment tx → **`checks:4 ok:true`** — no relayer, no gas |
+| **replay guard (live)** | second daemon call on same request → contract **reverts**, 0 double-fulfill (AT-211) |
 | key secrecy | key prefix absent from every log and reason field |
 
 Total cost ~$0.001 (Base baseFee ~0.005 gwei). The live tests are gas-guarded:

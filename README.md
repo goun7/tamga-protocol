@@ -156,6 +156,17 @@ python3 tamga_runner.py export <pkg> -o snapshot.tsg --seed "$AGENT_SEED"
 # import requires the target pkg pre-provisioned (tamga.json + agent.wasm): code travels separately
 python3 tamga_runner.py import snapshot.tsg <new-pkg>
 python3 tamga_runner.py ledger-verify <new-pkg>
+
+# ── PRODUCTION (AT-208/AT-209) ─────────────────────────────────────────
+# audit N packages in ONE call (customer value: "100 packages at once"):
+python3 tamga_runner.py ledger-verify-batch pkg1 pkg2 pkg3 --summary-only
+
+# registry = the mine directory. Lose it and the daemon is dead — back it up:
+python3 tamga_runner.py registry-backup <pkg>          # atomic (reg.json.bak)
+python3 tamga_runner.py registry-restore <pkg>         # restore + VERIFY (fail-closed)
+
+# full production checklist (7 steps, each a real command):
+#   docs/PRODUCTION_CHECKLIST.md
 python3 tamga_bootstrap.py project-head <pkg>   # chain-head → batch-leaf projection (RFC-009; presentation-only)
 python3 tamga_pugio_receiver.py foreign_anchors.jsonl   # verify external anchor lines IN (RFC-009 receiver; fail-loud)
 python3 tamga_pugio_ingest.py foreign_bundle.json        # K0 bundle full-body verify → deterministic receipt (no receipt on RED)

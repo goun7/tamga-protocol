@@ -724,6 +724,15 @@ class OracleTransport:
                 f"digest-uzunluğu: {len(digest)} (bytes32 = 32 beklenir)")
         try:
             nonce = self._w3.eth.get_transaction_count(self._acct.address)
+            # AT-211-bulgusu: sabit 2-gwei-maxFee Base-mainnet'te (baseFee
+            # 0.005 gwei) 400×-aşırı-ücrettir → düşük-bakiyeli-hesapta
+            # 'insufficient funds for gas * price' ile daemon-çöker. Dinamik:
+            # zincir-baseFee'nin-2× + makul-priority (üretim + test-anvil uyumlu).
+            try:
+                base = int(self._w3.eth.get_block("latest")["baseFeePerGas"])
+            except Exception:
+                base = self._w3.to_wei(1, "gwei")
+            prio = max(self._w3.to_wei(0.001, "gwei"), base // 2)
             tx = self._oracle.functions.fulfillExecution(
                 request_id, digest, output_data_bytes, proof_bytes
             ).build_transaction({
@@ -731,8 +740,8 @@ class OracleTransport:
                 "nonce": nonce,
                 "chainId": self._chain_id,
                 "gas": gas,
-                "maxFeePerGas": self._w3.to_wei(2, "gwei"),
-                "maxPriorityFeePerGas": self._w3.to_wei(1, "gwei"),
+                "maxFeePerGas": base * 2 + prio,
+                "maxPriorityFeePerGas": prio,
             })
             signed = self._acct.sign_transaction(tx)
             h = self._w3.eth.send_raw_transaction(signed.rawTransaction)

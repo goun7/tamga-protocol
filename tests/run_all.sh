@@ -780,6 +780,11 @@ PY
     # da GÜVENLİK-AÇIĞI kanıtlanır. Para-harcar (~$0.008) → TAMGA_LIVE-guard'lı.
     bash tests/at207_canli_replay_koruma_dikis.sh > /dev/null 2>&1
     kontrol $? "AT-207: canlı replay-protection ( Base mainnet; 4/4 veya açık-kanıtı)"
+    # AT-211: CANLI CONTRACT replay-guard — AT-210'un-guard-bytecode'u GERÇEK
+    # Base mainnet'e-deploy (guard-oracle) + daemon-çağrı-#1 fulfill, #2 → guard
+    # REVERT. Açığın-canlıda-kapatılması (AT-207-bulgusu). Para-harcar (~$0.01).
+    bash tests/at211_canli_contract_guard_dikis.sh > /dev/null 2>&1
+    kontrol $? "AT-211: canlı contract replay-guard ( Base mainnet; 6/6 guard-REVERT)"
   else
     echo "  AT-204/AT-205: SKIP (TAMGA_LIVE=1 değil — canlı-gas-korunuyor)"
     echo "  AT-204/AT-205: SKIP (TAMGA_LIVE=1 değil — canlı-gas-korunuyor)" >&2

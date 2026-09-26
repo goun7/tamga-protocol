@@ -26,7 +26,7 @@ k() { if [ "$1" = "0" ]; then PASS=$((PASS+1)); note "[PASS] $2"; else FAIL=$((F
 ENVF="$HOME/.tamga/relayer-live.env"
 if [ ! -f "$ENVF" ]; then
   note "  SKIP: $ENVF yok — canlı anahtar insan-eylemidir"
-  echo; echo "RESULT: 0 PASS, 0 FAIL — log: $LOG"; exit 0
+  echo; echo "RESULT: 0 PASS, 0 FAIL (SKIP) — log: $LOG"; exit 3
 fi
 VENV="$HERE/.venv-evm"; PY="$VENV/bin/python"
 if [ ! -x "$PY" ]; then python3 -m venv "$VENV" >> "$LOG" 2>&1; fi
@@ -205,11 +205,15 @@ if [ -f "$SB/at211.ok" ]; then
 else
   if grep -q "SKIP: bakiye" "$LOG" 2>/dev/null; then
     note "  [SKIP] AT-211: bakiye-yetersiz — guard-yerel-anvil'de-kanıtlı (AT-210)"
+    SKIP_RC=1
   else
     FAIL=$((FAIL+1)); note "[FAIL] AT-211: test çalışmadı"
   fi
 fi
 rm -rf "$SB"
+if [ "${SKIP_RC:-0}" = "1" ]; then
+  echo; echo "RESULT: $PASS PASS, 0 FAIL (SKIP) — log: $LOG"; exit 3
+fi
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 echo "  AT-211: canlı contract replay-guard — guard'lı oracle Base mainnet'te (TAMGA_LIVE-guard)"
 [ "$FAIL" -eq 0 ] || exit 1

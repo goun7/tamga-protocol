@@ -62,6 +62,17 @@ kontrol_skip() {
     kontrol "$rc" "$desc"
   fi
 }
+
+# kontrol_live: canlı-gas-testleri rc=3 → GEÇERLİ-SKIP (bakiye/anahtar-yok).
+# DÜZELTME (2026-09-26): önceden-SKIP'yı-exit-0-sanıp-PASS-sayıyordu →
+# '0 SKIP' raporu-YANLIŞ-çıkıyordu (AT-207-bakiye-SKIP'i-PASS-gibi-gösterdi).
+kontrol_live() {
+  local rc="$1" desc="$2"
+  if [ "$rc" = "0" ]; then PASS=$((PASS+1)); say PASS "$desc"
+  elif [ "$rc" = "3" ]; then SKIP=$((SKIP+1)); say SKIP "$desc — bakiye/anahtar-yok (geçerli-canlı-SKIP)"
+  else FAIL=$((FAIL+1)); say FAIL "$desc"
+  fi
+}
 bekle_red() { kontrol "$@"; }  # semantic alias for expected-RED greps (grep -q based); single implementation (Tur-2 cleanup)
 
 {
@@ -772,19 +783,19 @@ PY
   # SKIP (insan-eylemi — AT-098-disiplini). 220→218 PASS + 3 SKIP olarak-rapor.
   if [ "${TAMGA_LIVE:-0}" = "1" ]; then
     bash tests/at204_canli_zincir_dikis.sh > /dev/null 2>&1
-    kontrol $? "AT-204: canlı-zincir ( Base mainnet; anahtar-varsa 5/5)"
+    kontrol_live $? "AT-204: canlı-zincir ( Base mainnet; anahtar-varsa 5/5)"
     bash tests/at205_canli_oracle_fulfill_dikis.sh > /dev/null 2>&1
-    kontrol $? "AT-205: canlı oracle+fulfillExecution ( Base mainnet; anahtar-varsa 7/7)"
+    kontrol_live $? "AT-205: canlı oracle+fulfillExecution ( Base mainnet; anahtar-varsa 7/7)"
     # AT-207: canlı replay-protection — daemon-restart simülasyonü (ayrı-daemon_loop
     # çağrısı; in-memory set-her-çağrıda-boş). Ya replay-guard-aktif (0-fulfill) ya
     # da GÜVENLİK-AÇIĞI kanıtlanır. Para-harcar (~$0.008) → TAMGA_LIVE-guard'lı.
     bash tests/at207_canli_replay_koruma_dikis.sh > /dev/null 2>&1
-    kontrol $? "AT-207: canlı replay-protection ( Base mainnet; 4/4 veya açık-kanıtı)"
+    kontrol_live $? "AT-207: canlı replay-protection ( Base mainnet; 4/4 veya açık-kanıtı)"
     # AT-211: CANLI CONTRACT replay-guard — AT-210'un-guard-bytecode'u GERÇEK
     # Base mainnet'e-deploy (guard-oracle) + daemon-çağrı-#1 fulfill, #2 → guard
     # REVERT. Açığın-canlıda-kapatılması (AT-207-bulgusu). Para-harcar (~$0.01).
     bash tests/at211_canli_contract_guard_dikis.sh > /dev/null 2>&1
-    kontrol $? "AT-211: canlı contract replay-guard ( Base mainnet; 6/6 guard-REVERT)"
+    kontrol_live $? "AT-211: canlı contract replay-guard ( Base mainnet; 6/6 guard-REVERT)"
   else
     echo "  AT-204/AT-205: SKIP (TAMGA_LIVE=1 değil — canlı-gas-korunuyor)"
     echo "  AT-204/AT-205: SKIP (TAMGA_LIVE=1 değil — canlı-gas-korunuyor)" >&2

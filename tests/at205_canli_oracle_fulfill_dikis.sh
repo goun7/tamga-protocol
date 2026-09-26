@@ -30,7 +30,7 @@ k() { if [ "$1" = "0" ]; then PASS=$((PASS+1)); note "[PASS] $2"; else FAIL=$((F
 ENVF="$HOME/.tamga/relayer-live.env"
 if [ ! -f "$ENVF" ]; then
   note "  SKIP: $ENVF yok — canlı anahtar insan-eylemidir"
-  echo; echo "RESULT: 0 PASS, 0 FAIL — log: $LOG"; exit 0
+  echo; echo "RESULT: 0 PASS, 0 FAIL (SKIP) — log: $LOG"; exit 3
 fi
 VENV="$HERE/.venv-evm"; PY="$VENV/bin/python"
 if [ ! -x "$PY" ]; then python3 -m venv "$VENV" >> "$LOG" 2>&1; fi

@@ -30,7 +30,7 @@ ENVF="$HOME/.tamga/relayer-live.env"
 # K0: env-dosyası yok → GEÇERLİ-SKIP (dış-state)
 if [ ! -f "$ENVF" ]; then
   note "  SKIP: $ENVF yok — anahtar KULLANICI-eylemidir (insan-onayı-bekleniyor)"
-  echo; echo "RESULT: 0 PASS, 0 FAIL — log: $LOG"; exit 0
+  echo; echo "RESULT: 0 PASS, 0 FAIL (SKIP) — log: $LOG"; exit 3
 fi
 
 VENV="$HERE/.venv-evm"
@@ -43,7 +43,7 @@ fi
 set -a; . "$ENVF"; set +a
 if [ -z "${TAMGA_RELAYER_KEY:-}" ]; then
   note "  SKIP: TAMGA_RELAYER_KEY env'de-yok (dosya-tam değil)"
-  echo; echo "RESULT: 0 PASS, 0 FAIL — log: $LOG"; exit 0
+  echo; echo "RESULT: 0 PASS, 0 FAIL (SKIP) — log: $LOG"; exit 3
 fi
 RPC="${TAMGA_RELAYER_RPC_URL:-https://mainnet.base.org}"
 KEYMAYBE="$TAMGA_RELAYER_KEY"; unset TAMGA_RELAYER_KEY   # anahtarı-shell'den-temizle

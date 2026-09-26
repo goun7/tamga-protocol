@@ -820,6 +820,12 @@ PY
   # contract-guard'ı-katman-2 (kullanıcı-onayı: 'önce-daemon-sonra-contract').
   bash tests/at210_contract_replay_guard_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-210: contract replay-guard ( oracle fulfillExecution tek-seferlik 5/5)"
+  # AT-212: WASI default-deny sandbox denetimi — CVE-2026-47261 (filesystem
+  # bypass; preopen-gerektirir) + CVE-2026-34987 (memory escape; patched<
+  # Tamga-sürümü) bağışıklık-kanıtı. WAT modülleri: path_open → EBADF (fd-3
+  # preopen-YOK), sock_open → tanımsız (network-YOK). docs/RESEARCH.md §3.
+  bash tests/at212_wasi_default_deny_sandbox_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-212: WASI default-deny sandbox ( CVE-2026-47261/34987 bağışıklık 7/7)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

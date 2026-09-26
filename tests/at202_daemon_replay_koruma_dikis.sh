@@ -13,10 +13,12 @@
 #       (YALNIZCA-bir tx; replay ikinci-cycle'da-yutulur)
 #   K2  fulfilled-sayısı: process-ömrü-boyunca 1 (cycle-2 skip kanıtı)
 #   K3  log-teyit: yalnızca-1 "fulfilled:" satırı; cycle-2'de ikinci-yok
-#   K4  NEGATIF-sınır (dürüst): YENİ-daemon-çağrısı (process-restart-simülasyonu)
-#       fulfilled'i-sıfırlar → tekrar-fulfill-eder. L1=process-ömrü-koruması;
-#       restart-sonrası-dayanıklı-koruma ZİNCİR-ÜYELİĞİNDEDİR (oracle kontratı
-#       fulfillExecution'ı replay-korumalı-imzalamalıdır — dış-kapsam-notu)
+#   K4  process-restart simülasyonü (YENİ-daemon-çağrısı): AT-202-orijinal
+#       davranışta set-sıfırlanır → tekrar-fulfill (L1=process-koruması-sınırı).
+#       AT-207 bunu GERÇEK Base mainnet'te koştu ve AÇIK olarak-kanıtladı
+#       (daemon-restart → çift-fulfill; oracle'da-guard-yok). Tamir:
+#       replay-önbelleği ARTIK-DISKE-YAZILIR (workdir/.tamga-fulfilled.json,
+#       atomik) ve açılışta-yüklenir → K4 artık 0-fulfill-BEKLER.
 #
 # Test-disiplini: 3× ardışık PASS + idempotent rc=0; offline → SKIP.
 set -uo pipefail
@@ -125,15 +127,23 @@ ok.append(len(fulfilled_logs) == 1)
 print(f"K3 log 'fulfilled:'-satir-sayisi: {len(fulfilled_logs)} (cycle-2 skip={len(fulfilled_logs) == 1})")
 for l in log: print("  LOG:", l[:110])
 
-# K4: NEGATIF-sınır — process-restart simülasyonu: fulfilled sıfırlanır → tekrar
+# K4: process-restart simülasyonü — AT-207 canlı-bulgusu-sonrası GÜÇLENDİ:
+# yeni daemon_loop çağrısı artık DISK-önbelleği-yükler → TEKRAR fulfill ETMEMELİ
+# (eski davranış: set-sıfırlanır → tekrar-fulfill = L1-sınırı; canlıda-AÇIKTI)
+_cache = sb / ".tamga-fulfilled.json"
+print(f"K4-öncesi önbellek: exists={_cache.exists()} "
+      f"içerik={_cache.read_text()[:70] if _cache.exists() else 'YOK'}")
 log2 = []
 f2 = R.daemon_loop(t, R.load_registry(str(sb / "reg.json")), seed,
                    ledger_secret="at202-replay-secret", workdir=str(sb),
                    interval_s=0.1, max_cycles=1, log=log2.append)
 restart_fulfills = [l for l in log2 if "fulfilled:" in l]
-ok.append(len(f2) == 1 and len(restart_fulfills) == 1)   # L1 sınırı kanıtı
-print(f"K4 restart-simülasyonu: yeni-daemon tekrar-fulfill-etti ({len(f2)}) — "
-      f"L1=process-koruması; durable-koruma zincir-üyeliğindedir (dış-kapsam)")
+# NOT: f2 her-zaman ≥1-dir — daemon_loop önbelleği-YÜKLEYİP-return-eder; kanıt
+# YENİ "fulfilled:"-log'larının-olmamasıdır (yeniden-fulfill-yapılmadı)
+ok.append(len(restart_fulfills) == 0)   # disk-replay-guard: 0-yeni-tx
+print(f"K4 restart-simülasyonü: yeni-fulfill-log'ları={len(restart_fulfills)} "
+      f"(f2-boyutu={len(f2)} önbellekten-yüklendi) — "
+      f"0 = daemon-restart-açığı-KAPANDI (AT-207-canlı-bulgusunun-tamiri)")
 
 print(f"RESULT_AT202: {sum(ok)}/{len(ok)}")
 json.dump(ok, open(str(sb / "at202.ok"), "w"))

@@ -754,6 +754,37 @@ class OracleTransport:
                 "gas_used": int(rcpt["gasUsed"]), "block": int(rcpt["blockNumber"])}
 
 
+def _load_replay_cache(path) -> dict:
+    """Disk replay-önbelleği: request_id→tx_hash (daemon-restart-koruma, AT-207).
+
+    Bozuk/okunamaz-dosya → taze-başla (fail-open-DEĞİL: bu katman ek-savunma;
+    asıl koruma zincir-üyeliğindedir). int-key'ler JSON'da-string'e-döner —
+    geri-çevir.
+    """
+    try:
+        raw = json.loads(path.read_text())
+        return {int(k): v for k, v in raw.items()}
+    except FileNotFoundError:
+        return {}
+    except Exception:
+        return {}
+
+
+def _save_replay_cache(path, fulfilled: dict) -> None:
+    """Atomik-yaz (tmp+os.replace) — çökme-anında-yarım-dosya-kalmaz.
+
+    tx_hash HexBytes-gelebilir → hex-string'e-normalize (json.dumps-yok).
+    """
+    try:
+        norm = {str(k): (v.hex() if hasattr(v, "hex") else str(v))
+                for k, v in fulfilled.items()}
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(norm))
+        os.replace(tmp, path)
+    except Exception:
+        pass   # disk-dolu/izin → zincir-guard'ı-destekler; daemon-durmaz
+
+
 def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
                 ledger_secret=None, workdir: str = ".", interval_s: int = 15,
                 once: bool = False, max_cycles: int | None = None,
@@ -761,11 +792,13 @@ def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
                 backfill: int = 100, log=print):
     """KATMAN-2 daemon döngüsü: poll → execute → fulfill (sistemd daemon modu).
 
-    Replay koruması: request_id → tx_hash kümesi (process-ömrü boyunca; AT-196
-    N1 bulgusu — fulfill tx'i emitter'ı tekrar çağırıp yeni log üretebilir).
-    Aynı request ikinci poll'de fulfilled'de-zaten-var → TEKRAR fulfill
-    EDİLMEZ (AT-202). Restart-sonrası dayanıklı-koruma zincir-üyeliğindedir
-    (oracle kontratı fulfillExecution'ı replay-korumalı-imzalamalıdır).
+    Replay koruması: request_id → tx_hash kümesi — ARTIK DISKE-DAYALI
+    (workdir/.tamga-fulfilled.json; AT-207 canlı-bulgusu-sonrası). Aynı request
+    ikinci poll'de fulfilled'de-zaten-var → TEKRAR fulfill EDİLMEZ (AT-202),
+    ve daemon RESTART'ından-sonra-da EDİLMEZ: önbellek atomik-yazılır ve
+    açılışta-yeniden-yüklenir. AT-207 canlıda-kanıtladı: process-ömrü-ince
+    koruma yetersizdi (restart → set-sıfırlanır → çift-fulfill; oracle
+    kontratında replay-guard olmayınca zincir bunu durdurmuyordu).
     Hatalar message-RED olarak log'lanır, döngü DURMAZ (systemd Restart=always
     ile çift-katman; watchdog'a gerek bırakmaz).
     max_cycles: None=sonsuz (üretim); sayı=kaç-poll-cycle-sonra-dön (test).
@@ -773,7 +806,8 @@ def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
     aşar — Base mainnet 51M block). daemon cursor-takibi-yapar: başlangıçta
     latest-backfill, her-cycle'da block-number'a-güncellenir (AT-205 bulgusu).
     """
-    fulfilled = {}
+    replay_path = pathlib.Path(workdir) / ".tamga-fulfilled.json"
+    fulfilled = _load_replay_cache(replay_path)
     cycle = 0
     cursor = from_block
     if cursor is None:
@@ -806,6 +840,7 @@ def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
                     log(f"[relayer] request {rid} RED: {e.reason_code} {e.reason}")
                     continue
                 fulfilled[rid] = out["tx_hash"]
+                _save_replay_cache(replay_path, fulfilled)
                 log(f"[relayer] request {rid} fulfilled: tx={out['tx_hash'][:18]}… "
                     f"status={out['status']} gasUsed={out['gas_used']} "
                     f"digest={res['digest'][:12]}… "

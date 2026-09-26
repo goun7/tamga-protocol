@@ -49,7 +49,7 @@ SB=$(mktemp -d); echo "workdir: $SB" >> "$LOG"
 TAMGA_KS_PASSPHRASE=simnet-2026 \
 TAMGA_SESTER_PATH=/home/gokun/projects/00_TAMGA-MESH/sester \
 "$PY" - "$SB" >> "$LOG" 2>&1 <<'PYEOF'
-import json, os, pathlib, sys, sqlite3
+import json, os, pathlib, sys, sqlite3, tempfile, shutil
 sys.path.insert(0, ".")
 sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/sester")
 import tamga_oracle_relayer as R
@@ -176,12 +176,16 @@ print(f"K6 charge-paritesi: {len(need) - len(missing)}/{len(need)} alan mevcut"
       + (f" EKSİK={missing}" if missing else ""))
 
 # K7: daemon fail-closed — registry'de OLMAYAN hash
+# AYRI-workdir: K7 fail-closed-registry'yi-test-eder; ana-döngünün replay-önbelleği
+# request'i-atlarsa RED-asla-tetiklenmez (AT-207 tamirinin-test-etkisi)
 reg2 = sb / "reg2.json"
 reg2.write_text(json.dumps({pkg["package"]["code"]["wasm_sha256"][:4].ljust(64, "0"): {
     "pkg_path": str(sb / "pkg"), "cpu_ms_per_run": 5000, "max_input_bytes": 262144}}))
 log2 = []
+sb2 = pathlib.Path(tempfile.mkdtemp())
 f2 = R.daemon_loop(t, R.load_registry(str(reg2)), seed, ledger_secret=SECRET,
-                   workdir=str(sb), once=True, log=log2.append)
+                   workdir=str(sb2), once=True, log=log2.append)
+shutil.rmtree(sb2, ignore_errors=True)
 ok.append(len(f2) == 0 and any("RED" in l for l in log2))
 print(f"K7 daemon fail-closed: fulfilled={len(f2)} "
       f"({'|'.join(l for l in log2 if 'RED' in l)[:70]}…)")

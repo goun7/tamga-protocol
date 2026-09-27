@@ -15,27 +15,27 @@ The clause is now a normative candidate in our ledger RFC (§10, D10), with a co
 verification contract rather than prose: given a pairing document, a missing
 `settlement_ref` is a RED (`missing settlement reference`), a reference to a different
 receipt is the same RED (`unanchored settlement`), and only an exact match to the
-receipt's ledger hash verifies — at which point the anchor inherits the chain-membership
+receipt's ledger hash verifies, at which point the anchor inherits the chain-membership
 and node-cosign checks that already bind that hash. Both negatives are tamper controls
 in our fixture suite (10 checks, 8 tamper negatives; the two anchor controls are the
 newest). Replayable from a clean clone with stdlib Python only, no pip install.
 
 Two things worth saying plainly, because they are limits rather than features:
 
-1. The anchor binds a settlement to a *receipt* — it says a chained record exists for
-   exactly this delivered work, node-signed. It does not claim payment finality or
-   buyer acceptance; those stay separate axes, and our public fixture marks its own
-   x402 side as `simulated` for exactly that reason.
+1. The anchor binds a settlement to a *receipt*, not to payment finality or buyer
+   acceptance. It says a chained record exists for exactly this delivered work,
+   node-signed, and those other axes stay separate, which is why our public fixture
+   marks its own x402 side as `simulated`.
 2. The anchor is one of the five checks in the binding shape this thread proposed
    (receipt + claim + settlementRef + payer/payee + evidenceHash). We deliberately did
    **not** freeze the wider five-check gate yet: without a pilot's real payment
-   semantics, freezing it would demonstrate the join shape rather than prove it — the
+   semantics, freezing it would demonstrate the join shape rather than prove it, the
    trap this thread named. The other four stay in a pilot-pending draft; this one was
    separable, so it shipped first.
 
 We are not claiming this is the only defensible way to bind a settlement to work. We
 are claiming that a settlement which names no receipt at all should fail loudly rather
-than be downgraded to a warning — and that the anchor belongs to the ledger, not the
+than be downgraded to a warning, and that the anchor belongs to the ledger, not the
 payment side, because the ledger hash is what a node operator co-signs.
 
 ---
@@ -53,8 +53,9 @@ payment side, because the ledger hash is what a node operator co-signs.
 
 ## Gönderme-öncesi-lead-kontrol-listesi
 
-- [ ] İngilizce-metin-temiz (emdash-YOK — kullanıcı-yasak, virgül-kullanıldı)
-- [ ] "claim" / "settlement" terminolojisi thread-ile-tutarlı
-- [ ] Alçakgönüllü-kapanış-korundu ("not the only defensible way")
-- [ ] Dürüst-sınırlar-açık (receipt ≠ finality; 4/5-pilot-bekliyor)
-- [ ] Replay-talimatı-D10-yorumundaki-ile-aynı-şekilde-çalışıyor (stdlib-only)
+- [x] İngilizce-metin-temiz (emdash-YOK — 4-tane-vardı, virgül-ile-değiştirildi; github-düz-metin-kuralı)
+- [x] "claim" / "settlement" terminolojisi thread-ile-tutarlı
+- [x] Alçakgönüllü-kapanış-korundu ("not the only defensible way")
+- [x] Dürüst-sınırlar-açık (receipt ≠ finality; 4/5-pilot-bekliyor)
+- [x] Dosya-yolu-YOK (tools/, docs/, tests/, .py, .md — gate-2 TEMİZ)
+- [x] Türkçe-karakter-YOK, markdown-başlığı-YOK (comment-tek-paragraf-akış)

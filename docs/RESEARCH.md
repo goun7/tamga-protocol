@@ -217,9 +217,13 @@ machine-readable-kataloğunu-döner (AI-ajanların önceden-entegrasyon-olmadan
 servis-keşfi). `EXTENSION-RESPONSES` header'ı ile-durum bildirir.
 
 **Tamga durumu:** Tamga'nın **kendi** keşif-dosyası var (`/agents.json` —
-64-agents.txt ile-hizalı; fiyat/kota/politika-döner). **AMA** x402-Bazaar
-standardını-implemente-etmez. Genişletme-noktası: `/agents.json`'a-bir-bazaar-
-görünümü-eklenerek-x402-ekosistemine-açılma.
+64-agents.txt ile-hizalı; fiyat/kota/politika-döner; AT-220-ile-kanıtlı: 200 +
+JSON + zorunlu-4-alan + parse-edilebilir-fiyat + ledger-bütünlüğü). **AMA**
+x402-Bazaar standardını-implemente-etmez (`/discovery/resources`-yok). İlginç-
+bulgu (AT-220-K6): `/discovery/resources`-yolu exempt-listesinde-DEĞİL →
+middleware-402-verir — yani **keşif-endpoint'i-bile-bedava-değil** (fail-closed;
+404-alsaydı-yol-yokluktu, 402-açık-kapı-YOK). Genişletme-noktası: `/agents.json`'a
+bir-bazaar-görünümü-eklenerek-x402-ekosistemine-açılma (güvenlik-bozulmadan).
 
 ### 5.3b Batch-Settlement Scheme (yüksek-throughput) — TAMGA'DA-YOK
 

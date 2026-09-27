@@ -863,6 +863,11 @@ PY
   # 6-decimal-USDC-minor-eşitliği. docs/RESEARCH.md §5.1.
   bash tests/at219_x402_upto_sinir_semantik_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-219: x402 upto-scheme sınır-semantiği ( 6/6; fazla/eksik-RED)"
+  # AT-220: keşif-katmanı paritesi — /agents.json sağlıklı (4-zorunlu-alan +
+  # parse-fiyat + ledger-bütünlüğü); /discovery/resources-YOK-AMA-402 (keşif-
+  # bile-bedava-değil; fail-closed). docs/RESEARCH.md §5.3.
+  bash tests/at220_kesif_katmani_paritesi_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-220: keşif-katmanı paritesi ( 9/9; agents.json + bazaar-honest)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

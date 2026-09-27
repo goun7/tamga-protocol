@@ -117,6 +117,6 @@ vaktinden önce kuruldu (L0 varsayılan, davranış değişmedi; L1 seçmeli (op
   güvenli-listede (safelist) olmalıdır; aksi hâlde RED gerekçe 14) / L2 (Faz 3: ERC-8004 itibar bağlama).
 - **Düğüm anahtarı:** operatör kimliği; bir 0600 dosyasında durabilir (D3 yalnızca ajan tohumunu diske yasaklar).
   `keygen-node <dir>` ayrı bir komuttur.
-- **Kanıt:** AT-003 6/6 (`tests/negative_cosign.sh`) + Denetim-8 (A1 güçlü bir saldırgan → L1 RED /
+- **Kanıt:** AT-003 6/6 (`../tests/negative_cosign.sh`) + Denetim-8 (A1 güçlü bir saldırgan → L1 RED /
   L0 bilinen kalıntı; A2 imza-katmanı RED; A3 kısmi-birlikte-imzalama RED) — `.evidence/ (local, untracked)`.
 - **Kurucuya sorular:** OQ-1 (pilotda L1 varsayılan olmalı mı?) — düğüm-birlikte-imzalama tasarım belgesi §6 (dahili karar günlüğü).

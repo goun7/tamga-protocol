@@ -27,7 +27,7 @@ and every field states its origin via the labeling discipline:
 
 1. **Membership** — `receiptHash` is the `h` of a charge record; `h = sha256(prev + jcs(record))`
    recomputes from the shipped record alone. Full chain membership is `python3 tamga_runner.py
-   ledger-verify <pkg>` (see AT-001 in `docs/TESTS.md`).
+   ledger-verify <pkg>` (see AT-001 in `TESTS.md`).
 2. **Delivery binding** — `sha256(delivery.stdout)` equals the charge record's
    `stdout_sha256`: the bytes you can hold in this directory are the bytes the receipt
    commits to. This is the "proof-of-done" axis: the work ran in the wasmtime box and
@@ -51,7 +51,7 @@ and every field states its origin via the labeling discipline:
 
 ## Negative controls (failing closed)
 
-The verifier is not a positive-only check. `tests/at007_pairing_fixture.sh` feeds it
+The verifier is not a positive-only check. `../tests/at007_pairing_fixture.sh` feeds it
 deliberately broken fixtures and asserts each one yields `"ok": false`:
 
 | control | tamper | expected RED |
@@ -81,7 +81,7 @@ python3 tools/verify_pairing_fixture.py docs/pairing
 ```
 
 The verifier enforces the labeling discipline too: a value-field without a `source`
-label is a RED, as is any tampered byte (tested by AT-007 in `tests/run_all.sh`,
+label is a RED, as is any tampered byte (tested by AT-007 in `../tests/run_all.sh`,
 the suite's tail line reports the live count, CI-green on every push).
 
 ## Replay it yourself (for a reader of issue #3379)
@@ -144,7 +144,7 @@ The `tamga_observed.receiptHash` is not a number to trust — re-derive it:
 **Canonicalization note (2026-09-17):** the fixture's pinned `receiptHash` was re-derived —
 until 2026-09-17 our `jcs` was `json.dumps(sort_keys=True)` (Python-specific: `1.0` stayed
 `"1.0"`, `2.93e-07` stayed `"2.93e-07"`, key order was code-point not UTF-16). It is now true
-RFC 8785 (`tamga_canon`, byte-identical to a Node/ECMAScript reference — `tools/jcs_parity.sh`,
+RFC 8785 (`tamga_canon`, byte-identical to a Node/ECMAScript reference — `../tools/jcs_parity.sh`,
 control AT-036). The fixture's floats (`fee_sim`, `fee_birebir`, `cpu_saat`) serialize
 differently, so the pinned hash moved (`6c0cab5f…` → `fe6f230c…`); the record itself is
 unchanged. Old hash was Python-only-recomputable; the new one is recomputable by anyone in

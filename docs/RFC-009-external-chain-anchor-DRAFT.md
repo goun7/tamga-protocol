@@ -5,6 +5,10 @@
 > kapılarından-geçer (RFC-008-P8-1..3 ile-AYNI-kapı; kurucu-normatif-onayı-şart).
 > Burada-dondurulan-şey: KAYIT-ŞEKLİNİN-MATEMATİĞİ-ve-doğrulama-SÖZLEŞMESİ — ikisi-de
 > bugün-kanıtla-sabit (AT-017, kontrol-39). Düşünmek-bedava, kodla-değil (RFC-008-paraleli).
+>
+> **Kasıtlı-DRAFT (bir-TODO-değil):** matematik-ve-sözleşme-bugün-kanıtlanmış-olmasına
+> rağmen runner-op-ve-verifier-known-tags pilot-günü-kapılarından-geçer — zamanından-önce
+> const'a-op-eklemek "düşünmek-bedava-kodla-değil"-disiplinini-ihlal-eder.
 
 ## 0. Özet (one-paragraph)
 
@@ -113,14 +117,14 @@ P8-1..3 + F1-etiket-uyumu).
   bağımsız-verifier-`verifier_epoque.py`
 - **Çift-uygulama-kesişimi**: tamga_keccak-(KAT-3/3: empty/abc/fox) × verifier_epoque.py —
   aynı-merkle-yolunda-eşleşti-(gece-çapraz-kontrolü, 2026-09-10)
-- **D5-ve-alan-donukluğu**: `tests/vectors/anchor-v0-design/anchor-design-vector.json` +
+- **D5-ve-alan-donukluğu**: `../tests/vectors/anchor-v0-design/anchor-design-vector.json` +
   AT-017-(kontrol-39; 3-koşum: D5-yeniden-hesap/alan-tamlığı/KNOWN_FOREIGN_TAGS-paritesi)
 - **Batch-leaf-izdüşümü-(kompozisyon)**: AT-022-(kontrol-46;-2026-09-12):-Tamga-zincirbaşı
   (D5-sha256,-tam-64-hex)-Vauban-yaprak-şemasıyla-(k256(k256(bytes32)))-kodlanıp-epoch-10
   batch'inin-fact-pozisyonuna-izdüşürüldü;-tüm-batch-(57-yaprak)-tamga_keccak'le-bağımsız
   katlandı-ve-manifest-köküne-BAYT-birebir-eşti. Ders-kayıtlı:-felt252-gösterimi-(baştaki-
   sıfır-yazılmaz)-çapraz-teyit-tuzaklarından-biridir. Vektör:
-  `tests/vectors/anchor-v0-design/composition-fixture.json`
+  `../tests/vectors/anchor-v0-design/composition-fixture.json`
 
 ## 6. Riskler (dürüst)
 

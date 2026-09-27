@@ -116,14 +116,14 @@ gates: P8-1..3 + F1 label compliance).
   independent verifier `verifier_epoque.py`
 - **Dual-implementation cross**: tamga_keccak (KAT 3/3: empty/abc/fox) × verifier_epoque.py —
   matched on the same merkle path (night cross-check, 2026-09-10)
-- **D5 and field-freeze**: `tests/vectors/anchor-v0-design/anchor-design-vector.json` +
+- **D5 and field-freeze**: `../tests/vectors/anchor-v0-design/anchor-design-vector.json` +
   AT-017 (check-39; 3 runs: D5-recomputation/field-completeness/KNOWN_FOREIGN_TAGS parity)
 - **Batch-leaf projection (composition)**: AT-022 (check-46; 2026-09-12): the Tamga chain-head
   (D5 sha256, full 64-hex) was encoded with the Vauban leaf schema (k256(k256(bytes32))) and
   projected onto the fact position of the epoch-10 batch; the whole batch (57 leaves) was folded
   independently with tamga_keccak and matched the manifest root BYTE-for-byte. Lesson recorded:
   the felt252 representation (leading zero not written) is one of the cross-check traps. Vector:
-  `tests/vectors/anchor-v0-design/composition-fixture.json`
+  `../tests/vectors/anchor-v0-design/composition-fixture.json`
 
 ## 6. Risks (honest)
 

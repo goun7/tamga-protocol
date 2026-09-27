@@ -57,7 +57,7 @@ RECORDS, it does not VERIFY the external claim** — verification is the
 
 ## 3. Verification contract (five independent checks, one gate)
 
-`tools/settlement_bind_verify.py` — pure stdlib, three verdicts:
+`../tools/settlement_bind_verify.py` — pure stdlib, three verdicts:
 
 | # | Check | What it proves | Failure verdict |
 |---|---|---|---|
@@ -109,7 +109,7 @@ defined but signature wrong).
 ## 4. WHAT-NOW / WHAT-NEXT
 
 **NOW:** (a) this design note; (b) the additive definition of the
-`settlement_bind` field; (c) `tools/settlement_bind_verify.py` with five
+`settlement_bind` field; (c) `../tools/settlement_bind_verify.py` with five
 checks and three verdicts; (d) the AT-063 test with five negative controls
 (swap-hash, swap-party, ref-mismatch, sig-invalid, chain-broken).
 

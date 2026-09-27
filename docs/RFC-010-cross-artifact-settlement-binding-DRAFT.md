@@ -5,6 +5,15 @@
 > teşhisi: *"wiring those existing artifacts together now would demonstrate the join
 > shape, not prove that both artifacts belong to the same purchase."* Bu-RFC-o-dikişin
 > **kanıta-dönüşmesi**-içindir.
+>
+> **Bu-başlık-kasıtlı-olarak-DRAFT'ta (bir-TODO-değil):** beş-kontrolün-hepsi
+> pilot-gerçek-ödemelerini-görecek-kanıtları-bekliyor — `simulated`-fixture'larla
+> dondurmak "join-shape"-kanıtı-olur, o-safal207'nin-açıkça-istemdiği-şey-değil.
+> **Ama-beşten-biri-zaten-shipped:** "*settlementRef resolves*" kontrolü
+> RFC-003 §10 D10 olarak-normatif-adaydır (anchor = ledger `h`, fail-closed,
+> AT-007i/j ile-kanıtlı). Bu-RFC kalan-dördü-bekliyor: receipt-verify (var,
+> D4), claim-verify (x402-tarafı), payer/payee-match (RFC-008-alanları),
+> evidenceHash == receiptHash (RFC-008-in-etiketleme-disiplini).
 
 ## 0. Özet (one-paragraph)
 
@@ -52,7 +61,7 @@ denetimi); alan-eklemek-sürüm-terfisiyle-yönetilir-ve-D5-zincir-hash'ine-zate
 
 ## 3. Doğrulama-sözleşmesi (beş-bağımsız-kontrol, tek-gate)
 
-`tools/settlement_bind_verify.py` — saf-stdlib, üç-verdict:
+`../tools/settlement_bind_verify.py` — saf-stdlib, üç-verdict:
 
 | # | Kontrol | Ne-kanıtlar | Başarısız-verdict |
 |---|---|---|---|
@@ -101,7 +110,7 @@ RED-değil-İNDETERMİNE-değil — doğrudan-RED rc4 (kanal-tanımlı-ama-imza-
 ## 4. NE-ŞİMDİ / NE-SONRA
 
 **ŞİMDİ:** (a) bu-tasarım-notu; (b) `settlement_bind`-alanının-additive-tanımı;
-(c) `tools/settlement_bind_verify.py`-beş-kontrollü-üç-verdict; (d) AT-063-testi-beş-
+(c) `../tools/settlement_bind_verify.py`-beş-kontrollü-üç-verdict; (d) AT-063-testi-beş-
 negatif-kontrolle (swap-hash, swap-party, ref-mismatch, sig-invalid, chain-broken).
 
 **SONRA (pilot-günü):** (e) gerçek-x402-claim-fixture'ı-ile-canlı-dikiş;

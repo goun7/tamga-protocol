@@ -5,6 +5,11 @@
 > alan-kuralları-SON-hale-GELEMEZ. Aşağıdaki-metin-pilot-gelince-§3'te-işaretlenen-üç-açık
 > kapalıyca-rfc-numarası-alır. Derleme-disiplini: hiçbir-bölüm-uygulamaya-girmez ( WHITEPAPER
 > §8-paraleli: düşünmek-bedava, kodla-değil).
+>
+> **Kasıtlı-DRAFT (bir-TODO-değil):** pilot-semantiği-BELLİ-OLMADAN-dondurmak
+> kanıtsız-normatif-iddia-olur — gerçek-x402-ödemelerinin-payer-mühürleme-davranışını
+> görmeden alan-kuralları-SON-hale-GELEMEZ (durum-satırının-yukarısında-açıklandığı-gibi).
+> Üç-açık-kapı-pilot-gelince-rfc-numarası-alır.
 
 ## 0. Özet (one-paragraph)
 

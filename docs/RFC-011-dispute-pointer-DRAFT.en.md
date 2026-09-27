@@ -57,7 +57,7 @@ it enters the D5 chain hash. With `status:"none"` the stitch stays GREEN
 
 ## 3. Verification contract
 
-`tools/dispute_pointer_verify.py` — runs **after RFC-010's 6th check**:
+`../tools/dispute_pointer_verify.py` — runs **after RFC-010's 6th check**:
 
 | # | Check | What it proves | On failure |
 |---|---|---|---|

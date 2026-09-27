@@ -5,6 +5,10 @@
 > imzalı-çelişkili-iddia-arasından-kim-seçecek?** Pacta'nın-§5.3'ü-bu-boşluğu-
 > *Schelling-hakemliği*+*%20-itiraz-teminatı* ile-dolduruyor. Bu-RFC-o-iki-
 > tarafı-birbirine-bağlar — **kendi-adımıza-hakemlik-yapmadan**.
+>
+> **Kasıtlı-DRAFT (bir-TODO-değil):** tasarım-insana-çelişkiyi-bırakmayı-korur
+> (üçüncü-seçenek-yasak),-ama-yalnızca-RFC-010-beş-kontrolü-pilotta-gerçek-çalıştığında
+> anlam-kazanır — birbiri-üzerine-inşa-edilen-bağımlılıktır,-unutulmuş-bir-iş-değil.
 
 ## 0. Özet
 
@@ -56,7 +60,7 @@ D5-zincir-hash'ine-girer. `status:"none"`-durumunda-dikiş-GREEN-kalır
 
 ## 3. Doğrulama-sözleşmesi
 
-`tools/dispute_pointer_verify.py` — RFC-010'ın-**6.-kontrolundan-sonra**-çalışır:
+`../tools/dispute_pointer_verify.py` — RFC-010'ın-**6.-kontrolundan-sonra**-çalışır:
 
 | # | Kontrol | Ne-kanıtlar | Başarısız |
 |---|---|---|---|
@@ -81,7 +85,7 @@ atfını-kanıtla (önceden-var-bağ).
 `disputeContext`-şema-hizalaması; (c) `protocol`-listesine-`pacta/v1`-ekle.
 
 > **DURUM-GÜNCELLEMESİ ( 2026-09-24, AT-187-doğrulaması):** (c) **TAMAMLANDI**
-> — `tools/dispute_pointer_verify.py:27`-SUPPORTED_PROTOCOLS-artık `pacta/v1` +
+> — `../tools/dispute_pointer_verify.py:27`-SUPPORTED_PROTOCOLS-artık `pacta/v1` +
 > `pactiva/v1`-taşır ( AT-187-taramasında-teyit-edildi). (a)-ve-(b)-hâlâ-açık
 > ( pilot-günü-öğeleri — bu-RFC TASLAK-kalar; §0-durum-satırı-değişmedi).
 

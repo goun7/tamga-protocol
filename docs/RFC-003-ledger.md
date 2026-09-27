@@ -128,7 +128,7 @@ and **verified closing the finding** (2026-09-17, session evidence below):
   chain with a freshly generated node key (signature valid, node_id unlisted). L1 + trust-list is
   required: without `--node-trust` the operator has declared no anchor, so L1 degrades to
   signature-only checking — node-cosign is an explicit operator declaration, not an imposition.
-- **Evidence:** AT-003 6/6 (`tests/negative_cosign.sh`) + Audit-8 (A1 a strong adversary → L1 RED /
+- **Evidence:** AT-003 6/6 (`../tests/negative_cosign.sh`) + Audit-8 (A1 a strong adversary → L1 RED /
   L0 known residue; A2 signature-layer RED; A3 partial-cosign RED) — `.evidence/ (local, untracked)`.
 - **Resolved (OQ-1):** L1 stays opt-in; the default remains L0 so legacy chains keep importing.
   The honest residual limit (a seed-owner who is ALSO the node-owner can mint consistent state on
@@ -141,7 +141,7 @@ the exact receipt it settles against. This is the settlementRef/anchor question 
 in [x402 issue #3379](https://github.com/x402-foundation/x402/issues/3379)
 (@doteyeso-ops/@holistis): *what ties a settlement to the work it pays for.* The
 answer is the ledger hash `h` — the same anchor D8 makes node-certified. This section
-is the D10 candidate that `docs/PAIRING-FIXTURE.md` and the pairing verifier already
+is the D10 candidate that `PAIRING-FIXTURE.md` and the pairing verifier already
 implement (implementation leads the RFC here; the code is shipped, this clause is the
 paperwork). **At founder approval this section freezes as normative for v0.2; until
 then it is a proposal whose implementation already exists.**
@@ -160,12 +160,12 @@ then it is a proposal whose implementation already exists.**
   3. `settlement_ref` **== `h`** → GREEN, and the anchor then inherits every check
      that binds `h` (membership D4, cosign D8).
   Cases 1 and 2 are the negative controls AT-007i/AT-007j in
-  `tests/at007_pairing_fixture.sh`; case 3 is verifier check 7 of
-  `tools/verify_pairing_fixture.py`.
+  `../tests/at007_pairing_fixture.sh`; case 3 is verifier check 7 of
+  `../tools/verify_pairing_fixture.py`.
 - **Labeling (normative).** `settlement_ref` is a Tamga-side value, so its `source`
   label MUST be `observed` or `derived` — never `simulated`. The settlement *side* of a
   fixture may be simulated; the anchor that binds it to a real receipt may not be, or
-  the labeling discipline (`docs/PAIRING-FIXTURE.md`) becomes a claim about nothing.
+  the labeling discipline (`PAIRING-FIXTURE.md`) becomes a claim about nothing.
 - **Transition (hard, and deliberate).** A pre-D10 pairing document without
   `settlement_ref` verifies RED, not GRANDFATHERED. There is no L0-style soft mode
   here on purpose: the anchor is a new field and every pairing producer is new with
@@ -197,6 +197,6 @@ then it is a proposal whose implementation already exists.**
   layer's concern until a pilot asks for it.
 - **Evidence:** AT-007 10/10 — 2 positive (fresh + committed fixture, 7 checks) and 8
   tamper negatives including AT-007i/j; public fixture
-  [`docs/pairing/pairing-fixture.json`](pairing/pairing-fixture.json) (pinned
+  [`pairing/pairing-fixture.json`](pairing/pairing-fixture.json) (pinned
   receiptHash `fe6f230c…`, anchor `derived`-labeled, equals `charge.h`); the shipped
   comment in issue #3379 (comment ID 5851437844) states the same clause publicly.

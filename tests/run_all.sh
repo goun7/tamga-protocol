@@ -843,6 +843,11 @@ PY
   # (fail-closed; açık-kapı-YOK). docs/RESEARCH.md §1. Yerel-ASGI (para-YOK).
   bash tests/at214_x402_v2_header_uyum_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-214: x402 V1/V2 header uyum-analizi ( 8/8; V1-çalışır V2-red)"
+  # AT-090: SESTER-LEDGER → RFC-010 DOĞRUDAN-DİKİŞ — üretim-ledger'ını (5299-py,
+  # 6-x402-servisinin-arkasındaki-gerçek-ledger) RFC-010-gate'ine-bağlar. Önce-
+  # kayıt-dışıydı (tek-başına-yeşil-rc=0); suite-kapsamına-alındı (Faz-4).
+  bash tests/at090_sester_ledger_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-090: Sester-ledger → RFC-010 doğrudan-dikiş ( gerçek-ledger)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

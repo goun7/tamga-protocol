@@ -140,9 +140,12 @@ Mevcut testlerin araştırma-temelini özetleyen tablo:
 | Araştırma bulgusu | Tamga kanıtı | Durum |
 |---|---|---|
 | Oracle replay (OracleTrust) | AT-210 (yerel) + AT-211 (canlı) + KATMAN-1 disk-cache | ✓ kapandı |
+| Ledger provenance-robustness | **AT-213** (50/50 fuzz-RED + self-heal) | ✓ |
+| Sandbox default-deny (CVE) | **AT-212** (7/7, CVE-47261/34987) | ✓ |
+| x402 V2 güvenli-bekleme | **AT-214** (8/8: V1-200 / V2-header-402) | ✓ |
 | Delivery-hash bayt-bayt | AT-205 canlı keccak exact | ✓ |
 | Karşı-taraf bağımsız doğrulama | AT-206 verify-tx 4/4 | ✓ |
-| Sandbox default-deny | AT-212 (7/7, CVE-47261/34987) | ✓ shipped |
+| Üretim-ledger RFC-010 dikişi | AT-090 (Sester-gerçek-ledger) | ✓ |
 | x402 challenge-response | AT-004/AT-005 | ✓ |
 | HMAC zincir bütünlüğü | AT-002/AT-005 + AT-208 batch | ✓ |
 

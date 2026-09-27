@@ -53,6 +53,58 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
   fence'ler byte-birebir, ikiz-yön-kuralı K4-altında; INDEX satırı `gen_lang_index --check` ✓);
   README EN+TR dil-notu aile-listesi-tazelendi (005…009 + VERIFY-EPOCH + MIGRATION-DEMO).
 
+- **RELAYER-ÜRETİM-YOLU (2026-09-26; KATMAN-0/1/2):** oracle-relayer'ın-üretim-yolu
+  üç-katmanlı-olarak-yazıldı-ve-her-katman-kendi-AT'si-ile-kanıtlandı. KATMAN-0
+  kanıt-üretim-çekirdeği (zero-dep; AT-195), KATMAN-1 üretim-yolu-sürücüsü (registry
+  fail-closed; AT-197/198 + AT-201 keccak-parite: tamga_keccak == eth_utils.keccak ==
+  EVM), KATMAN-2 EVM-transport (AT-196: uçtan-uca-gerçek-imzalı-tx, mühür-3-canlı-parite;
+  AT-199 daemon + unpump-bridge paritesi). `tamga_verifier.py` IVerifier-arayüzü:
+  relayer'siz-bağımsız-doğrulama (AT-206-canlı-tx 5/5). CLI: `--from-block`/`--backfill`.
+  **2-GÜVENLİK-BUG'U-bu-süreçte-yakalandı-ve-kapatıldı:** (i) `run-request
+  --ledger-secret` argv-değeri-env-tarafından-eziliyordu (env-kirliliğinde bilinen-değer-
+  reddi-baypası — K5-RED-25-yerine-GREEN; `sec = sec or os.environ.get(...)` ile-düzeltildi,
+  AT-197'de-yakalandı, d617f8c); (ii) canlı-env'de `TAMGA_SESTER_PATH`-eksikliği-sester-
+  import'unu-bozuyordu (99a6f60).
+- **CANLI-ZİNCİR (Base-mainnet, 2026-09-26/27) — gerçek-para-yOK-ama-gerçek-chain:** AT-204
+  + AT-205 Base-mainnet'te-gerçek-fulfill (ilk-gerçek-ödemeyi-beklemeden-üretim-yolu-
+  doğrulandı), AT-207 canlı-replay-koruma guard'lı-yolda-6/6 (SKIP-hesaplama-düzeltmesi-
+  ile-227/0/0 dürüst), AT-210 CONTRACT-side replay-guard (oracle-tek-seferlik-5/5),
+  **AT-211 guard CANLIDA-6/6 — açık-kapatıldı-ve-gerçek-zincirde-kanıtlı** (geri-açılma
+  denendi, guard-redetti). AT-202/203 daemon replay-protection (disk) + gas-limit
+  fail-closed. **Bulgu olarak AT-207:** oracle'da-replay-guard-yOK iken-GÜVENLİK-AÇIĞI
+  olarak-işaretlendi-ve-AT-210/211-ile-kapatıldı (bakiye-yetersizliği-SKIP — açık-değil-
+  karar). Operatör-için: `tools/relayer_balance_watch.sh` (Base-mainnet ETH-bakiye-uyarısı;
+  alert-0.005, floor-0.0005, canlı-koşum-tahmini; `--check` cron-modu). Suite:
+  **229 PASS / 0 SKIP / 0 FAIL canlı-profilda (TAMGA_LIVE=1), 225 sade-env'de.**
+- **x402-#3379 SETTLEMENT-ANCHOR (2026-09-27; F25-kapanışının-pairing-ikizi):** issue-#3379
+  (doteyeso-ops/holistis) settlementRef-sorusunun-yanıtı-olarak **RFC-003 §10 D10**
+  normatif-aday-yazıldı: `settlement_ref` = receipt'in-ledger-`h`'si (payment-id-değil;
+  D8-node-certified-olan-aynı-anchor). **Verification-contract (3-durum):** anchor-YOK →
+  RED `missing settlement reference`; ≠ `h` → RED `unanchored settlement`; == `h` → GREEN
+  (D4-membership + D8-cosign-miras). **Labeling:** anchor'un-`source`-etiketi-`simulated`
+  OLAMAZ (Tamga-tarafı-değeri). **Transition hard-RED** (GRANDFATHERED-değil; back-compat
+  istenirse `settlement_ref: null`-allowed-policy-flag önerildi, default-RED). Kod-öncülü:
+  `tools/verify_pairing_fixture.py` check-7 + `tools/make_pairing_fixture.py`;
+  **AT-007i/j negative-controls** (10-check, 8-tamper-negatifi; 10/0-PASS). Her-iki-taraf:
+  `docs/PAIRING-FIXTURE.md` replay-talimatı (stdlib-only, pip-yOK) + issue-#3379'ya-D10-
+  yorumu-gönderildi (comment-5851437844, lead-tarafından-temizlenip-gönderildi). Dürüst-
+  sınır: anchor-receipt'e-bağlar, ödeme-finality'sine-değil (fixture'ın-x402-tarafı
+  `simulated`); geniş-beş-kontrol-binding (RFC-010) pilot-bekliyor — 1/5-separable-olarak-
+  önce-shipped, "join-shape-tuzağı"-saygısı.
+- **WASI-SANDBOX CVE-BAĞIŞSIZLIĞI + ROBUSTNESS (2026-09-27):** **AT-212** default-deny
+  sandbox-denetimi-shipped — CVE-2026-47261 (fs-bypass; `DirPerms::MUTATE`+`FilePerms::
+  READ`-preopen-gerektirir-bizde-YOK) ve CVE-2026-34987 (Winch-memory-escape, <47.0.1-
+  yamalı-wasmtime-48.0.1-kullanıyoruz) karşısında-7/7-bağışıklık-kanıtı. K1-no-preopen,
+  K2-path_open→EBADF/ECAPABILITY, K3-sock_open-undefined-import, K4-env-boş, K5-no-perms.
+  **AT-213** ledger-fuzz-robustness (50-bozuk-girişte-fail-closed, 3/3). **AT-214** x402
+  V1/V2-header-uyum-analizi (güvenli-bekleme-kanıtı, 8/8).
+- **SUİT-ALTYAPI:** `tests/run_all.sh` ct_log.jsonl-otomatik-temizleme (suite-çıkışında-
+  trap; worktree-her-zaman-temiz — elle-temizlik-yükü-kalktı, push-tek-komut). Suite
+  83→88 hızlı-kontrol (RUN_SLOW) temelinde-AT'ler-kendi-iç-sayılarını-taşır (her-test-
+  dosyası-bir-kontrol). DRAFT-RFC'ler (008/009/010/011) "kasıtlı-pending"-notu-ile-
+  işaretlendi (pilot-bekliyor, TODO-değil) + 12-kırık-path-referansı-düzeltildi (docs/-
+  içi-relative-çözümleme; 23-dosya-25-referans KIRIK:0).
+
 
 ### Added
 - AT-034 zero-digest counter (kontrol-56, fast): refusal-before-hash proved with a call-counter
@@ -320,7 +372,13 @@ Wheel = HEAD. No wire contract, no ledger format, no spec_version change.
 First public shape: simnet genesis — primitives (keygen/manifest/snapshot/ledger),
 10 audit rounds, acceptance suite skeleton.
 
-[Unreleased]: https://github.com/goun7/tamga-protocol/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/goun7/tamga-protocol/compare/v0.2.10...HEAD
+[0.2.10]: https://github.com/goun7/tamga-protocol/compare/v0.2.9...v0.2.10
+[0.2.9]: https://github.com/goun7/tamga-protocol/compare/v0.2.8...v0.2.9
+[0.2.8]: https://github.com/goun7/tamga-protocol/compare/v0.2.7...v0.2.8
+[0.2.7]: https://github.com/goun7/tamga-protocol/compare/v0.2.6...v0.2.7
+[0.2.6]: https://github.com/goun7/tamga-protocol/compare/v0.2.5...v0.2.6
+[0.2.5]: https://github.com/goun7/tamga-protocol/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/goun7/tamga-protocol/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/goun7/tamga-protocol/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/goun7/tamga-protocol/compare/v0.2.1...v0.2.2

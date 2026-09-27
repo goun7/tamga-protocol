@@ -843,6 +843,16 @@ PY
   # (fail-closed; açık-kapı-YOK). docs/RESEARCH.md §1. Yerel-ASGI (para-YOK).
   bash tests/at214_x402_v2_header_uyum_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-214: x402 V1/V2 header uyum-analizi ( 8/8; V1-çalışır V2-red)"
+  # AT-216: x402 payment-identifier (idempotency) retry-davranışı — resmi-spec
+  # extension'ı (2026-09-27-taraması, docs/RESEARCH.md §5.2). Tamga'nın-KENDİ
+  # nonce-replay-koruması-çalışır (K1); standart pay_id-boşluğu-honest-kanıt.
+  bash tests/at216_x402_payment_identifier_retry_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-216: x402 payment-identifier retry-davranışı ( 7/7)"
+  # AT-217: WASI sonsuz-döngü/DoS koruması — wasmtime-güvenlik-politikası-2026
+  # "uninterruptible infinite loops" + "memory exhaustion"ı-AÇIK sayar (§6).
+  # Tehlikeli-wasm'ları-üret-ve-kesilmeyi-ölç (para-YOK).
+  bash tests/at217_wasi_sonsuz_dongu_dos_korumasi_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-217: WASI sonsuz-döngü/DoS koruması ( 6/6; kesilir + normal-çalışır)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

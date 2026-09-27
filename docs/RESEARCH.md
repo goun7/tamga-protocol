@@ -174,3 +174,104 @@ sandbox'un güvenlik vaadini sorguluyor. Tamga'nın `default-deny` tasarımını
   preopensiz `path_open` EBADF/ECAPABILITY red, K3 `sock_open` wasmtime-WASI'da
   tanımsız → ağ-yok, K4 `env={}` host-env sızdırmaz, K5 CVE-47261'ın
   `DirPerms::MUTATE+FilePerms::READ` koşulu kaynakta-YOK). run_all.sh'a kayıtlı.
+
+---
+
+## 5. x402 Güncel-Spec Taraması (docs.x402.org, 2026-09-27 — resmi-docs)
+
+Resmi x402 dokümantasyonundan (`llms.txt` indeksi + extension sayfaları) güncel
+durum taraması. **Üç-yeni-boşluk** tespit-edildi (hepsi ürün-güvenliğini-bozmaz;
+hepsi genişletme-alanıdır):
+
+### 5.1 Upto Scheme (usage-based ödeme) — TAMGA'DA-YOK
+
+Resmi-spec: `upto` scheme'i satıcının **maksimum fiyat** ilan etmesini, sonra
+**gerçek kullanıma** göre daha azını tahsil etmesini sağlar (LLM-token, bant,
+compute-time için). Alıcı maksimum için bir-kez-imzalar; sunucu `≤ maksimum`
+nihai-tutarı `setSettlementOverrides` ile-seçer.
+
+**Tamga durumu:** Tamga **sadece `exact`-benzeri** sabit-fiyat alır
+(`PRICE = 0.05` sabit; middleware `self.price` üzerinden). **Upto-yok** — yani
+"compute-saniyesi/token-adedi-ile-fiyatlanan" bir ajan-servisi veremez.
+Genişletme-noktası: `SesterMeter`'a `scheme: upto` kabul-path'i + settlement-
+override kanalı.
+
+### 5.2 Payment-Identifier Extension (idempotency) — PARÇALI-BOŞLUK
+
+Resmi-spec: istemci benzersiz bir `pay_*` ödeme-kimliği gönderir; sunucu yanıtı
+bu-kimlikle önbelleğe-alar **aynı-kimlikle-retry'lerde ödemeyi yeniden-işlemez**
+(ağ-kesintisi / çökme / load-balance / test-tekrarı için).
+
+**Tamga durumu:** Tamga'nın **kendi** idempotency/replay-koruması var
+(`claim_nonce` — nonce-ilk-kez-True, tekrarı-False; AT-213 fuzz ile-kanıtlı).
+**AMA** x402-standard `extensions` mekanizmasıyla-uyumlu-değil: istemci
+`pay_xxx` kimliği göndermez, sunucu extensions-bloğunu ilan-etmez. Yani
+standart-x402-istemcisi Tamga'ya-retry-yaparsa **yeniden-ödeme** riski-taşır
+(Tamga-noncesu uygulama-seviyesinde-tutulur). Bu-boşluk AT-214'te-kanıtlanan
+"güvenli-bekleme" çizgisini-bozmaz (açık-kapı-YOK) — ama-uyumluluk-boşluğu.
+
+### 5.3 Bazaar (Discovery Layer) — TAMGA'DA-YOK
+
+Resmi-spec: `/discovery/resources` endpoint'i x402-uyumlu-servislerin
+machine-readable-kataloğunu-döner (AI-ajanların önceden-entegrasyon-olmadan
+servis-keşfi). `EXTENSION-RESPONSES` header'ı ile-durum bildirir.
+
+**Tamga durumu:** Tamga'nın **kendi** keşif-dosyası var (`/agents.json` —
+64-agents.txt ile-hizalı; fiyat/kota/politika-döner). **AMA** x402-Bazaar
+standardını-implemente-etmez. Genişletme-noktası: `/agents.json`'a-bir-bazaar-
+görünümü-eklenerek-x402-ekosistemine-açılma.
+
+### 5.4 Diğer-Extension'lar (bilgi-için)
+
+- **Builder Code (ERC-8021)**: settlement-calldata'ya on-chain-atıf-kodu
+  (Tamga'yı-ilgilendirmez — Tamga-settlement-off-chain-HMAC).
+- **Sign-In-With-X (SIWX)**: wallet-oturum-açma (RESEARCH.md §1'de-kayıtlı).
+- **EIP-2612/ERC-20 Gas-Sponsoring**: alıcı-adına-gas-ödeme (Tamga-relayer'ı
+  zaten-kendi-gas'ini-öder — aktif-boşluk-değil).
+
+**Dürüst-sonuç:** Üç-boşluk (upto, payment-identifier, bazaar) Tamga için
+**genişletme-fırsatıdır**, güvenlik-açığı-değil. AT-214 zaten-kanıtladı:
+V2-header'ları-gelse-bile-Tamga-açık-kapı-bırakmaz. Önerilen-testler:
+AT-215 (upto-örneklenmesi-veya-olumsuz-kanıt), AT-216 (payment-identifier
+retry-davranışı), AT-217 (agents.json ↔ bazaar-paritesi).
+
+### Tarihçe-güncellemesi
+- **2026-09-27 (gece)**: x402 resmi-docs-taraması → §5 eklendi (upto /
+  payment-identifier / bazaar boşlukları); mevcut testlerle-haritalama.
+
+---
+
+## 6. Wasmtime Güvenlik-Politikası-2026: DoS-Sınıfı-Açıklar (resmi-dokümanlar)
+
+**Kaynak:** docs.wasmtime.dev/security-what-is-considered-a-security-vulnerability.html
+(bytecodealliance/wasmtime SECURITY.md üzerinden, 2026-09-28-taraması).
+
+Wasmtime'ın-resmi-sınıflandırması hangi-hatanın-güvenlik-açığı-sayıldığını
+açıkça-listeler. **Tamga-için-sorulması-gereken-soru:** distribüte-ajanlar
+BİLİNMEYEN-wasm (oracle-üzerinden-herhangi-bir-gönderen) olduğundan, bu
+sınıfların-Tamga'da-uygulanması-ne-durumda?
+
+| Wasmtime-sınıfı | Tamga-durumu | Kanıt |
+|---|---|---|
+| **Uninterruptible infinite loops** (çalışma-zamanı) | **KAPSANMIŞ** — `cpu_ms_per_run` limiti (varsayılan 5000 ms) + `subprocess.timeout` ile-process-kill; oracle-yan `min(request, manifest)+[1,60000]` çift-kısıtlı | **AT-217** (K1) |
+| **User-controlled memory exhaustion** | **KAPSANMIŞ** — `RLIMIT_FSIZE` preexec ile-io-sınırı + memory.grow-vektörleri-derleme-anında-trap | **AT-217** (K2) |
+| Sandbox-escape / OOB-memory / CFI-ihlali | wasmtime-çekirdek-sorumluluğu; pinned-47.0.1/48.0.1-üstü-patched | AT-212 |
+| FS-erişimi-mapped-dir-dışında | **KAPSANMIŞ** — preopen-YOK (default-deny) | AT-212 (K2-EBADF) |
+| WASI-capability-olmadan-resource-kullanımı | **KAPSANMIŞ** — capability-sunulmuyor | AT-212 (K3) |
+| Derleme-zamanı-DoS | wasmtime-politikasına-göre **açık-sayılmaz** (sadece-çalışma-zamanı) | — |
+| Wasm-semantiğinden-sapma (sandbox-içi) | politikaya-göre-açık-DEĞİL — AMA-Tamga-için-önemli: `stdout_sha256`-gap'ini-dogrulayan-AT-205/206 semantik-sapmayı-zaten-yakalar | AT-205/206 |
+
+**İlginç-gözlem (AT-217-çıktısı):** `(loop (br 0))` ve `memory.grow`-döngüsü
+5-saniye-limiti-BEKLEMEDİ — **0.0 s'de rc=1 ile-trap**. Yani wasmtime
+bu-iki-vektörü-statik/erken-aşamada-yakalıyor; `cpu_ms_per_run`-limiti-ikinci-
+savunma-hattı. Dürüst-not: Bu-K1/K2-sonucu "koruma-yok" değil "koruma-anında"
+anlamına-gelir — K3 (normal-vector rc0) ile-regresyon-yok-kanıtlanmıştır.
+
+**Kalan-boşluk (dürüst):** fuel-mekanizması (`wasmtime::Fuel`) Tamga'da-
+kullanılmıyor — `timeout`-ile-process-kill-essekli-AMA-tek-very-senkron-çağrı-
+başına-bir-azami-olduğundan-async-fuel'e-ihtiyaç-yok. Eğer-ileride-birden-
+fazla-ajan-aynı-süreçte-koşulursa fuel-gerekir (şu-an-değil).
+
+### Tarihçe
+- **2026-09-28**: wasmtime-güvenlik-politikası-taraması → §6 eklendi;
+  AT-217 (DoS-sınıfı-kanıtı) shipped 6/6.

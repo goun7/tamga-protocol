@@ -133,3 +133,45 @@ and **verified closing the finding** (2026-09-17, session evidence below):
 - **Resolved (OQ-1):** L1 stays opt-in; the default remains L0 so legacy chains keep importing.
   The honest residual limit (a seed-owner who is ALSO the node-owner can mint consistent state on
   a fresh node) is documented in §4.4 and accepted as the simnet-v0 upper-bound adversary.
+
+## 10. v0.2 Revision Candidate — D10: Settlement anchor (2026-09-27, #3379; AWAITING FOUNDER APPROVAL)
+
+The settlement side of a pairing (an x402 envelope, or any payment layer) must name
+the exact receipt it settles against. This is the settlementRef/anchor question raised
+in [x402 issue #3379](https://github.com/x402-foundation/x402/issues/3379)
+(@doteyeso-ops/@holistis): *what ties a settlement to the work it pays for.* The
+answer is the ledger hash `h` — the same anchor D8 makes node-certified. This section
+is the D10 candidate that `docs/PAIRING-FIXTURE.md` and the pairing verifier already
+implement (implementation leads the RFC here; the code is shipped, the spec clause is
+the paperwork).
+
+- **D10:** a settlement document that pairs with a Tamga receipt carries
+  `settlement_ref` = the receipt's `h` (= `receiptHash`). The anchor is the ledger
+  hash, not a payment-side identifier: the chain of custody runs
+  settlement → `settlement_ref` → `h` → (`prev`, `jcs(record)`) → `stdout_sha256` →
+  the delivered bytes.
+- **Failing closed:** a settlement with no reference to a receipt is a RED, not a
+  silent omission. `tools/verify_pairing_fixture.py` check 7 —
+  `{"ok": false, "where": "settlement_anchor", "error": "missing settlement
+  reference — … fails closed: a settlement must name the work it pays for"}`; a
+  reference to a *different* receipt is the same RED (unanchored settlement).
+  AT-007i/AT-007j prove both (`tests/at007_pairing_fixture.sh`).
+- **Why `h` and not a payment id:** `h` is node-certified (D8 — `node_id` is inside
+  the hash input, `node_sig` signs `h`), so the anchor carries the node operator's
+  declaration, not a bare agent claim; a payment-side identifier would be a claim by
+  the payer about the payer. This is the F25 closure's discipline at the pairing
+  layer: an embedded chain with no node declaration was an agent claim on a fresh
+  node; a settlement with no anchored receipt is a payment claim on unbound work.
+  Under `import --cosign-policy L1 --node-trust` an unlisted node key yields RED
+  reason 14 (`node_id_untrusted@<seq>`); here an unanchored settlement yields the
+  `settlement_anchor` RED. Both say the same thing — a claim that names no
+  accountable counterparty is not a partial result, it is no result.
+- **Honest limit (mirroring the fixture):** the anchor binds a settlement to a
+  *receipt*, not to payment finality or buyer acceptance; those remain separate axes
+  (the x402 side of the public fixture is explicitly `simulated`). The receipt says
+  *what was delivered and that a chained record exists for it*; what a payment layer
+  does with that fact is the payment layer's decision.
+- **Evidence:** AT-007 10/10 — 2 positive (fresh + committed fixture, 7 checks) and 8
+  tamper negatives including AT-007i/j; public fixture
+  [`docs/pairing/pairing-fixture.json`](pairing/pairing-fixture.json) (pinned
+  receiptHash `fe6f230c…`, anchor `derived`-labeled, equals `charge.h`).

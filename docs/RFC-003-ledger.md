@@ -196,8 +196,10 @@ then it is a proposal whose implementation already exists.**
   receipt, several partial settlements) is NOT specified here and remains the payment
   layer's concern until a pilot asks for it — the wider five-control binding
   (receipt + claim + settlementRef + payer/payee + evidenceHash) lives as a pilot-pending
-  draft in `RFC-010-cross-artifact-settlement-binding-DRAFT.md`, which this
-  clause now supplies one of five checks for.
+  draft in `RFC-010-cross-artifact-settlement-binding-DRAFT.md`; its "settlementRef
+  resolves" check is the natural consumer of this clause (D10 supplies the anchor the
+  wider gate resolves), and the draft's table is expected to be reconciled with D10 at
+  pilot time.
 - **Evidence:** AT-007 10/10 — 2 positive (fresh + committed fixture, 7 checks) and 8
   tamper negatives including AT-007i/j; public fixture
   [`pairing/pairing-fixture.json`](pairing/pairing-fixture.json) (pinned

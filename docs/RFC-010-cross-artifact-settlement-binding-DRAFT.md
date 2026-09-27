@@ -9,11 +9,11 @@
 > **Bu-başlık-kasıtlı-olarak-DRAFT'ta (bir-TODO-değil):** beş-kontrolün-hepsi
 > pilot-gerçek-ödemelerini-görecek-kanıtları-bekliyor — `simulated`-fixture'larla
 > dondurmak "join-shape"-kanıtı-olur, o-safal207'nin-açıkça-istemdiği-şey-değil.
-> **Ama-beşten-biri-zaten-shipped:** "*settlementRef resolves*" kontrolü
+> **Ama-beşten-biriyle-yakından-ilgili:** "*settlementRef resolves*" kontrolü
 > RFC-003 §10 D10 olarak-normatif-adaydır (anchor = ledger `h`, fail-closed,
-> AT-007i/j ile-kanıtlı). Bu-RFC kalan-dördü-bekliyor: receipt-verify (var,
-> D4), claim-verify (x402-tarafı), payer/payee-match (RFC-008-alanları),
-> evidenceHash == receiptHash (RFC-008-in-etiketleme-disiplini).
+> AT-007i/j ile-kanıtlı) — D10 bu-gate'in-anchor'ı-sağlar. **Not:** D10'nın-anchor'ı
+> receipt-`h`'dir, bu-tablodaki-kontrol-3'ün-pilot-günü-bağlamında-reconcile-edilecek
+> (mevcut-tablo-3 payment_id-eşleşmesini-söyler; D10-sonrası-anchor-önceliklidir).
 
 ## 0. Özet (one-paragraph)
 

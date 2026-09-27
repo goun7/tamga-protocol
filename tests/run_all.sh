@@ -858,6 +858,11 @@ PY
   # orta-satır-bozuk → tüm-zincir-RED (kümülatif-kesirlik).
   bash tests/at218_ledger_batch_throughput_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-218: ledger batch-verify throughput ( 5/5; 1000-event<5s)"
+  # AT-219: x402 upto-scheme sınır-semantiği — maxAmountRequired-ilanı-doğru;
+  # fazla-ödemeyi-RED (ekonomik-koruma AT-100-NEG), eksik-RED, tam-eşit-200,
+  # 6-decimal-USDC-minor-eşitliği. docs/RESEARCH.md §5.1.
+  bash tests/at219_x402_upto_sinir_semantik_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-219: x402 upto-scheme sınır-semantiği ( 6/6; fazla/eksik-RED)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

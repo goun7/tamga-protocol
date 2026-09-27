@@ -6,7 +6,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-55%2F55%20PASS-brightgreen)](#one-command-regression)
+[![Tests](https://img.shields.io/badge/tests-227%2F227%20PASS-brightgreen)](#one-command-regression)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Phase%202%20--%20pilot-orange)](#roadmap)
 [![Reproduce](https://img.shields.io/badge/docs-reproduce%20it%20yourself-blue)](docs/REPRODUCE.md) — last full suite run: 2026-09-17 (58/58 slow)
@@ -140,7 +140,7 @@ git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate   # or: pip install --break-system-packages -r requirements.txt
 pip install -r requirements.txt
 bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
-bash tests/run_all.sh          # 53/53 controls — ~70–110 s (58 with RUN_SLOW=1)
+bash tests/run_all.sh          # 227/227 controls — 0 SKIP, 0 FAIL (223 default / +4 live with TAMGA_LIVE=1)
 
 # your first agent (copy the sample vector as the package — see docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice
@@ -206,7 +206,7 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 ## One-command regression
 
 ```bash
-bash tests/run_all.sh        # 53/53 controls — families below, ~70–110 s on a laptop (58 with RUN_SLOW=1)
+bash tests/run_all.sh        # 227/227 controls — families below; 0 SKIP, 0 FAIL (223 default / +4 live with TAMGA_LIVE=1)
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
 (AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory
@@ -292,6 +292,9 @@ The full loop ran on **real Base mainnet** — [docs/CANLI_ZINCIR.md §6](docs/C
 | delivery keccak, live | keccak of on-chain `outputData` == logged `dc6f72f2…` — **exact** |
 | **counterparty verify** | `verify-tx` on the fulfillment tx → **`checks:4 ok:true`** — no relayer, no gas |
 | **replay guard (live)** | second daemon call on same request → contract **reverts**, 0 double-fulfill (AT-211) |
+| sandbox default-deny | `path_open`→EBADF, `sock_open`→undefined import; no preopens, no network (AT-212, 7/7) |
+| ledger robustness | 50 corrupted rows → **50/50 refused**, 0 silent acceptance (AT-213) |
+| x402 V2 safe-wait | V2 headers refused at 402; V1 path serves 200 (AT-214, 8/8) |
 | key secrecy | key prefix absent from every log and reason field |
 
 Total cost ~$0.001 (Base baseFee ~0.005 gwei). The live tests are gas-guarded:

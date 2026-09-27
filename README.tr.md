@@ -56,7 +56,7 @@ Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Rehber: [docs/AGENT-G
 ## Derin teknik özet — güvenceler (kanıtlarıyla)
 
 Her güvence burada *iddia + kanıt-yeri* çifti olarak durur; süit, her iddiayı kontrol-alkışlı
-negatif vektörlerle çalıştırır (`bash tests/run_all.sh` → 53/53):
+negatif vektörlerle çalıştırır (`bash tests/run_all.sh` → 227/227 — 0 SKIP, 0 FAIL; TAMGA_LIVE=1 ile 231):
 
 | Güvence | Ne kanıtlar | Kanıt-yeri |
 |---|---|---|
@@ -112,7 +112,7 @@ dış batch'e izdüşürülür → dış çıpayı bizim tarafımızda alınmı�
 tek komutla: `bash tools/demo.sh` · Ham kayıt: [docs/assets/demo.cast](docs/assets/demo.cast)
 · Beklenen akış: [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md).
 
-**Tek-komut regresyon:** `bash tests/run_all.sh` — 53/53 kontrol (~70–110 sn; `RUN_SLOW=1` ile
+**Tek-komut regresyon:** `bash tests/run_all.sh` — 227/227 kontrol, 0 SKIP / 0 FAIL (~70–110 sn; `RUN_SLOW=1` ile
 50). Kontrol-aileleri: snapshot yaşam-döngüsü + advers-negatifler (AT-001), determinizm/yeniden
 koşum (AT-002), defter-saldırı vektörleri (AT-003), girdiye-bağlı makbuzlar (AT-004), çok-biçimli
 hafıza-ithalatı (AT-005), manifest-şema çapraz-doğrulaması (0.2.0 terfi matrisiyle 60/60) ve
@@ -232,6 +232,9 @@ Tam-döngü **gerçek Base mainnet** üzerinde koşuldu — [docs/CANLI_ZINCIR.m
 | delivery keccak canlıda | zincir-`outputData` keccak = log'daki `dc6f72f2…` — **birebir** |
 | **karşı-taraf doğrulaması** | fulfill tx'inde `verify-tx` → **`checks:4 ok:true`** — relayer'sız, gas'sız |
 | **replay-guard (canlı)** | aynı request'te ikinci daemon-çağrısı → kontrat **revert**, 0 çift-fulfill (AT-211) |
+| sandbox default-deny | `path_open`→EBADF, `sock_open`→tanımsız-import; preopen-YOK, ağ-YOK (AT-212, 7/7) |
+| ledger-robustluk | 50-bozuk-satır → **50/50-RED**, 0-sessiz-kabul (AT-213) |
+| x402 V2 güvenli-bekleme | V2-header'ları 402-RED; V1-yolu 200 (AT-214, 8/8) |
 | anahtar-gizlilik | anahtar-prefix'i tüm log/reason'larda **yok** |
 
 Toplam maliyet ~$0.001 (Base baseFee ~0.005 gwei). Testler `TAMGA_LIVE=1` olmadıkça
@@ -254,7 +257,7 @@ git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
-bash tests/run_all.sh    # 53/53 kontrol — ~70–110 sn (RUN_SLOW=1 ile 58)
+bash tests/run_all.sh    # 227/227 kontrol — 0 SKIP, 0 FAIL (TAMGA_LIVE=1 ile 231)
 
 # ilk ajanın (örnek-vektörü-paket olarak kopyala — docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice

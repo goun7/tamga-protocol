@@ -843,6 +843,11 @@ PY
   # (fail-closed; açık-kapı-YOK). docs/RESEARCH.md §1. Yerel-ASGI (para-YOK).
   bash tests/at214_x402_v2_header_uyum_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-214: x402 V1/V2 header uyum-analizi ( 8/8; V1-çalışır V2-red)"
+  # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
+  # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
+  # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).
+  bash tests/at215_x402_response_provenance_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-215: x402 response-provenance bağımsız-türetim ( PR #3304, 6/6)"
   # AT-090: SESTER-LEDGER → RFC-010 DOĞRUDAN-DİKİŞ — üretim-ledger'ını (5299-py,
   # 6-x402-servisinin-arkasındaki-gerçek-ledger) RFC-010-gate'ine-bağlar. Önce-
   # kayıt-dışıydı (tek-başına-yeşil-rc=0); suite-kapsamına-alındı (Faz-4).

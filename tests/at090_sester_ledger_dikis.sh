@@ -6,11 +6,13 @@
 # alıcı-opt-in-paritesini-ölçtü, modülü-BAĞLAMADI. Bu-test-ilk-kez-gerçek-ledger'ı
 # RFC-010-gate'ine-diker (AT-080-disiplini: STOCK-yol, test-double-YOK).
 #
-# ENTEGRASYON-NOKTALARI (gerçek-kod, gerçek-satır):
-#   sester/sester/ledger.py:243   Ledger.append() — charge_receipt → 64-hex zincir-hash
-#   sester/sester/ledger.py:288   verify_chain() — HMAC-zincir bütünlüğü (tahrif-RED)
-#   sester/sester/ledger.py:398   chain_head() — §6-foreign_chain-proof'ün-kaynağı
-#   sester/sester/schemes.py:31   sign_exact_sester — GERÇEK-EIP-191 X-PAYMENT-imzası
+# ENTEGRASYON-NOKTALARI (gerçek-kod, gerçek-satır — 2026-09-27-tarihinde
+# kaynak-tarafından-yeniden-doğrulandı; satır-numaraları-2026-09-26-dan-beri
+# kaymıştı, gerçeğin-izini-yeniden-tuttuk):
+#   sester/sester/ledger.py:273   Ledger.append() — charge_receipt → 64-hex zincir-hash
+#   sester/sester/ledger.py:326   verify_chain() — HMAC-zincir bütünlüğü (tahrif-RED)
+#   sester/sester/ledger.py:436   chain_head() — §6-foreign_chain-proof'ün-kaynağı
+#   sester/sester/schemes.py:41   sign_exact_sester — GERÇEK-EIP-191 X-PAYMENT-imzası
 #   sester/sester/settlement.py:204  build_settlement_batch — merkle_root+sha_digest
 #   tamga/tools/settlement_bind_verify.py:126  verify()-gate
 #   tamga/tamga_attest_verify.py:64   ecrecover_to_pub (x402/v1-sözleşmesi)

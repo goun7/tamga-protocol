@@ -63,6 +63,18 @@ T0 = 1700000000
 _USED_NONCE_CACHE.clear()
 W = QR_VALIDITY_WINDOW_SECONDS
 
+# KOK-NEDEN-DUZELTME (docs/AT125_KOK_NEDEN.md): qr_engine'in-modül-seviyesi
+# _LAST_CACHE_CLEANUP = time.time() GERÇEK-duvar-saatidir; her verify'in-basinda
+# cagrilan _cleanup_nonce_cache() 300s-sonra replay-cache'ini-siler. Bu-test
+# T0-sabit-zamanli-kostugu-icin TOKEN_EXPIRED-asla-tetiklenmez (pencere-kontrolu
+# replay'den-once-gelir-ve-T0-sabit), dolayisiyla-cache-silinince-ayni-token
+# ikinci-kez is_valid=True-verir -> 'assert REPLAY_DETECTED' FAIL. Sabitleme:
+# cleanup'i-test-suresince-asla-tetikletmeme (uretimde-GUVENLI: 300s-eski-token
+# zaten TOKEN_EXPIRED-olarak-reddedilir, pencere-kontrolu-once-geldigi-icin).
+import pactiva_core.qr_engine as _Q
+_LAST_CACHE_CLEANUP_ORIG = _Q._LAST_CACHE_CLEANUP
+_Q._LAST_CACHE_CLEANUP = float("inf")   # time.time() - inf = -inf, > 300 degil
+
 def taze(job="JOB-125", shift="SHIFT-A", ts=T0):
     """Her-seferinde-YENI-token (replay-cache-çakışmasını-önler)."""
     return generate_rolling_qr_token(job, shift, timestamp_sec=ts, secret_key=SK)

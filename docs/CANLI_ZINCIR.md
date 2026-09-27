@@ -169,6 +169,16 @@ Tam döngü AT-204 + AT-205 ile **gerçek Base mainnet** üzerinde koşuldu:
 3. **Log-indeks gecikmesi** — load-balanced RPC'lerde receipt'te-log varken
    `get_logs` stale-dönebilir; daemon çok-cycle'lı-poll ile-aşar (receipt'ten
    okuma tercih edilir).
+4. **Sabit-fee = yetersiz-gas-hatası** (2026-09-26, canlı AT-207 keşfi) —
+   `maxFeePerGas=2 gwei` sabitlemesi Base'in dalgalı baseFee'inde
+   `insufficient funds for gas * price` (-32003) üretiyordu (~400× aşırı-ödeme
+   riski). **Çözüm:** relayer artık `baseFeePerGas`'i canlı-okuyup
+   `maxFee = base*2 + prio` (prio = max(0.001 gwei, base//2)) türetiyor.
+5. **Replay-guard OLMAKSIZIN daemon-yeniden-başlatma = çift-fulfill** —
+   2026-09-27 AT-207 keşfi: kontrat-side koruma YOKKEN her restart aynı
+   request'i tekrar-fulfill-ediyordu (gerçek-gaz ile-kanıtlandı). İki-katmanlı
+   düzeltme: KATMAN-1 daemon disk-cache (`.tamga-fulfilled.json`, atomic-replace)
+   + KATMAN-2 kontrat-side 24-byte guard-runtime (AT-210/211 ile-kanıtlı).
 
 ## Başarısızlık kipleri (fail-closed)
 

@@ -58,8 +58,10 @@ for i in range(50):
     if kind == 0:    # hash-boz: son-hex-karakteri-tersine-çevir
         row = con.execute("SELECT hash FROM events WHERE seq = (SELECT MAX(seq) FROM events)").fetchone()
         h = row[0] if isinstance(row[0], str) else str(row[0])
+        newh = h[:-1] + ("0" if h[-1] != "0" else "1")
+        print(f"    hash-boz: seq-max-hash {h[:16]}..{h[-4:]} → {newh[:16]}..{newh[-4:]} (uzunluk {len(h)})")
         con.execute("UPDATE events SET hash = ? WHERE seq = (SELECT MAX(seq) FROM events)",
-                    (("0" if h[-1] != "0" else "1") + h[1:],))
+                    (newh,))
     elif kind == 1:  # prev-kop: prev_hash'ı-genesis-dışı-şeyle-değiştir
         con.execute("UPDATE events SET prev_hash = ? WHERE seq = (SELECT MAX(seq) FROM events)",
                     ("ff" * 32,))
@@ -74,10 +76,18 @@ for i in range(50):
         con.execute("UPDATE events SET payload = ? WHERE seq = (SELECT MAX(seq) FROM events)",
                     ("INJECTED-X" * 8,))
     con.commit()
+    # WAL-modunda-ayrı-bağlantının-commit'i-ledger'ın-okuma-snapshot'ında
+    # bazen-görünmez (~%10-koşum; sqlite-WAL-çift-bağlantı-görünürlüğü).
+    # verify-her-seferinde-TENEKE-Ledger-ile-yapılır (stale-YOK).
+    Lv = Ledger(db, SECRET)
+    v = Lv.verify_chain()
+    Lv.close()
     total += 1
-    v = L.verify_chain()
-    if v is False: red += 1
-    else: print(f"  #{i} kind-{kind}: VERIFY-TRUE (!) — fail-closed-DELİK")
+    if v is False:
+        red += 1
+    else:
+        row = con.execute("SELECT seq,amount,ts,substr(payload,1,40) FROM events ORDER BY seq DESC LIMIT 1").fetchone()
+        print(f"  DELİK #{i} kind-{kind}: VERIFY-TRUE row={row}")
 ok.append(red == total)
 print(f"K2 50-bozuk-enjeksiyon: {red}/{total}-RED (fail-closed-oranı {100*red//total}%)")
 

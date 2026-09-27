@@ -838,6 +838,11 @@ PY
   # (docs/RESEARCH.md §2). Yerel-sqlite (para-YOK).
   bash tests/at213_ledger_fuzz_robustness_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-213: ledger fuzz robustness ( 50/50-RED fail-closed + self-heal)"
+  # AT-214: x402 V1/V2 header uyum-analizi — V2 (11-Ara-2025) X-Payment'i-
+  # deprecated-etti; Tamga'nın-V1-yolu-sağlıklı, V2-header'ları-güvenli-bekleme
+  # (fail-closed; açık-kapı-YOK). docs/RESEARCH.md §1. Yerel-ASGI (para-YOK).
+  bash tests/at214_x402_v2_header_uyum_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-214: x402 V1/V2 header uyum-analizi ( 8/8; V1-çalışır V2-red)"
   bash tests/at163_state_tahriz_run_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-163: state-tahriz-run-korumasi ( import-rc17-canli, run-yolu-acik)"
   bash tests/at120_sester_bridges_k1_dikis.sh > /dev/null 2>&1

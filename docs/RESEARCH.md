@@ -35,8 +35,20 @@ akışını (402 + challenge → ödeme → 200 + kanıt) doğru uyguluyor. V2 u
 isteyen biri için yukarıdaki boşluklar bir yol-haritasıdır; hiçbiri mevcut
 güvenlik garantilerini zayıflatmaz.
 
+**Dürüst sonuç:** Tamga saf bir x402 V1/V2 uygulaması değil — sester katmanı
+kendi receipt/HMAC-zincir protokolüdür. x402'nin **HTTP-402 challenge/response**
+akışını (402 + challenge → ödeme → 200 + kanıt) doğru uyguluyor. V2 uyumluluğu
+isteyen biri için yukarıdaki boşluklar bir yol-haritasıdır; hiçbiri mevcut
+güvenlik garantilerini zayıflatmaz.
+
+**Güvenli-bekleme kanıtı (AT-214, 8/8):** V2 header'ları (`PAYMENT-SIGNATURE`,
+`PAYMENT-RESPONSE`) tek-başına → **402 RED** (fail-closed; açık-kapı-YOK);
+mevcut V1 `X-Payment` akışı → **200** (sağlıklı). Yani V2'ye-geçiş-yapana-kadar
+Tamga "reddeder-ama-açık-bırakmaz" modundadır — bu-davranış-kanıtlanmıştır.
+
 **İlgili testler:** AT-004/AT-005 (challenge-response), AT-098 (gateway analitik
-üzerinden servis zincir doğrulaması), AT-206 (karşı-taraf verify-tx).
+üzerinden servis zincir doğrulaması), AT-206 (karşı-taraf verify-tx),
+**AT-214 (V1/V2 header uyum-analizi)**.
 
 ---
 

@@ -84,6 +84,41 @@ The verifier enforces the labeling discipline too: a value-field without a `sour
 label is a RED, as is any tampered byte (tested by AT-007 in `tests/run_all.sh`,
 the suite's tail line reports the live count, CI-green on every push).
 
+## Replay it yourself (for a reader of issue #3379)
+
+This is a fixture, not a claim — the point is that you can hold it in your own
+hands. Three things to try, in order. None of them needs `pip install` anything
+beyond the Python 3 you already have: the verifier is stdlib-only (`hashlib`,
+`json`) plus two small modules that ship in this repo (`keccak256`, `tamga_canon`).
+
+```bash
+git clone https://github.com/goun7/tamga-protocol.git
+cd tamga-protocol
+python3 tools/verify_pairing_fixture.py docs/pairing        # ~1 second
+```
+
+That prints `{"ok": true, ...}` with the seven check names — the committed bytes
+verifying themselves. If you want to *break* it, which is the more interesting
+half, delete the settlement anchor and watch the verifier refuse:
+
+```bash
+cp -r docs/pairing /tmp/fx-copy
+python3 - <<'PY'
+import json
+p = "/tmp/fx-copy/pairing-fixture.json"
+fx = json.load(open(p))
+del fx["x402_settlement"]["settlement_ref"]          # un-anchor the settlement
+json.dump(fx, open(p, "w"))
+PY
+python3 tools/verify_pairing_fixture.py /tmp/fx-copy   # -> "missing settlement reference"
+```
+
+The eight tamper shapes in the *Negative controls* table above all behave the
+same way — pick any field the fixture claims is bound, change it, and the verifier
+names the broken check instead of passing. Then, if you want a fixture whose
+receipt is *yours* (fresh seed, fresh timestamps, your own receipt hash), see
+*Regenerate* below — it needs the wasmtime engine and costs nothing.
+
 ## Honest limits (mirroring the issue discussion)
 
 - Integrity + binding evidence only: this fixture says *what was delivered and that a

@@ -853,6 +853,11 @@ PY
   # Tehlikeli-wasm'ları-üret-ve-kesilmeyi-ölç (para-YOK).
   bash tests/at217_wasi_sonsuz_dongu_dos_korumasi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-217: WASI sonsuz-döngü/DoS koruması ( 6/6; kesilir + normal-çalışır)"
+  # AT-218: ledger batch-verify throughput — x402-V2 batch-settlement'ın-
+  # (§5.3b) off-chain-alternatif-kanıtı: 1000-event 0.010s'de-doğrulanır,
+  # orta-satır-bozuk → tüm-zincir-RED (kümülatif-kesirlik).
+  bash tests/at218_ledger_batch_throughput_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-218: ledger batch-verify throughput ( 5/5; 1000-event<5s)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

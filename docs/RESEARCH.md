@@ -221,7 +221,20 @@ servis-keşfi). `EXTENSION-RESPONSES` header'ı ile-durum bildirir.
 standardını-implemente-etmez. Genişletme-noktası: `/agents.json`'a-bir-bazaar-
 görünümü-eklenerek-x402-ekosistemine-açılma.
 
-### 5.4 Diğer-Extension'lar (bilgi-için)
+### 5.3b Batch-Settlement Scheme (yüksek-throughput) — TAMGA'DA-YOK
+
+Resmi-spec: tekrarlanan ücretli-API-çağrıları için **durumsuz-tek-yönlü-ödeme-
+kanalları**: alıcı bir-kerelik on-chain escrow'a-deposit-koyar, her-istek-için
+**imzalı kümülatif-kupon** (voucher) verir; satıcı kuponu-hızla-doğrulayıp-
+yanıtı-onchain-transfer-beklemeden-verir; periyodik olarak-birçok-kanalı-tek-
+transaction'da toplu-redeem-eder (claim → settle → refund aşamaları).
+
+**Tamga durumu:** Tamga her-istek-için-bağımsız-HMAC-zarfı-kullanır — **ödeme-
+kanalı-yok**, kupon-yok, escrow-yok. Mikro-ödeme-throughput'u-için-genişletme-
+alanı (eğer-binlerce-istek/saniye-gerekirse). Güvenlik-açığı-değil; Tamga'nın
+off-chain-receipt-zinciri benzer-bir-rolü-kısmen-oynar (AT-208 batch-verify).
+
+
 
 - **Builder Code (ERC-8021)**: settlement-calldata'ya on-chain-atıf-kodu
   (Tamga'yı-ilgilendirmez — Tamga-settlement-off-chain-HMAC).

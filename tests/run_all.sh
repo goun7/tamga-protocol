@@ -23,6 +23,13 @@ if [ -z "${TAMGA_SUITE_LOCKED:-}" ] && command -v flock >/dev/null 2>&1; then
   export TAMGA_SUITE_LOCKED=1
   exec flock -o "$LOCKF" bash "$TAMGA_RUN_ALL_ABS" "$@"
 fi
+# ct_log.jsonl: append-only evidence-log — AT-168/AT-179 her koşumda yazar; tracked
+# olduğu için suite çalışma-ağacını kirletir ve push öncesi manuel checkout gerektirir.
+# Suite başında HEAD'e-döndür (temiz-başlangıç) + çıkışta-da-temizle (trap EXIT —
+# her çıkış-yolunda). Testlerin asıl kanıtları .evidence/'da (untracked) — kayıp-yok.
+_ct_log_reset() { git checkout -- ct_log.jsonl 2>/dev/null || true; }
+_ct_log_reset
+trap _ct_log_reset EXIT
 # usage: bash tests/run_all.sh [slow]   — env: TAMGA_KS_PASSPHRASE, RUN_SLOW=1, TAMGA_EVIDENCE_DIR
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   cat <<'USG'

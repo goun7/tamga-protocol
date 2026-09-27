@@ -30,5 +30,14 @@ if "--check" in sys.argv:
     if s[m.start():m.end()] == line:
         sys.exit(0)
     print("FARK: Dil-durumu satırı diske-göre-bayat — regenerate et", file=sys.stderr); sys.exit(1)
-p.write_text(s.replace(m.group(0), line))
+# ATOMIK-YAZMA (AT-033-yarisi-düzeltmesi, 2026-09-27): write_text dosyayı-önce-
+# TRUNCATE-eder-sonra-yazar; bu-arada-çok-Okuyucu (AT-033-koşumları, paralel-ajanlar,
+# CI) yarım-içerik-okuyabilir → regex-eşleşmez → 'diske-göre-bayat' FALSE-FAIL.
+# Düzeltme: geçici-dosyaya-yaz + os.replace() (POSIX'te-atomik-rename) — hiçbir-okuyucu
+# hiçbir-an-da-yarım-dosya-GÖREMEZ (mount-başına-aynı-dosya-sistemi).
+import os as _os, tempfile as _tf
+_fd, _tmp = _tf.mkstemp(dir=str(docs), prefix=".INDEX-", suffix=".tmp")
+_os.close(_fd)
+pathlib.Path(_tmp).write_text(s.replace(m.group(0), line))
+_os.replace(_tmp, p)
 print(f"üretildi: {len(born)} doğmuş-TR · {len(en)} EN-kardeş · {len(tr)} TR-ikiz")

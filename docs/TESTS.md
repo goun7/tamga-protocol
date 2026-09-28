@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 237/237 AT suites — 237 PASS, 0 SKIP, 0 FAIL (default; TAMGA_LIVE=1 → 241)
+bash tests/run_all.sh     # 238/238 AT suites — 238 PASS, 0 SKIP, 0 FAIL (default; TAMGA_LIVE=1 → 242)
 TAMGA_LIVE=1 bash tests/run_all.sh   # +4 live suites (Base mainnet) → 227 PASS, 0 SKIP
 # CI runs the default on every push; live suites are opt-in (they spend gas)
 ```
@@ -321,3 +321,22 @@ EXIT-0-ile-geçmemiş, her-SKIP `exit 3`-ile-raporlanmıştır.
 | AT-223 — facilitator-bağımsızlık: self-facilitate fail-closed | addresses the production-deployment question the x402 facilitator documentation raises explicitly. The standard warns that the public x402.org facilitator is for development and testnet, and that mainnet routes should use a production provider, run their own, or self-facilitate. Tamga's SesterMeter takes an optional facilitator parameter, which makes the choice architectural rather than incidental, so the test asks what happens when it is absent. An exact EIP-3009 envelope submitted without a facilitator is refused at 402 with exact_requires_facilitator rather than optimistically accepted or silently downgraded, the denial is recorded in the receipt ledger as a permission_decision so it is auditable, the challenge response declares the dependency honestly to the client, and the pugio0 HMAC path verifies self-contained and serves 200 without any external dependency. The result is that Tamga implements the self-facilitation path the standard recommends and closes safely rather than opening when the dependency is missing |
 | AT-224 — canlı-kanıt tazelik doğrulaması: README iddiaları bugün geçerli | closes the last honest gap in the user's own framing, that documentation claims about live behavior should not rest on the day they were written. The README and the live-chain guide assert an emitter contract deployed on Base mainnet and a fulfillment transaction that succeeded with status 1 and gasUsed 68150, all dated late September. The test re-derives every one of those claims from a public RPC at run time, with no API key and no local node, and asserts each independently: the emitter address still carries code, the transaction hash still resolves, its receipt still shows status 0x1, its gasUsed still reads 68150 to the byte, and its destination still matches the emitter. The SKIP path is as carefully designed as the PASS path: if the machine has no internet, the test exits 3 so the suite records a skip rather than a false pass, which keeps the zero-skip invariant honest for offline CI while never converting a network failure into a green mark. The one real implementation trap found along the way was a truthiness bug, the transaction lookup appended the block-number string directly to the check list instead of a boolean, which meant sum could encounter a string and the whole script died before reporting anything, masking that all five assertions were already passing |
 | AT-225 — relayer daemon kaos dikişi: gecikme, ardışık hata, RPC çöküşü, gaz sıçraması, normal | takes the daemon's production-maturity claim, which the README asserts as "fail-closed every step," and puts it under the five failure shapes the polling loop can actually meet. Each scenario injects a different fault into the RPC layer of a local py-evm chain and asks the same two questions: did the daemon send a wrong transaction, and did the loop survive. Artificial latency still yields exactly one correct transaction with the delay visible in elapsed time. A wrapped error class produces error lines and then recovers. A raw OSError that the loop does not catch kills the process but sends nothing, which is the honest failure mode, fail-closed but not resilient. A gas spike is refused with an insufficient-gas rejection and no transaction. The normal path confirms the replay cache is written to disk. Two implementation defects in the test itself were found while making it pass: accessing the fulfilled dict by request id without a guard crashed the whole script before any assertion could report, masking that four of five checks were already passing, and the recovery scenario needed backfill because the loop advances its cursor to the latest block at the end of each cycle, so a request emitted just before a fault can fall behind the cursor and never be picked up during recovery. The daemon's cursor behavior is the real finding here, that resilience under repeated failure depends on the backfill window as much as on exception handling |
+
+
+## V5 doğrulama (2026-09-28, daemon-kaos + ağ-düzeltmesi-sonrası)
+
+| Koşum | Sonuç | Kanıt |
+|---|---|---|
+| V5-1 | **238 PASS, 0 SKIP, 0 FAIL** | run_all-133142.log |
+| V5-2 | **238 PASS, 0 SKIP, 0 FAIL** | run_all-133957.log |
+| V5-3 | **238 PASS, 0 SKIP, 0 FAIL** | run_all-140333.log |
+
+Bu-turda-bulunan-ve-düzeltilen-GERÇEK-üretim-hataları:
+1. **AT-225-K2b OSError dead-code** — daemon_loop'da 'except OSError' 'except
+   Exception'-den-sonra → ulaşılamaz; fetch_requests'in get_logs'u korumasızdı →
+   ağ-kesintisi loop'u-öldürüyordu. RC_NETWORK-27 + sarma-ile-düzeltildi.
+2. **AT-225-K2a cursor-ilerlemesi** — daemon her-cycle-sonunda cursor=block_number
+   yapıyor → hata-sonrası-toparlanmada-request-geriye-düşer (backfill=100-ile).
+3. **Sester ledger TZ-kayması** — spent_today time.mktime (yerel-TZ) kullanıyordu
+   AMA ts-sütunu UTC-epoch → Istanbul +3s, Tokyo +9s, NY -4s kayma. UTC-midnight
+   (calendar.timegm)-ile-düzeltildi; 4-TZ'de-test-yeşil.

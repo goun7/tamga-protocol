@@ -75,9 +75,11 @@ def measure_r1():
 # AT-195-düzeltme (2026-09-25): band-dışı-çıkış = ölçüm-gürültüsü. Kanıt:
 # .evidence/AUDIT-19-geçmişinde-9-PASS/1-FAIL (tam-süit-yükü-altında-tek-CPU-
 # spike'ı-bandı-zorluyor). Retry sinyali-gürültüden-ayırır: GERÇEK-sızıntı her
-# denemede-band-dışı-kalır (3/3 = RED); gürültü rastgele-bir-denemede-band-içi-
-# düşer. Band 0.6-1.6 aynı — zayıflatma-YOK.
-def band_icinde(olcer, isim, deneme=3):
+# denemede-band-dışı-kalır (tüm-denemeler-RED); gürültü rastgele-bir-denemede-
+# band-içi-düşer. Band 0.6-1.6 aynı — zayıflatma-YOK.
+# 2026-09-28: deneme-3→5 (yük-14+-ortalamada-3-retry-yetersiz-kaldı; 5-deneme
+# gürültü-filtresi-güçlenir-AMA-GERÇEK-sızıntı-hâlâ-5/5-band-dışı-kalır → RED).
+def band_icinde(olcer, isim, deneme=5):
     degerler = []
     for i in range(deneme):
         r = olcer()

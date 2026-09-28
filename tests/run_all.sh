@@ -873,6 +873,11 @@ PY
   # tekrar-erişim/auth-only honest-boşluk (ekonomik-model-seçimi), fail-closed.
   bash tests/at221_siwx_ajan_kimlik_paritesi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-221: SIWX ↔ Tamga ajan-kimlik paritesi ( 7/7)"
+  # AT-222: wasmtime platform-tier + CVE-kapsam-dışı — x86_64 Tier-1,
+  # sürüm-48.0.1 ≥ CVE-34987-patch-ailesi, deterministik-Tier-1-stability.
+  # AT-212'nin-kaynak-kanıtını-çalışma-zamanı-üçlüsüyle-tamamlar.
+  bash tests/at222_wasmtime_platform_tier_cve_kapsam_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-222: wasmtime platform-tier + CVE-kapsam-dışı ( 5/5)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

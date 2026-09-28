@@ -149,10 +149,12 @@ def main(argv):
             # TR-biçimleri: "N/N kontrol" ve "→ N/N —" (TR-README)
             t2, c6 = re.subn(r"(#\s*)\d+/\d+(?=\s+kontrol)", r"\g<1>" + f"{real['pass']}/{total}", t2)
             t2, c7 = re.subn(r"(→\s*)\d+/\d+(?=\s+[—-])", r"\g<1>" + f"{real['pass']}/{total}", t2)
-            if c1 or c2 or c3 or c4 or c5 or c6 or c7:
+            # genel: "N/N kontrol" herhangi-önek (satır-115-biçimi)
+            t2, c8 = re.subn(r"\d+/\d+(?=\s+kontrol,)", f"{real['pass']}/{total}", t2)
+            if c1 or c2 or c3 or c4 or c5 or c6 or c7 or c8:
                 p.write_text(t2, encoding="utf-8")
-                n += c1 + c2 + c3 + c4 + c5 + c6 + c7
-                print(f"{rf}: {c1} badge + {c2}/{c3}/{c4}/{c5}/{c6}/{c7} sayı-güncellendi")
+                n += c1 + c2 + c3 + c4 + c5 + c6 + c7 + c8
+                print(f"{rf}: {c1} badge + {c2}/{c3}/{c4}/{c5}/{c6}/{c7}/{c8} sayı-güncellendi")
         print(f"toplam {n} yer güncellendi → {controls}")
     return 0
 

@@ -63,3 +63,27 @@ Eğer Rust tekrarı giderilirse, şu test'ler **yeniden-koşulmalı** (parite-ka
 - `tests/at090` (agent stdout mührü), `tests/at007` (pairing fixture agent-yolu)
 - net-demo RFC-006 D13 fixture'ı (sabit-bayt çıktı)
 - `tamga_runner.py` ile byte-identical-parite test'i (AT-002d gibi)
+
+---
+
+## 7. BOŞLUQ-3: "daemon modu tek canlı tx ile kanıtlanmış" — doğrulama sonucu
+
+**Araştırma sonucu:** README'lerde **"daemon kanıtlanmış" veya "tek canlı tx" ifadesi YOKTUR** (grep ile tarandı). Lead'in raporundaki bu iddia README'de bulunamadı.
+
+**Ama ilgili GERÇEK bir hata bulundu:** `README.md:175` (eski) şunu gösteriyordu:
+
+```
+# 4. Daemon başlat
+tamga daemon
+```
+
+**Bu komut YOK** — `python3 tamga_runner.py daemon` → `unknown command: daemon` (kanıtlandı). Daemon modu **`tamga_oracle_relayer.py`'dedir** (cmd_daemon, satır 938), `tamga` CLI'sında değil. RFC-002 D1 bunu söyler: *"API surface: CLI + JSON stdio (no daemon, no HTTP in v0). Daemon/HTTP is the subject of v1."*
+
+**Düzeltme (yapıldı):** README.md 4. adım artık `python3 tamga_oracle_relayer.py daemon --registry ...` komutunu gösteriyor ve neden (RFC-002 D1) notunu taşıyor.
+
+**Daemon'un gerçek kanıt durumu (TESTS.md kayıtlarından):**
+- **AT-199:** daemon-loop'un paritesi — fulfill tx receipt **status=1, gasUsed 45379** (lokal py-evm/anvil; canlı zincir DEĞİL)
+- **AT-207:** **CANLI Base mainnet'te daemon-restart çift-fulfill güvenlik açığı BULUNDU** — iki tx, ikisi de status=1, **gerçek gaz yandı**. Bu bir "kanıtlanmış başarı" değil, **kanıtlanmış bir açıktı**; iki katmanlı düzeltme (daemon-disk-cache + contract replay-guard AT-210) ile kapatıldı.
+- **AT-210:** replay-guard bytecode (24-byte), lokal anvil — **canlı-oracle'da HENÜZ DEPLOY DEĞİL** ("layer 1 daemon cache canlıyı korur, layer 2 hazır-bekler").
+
+**Dürüst özet:** daemon modu **lokalde kanıtlanmış, canlı zincirde bir güvenlik açığı ortaya koymuş ve kapatılmıştır**. "Tek canlı tx ile kanıtlanmış" ifadesi README'de olmasa da, canlı-daemon yolunun tek-koşum-kanıtı **AT-207'nin çift-fulfill bulgusudur** — bu, README'de "daemon production-ready" imajı verilmesinden daha dürüst bir anlatımdır. Değişiklik-yapılmadı; bu durum sadece belgelendi.

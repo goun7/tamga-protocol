@@ -235,6 +235,10 @@ Tam-döngü **gerçek Base mainnet** üzerinde koşuldu — [docs/CANLI_ZINCIR.m
 | sandbox default-deny | `path_open`→EBADF, `sock_open`→tanımsız-import; preopen-YOK, ağ-YOK (AT-212, 7/7) |
 | ledger-robustluk | 50-bozuk-satır → **50/50-RED**, 0-sessiz-kabul (AT-213) |
 | x402 V2 güvenli-bekleme | V2-header'ları 402-RED; V1-yolu 200 (AT-214, 8/8) |
+| x402 spec-paritesi | upto-sınırları fail-closed (AT-219), payment-identifier-honest-boşluk (AT-216), keşif-paritesi (AT-220), SIWX kimlik-ödemede (AT-221), self-facilitate (AT-223) |
+| DoS-koruması | sonsuz-döngü + memory.grow anında-kesilir; deterministik (AT-217, AT-222) |
+| receipt-ölçeği | 1000-event'lik-HMAC-zincir 0.010 s'de-doğrulanır (AT-218) |
+| canlı-kanıt-tazeliği | emitter + fulfill-tx BUGÜN public-RPC'den-yeniden-doğrulandı (AT-224, 6/6) |
 | anahtar-gizlilik | anahtar-prefix'i tüm log/reason'larda **yok** |
 
 Toplam maliyet ~$0.001 (Base baseFee ~0.005 gwei). Testler `TAMGA_LIVE=1` olmadıkça

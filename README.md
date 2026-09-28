@@ -297,6 +297,10 @@ The full loop ran on **real Base mainnet** — [docs/CANLI_ZINCIR.md §6](docs/C
 | sandbox default-deny | `path_open`→EBADF, `sock_open`→undefined import; no preopens, no network (AT-212, 7/7) |
 | ledger robustness | 50 corrupted rows → **50/50 refused**, 0 silent acceptance (AT-213) |
 | x402 V2 safe-wait | V2 headers refused at 402; V1 path serves 200 (AT-214, 8/8) |
+| x402 spec parity | upto boundaries fail-closed (AT-219), payment-identifier honest gap (AT-216), discovery parity (AT-220), SIWX identity-in-payment (AT-221), self-facilitate (AT-223) |
+| DoS protection | infinite loop + memory.grow killed instantly; deterministic across runs (AT-217, AT-222) |
+| receipt scale | 1000-event HMAC chain verified in 0.010 s (AT-218) |
+| live proof freshness | emitter + fulfillment tx re-verified against public RPC today (AT-224, 6/6) |
 | key secrecy | key prefix absent from every log and reason field |
 
 Total cost ~$0.001 (Base baseFee ~0.005 gwei). The live tests are gas-guarded:

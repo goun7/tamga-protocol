@@ -878,6 +878,11 @@ PY
   # AT-212'nin-kaynak-kanıtını-çalışma-zamanı-üçlüsüyle-tamamlar.
   bash tests/at222_wasmtime_platform_tier_cve_kapsam_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-222: wasmtime platform-tier + CVE-kapsam-dışı ( 5/5)"
+  # AT-223: facilitator-bağımsızlık — x402-resmi-docs production-mainnet için
+  # public-facilitator-ÖNERMEZ; Tamga-self-facilitating: facilitatorsuz-exact
+  # fail-closed-402, pugio0 self-contained-200 (§5.6).
+  bash tests/at223_facilitator_bagimsizlik_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-223: facilitator-bağımsızlık / self-facilitate ( 5/5)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

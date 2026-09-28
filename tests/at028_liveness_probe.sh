@@ -45,7 +45,10 @@ PYEOF
 
 run_case() { MODE=$1; WANT_RC=$2; WANT_VERDICT=$3; PORT=$((40280+RANDOM%200));
   python3 "$D/mock.py" "$MODE" "$PORT" & SRV=$!
-  for i in 1 2 3 4 5 6 7 8 9 10; do python3 -c "import socket,sys; s=socket.socket(); sys.exit(s.connect_ex(('127.0.0.1',$PORT)))" 2>/dev/null && break; sleep 0.2; done
+  # 2026-09-28: retry 10×0.2s → 20×0.3s (yük-18+-ortalamada-mock-sunucu-
+  # zamanında-açılmıyordu; gerçek-liveness-RED'den-ayrılamayacağı-için-
+  # port-bağlantı-süresi-uzatıldı, karar-mantığı-AYNI).
+  for i in $(seq 1 20); do python3 -c "import socket,sys; s=socket.socket(); sys.exit(s.connect_ex(('127.0.0.1',$PORT)))" 2>/dev/null && break; sleep 0.3; done
   OUT=$(python3 -m tamga_liveness --rpc "http://127.0.0.1:$PORT" --max-age-blocks 10 2>&1); RC=$?
   kill "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null
   echo "[$MODE rc=$RC] $OUT" >> "$LOG"
@@ -62,7 +65,7 @@ run_case genesis   1 RED
 run_case error     2 İNDETERMİNE
 # evaluated-alanı: bakamadı=false, baktı=true (makine-okunur-ayrim — #2887 dersinin-kendi-hijyeni)
 PORT=$((40280+RANDOM%200)); python3 "$D/mock.py" error "$PORT" & SRV=$!
-for i in 1 2 3 4 5 6 7 8 9 10; do python3 -c "import socket,sys;s=socket.socket();sys.exit(s.connect_ex(('127.0.0.1',$PORT)))" 2>/dev/null && break; sleep 0.2; done
+for i in $(seq 1 20); do python3 -c "import socket,sys;s=socket.socket();sys.exit(s.connect_ex(('127.0.0.1',$PORT)))" 2>/dev/null && break; sleep 0.3; done
 OUT=$(python3 -m tamga_liveness --rpc "http://127.0.0.1:$PORT" --max-age-blocks 10 2>/dev/null)
 kill "$SRV" 2>/dev/null; wait "$SRV" 2>/dev/null
 echo "$OUT" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if d['evaluated'] is False and d['verdict']=='İNDETERMİNE' else 1)"

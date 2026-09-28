@@ -317,3 +317,25 @@ challenge'ı-döner, istemci `SIGN-IN-WITH-X` header'ıyla CAIP-122-imzası-gön
   Genişletme-için: ödenmiş-önbellek (resource+wallet → TTL) eklenebilir.
 
 **İlgili-testler:** AT-221 (kimlik-paritesi), AT-216 (replay), AT-220 (keşif).
+
+### 5.6 Facilitator-Modeli — production-mainnet-uyumu (2026-09-28)
+
+**Kaynak:** docs.x402.org/core-concepts/facilitator.md
+
+x402 resmi-docs'u **production-mainnet için public `x402.org` facilitator'una
+güvenmeyi-açıkça-önermez**: "Do not assume it is the default path for production
+mainnet routes." Üç-yol-önerir: production-provider / kendi-facilitator /
+**self-facilitate**.
+
+**Tamga durumu (AT-223, 5/5):** Tamga **self-facilitating**-seçenektir:
+- `SesterMeter(facilitator=None)` → exact-scheme (EIP-3009) zarfı
+  **fail-closed 402 `exact_requires_facilitator`** (açık-kapı-YOK)
+- HMAC-yolu (`pugio0`) **facilitator-BAĞIMSIZ** → self-contained-doğrulama-200
+- challenge'da exact-girişi `facilitator: required` **honest-signalling**-ile-
+  ilan-edilir (istemci-bağımlılığı-bilir)
+- deny-kararı-ledger'a-yazılır (permission_decision) → fail-closed-kanıt
+
+**SONUÇ:** Tamga x402'nin-önerdiği-üç-yoldan-self-facilitate'i-uygular-VE-
+facilitator-yokluğunda-asla-açık-kapı-bırakmaz. Bu, AT-214'te-kanıtlanan
+"güvenli-bekleme"-çizgisiyle-tutarlu.
+

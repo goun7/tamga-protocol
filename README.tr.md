@@ -6,7 +6,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-237%2F237%20PASS-brightgreen)](#tek-komut-regresyon)
+[![Tests](https://img.shields.io/badge/tests-238%2F238%20PASS-brightgreen)](#tek-komut-regresyon)
 [![Lisans](https://img.shields.io/badge/lisans-Apache--2.0-informational)](LICENSE)
 [![Durum](https://img.shields.io/badge/durum-Faz%202%20--%20pilot-orange)](#yol-haritası)
 
@@ -56,7 +56,7 @@ Ayrıntı: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Rehber: [docs/AGENT-G
 ## Derin teknik özet — güvenceler (kanıtlarıyla)
 
 Her güvence burada *iddia + kanıt-yeri* çifti olarak durur; süit, her iddiayı kontrol-alkışlı
-negatif vektörlerle çalıştırır (`bash tests/run_all.sh` → 237/237 — 0 SKIP, 0 FAIL; TAMGA_LIVE=1 ile 237):
+negatif vektörlerle çalıştırır (`bash tests/run_all.sh` → 238/238 — 0 SKIP, 0 FAIL; TAMGA_LIVE=1 ile 237):
 
 | Güvence | Ne kanıtlar | Kanıt-yeri |
 |---|---|---|
@@ -112,7 +112,7 @@ dış batch'e izdüşürülür → dış çıpayı bizim tarafımızda alınmı�
 tek komutla: `bash tools/demo.sh` · Ham kayıt: [docs/assets/demo.cast](docs/assets/demo.cast)
 · Beklenen akış: [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md).
 
-**Tek-komut regresyon:** `bash tests/run_all.sh` — 237/237 kontrol, 0 SKIP / 0 FAIL (~70–110 sn; `RUN_SLOW=1` ile
+**Tek-komut regresyon:** `bash tests/run_all.sh` — 238/238 kontrol, 0 SKIP / 0 FAIL (~70–110 sn; `RUN_SLOW=1` ile
 50). Kontrol-aileleri: snapshot yaşam-döngüsü + advers-negatifler (AT-001), determinizm/yeniden
 koşum (AT-002), defter-saldırı vektörleri (AT-003), girdiye-bağlı makbuzlar (AT-004), çok-biçimli
 hafıza-ithalatı (AT-005), manifest-şema çapraz-doğrulaması (0.2.0 terfi matrisiyle 60/60) ve
@@ -261,7 +261,7 @@ git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 bash tests/setup.sh      # tek-seferlik: pinli wasmtime tools/bin/'e kurulur
-bash tests/run_all.sh    # 237/237 kontrol — 0 SKIP, 0 FAIL (TAMGA_LIVE=1 ile 237)
+bash tests/run_all.sh    # 238/238 kontrol — 0 SKIP, 0 FAIL (TAMGA_LIVE=1 ile 237)
 
 # ilk ajanın (örnek-vektörü-paket olarak kopyala — docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice

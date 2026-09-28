@@ -868,6 +868,11 @@ PY
   # bile-bedava-değil; fail-closed). docs/RESEARCH.md §5.3.
   bash tests/at220_kesif_katmani_paritesi_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-220: keşif-katmanı paritesi ( 9/9; agents.json + bazaar-honest)"
+  # AT-221: SIWX ↔ Tamga ajan-kimlik paritesi — CAIP-122/EIP-4361 (§5.5).
+  # Kimlik-ödemeli-bağlı (atfedilebilir), EVM-imza SIWX-ile-aynı-matematik,
+  # tekrar-erişim/auth-only honest-boşluk (ekonomik-model-seçimi), fail-closed.
+  bash tests/at221_siwx_ajan_kimlik_paritesi_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-221: SIWX ↔ Tamga ajan-kimlik paritesi ( 7/7)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

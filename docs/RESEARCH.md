@@ -292,3 +292,28 @@ fazla-ajan-aynı-süreçte-koşulursa fuel-gerekir (şu-an-değil).
 ### Tarihçe
 - **2026-09-28**: wasmtime-güvenlik-politikası-taraması → §6 eklendi;
   AT-217 (DoS-sınıfı-kanıtı) shipped 6/6.
+
+### 5.5 SIWX (Sign-In-With-X) — CAIP-122 wallet-kimlik-doğrulaması (2026-09-28)
+
+**Kaynak:** docs.x402.org/extensions/sign-in-with-x.md (CAIP-122 / EIP-4361 /
+Sign-In-With-Solana üzerine).
+
+SIWX iki-vaat-verir: (1) **önceden-ödenmiş-içeriğe tekrar-bedava-erişim**;
+(2) **sadece-auth-yolları** (ödeme-yok, imza-yeterli). Sunucu 402+SIWX-
+challenge'ı-döner, istemci `SIGN-IN-WITH-X` header'ıyla CAIP-122-imzası-gönderir.
+
+**Tamga durumu (AT-221, 7/7):**
+- **Kimlik-ödemeli-bağlı:** her-geçerli-ödeme tanımlı-bir-ajan-üretilir
+  (`_agent_of`: EVM→0x-adres, HMAC→etiket) — anonim-ödeme-YOK, her-istek-
+  atfedilebilir. SIWX'in-ayrı-bir-kimlik-kanalına-ihtiyaç-yoktur-çünkü-kimlik
+  zaten-ödemenin-içindedir.
+- **EVM-imza-matematiği-aynı:** Sester-EVM EIP-191-imzası resource-bağlı-
+  doğrulanır — SIWX'in-wallet-kanıtıyla-aynı-cripto.
+- **BOŞUK (honest):** (1) tekrar-bedava-erişim-YOK — Tamga her-istek-için-yeni
+  ödeme-ister (claim_nonce replay-koruması, AT-216-K1). (2) auth-only-yol-YOK —
+  her-yol-ödeme-ister (AT-220-K6'daki `/discovery/resources`-402-bulgusuyla-
+  tutarlı). İkisi-de **ekonomik-model-seçimi**, güvenlik-açığı-değil: SIWX-
+  vaadi- Subscription/repeat-access-monetization'i hedefler; Tamga per-request.
+  Genişletme-için: ödenmiş-önbellek (resource+wallet → TTL) eklenebilir.
+
+**İlgili-testler:** AT-221 (kimlik-paritesi), AT-216 (replay), AT-220 (keşif).

@@ -16,26 +16,22 @@ ardışık-başarısızlık durumunda ne yapacağı (backoff, alarm) dokümante 
 
 ## Bulgular (test-çıktısından-okunan-gerçekler)
 
-### BULGU-1: `fetch_requests`'in `get_logs` çağrısı SARILMAMIŞ
+### BULGU-1: `fetch_requests`'in `get_logs` çağrısı SARILMAMIŞDI — DÜZELTİLDİ
 
-`tamga_oracle_relayer.py`'de:
-- `submit_fulfillment` **tüm** exception'ları `TamgaRelayerError(RC_TX_FAILED)`'a
-  sarar (satır ~745, AT-203) → daemon crash-ETMEZ, fail-closed.
-- **`fetch_requests`'in `get_logs` çağrısı sarılmamış** (satır ~673). Gerçek bir
-  RPC/network hatası (`OSError`, `TimeoutError`, web3 exception) doğrudan yayar.
+**İlk-koşumda-kanıtlandı:** `tamga_oracle_relayer.py`'de `submit_fulfillment` tüm
+exception'ları `TamgaRelayerError(RC_TX_FAILED)`'a sarıyordu (AT-203), **ama
+`fetch_requests`'in `get_logs` çağrısı sarılmamıştı.** Gerçek RPC/network hatası
+(`OSError`) doğrudan yayıyordu; `daemon_loop`'un `except TamgaRelayerError`'u
+yakalayamıyordu → **daemon CRASH ediyordu.**
 
-`daemon_loop` (satır ~829) `for req in transport.fetch_requests(cursor)`'u bir
-`try` içine almış, ama **sadece `except TamgaRelayerError`** yakalar (satır ~857).
-Sonuç: **genel-RPC-hatası daemon_loop'u CRASH eder.**
+**Düzeltme (paralel-oturumda-yapıldı, bu-oturumda-gözden-geçirildi):**
+- `RC_NETWORK = 27` yeni reason-code
+- `fetch_requests`: `except OSError → TamgaRelayerError(RC_NETWORK)` — AT-203-deseni
+- `daemon_loop` cursor-bloğunun **dead-code `except OSError` sıralaması düzeltildi**
+  (önce `Exception` hepsini-yakaladığı-için `OSError` bloğu ölüydü; artık OSError-önce)
 
-K2b bu gerçeği kanıtlar: daemon öldü, ama **hiçbir yanlış tx göndermedi**
-(fail-closed İlkesi sağlanır — crash en güvenli fail-closed'dur, systemd
-`Restart=always` ile çift-katman). Yine de bu, dokümante edilen "döngü DURMAZ"
-iddiasıyla **çelişir**: genel-ağ-hatasında döngü durur.
-
-**Öneri (değişiklik-yapılmadı):** `fetch_requests`'in `get_logs` çağrısını
-`try/except Exception → TamgaRelayerError(RC_RPC)` ile sarmak, `submit_fulfillment`
-ile aynı desende. Maliyet: ~6 satır.
+**Sonuç:** K2b artık **loop-sağ-kalır + fail-closed** (`"poll-hatası (devam): 27
+rpc-ağ-hatası"`). AT-225'in-K2b-senaryosu bu-düzeltmenin **regresyon-korumasıdır**.
 
 ### BULGU-2: cursor cycle-sonunda İLERLER — hata-sırasındaki request kaçar
 

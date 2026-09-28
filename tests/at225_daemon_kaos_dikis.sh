@@ -236,18 +236,20 @@ results["K2a"] = {
     "err_samples": err_lines_a[:2], "log": log2a,
 }
 
-# --- K2b: gerçek-RPC-hata-sınıfı (OSError — get_logs SARILMAMIŞ) -----------
-# AT-225-BULGUSU: fetch_requests'in get_logs çağrısı sarmalanmadı (submit_fulfillment
-# AT-203-ile-sarıldı ama get_logs-değil) → genel-ağ-hatası daemon_loop'u CRASH-eder.
-# Test-bu-gerçeği-kanıtlar: fail-closed-hâlâ-sağlanır (yanlış-tx-GÖNDERİLMEDİ)
-# ama loop-ÖLÜR — bu açı test-çıktısında-açıkça-yazılır.
+# --- K2b: gerçek-RPC-hata-sınıfı (OSError) — REGRESYON-KORUMASI -------------
+# AT-225-BULGUSU (ilk-koşumda-kanıtlandı): fetch_requests'in get_logs çağrısı
+# SARILMAMIŞDI → OSError daemon_loop'u CRASH-ederdi. Paralel-oturum-düzeltmesi
+# (tamga_oracle_relayer.py fetch_requests ~677-686): OSError →
+# TamgaRelayerError(RC_NETWORK) — submit_fulfillment'ın-AT-203-deseni-gibi.
+# Artık daemon LOOP-SAĞ-KALIR + fail-closed (yanlış-tx-yok). Bu-senaryo
+# o-düzeltmenin-regresyon-korumasıdır: crash-ederse-düzeltme-geri-alınmıştır.
 wd2b = workdir_of("wd2b")
 log2b = []
 _crash = {"n": 0}
 
 def os_err_get_logs(params):
     _crash["n"] += 1
-    raise OSError("K2b: gerçek-RPC-kesintisi (get_logs-sarılmamış-yol)")
+    raise OSError("K2b: gerçek-RPC-kesintisi (get_logs-yolu)")
 
 t2b, w3_2b = make_world()
 w3_2b.eth.get_logs = os_err_get_logs
@@ -260,9 +262,11 @@ try:
 except Exception as e:
     k2b_fulfilled = []
     k2b_exc = f"{type(e).__name__}: {str(e)[:100]}"
+_net_errs = [ln for ln in log2b if "rpc-ağ-hatası" in ln]
 results["K2b"] = {
     "fulfilled": k2b_fulfilled, "crash": k2b_exc is not None,
-    "exception": k2b_exc, "calls": _crash["n"], "log": log2b,
+    "exception": k2b_exc, "calls": _crash["n"],
+    "network_reds": len(_net_errs), "log": log2b,
 }
 
 # ==========================================================================
@@ -271,7 +275,6 @@ results["K2b"] = {
 # ==========================================================================
 wd3 = workdir_of("wd3")
 log3 = []
-t3, w3_3 = make_world()
 
 # AT-225-K3: gaz-artışı-deneği — gas=intrinsic-altı (21000) tx'i-revert-eder;
 # submit_fulfillment tüm-istisnaları RC_TX_FAILED'a-sarmalı (AT-203) → daemon
@@ -332,10 +335,12 @@ print(f"K2a ardışık-hata(sarılmış): survived={k2a['loop_survived']} "
 # fail-closed-iddiası: yanlış-tx-GÖNDERİLMEDİ (boş-fulfilled). Loop-ölmesi
 # ayrı-bulgu-açısı (get_logs-sarılmamış); test-ikisini-de-açıkça-yazar.
 k2b = R["K2b"]
-ok.append(len(k2b["fulfilled"]) == 0 and k2b["crash"])
+# AT-225-K2b DÜZELTME-SONRASI: OSError artık RC_NETWORK-27'ye-sarılı →
+# loop-sağ-kalıyor + yanlış-tx-YOK. crash=False-artık-DOĞRU-davranış.
+ok.append(len(k2b["fulfilled"]) == 0 and not k2b["crash"])
 print(f"K2b gerçek-RPC-hatası(sarılmamış): CRASH={k2b['crash']} "
       f"calls={k2b['calls']} exception={k2b['exception'] or 'YOK'} "
-      f"→ fail-closed=EVET (yanlış-tx-yok); AT-225-BULGUSU: loop-ölüyor",
+      f"→ fail-closed=EVET + loop-SAĞ-KALDI (RC_NETWORK-27-düzeltmesi)",
       file=sys.stderr)
 
 # --- K3: gaz-artışı — fail-closed (yanlış-tx-YOK) ---------------------------

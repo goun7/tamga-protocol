@@ -78,6 +78,7 @@ RC_REGISTRY_INVALID = 23           # registry JSON/şema geçersiz
 RC_LEDGER_SECRET_REQUIRED = 24     # ledger secret yok (AT-190/193: dev-secret YOK)
 RC_INSECURE_SECRET = 25            # bilinen-secret ('dev-secret'/boş) reddedildi
 RC_LEDGER_UNAVAILABLE = 26         # sester.ledger modülü bulunamadı (mesh-modülü)
+RC_NETWORK = 27                  # RPC ağ-hatası (OSError) — daemon loop sağ-kalsın (AT-225-K2b)
 
 # tamga_runner.py:20 — snapshot format sabitleri (yeniden icat etme: aynı değerler)
 SNAPSHOT_MAGIC = b"TSG1"
@@ -670,11 +671,19 @@ class OracleTransport:
     REQ_DECODER = ["bytes32", "bytes", "uint32", "bytes4"]
 
     def fetch_requests(self, from_block=0):
-        logs = self._w3.eth.get_logs({
-            "fromBlock": from_block, "toBlock": "latest",
-            "address": self._oracle.address,
-            "topics": [self._request_topic()],
-        })
+        # AT-225-K2b: ağ-kesintisi (OSError) burada-fırlar — daemon_loop'un
+        # TamgaRelayerError-except'ine-düşmez → loop-ölür. Saralım: loop-sağ-
+        # kalsın-ve-bir-sonraki-cycle'da-tekrar-deneyecek (fail-closed:
+        # yanlış-tx-ASLA-gönderilmez).
+        try:
+            logs = self._w3.eth.get_logs({
+                "fromBlock": from_block, "toBlock": "latest",
+                "address": self._oracle.address,
+                "topics": [self._request_topic()],
+            })
+        except OSError as e:
+            raise TamgaRelayerError(
+                RC_NETWORK, f"rpc-ağ-hatası (get_logs): {e}") from None
         reqs = []
         for lg in logs:
             tops = lg["topics"]
@@ -859,10 +868,10 @@ def daemon_loop(transport: "OracleTransport", registry: dict, seed_hex: str,
         # sonraki-cycle: cursor'u-güncelle (stale-yok; public-RPC için-ardışık-tarama)
         try:
             cursor = int(transport._w3.eth.block_number)
-        except Exception:
-            pass
         except OSError as e:
             log(f"[relayer] ağ-hatası (devam): {e}")
+        except Exception:
+            pass
         if once or (max_cycles is not None and cycle >= max_cycles):
             return fulfilled
         time.sleep(interval_s)

@@ -166,7 +166,7 @@ sandbox'un güvenlik vaadini sorguluyor. Tamga'nın `default-deny` tasarımını
 
 ---
 
-## 5. Tarihçe
+## Tarihçe (genel)
 
 - **2026-09-26**: Bu belge oluşturuldu — x402 V2, OracleTrust (PLOS ONE),
   Wasmtime CVE'leri (2026) araştırması; AT-212 önerildi.
@@ -252,47 +252,6 @@ V2-header'ları-gelse-bile-Tamga-açık-kapı-bırakmaz. Önerilen-testler:
 AT-215 (upto-örneklenmesi-veya-olumsuz-kanıt), AT-216 (payment-identifier
 retry-davranışı), AT-217 (agents.json ↔ bazaar-paritesi).
 
-### Tarihçe-güncellemesi
-- **2026-09-27 (gece)**: x402 resmi-docs-taraması → §5 eklendi (upto /
-  payment-identifier / bazaar boşlukları); mevcut testlerle-haritalama.
-
----
-
-## 6. Wasmtime Güvenlik-Politikası-2026: DoS-Sınıfı-Açıklar (resmi-dokümanlar)
-
-**Kaynak:** docs.wasmtime.dev/security-what-is-considered-a-security-vulnerability.html
-(bytecodealliance/wasmtime SECURITY.md üzerinden, 2026-09-28-taraması).
-
-Wasmtime'ın-resmi-sınıflandırması hangi-hatanın-güvenlik-açığı-sayıldığını
-açıkça-listeler. **Tamga-için-sorulması-gereken-soru:** distribüte-ajanlar
-BİLİNMEYEN-wasm (oracle-üzerinden-herhangi-bir-gönderen) olduğundan, bu
-sınıfların-Tamga'da-uygulanması-ne-durumda?
-
-| Wasmtime-sınıfı | Tamga-durumu | Kanıt |
-|---|---|---|
-| **Uninterruptible infinite loops** (çalışma-zamanı) | **KAPSANMIŞ** — `cpu_ms_per_run` limiti (varsayılan 5000 ms) + `subprocess.timeout` ile-process-kill; oracle-yan `min(request, manifest)+[1,60000]` çift-kısıtlı | **AT-217** (K1) |
-| **User-controlled memory exhaustion** | **KAPSANMIŞ** — `RLIMIT_FSIZE` preexec ile-io-sınırı + memory.grow-vektörleri-derleme-anında-trap | **AT-217** (K2) |
-| Sandbox-escape / OOB-memory / CFI-ihlali | wasmtime-çekirdek-sorumluluğu; pinned-47.0.1/48.0.1-üstü-patched | AT-212 |
-| FS-erişimi-mapped-dir-dışında | **KAPSANMIŞ** — preopen-YOK (default-deny) | AT-212 (K2-EBADF) |
-| WASI-capability-olmadan-resource-kullanımı | **KAPSANMIŞ** — capability-sunulmuyor | AT-212 (K3) |
-| Derleme-zamanı-DoS | wasmtime-politikasına-göre **açık-sayılmaz** (sadece-çalışma-zamanı) | — |
-| Wasm-semantiğinden-sapma (sandbox-içi) | politikaya-göre-açık-DEĞİL — AMA-Tamga-için-önemli: `stdout_sha256`-gap'ini-dogrulayan-AT-205/206 semantik-sapmayı-zaten-yakalar | AT-205/206 |
-
-**İlginç-gözlem (AT-217-çıktısı):** `(loop (br 0))` ve `memory.grow`-döngüsü
-5-saniye-limiti-BEKLEMEDİ — **0.0 s'de rc=1 ile-trap**. Yani wasmtime
-bu-iki-vektörü-statik/erken-aşamada-yakalıyor; `cpu_ms_per_run`-limiti-ikinci-
-savunma-hattı. Dürüst-not: Bu-K1/K2-sonucu "koruma-yok" değil "koruma-anında"
-anlamına-gelir — K3 (normal-vector rc0) ile-regresyon-yok-kanıtlanmıştır.
-
-**Kalan-boşluk (dürüst):** fuel-mekanizması (`wasmtime::Fuel`) Tamga'da-
-kullanılmıyor — `timeout`-ile-process-kill-essekli-AMA-tek-very-senkron-çağrı-
-başına-bir-azami-olduğundan-async-fuel'e-ihtiyaç-yok. Eğer-ileride-birden-
-fazla-ajan-aynı-süreçte-koşulursa fuel-gerekir (şu-an-değil).
-
-### Tarihçe
-- **2026-09-28**: wasmtime-güvenlik-politikası-taraması → §6 eklendi;
-  AT-217 (DoS-sınıfı-kanıtı) shipped 6/6.
-
 ### 5.5 SIWX (Sign-In-With-X) — CAIP-122 wallet-kimlik-doğrulaması (2026-09-28)
 
 **Kaynak:** docs.x402.org/extensions/sign-in-with-x.md (CAIP-122 / EIP-4361 /
@@ -338,4 +297,39 @@ mainnet routes." Üç-yol-önerir: production-provider / kendi-facilitator /
 **SONUÇ:** Tamga x402'nin-önerdiği-üç-yoldan-self-facilitate'i-uygular-VE-
 facilitator-yokluğunda-asla-açık-kapı-bırakmaz. Bu, AT-214'te-kanıtlanan
 "güvenli-bekleme"-çizgisiyle-tutarlu.
+
+## 6. Wasmtime Güvenlik-Politikası-2026: DoS-Sınıfı-Açıklar (resmi-dokümanlar)
+
+**Kaynak:** docs.wasmtime.dev/security-what-is-considered-a-security-vulnerability.html
+(bytecodealliance/wasmtime SECURITY.md üzerinden, 2026-09-28-taraması).
+
+Wasmtime'ın-resmi-sınıflandırması hangi-hatanın-güvenlik-açığı-sayıldığını
+açıkça-listeler. **Tamga-için-sorulması-gereken-soru:** distribüte-ajanlar
+BİLİNMEYEN-wasm (oracle-üzerinden-herhangi-bir-gönderen) olduğundan, bu
+sınıfların-Tamga'da-uygulanması-ne-durumda?
+
+| Wasmtime-sınıfı | Tamga-durumu | Kanıt |
+|---|---|---|
+| **Uninterruptible infinite loops** (çalışma-zamanı) | **KAPSANMIŞ** — `cpu_ms_per_run` limiti (varsayılan 5000 ms) + `subprocess.timeout` ile-process-kill; oracle-yan `min(request, manifest)+[1,60000]` çift-kısıtlı | **AT-217** (K1) |
+| **User-controlled memory exhaustion** | **KAPSANMIŞ** — `RLIMIT_FSIZE` preexec ile-io-sınırı + memory.grow-vektörleri-derleme-anında-trap | **AT-217** (K2) |
+| Sandbox-escape / OOB-memory / CFI-ihlali | wasmtime-çekirdek-sorumluluğu; pinned-47.0.1/48.0.1-üstü-patched | AT-212 |
+| FS-erişimi-mapped-dir-dışında | **KAPSANMIŞ** — preopen-YOK (default-deny) | AT-212 (K2-EBADF) |
+| WASI-capability-olmadan-resource-kullanımı | **KAPSANMIŞ** — capability-sunulmuyor | AT-212 (K3) |
+| Derleme-zamanı-DoS | wasmtime-politikasına-göre **açık-sayılmaz** (sadece-çalışma-zamanı) | — |
+| Wasm-semantiğinden-sapma (sandbox-içi) | politikaya-göre-açık-DEĞİL — AMA-Tamga-için-önemli: `stdout_sha256`-gap'ini-dogrulayan-AT-205/206 semantik-sapmayı-zaten-yakalar | AT-205/206 |
+
+**İlginç-gözlem (AT-217-çıktısı):** `(loop (br 0))` ve `memory.grow`-döngüsü
+5-saniye-limiti-BEKLEMEDİ — **0.0 s'de rc=1 ile-trap**. Yani wasmtime
+bu-iki-vektörü-statik/erken-aşamada-yakalıyor; `cpu_ms_per_run`-limiti-ikinci-
+savunma-hattı. Dürüst-not: Bu-K1/K2-sonucu "koruma-yok" değil "koruma-anında"
+anlamına-gelir — K3 (normal-vector rc0) ile-regresyon-yok-kanıtlanmıştır.
+
+**Kalan-boşluk (dürüst):** fuel-mekanizması (`wasmtime::Fuel`) Tamga'da-
+kullanılmıyor — `timeout`-ile-process-kill-essekli-AMA-tek-very-senkron-çağrı-
+başına-bir-azami-olduğundan-async-fuel'e-ihtiyaç-yok. Eğer-ileride-birden-
+fazla-ajan-aynı-süreçte-koşulursa fuel-gerekir (şu-an-değil).
+
+### Tarihçe
+- **2026-09-28**: wasmtime-güvenlik-politikası-taraması → §6 eklendi;
+  AT-217 (DoS-sınıfı-kanıtı) shipped 6/6.
 

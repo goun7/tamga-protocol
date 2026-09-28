@@ -883,6 +883,12 @@ PY
   # fail-closed-402, pugio0 self-contained-200 (§5.6).
   bash tests/at223_facilitator_bagimsizlik_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-223: facilitator-bağımsızlık / self-facilitate ( 5/5)"
+  # AT-224: canlı-kanıt tazelik — README/docs'taki Base-mainnet-iddialarını
+  # BUGÜN bağımsız-public-RPC'den-yeniden-doğrular (güncel-tarihli-veriler).
+  # Salt-okuma, anahtarsız; internet-yoksa exit-3-SKIP (asla-false-PASS).
+  bash tests/at224_canli_kanit_tazelik_dikis.sh > /dev/null 2>&1
+  rc224=$?
+  if [ "$rc224" = "3" ]; then kontrol_skip 1 "AT-224: canlı-kanıt tazelik ( SKIP — internet-yok)"; else kontrol "$rc224" "AT-224: canlı-kanıt tazelik doğrulaması ( 6/6; emitter+tx BUGÜN)"; fi
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

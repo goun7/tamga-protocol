@@ -136,11 +136,23 @@ def main(argv):
                 continue
             t = p.read_text(encoding="utf-8")
             t2, c1 = re.subn(r"badge/tests-\d+%2F\d+%20PASS", f"badge/{badge}", t)
-            t2, c2 = re.subn(r"\d+/\d+ controls — \d+ SKIP, \d+ FAIL", controls, t2)
-            if c1 or c2:
+            # SADECE sayıları-değiştir, çevreleyen-metne-DOKUNMA:
+            # "N/N controls" → sayılar (ardından gelen-metin-ne-ise-kalsın)
+            t2, c2 = re.subn(r"(#\s*)\d+/\d+(?=\s+controls)", r"\g<1>" + f"{real['pass']}/{total}", t2)
+            # "0 SKIP, 0 FAIL" / "0 SKIP / 0 FAIL" → gerçek-değerler
+            t2, c3 = re.subn(r"\d+ SKIP, \d+ FAIL",
+                             f"{real['skip']} SKIP, {real['fail']} FAIL", t2)
+            t2, c4 = re.subn(r"\d+ SKIP / \d+ FAIL",
+                             f"{real['skip']} SKIP / {real['fail']} FAIL", t2)
+            # → N/N (TR-README biçimi)
+            t2, c5 = re.subn(r"(→\s*)\d+/\d+(?=\s+controls)", r"\g<1>" + f"{real['pass']}/{total}", t2)
+            # TR-biçimleri: "N/N kontrol" ve "→ N/N —" (TR-README)
+            t2, c6 = re.subn(r"(#\s*)\d+/\d+(?=\s+kontrol)", r"\g<1>" + f"{real['pass']}/{total}", t2)
+            t2, c7 = re.subn(r"(→\s*)\d+/\d+(?=\s+[—-])", r"\g<1>" + f"{real['pass']}/{total}", t2)
+            if c1 or c2 or c3 or c4 or c5 or c6 or c7:
                 p.write_text(t2, encoding="utf-8")
-                n += c1 + c2
-                print(f"{rf}: {c1} badge + {c2} kontrol-satırı güncellendi")
+                n += c1 + c2 + c3 + c4 + c5 + c6 + c7
+                print(f"{rf}: {c1} badge + {c2}/{c3}/{c4}/{c5}/{c6}/{c7} sayı-güncellendi")
         print(f"toplam {n} yer güncellendi → {controls}")
     return 0
 

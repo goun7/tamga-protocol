@@ -889,6 +889,11 @@ PY
   bash tests/at224_canli_kanit_tazelik_dikis.sh > /dev/null 2>&1
   rc224=$?
   if [ "$rc224" = "3" ]; then kontrol_skip 1 "AT-224: canlı-kanıt tazelik ( SKIP — internet-yok)"; else kontrol "$rc224" "AT-224: canlı-kanıt tazelik doğrulaması ( 6/6; emitter+tx BUGÜN)"; fi
+  # AT-225: daemon-kaos-dikişi — gecikme / ardışık-hata / RPC-crash / gaz-spike /
+  # normal altında fail-closed. Üretim-bulgusu: cursor-cycle-sonunda-ilerler →
+  # hata-sonrası-toparlanmada-request-kaçabilir (backfill-ile-çözülür).
+  bash tests/at225_daemon_kaos_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-225: daemon-kaos-dikişi — fail-closed her-senaryoda ( 5/5)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

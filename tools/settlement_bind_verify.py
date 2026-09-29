@@ -6,9 +6,14 @@ safal207'nin-x402#3379-önerisinin-Tamga-tarafı: beş-bağımsız-kontrol, tek-
 fail-closed. Hiçbiri-tek-başına-yeterli-değil; biri-RED → tümü-RED.
 
 Üç-verdict (İlk-adım-ilkesi-korunur — saf-stdlib, bağımlılık-YOK):
-  GREEN rc0  — beşi-de-doğru
+  GREEN rc0  — hepsi-doğru (yedisi-de)
   RED   rc1  — en-az-biri-yanlış (fail-closed; hangisi-'reason'-alanında)
   İNDETERMİNE rc2 — bilinmeyen-scheme (RED-değil: sonuç-esirgeme, yokluk-sayılmaz)
+
+Kontrol-7 (x402#2887): submitter/payee-ayırmı — facilitator-attribution'u
+  SUBMITTER (tx.from) adresine-keyler, payee'ye-DEĞİL. bind.submitter-opsiyonel
+  additive-alandır; varsa-payee'ile-AYNI-OLAMAZ (merchant'ın-payee-adresi-asla
+  facilitator-olamaz). Bkz-RFC-010-§3c.
 
 Kullanım:
   python3 tools/settlement_bind_verify.py <charge.jsonl-line> <claim.json>
@@ -263,8 +268,40 @@ def verify(charge_rec: dict, claim: dict) -> dict:
                        reason="foreign_chain_broken: yabancı-zincir-çürük")
             return out
 
+    # --- 7) submitter/payee-AYRIMI (x402#2887 — babyblueviper1-teşhisi, 2026-09-29)
+    # x402-akışında-üç-adres-BİRBİRİNDEN-AYRI-durur:
+    #     payer     = claim.buyerAddress  (yetkilendiren/ödeyen-taraf)
+    #     payee     = claim.sellerAddress = merchant'ın `payTo`'su (para-alan)
+    #     submitter = settlement-tx'in-`from`'u = FACILITATOR (dikişi-yerine-
+    #                 getiren-gönderici)
+    # #2887'nin-açık-iddiası: "payTo = merchant'tır; facilitator = tx.from'dur
+    # (submitter). Merchant'ın-payee-adresi-ASLA-facilitator-adresi-olamaz. Bir-
+    # kayıt-şekli-'hangi-facilitator-settle-etti'ne-keylenmek-isterse SUBMITTER
+    # adresine-keylenmelidir — payee'ye-değil; yoksa-her-merchant-attribution'sız
+    # görünür."
+    #
+    # Bu-nedenle-bind.submitter-FACILITATOR-ATTRIBUTION-ANAHTARIDIR (payee-DEĞİL):
+    # additive-opsiyonel-alan — YOKSA-eski-davranış-korunur (geri-uyumlu, R9-2).
+    # Varsa-tek-kuralı-#2887'nin-kendisidir: submitter == payee → RED, çünkü-
+    # bu-ayrımı-çökertir (facilitator-attribution'u-payee'ye-keyleyen-tuzağın-
+    # KENDİSİDİR; tespit-edilmezse-gizli-açık-kapı-bırakır — AT-223'ün-self-
+    # facilitate-fail-closed-doktriniyle-aynı-sınıf).
+    sub = bind.get("submitter")
+    if isinstance(sub, str) and sub:
+        payee = bind.get("payee")
+        ok7 = (isinstance(payee, str) and payee
+               and sub.lower() != str(payee).lower())
+        out["checks"]["7_submitter_payee"] = ok7
+        if not ok7:
+            out.update(verdict="RED", reason_code=9,
+                       reason="submitter_payee_conflation: facilitator (tx.from) == "
+                              "payee (merchant) — #2887: merchant-payee-adresi-asla-"
+                              "facilitator-olamaz; attribution-payee'ye-keylenemez")
+            return out
+
     out.update(ok=True, verdict="GREEN", reason_code=0,
-               reason="altı-kontrol-doğru: receipt+claim+ref+parties+evidenceHash+chain")
+               reason="yedi-kontrol-doğru: receipt+claim+ref+parties+"
+                      "evidenceHash+chain+submitter")
     return out
 
 

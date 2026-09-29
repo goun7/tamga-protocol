@@ -45,6 +45,7 @@ The stitch adds a `settlement_bind` field to a single charge record
    "claim_evidence_hash": {"alg": "sha256", "hex": "<64hex>"},  // tokenizen evidenceHash
    "payer": "0x<40hex>",                             // x402 claim buyerAddress
    "payee": "0x<40hex>",                             // x402 claim sellerAddress
+   "submitter": "0x<40hex>",                         // OPTIONAL: settlement tx.from = FACILITATOR (§3c, #2887)
    "verified_at": "2026-09-21T00:00:00Z"}}           // RFC3339-Z (same rule as R9-4)
 ```
 
@@ -55,7 +56,7 @@ preserves the R9-5 principle of the `anchor` op: **the stitch proof
 RECORDS, it does not VERIFY the external claim** — verification is the
 §3 gate below.
 
-## 3. Verification contract (five independent checks, one gate)
+## 3. Verification contract (five core checks + two additive, one gate)
 
 `../tools/settlement_bind_verify.py` — pure stdlib, three verdicts:
 
@@ -66,6 +67,12 @@ RECORDS, it does not VERIFY the external claim** — verification is the
 | 3 | **settlementRef-resolves** | the claim's settlementRef matches payment_id | RED `settlement_ref_mismatch` |
 | 4 | **payer/payee-match** | claim buyerAddress == bind.payer AND sellerAddress == bind.payee | RED `party_mismatch` |
 | 5 | **evidenceHash == receiptHash** | claim evidenceHash byte-equal == charge delivery_hash.hex | RED `evidence_hash_mismatch` |
+| 6 | **foreign-chain-verifies** (additive, optional) | the declared foreign-chain proof is not rotten (§6) | RED `foreign_chain_broken` |
+| 7 | **submitter/payee-distinct** (additive, optional) | `bind.submitter` (facilitator) ≠ `bind.payee` (merchant) (§3c) | RED `submitter_payee_conflation` |
+
+Checks 1–5 are the safal207 core and are mandatory. Checks 6–7 are
+**additive and optional — absent → old GREEN** (R9-2 promotion rule; the
+gate must never break a stitch it can already prove).
 
 **Fail-closed rule (the core of safal207's proposal):** any one RED → all
 RED. No partial GREEN. This closes the "show join shape" trap.
@@ -106,12 +113,69 @@ shape, digest bytes. Third-option prohibition: a signature outside this
 contract is not RED and not İNDETERMİNE — it is direct RED rc4 (channel
 defined but signature wrong).
 
+### 3c. Submitter/payee distinction — facilitator attribution keys on `tx.from`, never on `payee` (x402 #2887)
+
+babyblueviper1's diagnosis in [x402 issue #2887](https://github.com/x402-foundation/x402/issues/2887)
+is a claim about **which field a settlement record may key facilitator
+attribution on**. Stated precisely:
+
+> `payTo` is the merchant; the facilitator is `tx.from` (the submitter). The
+> merchant's payee address can never be the facilitator address. If a record
+> shape wants to key on "which facilitator settled", it must key on the
+> SUBMITTER address, not the payee — otherwise every merchant appears
+> attribution-less.
+
+The three addresses of an x402 settlement are therefore **mutually distinct
+roles, not three names for one party**:
+
+| field | source | role |
+|---|---|---|
+| `payer` | `claim.buyerAddress` (EIP-3009 authorization `from`) | the party that authorizes/owes the payment |
+| `payee` | `claim.sellerAddress` = merchant's `payTo` | the merchant that receives the funds |
+| `submitter` | the settlement transaction's `from` | the **facilitator** that executes the settlement |
+
+**Why the pre-existing payer/payee keying is already correct.** `bind.payer`
+is sourced from `claim.buyerAddress` — the claim's signed buyer — and check-4
+compares exactly those two values. It is never sourced from the settlement
+transaction's `from`. So the record never mistakes the facilitator for the
+payer, and never mistakes the merchant for the facilitator. The #2887 trap is
+only reachable if a producer copies `tx.from` into `payer` or into `payee`;
+both of those are already caught — check-4 RED `party_mismatch` (a swapped or
+mis-keyed party is one of safal207's named negative controls).
+
+**What was genuinely missing, and is now closed by check-7.** The record had
+no field that answers *"which facilitator settled this"* at all. A consumer
+needing that attribution had one wrong place to look — `payee` — and that is
+exactly the #2887 failure mode: keying facilitator attribution on `payee`
+makes every merchant attribution-less, because `payTo` identifies the
+merchant, never the facilitator. The fix is additive, not a rekey: an
+**optional `bind.submitter`** is introduced as the facilitator attribution
+key, and its single rule is #2887's own claim:
+
+- **absent** → old behavior, GREEN (backward compatible; nothing is forced —
+  third-option-prohibition preserved).
+- **present** → it is the facilitator (`tx.from`) and it **must not equal
+  `payee`**: `submitter == payee` → RED rc9 `submitter_payee_conflation`.
+  The merchant's payee address can never be the facilitator address; a record
+  asserting otherwise is either collapsing the two roles or hiding the
+  facilitator behind the merchant, and the gate refuses it.
+
+This is the same fail-closed class as AT-223 (self-facilitate must close, not
+open): a settlement whose facilitator and merchant are the same address is
+refused rather than attributed silently.
+
+**Producer contract (normative).** A Tamga stitch that wants facilitator
+attribution MUST record the submitter as `bind.submitter` (settlement tx
+`from`), MUST NOT record the facilitator in `payer` or `payee`, and MUST NOT
+key any facilitator-side index, registry, or aggregate on `payee`.
+
 ## 4. WHAT-NOW / WHAT-NEXT
 
 **NOW:** (a) this design note; (b) the additive definition of the
-`settlement_bind` field; (c) `../tools/settlement_bind_verify.py` with five
-checks and three verdicts; (d) the AT-063 test with five negative controls
-(swap-hash, swap-party, ref-mismatch, sig-invalid, chain-broken).
+`settlement_bind` field; (c) `../tools/settlement_bind_verify.py` with five core
++ two additive checks and three verdicts; (d) the AT-063 test with five negative controls
+(swap-hash, swap-party, ref-mismatch, sig-invalid, chain-broken), plus the AT-226
+three-case closure of the #2887 submitter/payee distinction (§3c).
 
 **NEXT (pilot day):** (e) live stitching with a real x402 claim fixture;
 (f) schema alignment on the tokenizen side (proposed in holistis-x402#3379);

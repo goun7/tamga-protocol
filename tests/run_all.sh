@@ -894,6 +894,13 @@ PY
   # hata-sonrası-toparlanmada-request-kaçabilir (backfill-ile-çözülür).
   bash tests/at225_daemon_kaos_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-225: daemon-kaos-dikişi — fail-closed her-senaryoda ( 5/5)"
+  # AT-226: RFC-010 SUBMITTER/PAYEE-AYRIMI — x402-#2887 (babyblueviper1). Üç
+  # adres ayrı-rollerdir: payer=buyerAddress, payee=sellerAddress=merchant'ın
+  # payTo'su, submitter=tx.from=FACILITATOR. Facilitator-attribution'ı
+  # SUBMITTER'a-keylenir, ASLA payee'ye. Kontrol-7-additive: submitter-yoksa
+  # eski-GREEN (geri-uyumlu); submitter==payee → RED rc9 conflation. RFC-010-§3c.
+  bash tests/at226_rfc010_submitter_payee_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-226: RFC-010 submitter/payee-ayırmı ( x402-#2887; 3/3)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

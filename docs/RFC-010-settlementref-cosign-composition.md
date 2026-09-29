@@ -52,6 +52,19 @@ not a defect in the extension's design. It is the exact seam that appears when a
 buyer-side credential tries to name something on the settlement side without a
 shared notion of what a settlement identifier *resolves to*.
 
+**The attribution rule that governs this seam (x402 #2887).** Whichever branch a
+verifier takes, the three addresses of the settlement stay distinct, and
+[issue #2887](https://github.com/x402-foundation/x402/issues/2887) fixes which one
+carries facilitator attribution: `payTo` is the merchant, the facilitator is
+`tx.from` (the submitter), and the merchant's payee address can never be the
+facilitator address. A record that answers *"which facilitator settled this"* must
+key on the **submitter**, never on the payee — keying on the payee makes every
+merchant attribution-less, because `payTo` identifies the merchant and never the
+facilitator. RFC-010 §3c encodes this normatively as the optional `bind.submitter`
+field with a fail-closed guard against `submitter == payee`. The same rule binds
+this composition: `declared_parties.payer`/`payee` below are always buyer/seller,
+and neither may be read as facilitator identity.
+
 ## 2. The proposal in one paragraph
 
 Let `settlementRef` resolve to a **content-addressed, node-cosigned ledger hash**

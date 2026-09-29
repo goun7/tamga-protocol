@@ -50,7 +50,8 @@ Dikiş-tek-bir-charge-kaydına-bir-`settlement_bind`-alanı-ekler (additive, op-
    "payment_id": "<string>",                         // x402-paymentId (claim'ten)
    "claim_evidence_hash": {"alg": "sha256", "hex": "<64hex>"},  // tokenizen-evidenceHash
    "payer": "0x<40hex>",                             // x402-claim-buyerAddress
-   "payee": "0x<40hex>",                             // x402-claim-sellerAddress
+   "payee": "0x<40hex>",                             // x402-claim-sellerAddress (merchant'ın-payTo'su)
+   "submitter": "0x<40hex>",                         // OPSİYONEL: settlement-tx.from = FACILITATOR (§3c, #2887)
    "verified_at": "2026-09-21T00:00:00Z"}}           // RFC3339-Z (R9-4-ile-aynı-kural)
 ```
 
@@ -59,7 +60,7 @@ denetimi); alan-eklemek-sürüm-terfisiyle-yönetilir-ve-D5-zincir-hash'ine-zate
 (kayıt-tamamı-hash'lenir). Bu-aynı-zamanda-`anchor`-op'unun-R9-5-ilkesini-korur:
 **dikiş-kanıtı-KAYIT-yapar, dış-claim'i-DOĞRULAMAZ** — doğrulama-aşağıdaki-§3-gate'inde.
 
-## 3. Doğrulama-sözleşmesi (beş-bağımsız-kontrol, tek-gate)
+## 3. Doğrulama-sözleşmesi (beş-çekirdek-kontrol + iki-additive, tek-gate)
 
 `../tools/settlement_bind_verify.py` — saf-stdlib, üç-verdict:
 
@@ -70,6 +71,12 @@ denetimi); alan-eklemek-sürüm-terfisiyle-yönetilir-ve-D5-zincir-hash'ine-zate
 | 3 | **settlementRef-resolves** | claim'in-settlementRef'i-payment_id-ile-eşleşir | RED `settlement_ref_mismatch` |
 | 4 | **payer/payee-match** | claim-buyerAddress==bind.payer-VE-sellerAddress==bind.payee | RED `party_mismatch` |
 | 5 | **evidenceHash == receiptHash** | claim-evidenceHash.bayt-eşit == charge-delivery_hash.hex | RED `evidence_hash_mismatch` |
+| 6 | **foreign-chain-verifies** (additive, opsiyonel) | beyan-edilen-yabancı-zincir-kanıtı-çürük-değil (§6) | RED `foreign_chain_broken` |
+| 7 | **submitter/payee-ayrımı** (additive, opsiyonel) | `bind.submitter` (facilitator) ≠ `bind.payee` (merchant) (§3c) | RED `submitter_payee_conflation` |
+
+Kontroller-1–5-safal207-çekirdeğidir-ve-ZORUNLU. Kontroller-6–7-**additive-ve
+opsiyoneldir — YOKSA-eski-GREEN** (R9-2-terfi-kuralı; gate-çoktan-kanıtlaya-
+bildiği-bir-dikişi-asla-bozmamalıdır).
 
 **Fail-closed-kuralı (safal207'nin-önerisinin-özü):** herhangi-biri-RED → tümü-RED.
 Kısmi-GREEN-YOK. Bu, "join shape"-gösterme-tuzağını-kapatır.
@@ -107,11 +114,66 @@ Yani-imza-kanalı-ile-evidenceHash-kanalı-aynı-bağlamda-birleşir.
 giriş-şekli-digest-baytlarıdır. Üçüncü-seçenek-yasak: bu-sözleşme-dışında-imza
 RED-değil-İNDETERMİNE-değil — doğrudan-RED rc4 (kanal-tanımlı-ama-imza-yanlış).
 
+### 3c. Submitter/payee-ayırmı — facilitator-attribution'ı `tx.from`'a-keylenir, ASLA `payee`'ye (x402 #2887)
+
+babyblueviper1'nin-[x402-issue-#2887](https://github.com/x402-foundation/x402/issues/2887)
+teşhisi, bir-kayıt-şeklinin-facilitator-attribution'ını-hangi-alana-keyleye-
+bileceği-hakkındaki-iddiasıdır. Açık-haliyle:
+
+> `payTo`-merchant'tır; facilitator-`tx.from`'dur (submitter). Merchant'ın-payee
+> adresi-asla-facilitator-adresi-olamaz. Bir-kayıt-şekli-"hangi-facilitator-
+> settle-etti"ne-keylenmek-isterse-SUBMITTER-adresine-keylenmelidir — payee'ye
+> değil; yoksa-her-merchant-attribution'sız-görünür.
+
+Yani-bir-x402-settlement'ın-üç-adresi**birbiriyle-ayrı-ROLLERDİR**, tek-bir-
+tarafın-üç-adı-DEĞİL:
+
+| alan | kaynak | rol |
+|---|---|---|
+| `payer` | `claim.buyerAddress` (EIP-3009-yetki-`from`'u) | ödemeyi-yetkilendiren/borçlu-taraf |
+| `payee` | `claim.sellerAddress` = merchant'ın-`payTo`'su | parayı-alan-merchant |
+| `submitter` | settlement-işleminin-`from`'u | dikişi-yerine-getiren-**facilitator** |
+
+**Mevcut-payer/payee-keyleme-neden-zaten-doğrudur.** `bind.payer`-kaynağı
+`claim.buyerAddress`'tır — claim'in-imzalı-alıcısı — ve-kontrol-4-tam-olarak-bu
+iki-değeri-karşılaştırır. Settlement-işleminin-`from`'undan-ASLA-alınmaz. Yani
+kayıt-facilitator'u-payer-sanmaz-ve-merchant'ı-facilitator-sanmaz. #2887-tuzağı
+yalnızca-üretici-`tx.from`'u-`payer`'a-veya-`payee`'ye-kopyalarsa-erişilebilir;
+ikisi-de-zaten-yakalanır — kontrol-4-RED-`party_mismatch` (yerdeğişmiş-veya-
+yanlış-keylenmiş-taraf, safal207'nin-adlandırdığı-negatif-kontrollerden-biri).
+
+**Gerçekte-eksik-olan-ve-kontrol-7-ile-kapanan.** Kaydın-"bu-dikişi-hangi
+facilitator-settle-etti"sorusunu-yanıtlayacak-BİR-ALANI-YOKTU. O-attribution'a
+ihtiyaç-duyan-bir-tüketimin-bakacağı-tek-YANLIŞ-yer-`payee`'idi — bu-tam-
+olarak-#2887-başarısızlık-modudur: facilitator-attribution'ını-`payee`'ye-
+keylemek-her-merchant'ı-attribution'sız-yapar, çünkü-`payTo`-merchant'ı-
+tanımlar, facilitator'u-asla. Düzeltme-rekey-değil-additive'dir: facilitator
+attribution-anahtarı-olarak-**opsiyonel-`bind.submitter`**-eklenir-ve-tek-
+kuralı-#2887'nin-kendi-iddiasıdır:
+
+- **YOK** → eski-davranış, GREEN (geri-uyumlu; hiçbir-şey-zorlanmaz — üçüncü-
+  seçenek-yasak-korunur).
+- **VAR** → o-facilitator'dur (`tx.from`) ve-`payee`'ye-EŞİT-OLAMAZ:
+  `submitter == payee` → RED rc9 `submitter_payee_conflation`. Merchant'ın-payee
+  adresi-asla-facilitator-adresi-olamaz; bunu-iddia-eden-bir-kayıt-ya-iki-rolü
+  çökertiyordur-ya-da-facilitator'u-merchant'ın-arkasına-gizliyordur — gate-
+  reddeder.
+
+Bu, AT-223-ile-aynı-fail-closed-sınıfıdır (self-facilitate-açılmamalı-kapanmalı):
+facilitator'ile-merchant'ı-aynı-adres-olan-bir-settlement-kabul-edilmez,
+sessizce-attribution-verilmez.
+
+**Üretici-sözleşmesi (normatif).** Facilitator-attribution'ı-isteyen-bir-Tamga-
+dikişi-SUBMITTER'ı-`bind.submitter`-olarak-kaydetmek-ZORUNDADIR (settlement-tx
+`from`), facilitator'u-`payer`'da-veya-`payee`'de-KAYDETMEMELİDİR, ve-hiçbir
+facilitator-tarafı-index'i/registry'yi/aggregate'i-`payee`'ye-KEYLEMEMELİDİR.
+
 ## 4. NE-ŞİMDİ / NE-SONRA
 
 **ŞİMDİ:** (a) bu-tasarım-notu; (b) `settlement_bind`-alanının-additive-tanımı;
-(c) `../tools/settlement_bind_verify.py`-beş-kontrollü-üç-verdict; (d) AT-063-testi-beş-
-negatif-kontrolle (swap-hash, swap-party, ref-mismatch, sig-invalid, chain-broken).
+(c) `../tools/settlement_bind_verify.py`-beş-çekirdek-kontrol-+-iki-additive-
+üç-verdict; (d) AT-063-testi-beş-negatif-kontrolle (swap-hash, swap-party,
+ref-mismatch, sig-invalid, chain-broken) + AT-226-üç-durumla #2887-ayırmı.
 
 **SONRA (pilot-günü):** (e) gerçek-x402-claim-fixture'ı-ile-canlı-dikiş;
 (f) tokenizen-tarafın-şema-hizalaması (holistis-x402#3379'da-önerdi); (g) `scheme`-

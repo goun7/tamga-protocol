@@ -33,6 +33,16 @@ _sk = keys.PrivateKey(bytes.fromhex(BUYER_SK_HEX))
 BUYER = _sk.public_key.to_checksum_address()
 
 PAYEE = "0xf3f0cc9de0df5a17a09bfcc62d21bfc9ba4f82c5"   # Unpump-PAY_TO (GENISLEME_ANALIZI.md:62)
+# RFC-010 §3c (x402#2887 — babyblueviper1): settlement-tx'in-`from`'u = FACILITATOR'
+# dur. Unpump-pilotunda-00-gateway-settlement'i-oylayan-göndericidir (aynı-adres
+# mod-1'de-payer, mod-2'de-facilitator). Üç-adres-BİRBİRİNDEN-AYRI-ROLLERDİR:
+#     payer     = gerçek-alıcı (EIP-3009-yetki-from'u)
+#     payee     = Unpump-PAY_TO                (para-alan-merchant)
+#     submitter = 00-gateway (tx.from)          (dikişi-yerine-getiren-facilitator)
+# Üretici-sözleşmesi: facilitator-attribution'ı-SUBMITTER'a-keylenir-ASLA-payee'ye
+# (merchant'ın-payee-adresi-asla-facilitator-olamaz); aksi-halde-her-merchant
+# attribution'sız-görünür. submitter ≠ payee → kontrol-7; submitter-YOKSA-eski-GREEN.
+SERVICE_ADDR = "0x28c7f29f7641729ca016f216f0d528c64a449d28"   # 00-gateway (tx.from)
 PID = "UNPUMP-CLEARTAG-93"
 PREV = "12df62ad9f06595305e2b737e0c0f2e12dc526b23698498c2938ea930bb5e249"  # at069-seq92'nin-prev'i (zincir-devamı)
 
@@ -52,6 +62,7 @@ bind = {
     "payment_id": PID,
     "payer": BUYER,            # GERÇEK-ALICI (bağ-adresi DEĞİL) — mod-2
     "payee": PAYEE,
+    "submitter": SERVICE_ADDR, # §3c: tx.from = 00-gateway-FACILITATOR (payee'YE-DEĞİL)
     "amount_usd": 0.1,
     "signed_via": "X-Bind-Signature",   # servis private-key'i TUTMAZ
 }
@@ -93,8 +104,10 @@ fx = {
     "payment_id": PID,
     "mode": "real_customer_signature",
     "buyer_address": BUYER,
-    "bind_address": "0x28c7f29f7641729ca016f216f0d528c64a449d28",
-    "rfc": "RFC-010 §3b (x402/v1, z=raw-sha256, EIP-191-siz)",
+    "bind_address": SERVICE_ADDR,
+    "submitter": SERVICE_ADDR,     # §3c: facilitator-attribution = tx.from (payee-değil)
+    "facilitator_role": "00-gateway (settlement-tx.from) — RFC-010 §3c",
+    "rfc": "RFC-010 §3b (x402/v1, z=raw-sha256, EIP-191-siz) + §3c (submitter/payee)",
     "d5_rule": "h = sha256(prev + jcs(kayıt-h-dışı)) — settlement_bind dahil",
 }
 
@@ -104,6 +117,7 @@ out.write_text(json.dumps(fx, indent=1, ensure_ascii=False) + "\n", encoding="ut
 print(f"yazıldı: {out}")
 print(f"  gerçek-alıcı-adresi : {BUYER}")
 print(f"  bağ-adresi (mod-1)  : {fx['bind_address']}")
+print(f"  facilitator (tx.from) : {SERVICE_ADDR}  — §3c: payee'ye-keyli-DEĞİL")
 print(f"  digest              : {digest[:24]}…")
 print(f"  imza                : {sig[:24]}… (0x+130hex, v={sig[-2:]})")
 print(f"  D5-hash-kapsama     : h-settlement_bind'ı-kapsar")

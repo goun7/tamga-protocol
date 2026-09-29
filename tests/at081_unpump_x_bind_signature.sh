@@ -24,7 +24,10 @@
 #      settlement_bind.payer=gerçek-alıcı-adresi
 #   3) D5-kapsama-düzeltmesi: tepe-ve-payload-settlement_bind-aynı (çakışma-yok),
 #      h-tüm-kaydı-kapsar → True (önceki-False'u-düzeltir)
-#   4) GERÇEK-6/6-GREEN: yeni-fixture-SB.verify → GREEN (test-double-YOK)
+#   4) GERÇEK-7/7-GREEN: yeni-fixture-SB.verify → GREEN (test-double-YOK)
+#      (RFC-010 §3c: fixture artık bind.submitter=00-gateway-facilitator
+#       taşıdığı-için-kontrol-7-de-ölçülür — facilitator-attribution
+#       SUBMITTER'a-keyli, payee'den-AYRI; AT-226-sentetik-kayıtlarına-ek)
 #   5) NEGATİF-1: bağ-adresi ↔ gerçek-alıcı-yer-değişince → RED rc6 party_mismatch
 #   6) NEGATİF-2: D5-hash-kapsama-False-olunca (dikiş-sonra-eklenince) →
 #      RED rc3 receipt_invalid — dıştan-yapışık-dikiş-tuzağı
@@ -124,14 +127,22 @@ print("  eski-fixture-çakışma (tepe≠payload):",
 print("  D5-yeni-fixture-kapsama: True — h = sha256(prev+jcs(h-dışı)), "
       "settlement_bind-ve-payload-dahil")
 
-# --- 4) GERÇEK-6/6-GREEN (test-double-YOK)
+# --- 4) GERÇEK-7/7-GREEN (test-double-YOK)
 # (AT-075-disiplini: _claim_signer-kaynağı-yukarıda-inspect-ile-doğrulandı —
 #  gerçek-ecrecover'ı-çağırır; modül-fonksiyonunu-pop-etmeye-gerek-yok.)
+# RFC-010 §3c: mod-2-fixture artık bind.submitter=00-gateway (tx.from) taşıdığı
+# için kontrol-7 de koşar — facilitator-attribution SUBMITTER'da-keyli,
+# payee(merchant)'den-AYRI. Üç-adres-ayrı: payer=gerçek-alıcı, payee=Unpump,
+# submitter=00-gateway.
 r2 = SB.verify(ch2, cl2)
 assert r2["verdict"] == "GREEN" and r2["reason_code"] == 0, \
-    f"gerçek-6/6-GREEN-beklendi: {r2}"
+    f"gerçek-7/7-GREEN-beklendi: {r2}"
 assert all(r2["checks"].values()), "bir-kontrol-eksik: %s" % r2["checks"]
-print("  GERÇEK-6/6-GREEN: mod-2-fixture-SB.verify-geçti (stub-YOK)")
+assert r2["checks"].get("7_submitter_payee") is True, \
+    "kontrol-7-True-olmalı: submitter(tx.from) ≠ payee(merchant) — §3c"
+assert ch2["settlement_bind"]["submitter"].lower() \
+    != ch2["settlement_bind"]["payee"].lower(), "submitter==payee-#2887-tuzağı"
+print("  GERÇEK-7/7-GREEN: mod-2-fixture-SB.verify-geçti (stub-YOK)")
 print("    kontroller:", r2["checks"])
 
 # --- 5) NEGATİF-1: bağ-adresi ↔ gerçek-alıcı-yer-değişince → rc6 party_mismatch

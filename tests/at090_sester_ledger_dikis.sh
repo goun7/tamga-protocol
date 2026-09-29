@@ -125,6 +125,12 @@ print("    iki-kanal: X-PAYMENT=EIP-191-önekli-kişisel-imza; RFC-010-claim=raw
 
 # --- 3) DİKİŞ-GREEN: RFC-010-x402/v1-claim'imzası-HAM-sha256-digest'ı-üzerine
 PID = "SEST-CHG-0001"
+# RFC-010 §3c (x402#2887): settlement-tx'in-from'u = SUBMITTER = FACILITATOR'dur.
+# Bu-dikişte-alıcı-kendisi-gönderir (self-settle — AT-223-sınıfı; ayrı-bir
+# facilitator-YOK). Üretici-sözleşmesi: facilitator-attribution'ı-SUBMITTER'a
+# kaydet-ZORUNLU, payer'da/payee'de-DEĞİL, ve-payee'ye-keyli-index-YASAK.
+# submitter(=BUYER) ≠ payee(=AGENT) → kontrol-7-TRUE; üç-adres-ayrı-rol.
+FROM_ADDR = BUYER                        # settlement-tx.from (self-settle)
 govde = {"buyerAddress": BUYER, "sellerAddress": AGENT, "settlementRef": PID,
          "evidenceHash": {"alg": "sha256", "hex": receipt_hash}}
 digest_hex = hashlib.sha256(
@@ -142,12 +148,17 @@ charge = {"seq": 90, "prev": "0" * 64, "h": "a" * 64,
                               "claim_evidence_hash": {"alg": "sha256",
                                                       "hex": receipt_hash},
                               "payer": BUYER, "payee": AGENT,
+                              "submitter": FROM_ADDR,  # §3c: tx.from (payee'YE-DEĞİL)
                               "verified_at": "2026-09-30T00:00:00Z"}}
 r = SB.verify(charge, claim)
 assert r["verdict"] == "GREEN" and r["reason_code"] == 0, \
     f"Sester-dikişi-GREEN-beklendi: {r}"
 assert all(r["checks"].values()), f"bir-kontrol-eksik: {r['checks']}"
-print("  DİKİŞ-GREEN: Sester-receipt_hash=evidenceHash, 6-kontrol (STOCK-ecrecover)")
+# §3c-üretici-kanıtı: gerçek-üretilen-fixture'da-facilitator-attribution
+# SUBMITTER'da-keyli-ve-payee'den-AYRI (AT-226'nın-sentetik-kayıtlarına-ek olarak)
+assert r["checks"].get("7_submitter_payee") is True, \
+    f"kontrol-7-gerçek-fixture'da-True-olmalı: {r['checks']}"
+print("  DİKİŞ-GREEN: Sester-receipt_hash=evidenceHash, 7-kontrol (STOCK-ecrecover)")
 
 # --- 4) §6-foreign_chain: ledger-head'i-gerçek-kanıttan-bağla
 # chain-whitelist: "swarmax","dumen","pqhaven","tamga" — "sester"-YOK (AT-079-dersi);
@@ -164,9 +175,10 @@ r6 = SB.verify(charge6, claim)
 assert r6["verdict"] == "GREEN" and r6["checks"].get("6_foreign_chain") is True, \
     f"§6-kanıtlı-GREEN-beklendi: {r6}"
 # üretim-batch'i-de-çalışsın (gerçek-üretim-hattı-kanıtı; denetim-iz)
+# from_address = settlement-tx'in-from'u = SUBMITTER (§3c) — bind.submitter-ile-AYNI
 batch = build_settlement_batch(
     led, BUYER, chain_id=11155111, contract="0x" + "c" * 40,
-    from_address=BUYER, payee_address=AGENT)
+    from_address=FROM_ADDR, payee_address=AGENT)
 assert len(batch.leaves) == 1 and batch.total_minor == 50000  # 0.05*1e6
 print(f"  §6-foreign_chain: chain_head+evidence_link='equals' → GREEN")
 print(f"    üretim-batch'i: merkle_root={batch.merkle_root[:14]}… "

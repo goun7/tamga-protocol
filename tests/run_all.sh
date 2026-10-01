@@ -901,6 +901,16 @@ PY
   # eski-GREEN (geri-uyumlu); submitter==payee → RED rc9 conflation. RFC-010-§3c.
   bash tests/at226_rfc010_submitter_payee_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-226: RFC-010 submitter/payee-ayırmı ( x402-#2887; 3/3)"
+  # AT-227: fail-closed SystemExit-dikişi — bozuk-state/graph_merkle → rc!=0 +
+  # structured-JSON (traceback-YOK). AT-197'nin-secret-yolunu-tamamlar.
+  bash tests/at227_fail_closed_systemexit_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-227: fail-closed SystemExit dikişi ( 5/5)"
+  # AT-228: TAMPER-DETECTION-DERİN + registry-round-trip + fail-closed-anahtar.
+  # AT-208'in-K6/K7'sine-derinlik-katar: stdout_sha256/seq/ts-tamper → RED-14;
+  # node_sig-bozuk → RED (D8-imza-katmanı); registry backup→sil→restore-sonrası
+  # registry-check-GREEN; geçersiz-hex/yanlış-uzunluk/olmayan-seed → RED.
+  bash tests/at228_tamper_derin_registry_roundtrip_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-228: tamper-derin + registry-round-trip + fail-closed-anahtar ( 10/10)"
   # AT-215: x402-RESPONSE-PROVENANCE — PR #3304 normative-vektörünün bağımsız-
   # yeniden-türetimi. tools/x402_response_provenance.py'nin-gerçek-çalıştığını-
   # kanıtlar (byte-exact-134 + kapalı-küme + verify-yolu; x402'ye-bağımsız).

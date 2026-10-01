@@ -56,5 +56,22 @@ RC4=$?
 [ "$RC4" != "0" ]
 k $? "K4 yedek yok → rc!=0 (traceback YOK)" "rc=$RC4"
 
+# K5 — RESTORE ROUND-TRIP: yedekten-dönen-içerik orijinaliyle-AYNI
+# (backup→restore→backup→restore çevrimi-btünlüğü; sadece-sayı-değil-içerik)
+"$PY" tamga_runner.py quickstart "$SB/mine2" --name "at209-rt" > /dev/null 2>>"$LOG"
+REG2="$SB/mine2/reg.json"
+printf '{"aaa111":{"pkg_path":"%s","cpu_ms_per_run":3000,"max_input_bytes":32768},"bbb222":{"pkg_path":"%s","cpu_ms_per_run":7000,"max_input_bytes":131072}}' "$SB/mine2" "$SB/mine2" > "$REG2"
+"$PY" tamga_runner.py registry-backup "$SB/mine2" >> "$LOG" 2>&1
+ORIG_JSON=$("$PY" -c "import json; print(json.dumps(json.load(open('$REG2')), sort_keys=True))")
+rm -f "$REG2"
+"$PY" tamga_runner.py registry-restore "$SB/mine2" >> "$LOG" 2>&1
+RC5=$?
+REST_JSON=$("$PY" -c "import json; print(json.dumps(json.load(open('$REG2')), sort_keys=True))" 2>/dev/null)
+# restore sonrası tekrar backup → çevrim-tamamlanır
+"$PY" tamga_runner.py registry-backup "$SB/mine2" >> "$LOG" 2>&1
+RT_JSON=$("$PY" -c "import json; print(json.dumps(json.load(open('$REG2')), sort_keys=True))")
+[ "$RC5" = "0" ] && [ "$REST_JSON" = "$ORIG_JSON" ] && [ "$RT_JSON" = "$ORIG_JSON" ]
+k $? "K5 restore round-trip → içerik orijinaliyle-AYNI (2-mayın, alan-değeri-korumalı)" "rc=$RC5 orig/restore/round eşit=$([ "$REST_JSON" = "$ORIG_JSON" ] && [ "$RT_JSON" = "$ORIG_JSON" ] && echo evet || echo hayır)"
+
 echo; echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 [ "$FAIL" = "0" ]

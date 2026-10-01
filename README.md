@@ -103,12 +103,93 @@ python3 attest_verify_bagimsiz.py claim.json      # GREEN rc0 / RED rc1
 
 Full technical details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Academic & technical foundations
+
+The design is grounded in four established bodies of work. This section names
+them precisely — including the gap each one leaves open, because that gap is
+where Tamga's own contribution sits.
+
+**Tamper-evident logging / hash chaining.** An append-only log where each
+record carries a hash of the previous one is the standard construction for
+detecting after-the-fact rewriting: any edit to a past record breaks the chain
+from that point forward, and a verifier walking the chain catches it. The
+canonical large-scale deployment is Certificate Transparency
+([RFC 6962](https://www.rfc-editor.org/rfc/rfc6962)), which uses append-only
+Merkle trees to make CA log entries independently checkable by any third party.
+Tamga's receipt ledger is the same idea at a smaller scope: every event
+(`charge_receipt`, `refund`, `permission_decision`, …) is linked with a
+salted HMAC chain, and `ledger-verify` walks it end to end. Rewriting a past
+event invalidates every subsequent hash — this is what
+[AT-213](tests/at213_ledger_fuzz_robustness_dikis.sh) proves with 50 mutated
+rows, all 50 refused.
+
+**x402 — HTTP 402 payments.** x402 (originally [coinbase/x402](https://github.com/coinbase/x402),
+standardized at [x402-foundation/x402](https://github.com/x402-foundation/x402))
+turns the long-reserved HTTP 402 status into a real payment handshake: the
+server returns a priced `402 Payment Required` challenge, the client pays, the
+same request is replayed with proof of payment. Tamga speaks this protocol
+(`exact`/`pugio0` schemes, [AT-214](tests/at214_x402_v2_header_uyum_dikis.sh)).
+
+The gap that matters here is [issue #2332](https://github.com/x402-foundation/x402/issues/2332),
+"post-settlement accountability." Its own framing is precise and worth quoting:
+*"`payment_hash` proves the payment completed. It does not prove what the agent
+did after receiving payment… Logs can be rewritten. An external anchor cannot."*
+Settlement is solved; the record of the work that settlement paid for is not.
+Tamga's contribution sits exactly there — the receipt chain is the externally
+verifiable anchor for the post-settlement action, and
+[AT-208](tests/at208_batch_verify.sh) makes it auditable at package scale
+rather than one ledger at a time.
+
+**EU AI Act Article 12.** [Regulation (EU) 2024/1689](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202401689),
+Article 12 requires automatic logging for high-risk AI systems — applicable
+from **2 December 2027** for Annex III systems. Notably, the regulation
+mandates *that* logging happens; it does not specify how the logs are protected
+or who may verify them (a reading #2332 makes explicitly). Tamga's
+[production checklist](PRODUCTION_CHECKLIST.md) is a technical answer to that
+obligation: not just "logs exist," but "a third party can check they were not
+altered."
+
+*(Verification note: the 2 Dec 2027 date is not asserted from the regulation
+text directly here — issue [#2332](https://github.com/x402-foundation/x402/issues/2332)
+carries it and carries its own correction: an earlier draft of that issue gave
+2 Aug 2026 and marked the gap a compliance blocker, and its edit log says both
+were wrong, citing `ai-act-service-desk.ec.europa.eu`. We quote the corrected
+value rather than the original error. The [AT-228](tests/at228_tamper_derin_registry_roundtrip_dikis.sh)
+test is what makes the "third party can check" claim executable rather than
+prose: field-level tamper, signature tamper, registry round-trip, and
+fail-closed key handling, all machine-checked.)*
+
+**MCP and WASI oracle patterns.** Tamga's execution side follows the oracle
+pattern common to agent runtimes: a small, audited supervisor mediates between
+an untrusted compute core and host capabilities. The compute core is
+[WebAssembly Systems Interface (WASI)](https://wasi.dev/) — sandboxed by
+default, with filesystem and network access absent unless explicitly granted.
+The agent-tooling interface follows the [Model Context Protocol](https://github.com/modelcontextprotocol/modelcontextprotocol)
+convention of narrow, declared capability surfaces. The relevant security
+property is default-deny, and it is not asserted in prose — it is executed:
+[AT-212](tests/at212_wasi_default_deny_sandbox_dikis.sh) shows `path_open`
+returning `EBADF` and `sock_open` being an undefined import, and
+[AT-217](tests/at217_wasi_sonsuz_dongu_dos_korumasi_dikis.sh) shows infinite
+loops and memory-growth loops killed before they exhaust the host.
+
 ## Honest limits (what v0 does NOT claim)
 
 - **In-use privacy is unproven:** while running, the seed lives in host RAM — TEE (Phase 3)
 - **Not a production network:** simnet; all amounts are `*_sim`; this is NOT a token/coin
 - **Scale:** snapshot ≤ 64 MiB (safe envelope); multi-node ledger merging is an open question
 - **Determinism scope is class-defined:** deterministic wasm jobs are replay-proven;
+- **One fail-open path in state loading (found 2026-10-02, not yet fixed):**
+  `tamga run` fails closed on an unreadable `state.json`, a wrong `graph_merkle`,
+  and a wrong-type `graph_merkle` (proven by
+  [AT-226](tests/at226_fail_closed_systemexit_dikis.sh)). But a `memory` field
+  that is *not a dict at all* (e.g. a bare string) reaches the Merkle
+  recomputation unvalidated and raises an uncaught `AttributeError` — a raw
+  traceback with exit code 0. The operator still sees the error, but the process
+  exits green rather than red. The `if graph_merkle and memory` guard is also
+  deliberately skipped when either field is absent, which is intentional
+  back-compat for pre-`graph_merkle` state files but means *deleting* `memory`
+  silently skips the integrity check. Both paths are recorded as known limits,
+  not silently passing tests.
   LLM-class jobs use a different evidence contract (see ARCHITECTURE §Determinism)
 - **Language surface:** core code comments, suite output and docs are English. Preserved
   Turkish by contract or design: the frozen v0.1 JSON field names (`cpu_saat`,

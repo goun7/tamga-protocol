@@ -340,3 +340,17 @@ Bu-turda-bulunan-ve-düzeltilen-GERÇEK-üretim-hataları:
 3. **Sester ledger TZ-kayması** — spent_today time.mktime (yerel-TZ) kullanıyordu
    AMA ts-sütunu UTC-epoch → Istanbul +3s, Tokyo +9s, NY -4s kayma. UTC-midnight
    (calendar.timegm)-ile-düzeltildi; 4-TZ'de-test-yeşil.
+
+## AT-208 derinleştirme + AT-209 derinleştirme + AT-227 (2026-10-02)
+
+| Test | K | Bulgular |
+|---|---|---|
+| AT-208 (batch-verify) | **7/7** | **K6/K7 yeni**: issue #2332'ye-yanıt ("Logs can be rewritten. An external anchor cannot.") — son-kaydın-hash'i-değişince `failed=1` (K6), prev-bağlantısı-kopunca `failed=1` (K7). Anchor-çalışır-kanıtı. |
+| AT-209 (registry-restore) | **5/5** | **K5 yeni**: restore round-trip — backup→restore→backup→restore-içerik orijinalle-byte-identical (2-mayın, cpu_ms/max_input-değerleri-korunur). |
+| AT-227 (fail-closed SystemExit) | **5/5** | **K1** bozuk-state→rc5, **K2** sahte-graph_merkle→rc5, **K3** yanlış-tür-graph_merkle→rc5, **K4** traceback-YOK, **K5** temiz-paket-GREEN. AT-197'nin-secret-yolunu-tamamlar. |
+
+**AT-227'nin-bulduğu-bilinen-sınır** (README Honest-limits'e-de-eklendi):
+`memory` alanı dict-değilse (örn. string) `_graph_merkle` **çıplak AttributeError
++ rc=0** verir — SystemExit'e-sarılMAZ (fail-open). Ayrıca `memory`/`graph_merkle`
+yoksa bütünlük-kontrolü bilinçli-atlanır (geri-uyumluluk). Her-iki-yol-da
+known-limit-olarak-kayıtlı, sessiz-yeşil-geçme-YOK.

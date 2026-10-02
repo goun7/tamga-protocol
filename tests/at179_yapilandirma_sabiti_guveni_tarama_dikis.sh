@@ -58,7 +58,11 @@ MESH_ROOT="$(dirname "$(dirname "$(readlink -f "$HERE")")")"
 [ -d "$MESH_ROOT/sester" ] || MESH_ROOT="/home/gokun/projects/00_TAMGA-MESH"
 SESTER="$MESH_ROOT/sester"
 TAMGA_DIR="$MESH_ROOT/tamga"
-VERIDROME="$MESH_ROOT/veridrome/73-Veridrome/src"
+# veridrome-yolu-otomatik-tespit ( repo-yerleşimi-değişti: 73-Veridrome → veridrome)
+VERIDROME=""
+for _cand in "$MESH_ROOT/veridrome/73-Veridrome/src" "$MESH_ROOT/veridrome/src"; do
+  [ -d "$_cand/veridrome" ] && VERIDROME="$_cand" && break
+done
 PASS=0; FAIL=0
 note() { echo "  $*"; }
 EVDIR="$HERE/../.evidence/YAPILANDIRMA-SABIT"
@@ -89,7 +93,14 @@ def mod(path):
 
 
 # ---------- BULGU-1 (GERÇEK): veridrome-CT-log-0644 + CWD-güveni ----------
-sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/veridrome/73-Veridrome/src")
+import os as _os
+_vr = _os.environ.get("VERIDROME_SRC", "/home/gokun/projects/00_TAMGA-MESH/veridrome/73-Veridrome/src")
+# repo-taşındıysa-otomatik-tespit ( bash-içi-üretildiyse-onu-kullan)
+for _c in (_vr, "/home/gokun/projects/00_TAMGA-MESH/veridrome/src"):
+    if _os.path.isdir(_os.path.join(_c, "veridrome")):
+        sys.path.insert(0, _c); break
+else:
+    raise SystemExit("VERIDROME_YOK: " + _vr)
 from veridrome.credentials.w3c_vc import VeridromeCredentialManager
 from veridrome.core.crypto import VeridromeAuthoritySigner
 
@@ -255,9 +266,18 @@ assert zorunlu
 # üretim-kodunda-yaml.load/eval/exec-yok
 import pathlib
 kucuk = []
-for kok in ("/home/gokun/projects/00_TAMGA-MESH/tamga/tamga_runner.py",
-            "/home/gokun/projects/00_TAMGA-MESH/veridrome/73-Veridrome/src/veridrome",
-            "/home/gokun/projects/00_TAMGA-MESH/sester/sester"):
+import os as _o2
+_mr2 = _o2.environ.get("MESH_ROOT", "/home/gokun/projects/00_TAMGA-MESH")
+# veridrome-yerleşimi-değişti ( 73-Veridrome → veridrome): ikisini-de-dene
+_vr2 = next((_c for _c in
+             (_mr2 + "/veridrome/73-Veridrome/src/veridrome",
+              _mr2 + "/veridrome/src/veridrome")
+             if _o2.path.exists(_c)), None)
+for kok in (_mr2 + "/tamga/tamga_runner.py",
+            _vr2,
+            _mr2 + "/sester/sester"):
+    if kok is None:
+        continue
     if pathlib.Path(kok).is_file():
         if re := None:
             pass

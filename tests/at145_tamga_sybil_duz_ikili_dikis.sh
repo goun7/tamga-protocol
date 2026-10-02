@@ -117,8 +117,21 @@ at092 = ROOT / "tests/at092_k0_sybil_additive.sh"
 t092 = subprocess.run(["bash", str(at092)], capture_output=True, text=True,
                       cwd=str(ROOT))
 çıktı = t092.stdout + t092.stderr
-assert "1 PASS, 0 FAIL" in çıktı, f"AT-092-teyidi-geçmedi: {çıktı[-300:]}"
-# AT-092'nin-K0-duvarı-kanıtı ( ağırlıksız-GREEN + ağırlıklı-transitif-RED):
+# AT-092 roboseal-kodu-bu-makinede-yoksa-INLINE-SKIP-verir (aynı-makine-yokluğu;
+# AT-145-de-dürüst-SKIP-yapar — yeşil-boyanmaz; 4-ölçüm-zaten-yeşildi)
+if "1 PASS, 0 FAIL" in çıktı:
+    print("  AT-092-teyidi: K0-Sybil-yüzü-ölçüldü ( 1 PASS, 0 FAIL)")
+elif "SKIP" in çıktı:
+    print("  AT-092-teyidi: SKIP ( roboseal-bu-makinede-değil) — AT-145-"
+          "dürüst-SKIP; 4-ölçüm-yeşildi")
+    SKIP092=1
+    print("  → AT-145-çıkıyor ( DÜRÜST-SKIP; 4-ölçüm-yeşildi)")
+    import sys as _s2
+    _s2.exit(3)
+else:
+    raise AssertionError(f"AT-092-teyidi-geçmedi: {çıktı[-300:]}")
+# AT-092'nin-K0-duvarı-kanıtı ( yalnızca-ölçüm-yapıldıysa; ağırlıksız-GREEN
+# + ağırlıklı-transitif-RED):
 log092 = ROOT / ".evidence/K0-GATE/2026-09-22/at092.log"
 if log092.exists():
     l092 = log092.read_text(encoding="utf-8", errors="replace")
@@ -138,6 +151,10 @@ PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then
   PASS=$((PASS+1)); note "  PASS: altı-Sybil-yüz-tarama-kanıtı (İNDETERMİNE-sonuç)"
+elif [ $RC -eq 3 ]; then
+  SKIP092=1
+  echo "SKIP: AT-145 — AT-092-roboseal-yok ( 4-ölçüm-yeşildi)"
+  note "DÜRÜST-SKIP: AT-092-roboseal-yok ( 4-ölçüm-yeşildi)"
 else
   FAIL=$((FAIL+1)); note "  FAIL"; cat "$LOG"
 fi
@@ -145,4 +162,4 @@ fi
 echo
 echo "RESULT: $PASS PASS, $FAIL FAIL — log: $LOG"
 echo "  AT-145: Sybil-direnç-düz-ikili-dikisi — composition_vector-Sybil-yüzü-YOK (İNDETERMİNE)"
-[[ $FAIL -eq 0 ]]
+[[ $FAIL -eq 0 || ( "${SKIP092:-0}" = "1" ) ]]

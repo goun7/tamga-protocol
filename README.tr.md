@@ -112,7 +112,7 @@ dış batch'e izdüşürülür → dış çıpayı bizim tarafımızda alınmı�
 tek komutla: `bash tools/demo.sh` · Ham kayıt: [docs/assets/demo.cast](docs/assets/demo.cast)
 · Beklenen akış: [docs/DEMO-SCRIPT.md](docs/DEMO-SCRIPT.md).
 
-**Tek-komut regresyon:** `bash tests/run_all.sh` — 238/238 kontrol, 0 SKIP / 0 FAIL (~70–110 sn; `RUN_SLOW=1` ile
+**Tek-komut regresyon:** `bash tests/run_all.sh` — 240/240 kontrol, 1 SKIP (roboseal-yok) / 0 FAIL (~70–110 sn; `RUN_SLOW=1` ile
 50). Kontrol-aileleri: snapshot yaşam-döngüsü + advers-negatifler (AT-001), determinizm/yeniden
 koşum (AT-002), defter-saldırı vektörleri (AT-003), girdiye-bağlı makbuzlar (AT-004), çok-biçimli
 hafıza-ithalatı (AT-005), manifest-şema çapraz-doğrulaması (0.2.0 terfi matrisiyle 60/60) ve

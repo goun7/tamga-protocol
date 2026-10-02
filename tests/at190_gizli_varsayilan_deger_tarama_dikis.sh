@@ -153,9 +153,17 @@ print(f"  6-TEMİZ: timeout=None/sonsuz-sayısı: {len(r.stdout.splitlines())} (
 assert r.stdout.strip() == "", f"timeout=None-bulundu: {r.stdout[:80]}"
 
 # --- 7) TEMİZ: yieldix-debug-baskı/TODO-YOK
-r2 = subprocess.run(["grep", "-rnE", "print\\(|breakpoint|TODO|FIXME",
-                     "yieldix/src"], capture_output=True, text=True,
-                    cwd="/home/gokun/projects/00_TAMGA-MESH")
+# YANLIŞ-POZİTİF-2026-10-02: "print\(" deseni "fingerprint = ..." ile-eşleşir.
+# Düzeltme: print(-ardından-boşluk-ZORUNLU ( \s = satır-başı-da-olabilir;
+# grep-E \s-yi-yeni-satır-olarak-yorumlar → ^print\(-deseni-daha-güvenli).
+# Ayrıca-kaynak-yolu: 00_TAMGA-MESH/yieldix-eski-kopya-ÇAKIŞIR —
+# 01_unicorn/99-Yieldix-gerçek-upstream-tercih-edilir.
+import os as _o3
+_yx = "/home/gokun/projects/01_unicorn/99-Yieldix/src"
+if not _o3.path.isdir(_yx):
+    _yx = "/home/gokun/projects/00_TAMGA-MESH/yieldix/src"
+r2 = subprocess.run(["grep", "-rnE", "(^|[^_a-zA-Z])print\\(\\s*|breakpoint\\(|TODO|FIXME",
+                     _yx], capture_output=True, text=True)
 print(f"  7-TEMİZ: yieldix debug/TODO-sayısı: {len(r2.stdout.splitlines())} ( 0-iyi)")
 assert r2.stdout.strip() == "", f"debug-artifacts: {r2.stdout[:80]}"
 

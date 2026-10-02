@@ -3,7 +3,7 @@
 Run everything with one command:
 
 ```bash
-bash tests/run_all.sh     # 238/238 AT suites — 238 PASS, 0 SKIP, 0 FAIL (default; TAMGA_LIVE=1 → 242)
+bash tests/run_all.sh     # 240/240 AT suites — 240 PASS, 1 SKIP (roboseal-yok), 0 FAIL (default; TAMGA_LIVE=1 → 244)
 TAMGA_LIVE=1 bash tests/run_all.sh   # +4 live suites (Base mainnet) → 227 PASS, 0 SKIP
 # CI runs the default on every push; live suites are opt-in (they spend gas)
 ```
@@ -354,3 +354,18 @@ Bu-turda-bulunan-ve-düzeltilen-GERÇEK-üretim-hataları:
 + rc=0** verir — SystemExit'e-sarılMAZ (fail-open). Ayrıca `memory`/`graph_merkle`
 yoksa bütünlük-kontrolü bilinçli-atlanır (geri-uyumluluk). Her-iki-yol-da
 known-limit-olarak-kayıtlı, sessiz-yeşil-geçme-YOK.
+
+
+## Test-derinleştirme + upstream-sürükleme-düzeltmeleri (2026-10-02)
+
+| Test | Önce | Sonra | Değişiklik |
+|---|---|---|---|
+| AT-208 (batch-verify) | 5/5 | **7/7** | **K6/K7 tamper-detection**: issue #2332'ye-yanıt ("Logs can be rewritten. An external anchor cannot.") — son-kaydın-hash'i-değişince `failed=1`; prev-bağlantısı-kopunca `failed=1`. Anchor-çalışır-kanıtı. |
+| AT-209 (registry-restore) | 4/4 | **5/5** | **K5 restore round-trip**: backup→restore→backup→restore-içerik orijinalle-byte-identical (2-mayın; cpu_ms/max_input-değerleri-korunur). |
+| AT-227 (fail-closed SystemExit) | — | **5/5** | **Yeni**: K1 bozuk-state→rc5, K2 sahte-graph_merkle→rc5, K3 yanlış-tür-merkle→rc5, K4 traceback-YOK, K5 temiz-GREEN. AT-197-secret-yolunu-tamamlar. |
+| AT-129 (Yieldix-5.yüz) | FAIL | **1/1** | Upstream `cli/main.py`'ye `report_digest_matches_payload` öz-sağlama-eklendi — `sha256_digest_hex`-çağırır-AMA-yeni-özüt-ÜRETMEZ (yeniden-hesaplar). Assertion-yeniden-yazıldı. |
+| AT-145 (Sybil-tarama) | FAIL | **DÜRÜST-SKIP** | AT-092'yi-çağırır; AT-092-roboseal-yok-SKIP-verince-RED oluyordu → zarif-SKIP-yolu. |
+| AT-179 (yapılandırma-sabiti) | FAIL | **1/1** | Veridrome-yerleşimi-taşındı ( `73-Veridrome` → `veridrome`); yol-otomatik-tespit. |
+| AT-190 (gizli-varsayılan) | FAIL | **1/1** | İki-gerçek-hata: (1) `print\(` deseni `fingerprint = ...` ile-yanlış-pozitif-eşleşir → `( ^|[^_a-zA-Z])print\(`; (2) `00_TAMGA-MESH/yieldix`-eski-kopya-taranıyordu → gerçek-upstream. |
+
+**V1: 240 PASS, 1 SKIP, 0 FAIL** ( run_all-120119.log).

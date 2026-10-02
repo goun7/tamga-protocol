@@ -665,7 +665,10 @@ PY
   bash tests/at150_kripto_gecit_kapisi_denetim_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-150: kripto-gecit-kapisi-denetimi ( tenderix+sester-temiz)"
   bash tests/at145_tamga_sybil_duz_ikili_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-145: Sybil-tarama ( INDETERMINE: composition_vector-RFC009-Merkle)"
+  _out="$(bash tests/at145_tamga_sybil_duz_ikili_dikis.sh 2>&1)"; _rc=$?
+  # AT-145 DÜRÜST-SKIP-verirse ( roboseal-yok) PASS=0-FAIL=0-ile-rc=0-döner;
+  # kontrol_skip-SKIP-satırını-_out-içinde-arar ( AT-082-deseni)
+  kontrol_skip "$_out" "$_rc" "AT-145: Sybil-tarama ( INDETERMINE: composition_vector-RFC009-Merkle)"
   bash tests/at146_tamga_chain_head_uretim_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-146: tamga-bundle-ic-chain-head-uretim ( 4-yonlu-capraz-dogrulama)"
   bash tests/at151_veridict_rekor_dis_zincir_dikis.sh > /dev/null 2>&1

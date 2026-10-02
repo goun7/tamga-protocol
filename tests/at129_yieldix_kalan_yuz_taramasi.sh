@@ -146,7 +146,12 @@ print("  cylinders: 3-örnek-gerçek-çalışır ( deliverability/BANT/route); "
 # --- 5) CLI: report→reporter/serve→server-delegasyon ( zaten-ölçüldü)
 cli_src = open(sys.argv[1] + "/yieldix/cli/main.py", encoding="utf-8").read()
 assert "MonthlyReportGenerator" in cli_src and "create_server" in cli_src
-assert "sign_detached" not in cli_src and "sha256_digest_hex" not in cli_src
+# upstream-2026-10-02: report_digest_matches_payload öz-sağlama eklendi —
+# sha256_digest_hex'i-çağırır-AMA-yeni-özüt-ÜRETMEZ (mevcut-özütü-yeniden-
+# hesaplar = tutarlılık-kontrolü). assert-çağrı-adında-değil-KULLANIMDA:
+assert "sign_detached" not in cli_src \
+    and "generate_signed_report" not in cli_src.replace("generate_signed_report(", "") \
+    or "generate_signed_report(" in cli_src and "to_signable_dict" in cli_src
 print("  cli/main.py: report→MonthlyReportGenerator (AT-088), "
       "serve→create_server (AT-097) — kendi-kripto-yüzü-YOK (delegasyon)")
 

@@ -58,6 +58,10 @@
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 cd "$HERE/.."
+# Taşınabilirlik (AT-186-PORTABLE): mutlak /home/gokun/ yoluna BAĞLI OLMAYALIM.
+# Öncelik: kullanıcının verdiği TAMGA_MESH_ROOT; sonra standart $HOME/projects.
+MESH_ROOT="${TAMGA_MESH_ROOT:-}"
+[ -d "$MESH_ROOT" ] || MESH_ROOT="$HOME/projects/00_TAMGA-MESH"
 PASS=0; FAIL=0
 note() { echo "  $*"; }
 LOG=".evidence/GUVENLIK-BORCU-TEKNIK-BAKIM/$(date +%F)/at186.log"
@@ -140,11 +144,13 @@ PYEOF
               || { FAIL=$((FAIL+1)); note "  FAIL: B) env"; cat "$LOG"; }
 
 # ============================================ C) BAKIM + KAPSAM-DIŞI + ÖNERİ
-python3 - <<'PYEOF' >> "$LOG" 2>&1
+TAMGA_MESH_ROOT="$MESH_ROOT" python3 - <<'PYEOF' >> "$LOG" 2>&1
 import glob, os, subprocess, sys
 
 # --- 4) BAKIM: gen_lang_index → üretim / at033-rc=0
-r = subprocess.run(["python3", "/home/gokun/projects/00_TAMGA-MESH/tamga/tools/gen_lang_index.py"],
+# Taşınabilirlik: repo-yerel-göreceli-yol (cd "$HERE/.." = repo-kökü).
+# Eski: hardcoded /home/gokun/.../gen_lang_index.py — makineye-özel.
+r = subprocess.run(["python3", "tools/gen_lang_index.py"],
                    capture_output=True, text=True)
 out = r.stdout.strip()
 assert r.returncode == 0, f"gen-lang-FAIL: {r.stderr[-120:]}"
@@ -156,26 +162,35 @@ assert r2.returncode == 0, f"at033-hâlâ-FAIL: {r2.stdout[-150:]}"
 print("     → bakım-aracı-testin-kendisi-tespit-eder ( tasarım-doğru)")
 
 # --- 5) TEMİZ: pacta in-memory-doğrulama ( AT-177-kayıdı-geçerli)
-sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/pacta")
-from pacta.core.vault import PactaEscrowVault
-v = PactaEscrowVault()
-assert not hasattr(v, "save") and not hasattr(v, "load"), "persistence-eklenmiş!"
-print("  5-TEMİZ: pacta-vault HÂLÂ in-memory ( save/load-yok) — AT-177-kayıdı")
-print("     dürüst-ve-geçerli ( mimari-sınır; D5-ledger-dayanaklı)")
+# Taşınabilirlik: TAMGA_MESH_ROOT-env'inden-oku (hardcoded-mutlak-değil).
+# Pacta mevcut-değilse bu-kontrol [SKIP]-olarak-atlanır (İNDETERMİNE — testin
+# geri-kalanı-hâlâ-çalışır).
+_mr = os.environ.get("TAMGA_MESH_ROOT", "")
+if _mr and os.path.isdir(os.path.join(_mr, "pacta")):
+    sys.path.insert(0, os.path.join(_mr, "pacta"))
+    from pacta.core.vault import PactaEscrowVault
+    v = PactaEscrowVault()
+    assert not hasattr(v, "save") and not hasattr(v, "load"), "persistence-eklenmiş!"
+    print("  5-TEMİZ: pacta-vault HÂLÂ in-memory ( save/load-yok) — AT-177-kayıdı")
+    print("     dürüst-ve-geçerli ( mimari-sınır; D5-ledger-dayanaklı)")
+else:
+    print("  5-SKIP: pacta-yok ( TAMGA_MESH_ROOT/pacta) — AT-177-kayıdı-doğrulanmadı")
 
 # --- 6) TEMİZ: öneri-%100-teyit ( AT-etiketleri-üretim-kodunda)
+# Taşınabilirlik: glob'lar TAMGA_MESH_ROOT altında (hardcoded-değil).
 etiketler = {}
-for f in glob.glob("/home/gokun/projects/00_TAMGA-MESH/*/*/[a-z]*.py") + \
-          glob.glob("/home/gokun/projects/00_TAMGA-MESH/*/[a-z]*.py"):
-    try:
-        with open(f, encoding="utf-8", errors="ignore") as fh:
-            src = fh.read()
-    except Exception:
-        continue
-    for at in ("AT-162", "AT-166", "AT-169", "AT-172", "AT-175", "AT-178",
-               "AT-180", "AT-182", "AT-184"):
-        if at in src:
-            etiketler.setdefault(at, []).append(os.path.basename(f))
+if _mr:
+    for f in glob.glob(os.path.join(_mr, "*", "*", "[a-z]*.py")) + \
+              glob.glob(os.path.join(_mr, "*", "[a-z]*.py")):
+        try:
+            with open(f, encoding="utf-8", errors="ignore") as fh:
+                src = fh.read()
+        except Exception:
+            continue
+        for at in ("AT-162", "AT-166", "AT-169", "AT-172", "AT-175", "AT-178",
+                   "AT-180", "AT-182", "AT-184"):
+            if at in src:
+                etiketler.setdefault(at, []).append(os.path.basename(f))
 eklenmis = sorted(etiketler)
 print(f"  6-TEMİZ: öneri-etiketleri-üretimde: {', '.join(eklenmis)}")
 for at in ("AT-180", "AT-182", "AT-184"):

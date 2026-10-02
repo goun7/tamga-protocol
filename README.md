@@ -240,6 +240,10 @@ python3 tamga_runner.py ledger-verify <new-pkg>
 
 ## Hızlı Başlangıç (Quick Start — 5 adım)
 
+Her adımı `--help` ile doğruladık (mainnet'e DOKUNMADAN). Komutlar kurulu
+paket üzerinde gerçekten çalışır — `tamga` CLI'sında olmayan iki komut için
+modül çağrısını verdik (aşağıdaki nota bakın).
+
 ```bash
 # 1. Kurulum + anahtar
 pip install tamga-protocol
@@ -250,7 +254,7 @@ TAMGA_RELAYER_KEY=0x...
 TAMGA_ETH_RPC=https://mainnet.base.org
 
 # 3. Registry yedeği (üretim zorunlu — AT-209)
-tamga registry-backup my-agent
+python3 -m tamga_runner registry-backup my-agent
 
 # 4. Daemon başlat (relayer — RFC-002 D1: daemon v0'da değil, v1'in konusu;
 #    canlı-daemon yolu tamga_oracle_relayer.py içindedir, tamga CLI'sında değil)
@@ -258,8 +262,19 @@ python3 tamga_oracle_relayer.py daemon --registry my-agent.registry.json \
   --seed 0x... --rpc-url "$TAMGA_ETH_RPC" --oracle 0x... --key "$TAMGA_RELAYER_KEY"
 
 # 5. Denetim (AT-208 — N paketi tek çağrıda)
-tamga ledger-verify-batch my-agent --summary-only
+python3 -m tamga_runner ledger-verify-batch my-agent --summary-only
 ```
+
+> **CLI-notu (dürüst-bilgi):** Adım 3 ve 5'teki komutlar `tamga` CLI'sında
+> *henüz* bağlı değil — `tamga_bootstrap.py`'nin komut tablosu
+> `keygen`, `quickstart`, `run`, `export`, `import`, `ledger`, `memory`,
+> `grant`, `ledger-verify`, `keygen-node`, `migrate-net`'i tanır, ama
+> `registry-backup` / `registry-restore` / `ledger-verify-batch`'i tanımaz
+> ("unknown command" döner). İkisi de `tamga_runner` modülünde mevcut ve
+> `pyproject.toml`'un `py-modules` listesinde kurulu olarak gelir, bu yüzden
+> `python3 -m tamga_runner …` ile çalışırlar — ki yukarıda kullandığımız yol
+> odur. Bunların `tamga …` olarak bağlanması küçük bir tablo-ekleme işidir;
+> bu README o düzeltme gelene kadar modül çağrılarını gösterir.
 
 Üretim kontrol listesi: [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md)
 

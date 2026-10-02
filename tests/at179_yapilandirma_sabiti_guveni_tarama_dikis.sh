@@ -54,8 +54,12 @@
 # ADDITIVE-DİKİŞ: 0600-tamga-state + RFC-010 x402/v1 GREEN (gerçek-EIP-191).
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-MESH_ROOT="$(dirname "$(dirname "$(readlink -f "$HERE")")")"
-[ -d "$MESH_ROOT/sester" ] || MESH_ROOT="/home/gokun/projects/00_TAMGA-MESH"
+# Taşınabilirlik (AT-179-PORTABLE): mutlak /home/gokun/ yoluna BAĞLI OLMAYALIM.
+# Öncelik: kullanıcının verdiği TAMGA_MESH_ROOT; sonra repo-çevresi; sonra
+# standart-yerleşim $HOME/projects/00_TAMGA-MESH ($HOME = taşınabilir).
+MESH_ROOT="${TAMGA_MESH_ROOT:-}"
+[ -d "$MESH_ROOT/sester" ] || MESH_ROOT="$(dirname "$(dirname "$(readlink -f "$HERE")")")"
+[ -d "$MESH_ROOT/sester" ] || MESH_ROOT="$HOME/projects/00_TAMGA-MESH"
 SESTER="$MESH_ROOT/sester"
 TAMGA_DIR="$MESH_ROOT/tamga"
 # veridrome-yolu-otomatik-tespit ( repo-yerleşimi-değişti: 73-Veridrome → veridrome)
@@ -80,10 +84,15 @@ if ! python3 -c "import eth_keys" 2>/dev/null; then
   exit 0
 fi
 
-python3 >> "$LOG" 2>&1 <<'PYEOF'
+TAMGA_MESH_ROOT="$MESH_ROOT" python3 >> "$LOG" 2>&1 <<'PYEOF'
 import hashlib, hmac, json, os, stat, subprocess, sys, tempfile
-sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/tamga")
-sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/tamga/tools")
+# Taşınabilirlik (AT-179-PORTABLE): hardcoded-mutlak-yol yerine ortamdan oku.
+# Test-bootstrap'i TAMGA_MESH_ROOT'u yukarıda set-etti; eksikse boş-kalsın ve
+# modül-bulunamayınca zaten [SKIP]-yolu devrede (satır-72 sester-kontrolü).
+_mr = os.environ.get("TAMGA_MESH_ROOT", "")
+if _mr:
+    sys.path.insert(0, os.path.join(_mr, "tamga"))
+    sys.path.insert(0, os.path.join(_mr, "tamga", "tools"))
 
 print("=== AT-179: yapılandırma-sabiti-güveni-taraması ===")
 

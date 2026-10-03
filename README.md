@@ -473,3 +473,96 @@ a change = tests + evidence. Report vulnerabilities privately via [SECURITY.md](
 
 [Apache-2.0](LICENSE) — contributors' patents extend to users; anyone filing a patent
 claim loses the license.
+
+---
+
+## Akademik Kaynaklar (2024-2026)
+
+Tamga'nın tasarım alanı (oracle doğrulama, x402 ödeme protokolü, settlement
+binding, WASI oracle yürütme, tamper-evident evidence ledger, ödeme kanalı imza
+şemaları) 2024–2026'da aktif bir araştırma alanı. Aşağıdaki 8 makale bu
+alanın doğrudan komşuları — her biri Tamga'nın bir bileşeniyle aynı problemi
+farklı bir açıdan ele alıyor. Tümü 2024–2026 aralığında, gerçek arXiv
+kayıtlarıdır; abs sayfaları bu listenin derlendiği gün (2026-10-03) HTTP 200
+dönmüştür. Hepsi arXiv ön-baskısıdır — DOI/journal_ref henüz yoktur, bu yüzden
+DOI bağlantısı verilmemiştir.
+
+- **[1] Ödemeyi hizmetin yürütülmesine bağlama (settlement-bind)** — *A402:
+  Binding Cryptocurrency Payments to Service Execution for Agentic Commerce* —
+  Li et al., arXiv 2026.
+  x402'nin ödeme ↔ hizmet yürütme ↔ sonuç teslimi arasında uçtan uca
+  atomiklik sağlamadığını tanımlar ve "Atomic Service Channels" ile ödemeyi
+  yürütime bağlayan bir mimari sunar. Bu, Tamga'nın settlement-bind (D5 uç-lu
+  zincir) hedeflediği boşluğun akademik teşhisidir: settlement çözülmüştür,
+  yürütmenin kanıtı değil.
+  [arXiv:2603.01179](https://arxiv.org/abs/2603.01179)
+
+- **[2] x402 güvenlik analizi** — *Five Attacks on x402 Agentic Payment
+  Protocol* — Li et al., arXiv 2026.
+  x402'nin senkron HTTP yetkilendirmesi ile asenkron zincir settlement'ını
+  birleştirmesinin ürettiği çapraz katman saldırı yüzeyini resmi olarak
+  analiz eder; yetkilendirme, binding, replay koruması ve web katmanında beş
+  somut saldırı gösterir. Tamga'nın `exact`/`pugio0` şema katmanı ve replay
+  guard'ı (AT-211) aynı tehdit sınıfına karşı tasarlanmıştır.
+  [arXiv:2605.11781](https://arxiv.org/abs/2605.11781)
+
+- **[3] x402 riskleri ve facilitator merkezileşmesi** — *When HTTP 402 Meets
+  the Blockchain: Risks on Emerging x402 Payments* — Wang et al., arXiv 2026.
+  x402'nin ödeme kanıtı ve zincir settlement'ını üçüncü-parti facilitator'lara
+  delege etmesinin paylaşılan ödeme altyapısında merkezileşmiş güven
+  yarattığını, tek bir kusurun birçok hizmeti etkileyebileceğini gösterir.
+  Tamga'sı counterparty yolunu bağımsız doğrulanabilir kılarak (`verify-tx`,
+  `verify-bundle` — stdlib-only) bu merkezileşmeye yanıt verir.
+  [arXiv:2607.19545](https://arxiv.org/abs/2607.19545)
+
+- **[4] Agentic ticaretin özgünlüğünün ölçülmesi** — *How Agentic Is Agentic
+  Commerce? A Population-Scale Measurement of x402 Adoption and Authenticity* —
+  Ling et al., arXiv 2026.
+  x402 settlement sayısının benimsenme kanıtı olarak okunamayacağını gösterir:
+  facilitator gazı sponsorladığı ve zincir üzerinde ödemenin kimin kontrol
+  ettiğini işaretlemediği için sayı "neredeyse bedavaya" üretilebilir. Base
+  üzerindeki nüfus-ölçeğinde ölçüm yapar. Bu, yukarıda alıntılanan TRM Labs
+  bulgusunun (0.6–7.5%'si agentic) akademik yoldaşısıdır — Tamga'nın
+  "ödeme hareket ettiğini kanıtlar, işin yapıldığını kanıtlamaz" tezini
+  destekler.
+  [arXiv:2607.12575](https://arxiv.org/abs/2607.12575)
+
+- **[5] Defter-çapraz kimlik + x402 mikroödeme** — *Towards Multi-Agent
+  Economies: Enhancing the A2A Protocol with Ledger-Anchored Identities and
+  x402 Micropayments for AI Agents* — Vaziry et al., arXiv 2025.
+  A2A protokolüne dağıtık defter entegrasyonu ile AgentCard'ları akıllı
+  sözleşmeler olarak yayımlayıp değiştirilemez, doğrulanabilir ajan kimlikleri
+  oluşturur ve x402 ile blockchain-agnostik mikroödemeler ekler. Tamga'nın
+  "sahiplik ajanla birlikte yolculuk eder" (node-cosign + ERC-8004 kimlik)
+  ilkesiyle aynı yöndedir; ERC-8004/v1 imza şemamızın eşleştiği katman.
+  [arXiv:2507.19550](https://arxiv.org/abs/2507.19550)
+
+- **[6] Eşik imzalı oracle konsensüsü** — *Instant Resonance: Dual Strategy
+  Enhances the Data Consensus Success Rate of Blockchain Threshold Signature
+  Oracles* — Xian et al., arXiv 2024.
+  Çoklu düğümlerden veri üzerinde eşik imza (threshold signature) ile konsensüs
+  sağlayan oracle'ların heterojen ortamlardaki veri tutarsızlığı ve düşük başarı
+  oranı sorununa ikili-strateji yaklaşımı sunar. Tamga'nın çok-scheme imza
+  sözleşmesinin (x402/v1, tamga/native, erc8004/v1) ve oracle relayer'ının
+  çok-partili imza/kanıt modelinin akademik zeminidir.
+  [arXiv:2411.02945](https://arxiv.org/abs/2411.02945)
+
+- **[7] WASM deterministik akıllı sözleşme yürütme** — *DTVM: Revolutionizing
+  Smart Contract Execution with Determinism and Compatibility* — Zhou et al.,
+  arXiv 2025.
+  WebAssembly tabanlı, EVM ABI uyumlu, deterministik bir akıllı sözleşme
+  yürütme çatısı sunar; determinizmi birinci-sınıf bir özellik olarak ele alır.
+  Tamga'nın "determinism ground" garantisi (aynı wasm + aynı girdi → özdeş
+  çıktı parmakizi, stake-backed yeniden yürütmenin önkoşulu) ile aynı
+  varsayımdır; WASI oracle relayer'ımızın yürütme çekirdeği bu determinizm
+  üzerinde inşa edilidir.
+  [arXiv:2504.16552](https://arxiv.org/abs/2504.16552)
+
+- **[8] Ödeme kanalı imza şeması** — *OTS-PC: OTS-based Payment Channels for
+  the Lightning Network* — Lerner & Futoransky, arXiv 2025.
+  Durum sıra numaraları üzerinde tek-seferlik imza (one-time signature) temelli
+  iki yönlü bir ödeme kanalı inşası sunar; Poon-Dryja'dan daha basit, kanal
+  başına O(1) depolama ve minimal bilgi sızıntısı ile gelir. Ödeme kanalı imza
+  şeması konusu, Tamga'nın kanal/ödeme makbuz imzalarının şema tasarımının
+  ilgili literatürdeki karşılığıdır.
+  [arXiv:2511.04021](https://arxiv.org/abs/2511.04021)

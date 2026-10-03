@@ -145,7 +145,7 @@ Article 12 requires automatic logging for high-risk AI systems — applicable
 from **2 December 2027** for Annex III systems. Notably, the regulation
 mandates *that* logging happens; it does not specify how the logs are protected
 or who may verify them (a reading #2332 makes explicitly). Tamga's
-[production checklist](PRODUCTION_CHECKLIST.md) is a technical answer to that
+[production checklist](docs/PRODUCTION_CHECKLIST.md) is a technical answer to that
 obligation: not just "logs exist," but "a third party can check they were not
 altered."
 
@@ -181,7 +181,7 @@ loops and memory-growth loops killed before they exhaust the host.
 - **One fail-open path in state loading (found 2026-10-02, not yet fixed):**
   `tamga run` fails closed on an unreadable `state.json`, a wrong `graph_merkle`,
   and a wrong-type `graph_merkle` (proven by
-  [AT-226](tests/at226_fail_closed_systemexit_dikis.sh)). But a `memory` field
+  [AT-227](tests/at227_fail_closed_systemexit_dikis.sh)). But a `memory` field
   that is *not a dict at all* (e.g. a bare string) reaches the Merkle
   recomputation unvalidated and raises an uncaught `AttributeError` — a raw
   traceback with exit code 0. The operator still sees the error, but the process

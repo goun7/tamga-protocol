@@ -5,17 +5,20 @@
 # one-shot sandbox every run; it never breaks persistent fixtures.
 set -u
 cd "$(dirname "$0")/.."
-# [Fix-2026-10-02] Bagimliliklar (eth_account, eth_utils, torch, ...) bu
-# makinede user-site ($HOME/.local)'da; HOME_degisince user-site kaybolur ve
-# testler ImportError ile fail ederdi (29 test). Cozum: user-site'i MUTLAK
-# yol olarak PYTHONPATH'e ekle (öncelikli — venv'deki eth_account sürümü
-# unsafe_sign_hash'i icermedigi icin API-cakismasi yapar), venv'i yedek al.
-_user_sp="/home/gokun/.local/lib/python3.14/site-packages"
-_venv_sp="$(dirname "$0")/.venv-evm/lib/python3.14/site-packages"
-_pp=""
-[ -d "$_user_sp" ] && _pp="$_user_sp"
-if [ -d "$_venv_sp" ]; then _pp="${_pp:+$_pp:}$_venv_sp"; fi
-if [ -n "$_pp" ]; then export PYTHONPATH="$_pp${PYTHONPATH:+:$PYTHONPATH}"; fi
+# [Fix-2026-10-02 → 2026-10-03 portability] Bagimliliklar (eth_account,
+# eth_utils, ...) bu makinede user-site ($HOME/.local)'da; HOME_degisince
+# user-site kaybolur ve testler ImportError ile fail ederdi (29 test).
+# Cozum: ÇALIŞAN yorumlayicinin KENDİ user-site'ini PYTHONPATH'e ekle
+# (site.getusersitepackages). Önceki-yol MUTLAT /home/gokun/.../python3.14/
+# site-packages kullanıyordu — bu (a) CI'da yoktur (inert), (b) 3.14-site'i
+# 3.10-3.13 gibi BAŞKA bir yorumlayıcıda PYTHONPATH'e koyarsa rpds'in
+# C-extension'ı ABI-uyumsuzluğuyla jsonschema'i kırar (AT-018). Sürümler
+# artık eşleşir; user-site yoksa hiçbir şey eklenmez — opsiyonel bağımlılık
+# gerektiren kontroller kontrol_req ile dürüst-SKIP verir (aşağıda).
+_usp="$(python3 -c 'import site; print(site.getusersitepackages() or "")' 2>/dev/null || true)"
+if [ -n "$_usp" ] && [ "$_usp" != "None" ] && [ -d "$_usp" ]; then
+  export PYTHONPATH="$_usp${PYTHONPATH:+:$PYTHONPATH}"
+fi
 TAMGA_RUN_ALL_ABS="$(realpath "$0")"; export TAMGA_RUN_ALL_ABS
 export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # AT-162-düzeltmesi: syntropion-sabit-default-key-kaldırıldı → test-ortamı
@@ -92,6 +95,34 @@ kontrol_live() {
   fi
 }
 bekle_red() { kontrol "$@"; }  # semantic alias for expected-RED greps (grep -q based); single implementation (Tur-2 cleanup)
+
+# [Fix-2026-10-03] CI-faithful absence-guards (CI-run #338 kök-nedeni).
+# Birçok kontrol RFC-010 "dikiş" doğrulamasıdır: TAMGA-MESH'in kardeş
+# projelerini (sester, pacta, syntropion_core, veridrome, swarmax, ...)
+# $TAMGA_MESH_ROOT altından import eder ve/veya zero-dependency-ilkesi
+# dışında opsiyonel PyPI yüzeyleri kullanır (eth_account, fastapi; pyproject
+# 'relayer'/'evm-test' ekstraları opsiyonel-bırakılmıştır). GitHub CI bu
+# repoyu TEK BAŞINA checkout eder ve yalnız requirements.txt (PyNaCl +
+# jsonschema) kurar → bu yüzeyler CI'da YOKTUR ve kontrol İNDETERMİNE'dir:
+# ne yeşil-boyanır (maskeleme) ne de kırmızı (yanlış-regresyon). AT-067/
+# AT-070/AT-082'nin yerleşik-desenini suite-geneline yayar; önkoşul VARSA
+# (tam-mesh makinesi) kontrol-normal-koşulur — test asla-devre-dışı-değil.
+TAMGA_MESH_ROOT="${TAMGA_MESH_ROOT:-/home/gokun/projects/00_TAMGA-MESH}"
+_mesh_ok() { [ -d "$TAMGA_MESH_ROOT/sester" ] && [ -d "$TAMGA_MESH_ROOT/pacta" ] && [ -d "$TAMGA_MESH_ROOT/tamga" ]; }
+_mod_ok() { python3 -c "import $1" >/dev/null 2>&1; }
+kontrol_req() {  # kontrol_req <rc> <desc> <önkoşul>... — önkoşul: 'mesh' | modül-adı
+  local rc="$1" desc="$2"; shift 2
+  local p why=""
+  for p in "$@"; do
+    if [ "$p" = "mesh" ]; then
+      _mesh_ok || why="TAMGA-MESH kardeş-repoları bu checkout'ta yok (CI)"
+    elif ! _mod_ok "$p"; then
+      why="opsiyonel bağımlılık '$p' kurulu değil (requirements.txt dışı)"
+    fi
+    if [ -n "$why" ]; then SKIP=$((SKIP+1)); say SKIP "$desc — $why — İNDETERMİNE, yeşil-boyanmaz"; return; fi
+  done
+  kontrol "$rc" "$desc"
+}
 
 {
   echo "# run_all — $(date -Iseconds)"
@@ -664,7 +695,7 @@ PY
   bash tests/at143_tamga_bundle_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-143: tamga/native-bundle-kanıt-çekirdeği ( D5 + JCS-mührü)"
   bash tests/at144_tamga_node_cosign_dos_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-144: tamga/native-node-cosign-DoS-direnç ( 3-saldırı-rc14)"
+  kontrol_req $? "AT-144: tamga/native-node-cosign-DoS-direnç ( 3-saldırı-rc14)" eth_account
   bash tests/at142_tamga_node_key_otorite_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-142: tamga/native-node-key-otorite ( node_id-mühür + node_sig-ayrı)"
   bash tests/at147_sester_tamga_kopru_dikis.sh > /dev/null 2>&1
@@ -705,73 +736,73 @@ PY
   bash tests/at161_veridrome_keccak_erc8004_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-161: veridrome-keccak → erc8004/v1 ( sema-dengesi-3/3)"
   bash tests/at162_kimlik_sizdiran_ozet_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-162: kimlik-sizdiran-ozet-tarama ( syntropion-sabit-default-key-KAPANDI)"
+  kontrol_req $? "AT-162: kimlik-sizdiran-ozet-tarama ( syntropion-sabit-default-key-KAPANDI)" mesh
   bash tests/at164_rfc010_s6_tutarlilik_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-164: RFC010-s6 ↔ kod-tutarlilik ( standardizasyon)"
+  kontrol_req $? "AT-164: RFC010-s6 ↔ kod-tutarlilik ( standardizasyon)" mesh
   bash tests/at167_rfc010_s6_derived_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-167: RFC010-s6.2-derived-turetme ( 5-kanit + 4-negatif)"
+  kontrol_req $? "AT-167: RFC010-s6.2-derived-turetme ( 5-kanit + 4-negatif)" mesh eth_account
   bash tests/at165_zaman_mantigi_replay_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-165: zaman-mantigi-replay ( 2-bulgu-kapandi)"
   bash tests/at166_yetki_yukseltme_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-166: yetki-yukseltme-taramasi ( 2-bulgu-kapandi)"
+  kontrol_req $? "AT-166: yetki-yukseltme-taramasi ( 2-bulgu-kapandi)" mesh
   bash tests/at168_kanit_butunlugu_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-168: kanit-butunlugu ( 2-bulgu-kapandi)"
   bash tests/at169_hata_ayiklama_sizma_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-169: hata-ayiklama-sizma ( 2-bulgu-kapandi)"
+  kontrol_req $? "AT-169: hata-ayiklama-sizma ( 2-bulgu-kapandi)" mesh
   bash tests/at170_sema_izolasyon_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-170: sema-izolasyonu ( 1-duruust + 5-negatif)"
+  kontrol_req $? "AT-170: sema-izolasyonu ( 1-duruust + 5-negatif)" mesh eth_account
   bash tests/at173_rfc010_s6_none_parite_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-173: RFC010-s6.3-none-parite ( 5-kanit)"
+  kontrol_req $? "AT-173: RFC010-s6.3-none-parite ( 5-kanit)" mesh eth_account
   bash tests/at171_durum_gecis_atlamasi_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-171: durum-gecis-atlamasi ( yan-etki-once-FSM)"
   bash tests/at172_sayisal_tasma_kesinlik_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-172: sayisal-tasma-kesinlik ( 2-bulgu-kapandi)"
+  kontrol_req $? "AT-172: sayisal-tasma-kesinlik ( 2-bulgu-kapandi)" mesh
   bash tests/at176_tamga_self_chain_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-176: tamga-self-chain ( gercek-D5-head-GREEN)"
+  kontrol_req $? "AT-176: tamga-self-chain ( gercek-D5-head-GREEN)" eth_account
   bash tests/at175_giris_dogrulama_tutarsizligi_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-175: giris-dogrulama-tutarsizligi ( 2-bulgu-kapandi)"
+  kontrol_req $? "AT-175: giris-dogrulama-tutarsizligi ( 2-bulgu-kapandi)" mesh
   bash tests/at174_kanal_kapanma_cakisma_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-174: kanal-kapanma-cakisma ( 3-sester-bulgu-kapandi)"
   bash tests/at177_depolama_tutarlilik_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-177: depolama-tutarliligi ( ct-log-zinciri-kapandi)"
   bash tests/at178_yetki_devri_zinciri_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-178: yetki-devri-zinciri ( trust-fail-closed)"
+  kontrol_req $? "AT-178: yetki-devri-zinciri ( trust-fail-closed)" mesh
   bash tests/at179_yapilandirma_sabiti_guveni_tarama_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-179: yapilandirma-sabiti-guveni ( 0644-ve-dev-secret-kapandi)"
   bash tests/at180_iptal_geri_alma_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-180: iptal-ve-geri-alma ( revocation-fail-closed-exp-zorunlu)"
+  kontrol_req $? "AT-180: iptal-ve-geri-alma ( revocation-fail-closed-exp-zorunlu)" mesh
   bash tests/at181_zamanlama_yaris_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-181: zamanlama-ve-yaris ( kota-TOCTOU+ledger-lock-kapandi)"
+  kontrol_req $? "AT-181: zamanlama-ve-yaris ( kota-TOCTOU+ledger-lock-kapandi)" mesh
   bash tests/at182_giris_siniri_azaltma_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-182: giris-siniri-ve-azaltma ( job_id-carpisma+header-sinir+rate-limit)"
+  kontrol_req $? "AT-182: giris-siniri-ve-azaltma ( job_id-carpisma+header-sinir+rate-limit)" mesh
   bash tests/at183_hata_yayilmazlik_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-183: hata-yayilmazlik ( yanlis-imza-sayildi+job_id-sizinti+ct_log-fail-closed)"
+  kontrol_req $? "AT-183: hata-yayilmazlik ( yanlis-imza-sayildi+job_id-sizinti+ct_log-fail-closed)" mesh
   bash tests/at184_dagitik_tutarlilik_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-184: dagitik-tutarlilik ( event_id+idempotency+zorunlu-rol-kapisi)"
+  kontrol_req $? "AT-184: dagitik-tutarlilik ( event_id+idempotency+zorunlu-rol-kapisi)" mesh
   bash tests/at185_kanit_uretim_tesis_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-185: kanit-uretim-tesisi ( validFrom-gelecek-RED+ts-monotonluk)"
+  kontrol_req $? "AT-185: kanit-uretim-tesisi ( validFrom-gelecek-RED+ts-monotonluk)" mesh
   bash tests/at186_guvenlik_borcu_teknik_bakim_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-186: guvenlik-borcu-bakim ( AT-036-notu+env-guard+gen_lang_index)"
+  kontrol_req $? "AT-186: guvenlik-borcu-bakim ( AT-036-notu+env-guard+gen_lang_index)" mesh
   bash tests/at187_dogrulama_yolu_kanca_noktasi_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-187: dogrulama-yolu-kanca ( TSA-PKI-openssl+fail-closed)"
+  kontrol_req $? "AT-187: dogrulama-yolu-kanca ( TSA-PKI-openssl+fail-closed)" mesh
   bash tests/at188_sinir_kosulu_hata_yolu_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-188: sinir-kosulu ( job_id-null/boş-RED+amount<=0-RED)"
+  kontrol_req $? "AT-188: sinir-kosulu ( job_id-null/boş-RED+amount<=0-RED)" mesh
   bash tests/at189_yardimci_arac_denetim_iz_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-189: yardimci-arac-denetim-iz ( self_pilot-0600-atomik)"
+  kontrol_req $? "AT-189: yardimci-arac-denetim-iz ( self_pilot-0600-atomik)" mesh
   bash tests/at190_gizli_varsayilan_deger_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-190: gizli-varsayilan-deger ( secret-zorunlu+boş-RED)"
+  kontrol_req $? "AT-190: gizli-varsayilan-deger ( secret-zorunlu+boş-RED)" mesh
   bash tests/at191_kanit_uretim_tutarlilik_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-191: kanit-uretim-tutarlilik ( head_source-dangling-RED)"
+  kontrol_req $? "AT-191: kanit-uretim-tutarlilik ( head_source-dangling-RED)" mesh
   bash tests/at192_hata_mesaji_sizintisi_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-192: hata-mesaji-sizintisi ( AuthorizationError+help-flag)"
+  kontrol_req $? "AT-192: hata-mesaji-sizintisi ( AuthorizationError+help-flag)" mesh
   bash tests/at193_geri_uyumluluk_kirilma_yuzeyi_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-193: geri-uyumluluk ( Ledger-secret-zorunlu+buyer-rol)"
+  kontrol_req $? "AT-193: geri-uyumluluk ( Ledger-secret-zorunlu+buyer-rol)" mesh
   bash tests/at194_giris_temizligi_standart_yol_tarama_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-194: giris-temizligi ( TEMIZ: shell=True-yok)"
+  kontrol_req $? "AT-194: giris-temizligi ( TEMIZ: shell=True-yok)" mesh
   bash tests/at195_relayer_katman0_kanit_uretim_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-195: relayer-KATMAN-0 ( fnv1a64-byte-identical + SHA-256(ct)-digest + JCS)"
   bash tests/at197_relayer_ledger_secret_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-197: relayer-KATMAN-1 ( Ledger-secret-zorunlu; dev-secret-RED-25)"
+  kontrol_req $? "AT-197: relayer-KATMAN-1 ( Ledger-secret-zorunlu; dev-secret-RED-25)" mesh
   bash tests/at198_relayer_cpu_kisit_registry_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-198: relayer-KATMAN-1 ( cpu-çift-kısıt + registry-dışı-modül-RED)"
   bash tests/at196_relayer_evm_uctan_uca_dikis.sh > /dev/null 2>&1
@@ -851,17 +882,17 @@ PY
   # payload) hepsi-verify_chain-RED; OracleTrust-vaadinin-robustness-kanıtı
   # (docs/RESEARCH.md §2). Yerel-sqlite (para-YOK).
   bash tests/at213_ledger_fuzz_robustness_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-213: ledger fuzz robustness ( 50/50-RED fail-closed + self-heal)"
+  kontrol_req $? "AT-213: ledger fuzz robustness ( 50/50-RED fail-closed + self-heal)" mesh
   # AT-214: x402 V1/V2 header uyum-analizi — V2 (11-Ara-2025) X-Payment'i-
   # deprecated-etti; Tamga'nın-V1-yolu-sağlıklı, V2-header'ları-güvenli-bekleme
   # (fail-closed; açık-kapı-YOK). docs/RESEARCH.md §1. Yerel-ASGI (para-YOK).
   bash tests/at214_x402_v2_header_uyum_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-214: x402 V1/V2 header uyum-analizi ( 8/8; V1-çalışır V2-red)"
+  kontrol_req $? "AT-214: x402 V1/V2 header uyum-analizi ( 8/8; V1-çalışır V2-red)" mesh
   # AT-216: x402 payment-identifier (idempotency) retry-davranışı — resmi-spec
   # extension'ı (2026-09-27-taraması, docs/RESEARCH.md §5.2). Tamga'nın-KENDİ
   # nonce-replay-koruması-çalışır (K1); standart pay_id-boşluğu-honest-kanıt.
   bash tests/at216_x402_payment_identifier_retry_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-216: x402 payment-identifier retry-davranışı ( 7/7)"
+  kontrol_req $? "AT-216: x402 payment-identifier retry-davranışı ( 7/7)" mesh
   # AT-217: WASI sonsuz-döngü/DoS koruması — wasmtime-güvenlik-politikası-2026
   # "uninterruptible infinite loops" + "memory exhaustion"ı-AÇIK sayar (§6).
   # Tehlikeli-wasm'ları-üret-ve-kesilmeyi-ölç (para-YOK).
@@ -871,22 +902,22 @@ PY
   # (§5.3b) off-chain-alternatif-kanıtı: 1000-event 0.010s'de-doğrulanır,
   # orta-satır-bozuk → tüm-zincir-RED (kümülatif-kesirlik).
   bash tests/at218_ledger_batch_throughput_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-218: ledger batch-verify throughput ( 5/5; 1000-event<5s)"
+  kontrol_req $? "AT-218: ledger batch-verify throughput ( 5/5; 1000-event<5s)" mesh
   # AT-219: x402 upto-scheme sınır-semantiği — maxAmountRequired-ilanı-doğru;
   # fazla-ödemeyi-RED (ekonomik-koruma AT-100-NEG), eksik-RED, tam-eşit-200,
   # 6-decimal-USDC-minor-eşitliği. docs/RESEARCH.md §5.1.
   bash tests/at219_x402_upto_sinir_semantik_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-219: x402 upto-scheme sınır-semantiği ( 6/6; fazla/eksik-RED)"
+  kontrol_req $? "AT-219: x402 upto-scheme sınır-semantiği ( 6/6; fazla/eksik-RED)" mesh
   # AT-220: keşif-katmanı paritesi — /agents.json sağlıklı (4-zorunlu-alan +
   # parse-fiyat + ledger-bütünlüğü); /discovery/resources-YOK-AMA-402 (keşif-
   # bile-bedava-değil; fail-closed). docs/RESEARCH.md §5.3.
   bash tests/at220_kesif_katmani_paritesi_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-220: keşif-katmanı paritesi ( 9/9; agents.json + bazaar-honest)"
+  kontrol_req $? "AT-220: keşif-katmanı paritesi ( 9/9; agents.json + bazaar-honest)" mesh fastapi
   # AT-221: SIWX ↔ Tamga ajan-kimlik paritesi — CAIP-122/EIP-4361 (§5.5).
   # Kimlik-ödemeli-bağlı (atfedilebilir), EVM-imza SIWX-ile-aynı-matematik,
   # tekrar-erişim/auth-only honest-boşluk (ekonomik-model-seçimi), fail-closed.
   bash tests/at221_siwx_ajan_kimlik_paritesi_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-221: SIWX ↔ Tamga ajan-kimlik paritesi ( 7/7)"
+  kontrol_req $? "AT-221: SIWX ↔ Tamga ajan-kimlik paritesi ( 7/7)" mesh
   # AT-222: wasmtime platform-tier + CVE-kapsam-dışı — x86_64 Tier-1,
   # sürüm-48.0.1 ≥ CVE-34987-patch-ailesi, deterministik-Tier-1-stability.
   # AT-212'nin-kaynak-kanıtını-çalışma-zamanı-üçlüsüyle-tamamlar.
@@ -896,7 +927,7 @@ PY
   # public-facilitator-ÖNERMEZ; Tamga-self-facilitating: facilitatorsuz-exact
   # fail-closed-402, pugio0 self-contained-200 (§5.6).
   bash tests/at223_facilitator_bagimsizlik_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-223: facilitator-bağımsızlık / self-facilitate ( 5/5)"
+  kontrol_req $? "AT-223: facilitator-bağımsızlık / self-facilitate ( 5/5)" mesh
   # AT-224: canlı-kanıt tazelik — README/docs'taki Base-mainnet-iddialarını
   # BUGÜN bağımsız-public-RPC'den-yeniden-doğrular (güncel-tarihli-veriler).
   # Salt-okuma, anahtarsız; internet-yoksa exit-3-SKIP (asla-false-PASS).

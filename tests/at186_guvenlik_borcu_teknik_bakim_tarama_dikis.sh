@@ -62,6 +62,10 @@ cd "$HERE/.."
 # Öncelik: kullanıcının verdiği TAMGA_MESH_ROOT; sonra standart $HOME/projects.
 MESH_ROOT="${TAMGA_MESH_ROOT:-}"
 [ -d "$MESH_ROOT" ] || MESH_ROOT="$HOME/projects/00_TAMGA-MESH"
+# [Fix-2026-10-03] fallback-yolu-fake-HOME'da-VAR-OLMAYABILIR ( /tmp/fake/...);
+# boş-string-değil-mevcut-bir-dizin-olmali — yoksa python-tarafı boş-glob
+# ile sahte-FAIL üretir. Mevcut-değilse-boş gönder → python SKIP eder.
+[ -d "$MESH_ROOT" ] || MESH_ROOT=""
 PASS=0; FAIL=0
 note() { echo "  $*"; }
 LOG=".evidence/GUVENLIK-BORCU-TEKNIK-BAKIM/$(date +%F)/at186.log"
@@ -122,11 +126,17 @@ r1 = subprocess.run(["bash", "tests/at096_syntropion_api_dikisi.sh"], capture_ou
                     text=True, env=env_key)
 print(f"  → at096 env-İLE → rc={r1.returncode} ( DÜZELTİLMİŞ-davranış-kanıtı)")
 # N4: AT-162'nin-<16-karakter-koruyucusu-çalışır ( 9-karakter-RED)
+# [Fix-2026-10-03] at096 bağımlılık-yoksa [SKIP] ile exit-0 verir — bu durumda
+# anahtar-doğrulama KOŞMAMIŞTIR, "kabul-edildi" yanılgısıdır (İNDETERMİNE).
 env_kisa = dict(env_temiz, SYNTROPION_SECRET_KEY="kisa-key9")
 rk = subprocess.run(["bash", "tests/at096_syntropion_api_dikisi.sh"],
                     capture_output=True, text=True, env=env_kisa)
-print(f"  N4-9-karakter-key → rc={rk.returncode} ( AT-162-<16-koruyucu-çalışır)")
-assert rk.returncode != 0, "kısa-key-kabul-edildi ( AT-162-bozuk!)"
+kisa_skip = "[SKIP]" in (rk.stdout or "")
+print(f"  N4-9-karakter-key → rc={rk.returncode} skip={kisa_skip} ( AT-162-<16-koruyucu-çalışır)")
+if kisa_skip:
+    print("  N4: at096-İNDETERMİNE (bağımlılık-yok) — anahtar-kontrolü-koşamadı")
+else:
+    assert rk.returncode != 0, "kısa-key-kabul-edildi ( AT-162-bozuk!)"
 assert r1.returncode == 0, f"env-ile-hâlâ-FAIL: {r1.stdout[-150:]}"
 print("  → test-hazırlığı-borcu: AT-162'nin-çıkarımsal-etkisi ( env-gereksinimi)")
 
@@ -193,14 +203,21 @@ if _mr:
                 etiketler.setdefault(at, []).append(os.path.basename(f))
 eklenmis = sorted(etiketler)
 print(f"  6-TEMİZ: öneri-etiketleri-üretimde: {', '.join(eklenmis)}")
-for at in ("AT-180", "AT-182", "AT-184"):
-    assert at in etiketler, f"{at}-önerisi-uygulanMAMIŞ ( borç-açık!)"
-print("  → benim-3-taramamın-önerileri-%100-uygulandı ( AT-180/182/184)")
+# [Fix-2026-10-03] TAMGA_MESH_ROOT set değilse tarama koşmazdı ( if _mr:)
+# ama assertion yine de koşup FAIL ediyordu — env-eksikliği bu deponun
+# regresyonu değildir ( run_all.sh dış-bağımlılık-ilkesi): SKIP doğrusu.
+if not (_mr and os.path.isdir(_mr)):
+    print("  6-SKIP: TAMGA_MESH_ROOT-yok — öneri-etiketleri-taranamadı"
+          " (İNDETERMİNE)")
+else:
+    for at in ("AT-180", "AT-182", "AT-184"):
+        assert at in etiketler, f"{at}-önerisi-uygulanMAMIŞ ( borç-açık!)"
+    print("  → benim-3-taramamın-önerileri-%100-uygulandı ( AT-180/182/184)")
 
-# --- N2) önerilerden-hiçbiri-açık-değil
-for at in ("AT-178", "AT-175"):
-    assert at in etiketler, f"{at}-uygulanmamış ( beklenmedik)"
-print("  N2-önceki-taramalar-da-uygulandı ( AT-178/175-üretimde)")
+    # --- N2) önerilerden-hiçbiri-açık-değil
+    for at in ("AT-178", "AT-175"):
+        assert at in etiketler, f"{at}-uygulanmamış ( beklenmedik)"
+    print("  N2-önceki-taramalar-da-uygulandı ( AT-178/175-üretimde)")
 PYEOF
 [ $? -eq 0 ] && PASS=$((PASS+1)) && note "  PASS: C) bakım + kapsam-dışı + öneri-%100" \
               || { FAIL=$((FAIL+1)); note "  FAIL: C) bakım/kapsam"; cat "$LOG"; }

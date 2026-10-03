@@ -39,13 +39,22 @@ VENV=".venv-evm"
 if [ ! -x "$VENV/bin/python" ]; then
   note "  .venv-evm kuruluyor (deterministik-bootstrap; karar §3)..."
   python3 -m venv "$VENV" >> "$LOG" 2>&1 || { note "  SKIP: venv-yok"; echo; echo "RESULT: 0 PASS, 0 FAIL — log: $LOG"; exit 0; }
-  if ! "$VENV/bin/pip" install -q --no-input "web3<7" "eth-tester<0.10" "py-evm" "setuptools<81" "PyNaCl>=1.5" >> "$LOG" 2>&1; then
+  # [Fix-2026-10-03] bin/pip-shebang'i .venv-evm2'yi-isaret-edip-kirik-olabilir
+  # ( venv-yeniden-adlandirma); python -m pip her-zaman-calisir. pydantic
+  # acikca-listede ( eth_utils→pydantic zinciri; venv-izole-oldugu-icin
+  # user-site'tan-dusmez).
+  if ! "$VENV/bin/python" -m pip install -q --no-input "web3<7" "eth-tester<0.10" "py-evm" "setuptools<81" "PyNaCl>=1.5" "pydantic>=2" >> "$LOG" 2>&1; then
     rm -rf "$VENV"
     note "  SKIP: pip-offline (EVM-test-düğümü-kurulamadı — network-gerekli)"
     echo; echo "RESULT: 0 PASS, 0 FAIL — log: $LOG"; exit 0
   fi
 fi
 PY="$VENV/bin/python"
+# [Fix-2026-10-03] suite-PYTHONPATH user-site'taki YENI eth_account'i öne
+# alir; venv-web3 (pinned web3<7) ise eski camelCase-API bekler →
+# 'SignedTransaction' has no attribute 'rawTransaction' (yenisi raw_transaction).
+# Venv-python kendi pinned-paketlerini öncelikli kullansin: venv-site ilk.
+export PYTHONPATH="$VENV/lib/python3.14/site-packages${PYTHONPATH:+:$PYTHONPATH}"
 
 SB="$(mktemp -d)"
 trap 'rm -rf "$SB"' EXIT

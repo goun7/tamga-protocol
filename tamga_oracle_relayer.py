@@ -753,7 +753,13 @@ class OracleTransport:
                 "maxPriorityFeePerGas": prio,
             })
             signed = self._acct.sign_transaction(tx)
-            h = self._w3.eth.send_raw_transaction(signed.rawTransaction)
+            # eth_account <0.13 → camelCase rawTransaction; ≥0.13 → snake_case
+            # raw_transaction. İkisini de destekle ( pinned-venv ve yeni
+            # user-site sürümleri arasında API-çakışmasını önle).
+            _raw = getattr(signed, "raw_transaction", None)
+            if _raw is None:
+                _raw = signed.rawTransaction  # eski camelCase API
+            h = self._w3.eth.send_raw_transaction(_raw)
             rcpt = self._w3.eth.wait_for_transaction_receipt(h)
         except TamgaRelayerError:
             raise

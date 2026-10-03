@@ -21,6 +21,10 @@ note() { printf '  %s\n' "$1" | tee -a "$LOG"; }
 k() { if [ "$1" = "0" ]; then PASS=$((PASS+1)); note "[PASS] $2"; else FAIL=$((FAIL+1)); note "[FAIL] $2 — $3"; fi; }
 
 VENV="$HERE/.venv-evm"; PY="$VENV/bin/python"
+# [Fix-2026-10-03] suite-PYTHONPATH user-site'taki YENI eth_account'i öne
+# alir; pinned web3<7 eski camelCase-API bekler ( SignedTransaction→
+# rawTransaction). Venv-python kendi pinned-paketlerini öncelikli kullansın.
+export PYTHONPATH="$VENV/lib/python3.14/site-packages${PYTHONPATH:+:$PYTHONPATH}"
 if [ ! -x "$PY" ]; then python3 -m venv "$VENV" >> "$LOG" 2>&1; fi
 if ! "$PY" -c "import web3" 2>/dev/null; then
   "$PY" -m pip install -q --disable-pip-version-check "web3<7" >> "$LOG" 2>&1; fi

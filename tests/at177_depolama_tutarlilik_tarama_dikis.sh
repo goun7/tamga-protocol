@@ -154,7 +154,17 @@ assert isinstance(verdict, str) and verdict.startswith("broken@4"), \
 print("    → O_APPEND+0600-atomik + kırık-satır fail-closed (TEMİZ)")
 
 # ---------- BULGU-4 → KAPANDI ( AT-177): ct_log-artık-zincir-bağlı ----------
-sys.path.insert(0, "/home/gokun/projects/00_TAMGA-MESH/veridrome/73-Veridrome/src")
+# [Fix-2026-10-03] hardcoded yol yanlisti (00_TAMGA-MESH/veridrome/... yok);
+# gercek konum 01_unicorn/73-Veridrome/src. Bulunamazsa test-İNDETERMİNE.
+for _v in ("/home/gokun/projects/01_unicorn/73-Veridrome/src",
+           "/home/gokun/projects/00_TAMGA-MESH/veridrome/73-Veridrome/src"):
+    if os.path.isdir(_v):
+        sys.path.insert(0, _v)
+        break
+else:
+    print("  [SKIP] AT-177 BULGU-4: veridrome-kaynak-yolu-yok —"
+          " ct_log-zinciri-ölçülemedi (İNDETERMİNE)")
+    raise SystemExit(0)
 from veridrome.credentials.w3c_vc import VeridromeCredentialManager
 from veridrome.core.crypto import VeridromeAuthoritySigner
 ct = os.path.join(tmp, "ct.jsonl")

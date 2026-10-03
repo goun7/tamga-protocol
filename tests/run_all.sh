@@ -938,7 +938,11 @@ PY
   # normal altında fail-closed. Üretim-bulgusu: cursor-cycle-sonunda-ilerler →
   # hata-sonrası-toparlanmada-request-kaçabilir (backfill-ile-çözülür).
   bash tests/at225_daemon_kaos_dikis.sh > /dev/null 2>&1
-  kontrol $? "AT-225: daemon-kaos-dikişi — fail-closed her-senaryoda ( 5/5)"
+  # [Fix-2026-10-03] AT-225 mesh-modülü (sester.ledger) gerektirir: relayer
+  # tamga_oracle_relayer.py:486 'from sester.ledger import Ledger' — CI yalnızca
+  # bu repo'yu checkout eder → sester YOK → TamgaRelayerError ile kırmızı.
+  # Kardeş-repo yokken İNDETERMİNE'dir (CI-run #339, 3.13 bacağı).
+  kontrol_req $? "AT-225: daemon-kaos-dikişi — fail-closed her-senaryoda ( 5/5)" mesh
   # AT-226: RFC-010 SUBMITTER/PAYEE-AYRIMI — x402-#2887 (babyblueviper1). Üç
   # adres ayrı-rollerdir: payer=buyerAddress, payee=sellerAddress=merchant'ın
   # payTo'su, submitter=tx.from=FACILITATOR. Facilitator-attribution'ı

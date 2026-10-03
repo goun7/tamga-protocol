@@ -43,6 +43,17 @@ if [ ! -f "$DU/dumen/reports/signing.py" ]; then
   exit 0
 fi
 
+# [Fix-2026-10-02] dumen-import-zinciri torch ister; torch user-site'te
+# ($HOME/.local) — HOME_degisince ImportError ile fail. Dumen WIP/ayri-proje
+# oldugu icin onun kodunu degil, burada SKIP-guard ekliyoruz (at149/at174
+# deseniyle: bagimlilik-yok = INDETERMINE, yeşil-boyanmaz).
+if ! python3 -c "import torch" 2>/dev/null; then
+  note "[SKIP] AT-103: torch-yok (user-site) — Dümen-import-zinciri"
+  note "       koşamadı (İNDETERMİNE, yeşil-boyanmaz)."
+  echo "RESULT: 0 PASS, 0 FAIL, 1 SKIP — log: $LOG"
+  exit 0
+fi
+
 python3 - "$DU" <<'PYEOF' >> "$LOG" 2>&1
 import hashlib, json, os, sys, tempfile
 sys.path.insert(0, sys.argv[1])

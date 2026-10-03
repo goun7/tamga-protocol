@@ -5,6 +5,17 @@
 # one-shot sandbox every run; it never breaks persistent fixtures.
 set -u
 cd "$(dirname "$0")/.."
+# [Fix-2026-10-02] Bagimliliklar (eth_account, eth_utils, torch, ...) bu
+# makinede user-site ($HOME/.local)'da; HOME_degisince user-site kaybolur ve
+# testler ImportError ile fail ederdi (29 test). Cozum: user-site'i MUTLAK
+# yol olarak PYTHONPATH'e ekle (öncelikli — venv'deki eth_account sürümü
+# unsafe_sign_hash'i icermedigi icin API-cakismasi yapar), venv'i yedek al.
+_user_sp="/home/gokun/.local/lib/python3.14/site-packages"
+_venv_sp="$(dirname "$0")/.venv-evm/lib/python3.14/site-packages"
+_pp=""
+[ -d "$_user_sp" ] && _pp="$_user_sp"
+if [ -d "$_venv_sp" ]; then _pp="${_pp:+$_pp:}$_venv_sp"; fi
+if [ -n "$_pp" ]; then export PYTHONPATH="$_pp${PYTHONPATH:+:$PYTHONPATH}"; fi
 TAMGA_RUN_ALL_ABS="$(realpath "$0")"; export TAMGA_RUN_ALL_ABS
 export TAMGA_KS_PASSPHRASE="${TAMGA_KS_PASSPHRASE:-simnet-2026}"
 # AT-162-düzeltmesi: syntropion-sabit-default-key-kaldırıldı → test-ortamı

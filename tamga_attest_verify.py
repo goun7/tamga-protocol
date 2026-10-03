@@ -87,8 +87,18 @@ def ecrecover_to_pub(digest_hex: str, sig_hex: str) -> str | None:
             return None
         x, y = point
         pub_bytes = x.to_bytes(32, "big") + y.to_bytes(32, "big")
-        from eth_utils import keccak
-        return "0x" + keccak(pub_bytes)[12:].hex()
+        # [Fix-2026-10-02] eth_utils user-site'e yukluydu ($HOME/.local) —
+        # HOME degisince ImportError -> except -> None -> HER imza gecersiz
+        # (29 cross-proje testinin HOME=/tmp/fake ile fail etme nedeni).
+        # Bu modulun tasarim-ilkesi zaten "stdlib-only, az-bagimlilik"tir;
+        # ayni ciktiyi veren saf-python tamga_keccak'i tercih et, eth_utils'e
+        # sadece tamga_keccak bulunamazsa dus (bayt-bayt ayni; empty/abc/fox/
+        # 32-byte/200-byte test-vektorleri ile dogrulandi).
+        try:
+            from tamga_keccak import keccak256 as _kec
+        except ImportError:
+            from eth_utils import keccak as _kec
+        return "0x" + _kec(pub_bytes)[12:].hex()
     except Exception:
         return None
 

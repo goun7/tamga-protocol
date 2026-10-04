@@ -76,6 +76,16 @@ python3 tamga_runner.py ledger-verify new-pkg/   # ok: true
 - 🚫 **Offline & default-deny** — the runtime has no network, no filesystem, no host env;
   wasmtime v48 on ratified WASI 0.3 components
 
+**The time axis — BrandStrike:** this suite proves *what* an agent did and that
+it was not altered afterwards, but a hash-chain alone does not anchor *when*.
+[BrandStrike](https://github.com/goun7/brandstrike) covers that axis: each
+piece of evidence it collects carries SHA-256 + ISO timestamp plus an optional
+[RFC 3161](https://datatracker.ietf.org/doc/html/rfc3161) TSA token that a
+third party can verify independently. Together the two projects cover the
+integrity axis (JCS hash-chain here) and the time axis (TSA there). The
+open [AERF](https://github.com/aerf-spec/aerf) receipt standard is the
+convergence point this format is compatible with.
+
 ```mermaid
 flowchart LR
     subgraph N1["Node-1 (source host)"]

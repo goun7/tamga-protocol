@@ -976,6 +976,14 @@ PY
   kontrol $? "AT-120: Sester-bridges K1-köprü ( alıcı-tarafı-pür-sha256) → RFC-010"
   bash tests/at125_pactiva_qr_canlilik_dikisi.sh > /dev/null 2>&1
   kontrol $? "AT-125: Pactiva qr-canlılık ( rolling-HMAC + replay-koruması)"
+  # AT-229: BRANDSTRIKE-TSA — README'nin time-axis DOC-bağı ARTIK-KOD: tools/
+  # brandstrike_tsa.py bir RFC 3161 TSA-tokenını Tamga'nın hash-zincirinin
+  # zincirbaşı-özetine bağlar ( messageImprint == sha256(chain-tip)). Zaman-
+  # ekseni (TSA-oradan) + bütünlük-ekseni (JCS hash-chain-buradan) tek-kanıtta
+  # birleşir. 11-kontrol: runner'la-zincir-paritesi + GREEN + 6-RED ( decoy/
+  # replay/imza/red-status/malformed-DER/kırık-zincir) + sıfır-yeni-bağımlılık.
+  bash tests/at229_brandstrike_tsa_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-229: BrandStrike-TSA code-bond ( RFC 3161 ↔ hash-chain; zaman-ekseni)"
 
   rm -rf "$SB"
   echo ""

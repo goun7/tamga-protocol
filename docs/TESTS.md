@@ -369,3 +369,20 @@ known-limit-olarak-kayıtlı, sessiz-yeşil-geçme-YOK.
 | AT-190 (gizli-varsayılan) | FAIL | **1/1** | İki-gerçek-hata: (1) `print\(` deseni `fingerprint = ...` ile-yanlış-pozitif-eşleşir → `( ^|[^_a-zA-Z])print\(`; (2) `00_TAMGA-MESH/yieldix`-eski-kopya-taranıyordu → gerçek-upstream. |
 
 **V1: 240 PASS, 1 SKIP, 0 FAIL** ( run_all-120119.log).
+
+## AT-229: BrandStrike TSA code-bond (2026-10-05)
+
+README'nin "The time axis — BrandStrike" paragrafı DOC-bağıydı; bu-sürüüm onu
+KOD'a-çevirir. `tools/brandstrike_tsa.py` bir RFC 3161 TSA-tokenını Tamga'nın
+hash-zincirine bağlar: `messageImprint == sha256(chain-tip)` + nonce-echo +
+CMS-imza-doğrulaması (EdDSA/RFC-8419 PyNaCl'le; RSA/ECDSA opsiyonel
+`cryptography`-ile, yoksa İNDETERMİNE). Sıfır-yeni-bağımlılık.
+
+| Test | K | Bulgular |
+|---|---|---|
+| AT-229 (BrandStrike-TSA code-bond) | **11/11** | **K2** `chain_tip ≡ tamga_runner._ledger_head` gerçek-runner-ledger'ında (byte-identical); **K3/K3b** GREEN: gerçek-imzalı-token gerçek-zincirbaşı-üzerinde → ok + verify-yolu; **K4** decoy-RED (geçerli-imza, yanlış-özett); **K5** replay-RED (nonce); **K6** imza-RED (farklı-anahtar); **K7** red-status + failInfo; **K8** 5-bozuk-DER → RED (crash-YOK); **K9** kırık-zincir-RED; **K10** bağımsızlık (stdlib+PyNaCl+tamga_canon). |
+| `tests/test_brandstrike_tsa.py` | **31/31** | Birim-testler: DER-codec katılığı, GeneralizedTime formları, query round-trip, GREEN-yol (gerçek-imza), ve her-saldırı-yolu (decoy/replay/imza/rejection/malformed/kırık-zincir) RED. |
+
+**Bilinen-sınır** (README'ye-de-eklendi): runtime ağ-erişimine-sahip-değil-tasarım
+gereği → araç tokenları-doğrulur-bağlar, canlı-TSA'ya-başvurmaz; AT-229 test
+tokenını yerel-üretilmiş-bir-anahtarla-malar (gerçek-TSA-yerine-geçer, TSA-değil).

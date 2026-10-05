@@ -6,7 +6,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-240%2F241%20PASS-brightgreen)](#one-command-regression)
+[![Tests](https://img.shields.io/badge/tests-241%2F242%20PASS-brightgreen)](#one-command-regression)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Phase%202%20--%20pilot-orange)](#roadmap)
 [![Reproduce](https://img.shields.io/badge/docs-reproduce%20it%20yourself-blue)](docs/REPRODUCE.md) — last full suite run: 2026-09-17 (58/58 slow)
@@ -85,6 +85,35 @@ third party can verify independently. Together the two projects cover the
 integrity axis (JCS hash-chain here) and the time axis (TSA there). The
 open [AERF](https://github.com/aerf-spec/aerf) receipt standard is the
 convergence point this format is compatible with.
+
+**The code bond** — [`tools/brandstrike_tsa.py`](tools/brandstrike_tsa.py) makes
+that pairing executable rather than documentary. It is an RFC 3161
+query/response validator that ties a TSA token to this project's own hash-chain:
+
+- **query side** — builds a `TimeStampReq` whose `messageImprint` is
+  `sha256(chain_tip)`, so a token answers for an exact ledger state;
+- **response side** — parses `PKIStatusInfo` + CMS `SignedData` + `TSTInfo`
+  (policy, imprint, serial, `genTime`, nonce) with a hand-rolled DER codec, and
+  verifies the CMS signature (EdDSA/RFC 8419 via PyNaCl; RSA/ECDSA via the
+  optional `cryptography` package, reported INDETERMINE when absent);
+- **the bond** — verification only passes when the token's imprint equals
+  `sha256` of the ledger tip recomputed with the runner's own chain rule
+  (`h = sha256(prev ‖ jcs(record))`), the nonce echoes the request's, and the
+  chain itself is intact. A token minted over a decoy digest, replayed with the
+  wrong nonce, signed by another key, or paired with a broken chain is RED.
+
+The bond is tested from both directions: [`tests/test_brandstrike_tsa.py`](tests/test_brandstrike_tsa.py)
+(31 unit tests) pins the codec and each attack path, and acceptance control
+**AT-229** (`tests/at229_brandstrike_tsa_dikis.sh`) proves `chain_tip` is
+byte-identical to `tamga_runner._ledger_head` on a runner-produced ledger, then
+mints a genuinely signed token over that tip and drives the full GREEN/RED
+matrix. Zero new dependencies — the tool adds nothing beyond the declared
+PyNaCl + jsonschema and the project's own `tamga_canon`.
+
+*Honest limit:* the runtime has no network by design, so the tool verifies and
+binds tokens rather than contacting a live TSA — the acceptance control mints
+its test token with a locally generated key, which is a stand-in for a trusted
+TSA, not a real timestamp authority.
 
 ```mermaid
 flowchart LR
@@ -231,7 +260,7 @@ git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate   # or: pip install --break-system-packages -r requirements.txt
 pip install -r requirements.txt
 bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
-bash tests/run_all.sh          # 240/241 controls — 1 SKIP, 0 FAIL (229 default / +4 live with TAMGA_LIVE=1)
+bash tests/run_all.sh          # 241/242 controls — 1 SKIP, 0 FAIL (230 default / +4 live with TAMGA_LIVE=1)
 
 # your first agent (copy the sample vector as the package — see docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice
@@ -314,7 +343,7 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 ## One-command regression
 
 ```bash
-bash tests/run_all.sh        # 240/241 controls — families below; 1 SKIP, 0 FAIL (229 default / +4 live with TAMGA_LIVE=1)
+bash tests/run_all.sh        # 241/242 controls — families below; 1 SKIP, 0 FAIL (230 default / +4 live with TAMGA_LIVE=1)
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
 (AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory

@@ -984,6 +984,19 @@ PY
   # replay/imza/red-status/malformed-DER/kırık-zincir) + sıfır-yeni-bağımlılık.
   bash tests/at229_brandstrike_tsa_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-229: BrandStrike-TSA code-bond ( RFC 3161 ↔ hash-chain; zaman-ekseni)"
+  # AT-230: fulfillExecution DAVRANIŞ-DİKİŞİ — LEAD audit-2026-10-05 kapanışı:
+  # 'fulfillExecution' (oracle ABI fonksiyonu; submit_fulfillment'nin-gönderdiği)
+  # için-gerçek-davranış-testi. 5-kontrol (yerel py-evm; para-YOK):
+  #   K1 selector-3-kaynak-paritesi (keccak == 0xe266d3c7 == IVerifier == ABI)
+  #   K2 uçuş-öncesi fail-closed (32B-olmayan-digest → RC_SNAPSHOT_HEADER,
+  #      zincire-yayın-YOK — nonce-sabit)
+  #   K3 calldata round-trip paritesi (zincirden-çek + eth_abi-decode → girdiler)
+  #   K4 makbuz contract'ı (status=1 + gasUsed>0 + receipt status=1)
+  #   K5 EIP-1559 dinamik fee (type=2; maxFee=2×baseFee+prio; AT-211-disiplini)
+  # Canlı-zincire-BAĞIMLI-DEĞİL (AT-205/206'nın-yerel-karbonu); venv/wheel-yoksa
+  # AT-203/AT-210 ile-aynı-şekilde-SKIP (exit-0).
+  bash tests/at230_fulfill_execution_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-230: fulfillExecution davranış-dikişi ( selector+fail-closed+calldata+makbuz+fee 5/5)"
 
   rm -rf "$SB"
   echo ""

@@ -198,7 +198,14 @@ class IVerifier:
         missing = [k for k in IVerifier.PAYLOAD_REQUIRED if obj.get(k) is None]
         if missing:
             return {"ok": False, "reason": f"payload-eksik-alan: {missing}"}
-        reencoded = jcs(obj)
+        try:
+            reencoded = jcs(obj)
+        except (ValueError, TypeError) as e:
+            # AT-192 sözleşmesi: hata message-RED'dir, ASLA exception değil.
+            # I-JSON dışı tam sayı (|n| > 2^53, RFC 7493) dahil — jcs reddeder,
+            # biz bunu zarif bir red-dict'ine çeviririz (denetçi traceback görmez).
+            return {"ok": False, "reason":
+                    f"payload-jcs-geçersiz-değer: {e}"}
         if reencoded != payload_bytes:
             return {"ok": False, "reason":
                     "payload-jcs-parite: yeniden-serileştir orijinalden-farklı "

@@ -25,6 +25,12 @@ import json
 import sys
 import pathlib
 
+# Kök-dizini sys.path'e-ekle: bu betik tools/ altında-çalıştırıldığında
+# `from tamga_attest_verify import ecrecover_to_pub` (x402/v1-imza-kontrolü)
+# ImportError-verip exception → ok2=False → yanlış-RED rc4 üretiyordu.
+# Kök, dosyanın-iki-üstü-dizini ( tools/<name> → root ).
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+
 def _foreign_chain_ok(proof: dict, payer: str, receipt_hex: str, scheme: str) -> bool:
     """§6-kapanışı: yabancı-zincirin-çürüklüğünü-ölçer (AT-067-itirafı).
 

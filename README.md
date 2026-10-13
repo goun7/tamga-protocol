@@ -261,6 +261,7 @@ python3 -m venv .venv && source .venv/bin/activate   # or: pip install --break-s
 pip install -r requirements.txt
 bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
 bash tests/run_all.sh          # 241/242 controls — 1 SKIP, 0 FAIL (230 default / +4 live with TAMGA_LIVE=1)
+python3 -m pytest tests/ -q    # 2.353 unit tests passed, 0 failed, rc=0 (LEED-ölçümü 2026-10-14, 145 s)
 
 # your first agent (copy the sample vector as the package — see docs/AGENT-GUIDE §3):
 python3 tamga_validator.py keygen tests/keys/alice
@@ -344,6 +345,7 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 
 ```bash
 bash tests/run_all.sh        # 241/242 controls — families below; 1 SKIP, 0 FAIL (230 default / +4 live with TAMGA_LIVE=1)
+python3 -m pytest tests/ -q  # 2.353 unit tests passed, 0 failed, rc=0 (LEED-ölçümü 2026-10-14, 145 s)
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay
 (AT-002), ledger attack vectors (AT-003), input-bound receipts (AT-004), multi-format memory

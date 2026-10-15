@@ -125,9 +125,17 @@ def _load_state(sp):
     # (sadece-import-kapısında-kontrol-ediliyordu). Tahriz-edilmiş-state
     # yeniden-hesaplanıp-üzerine-yazılıyordu → sessiz-yeşil-geçiş. Artık
     # diskteki-graph_merkle-hafıza-ile-tutarsızsa-RED ( import-rc17-ile-aynı-
-    # sınıf). Eski-dosyalarda-graph_merkle/memory-yoksa-atlanır ( geri-uyumlu).
-    if st.get("graph_merkle") and st.get("memory"):
-        if _graph_merkle(st["memory"]) != st["graph_merkle"]:
+    # sınıf). Eski-dosyalarda-graph_merkle-anahtarı-yoksa-atlanır (geri-uyumlu).
+    # K1 (fail-closed, import-gate-L1269-ile-aynı-desen): anahtar VARSA memory
+    # bir-object-olmak-zorundadır — memory non-dict (None/list/str) eskiden
+    # doğrulamayı sessizce-atlıyordu (falsy) veya AttributeError-fırlatıyordu.
+    if "graph_merkle" in st:
+        mem = st.get("memory")
+        if not isinstance(mem, dict):
+            raise SystemExit(out(False, op="run", reason_code=5,
+                                 reason="state_invalid: memory bir object değil (run-yolu) — "
+                                        "fail-closed; restore from export snapshot"))
+        if _graph_merkle(mem) != st["graph_merkle"]:
             raise SystemExit(out(False, op="run", reason_code=5,
                                  reason="state_invalid: graph_merkle mismatch "
                                         "(run-yolu) — fail-closed; restore from export snapshot"))
@@ -1267,7 +1275,11 @@ def cmd_import(a):
         return out(False, op="import", reason_code=8, reason="snapshot_replay_rollback")
     # --- slice-6: deep verification (RFC-004 D6 / E-8) ---
     if "graph_merkle" in parsed:
-        if _graph_merkle(parsed.get("memory", {})) != parsed["graph_merkle"]:
+        mem_i = parsed.get("memory")
+        if not isinstance(mem_i, dict):    # K1-simetri (run-yolu-ile-aynı-sınıf)
+            return out(False, op="import", reason_code=17,
+                       reason="state_invalid: memory bir object değil")
+        if _graph_merkle(mem_i) != parsed["graph_merkle"]:
             return out(False, op="import", reason_code=17,
                        reason="state_invalid: graph_merkle mismatch")
     tip = parsed.get("ledger_tip")

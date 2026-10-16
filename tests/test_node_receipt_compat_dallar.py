@@ -479,16 +479,30 @@ class TestLedgerReport:
         assert r["verdict"] == "RED"
         assert "unparseable" in r["reason"]
 
-    def test_empty_ledger_reports_green_genesis(self, tmp_path):
-        """ORTAM-KARAKTERİZASYON: boş-zincir-GREEN-raporlanır — genesis-tip
-        '0'*64-geçerlidir, 'kırık' sayılmaz (check-için-üyelik-RED-doğru-mod)."""
+    def test_empty_ledger_reports_red_rejected(self, tmp_path):
+        """DUZELTILDI (NRC-1): boş-zincir artık GREEN DEĞİL, RED-reddedilir
+        (fail-closed). mini_verify boşa genesis-tip '0'*64 (truthy) döndürüp
+        msg='empty chain ...' işaretler; eskiden ok-öncesi-diagnostik bunu
+        GREEN sayıyordu (false-proof: hiç-kayıt = kanıt-yok). Artık yalnız-
+        msg=='ok' (en-az-bir-kayıt) GREEN; boş-zincir RED. genesis-tip korunur
+        (kurcalama-değil) ama ok:False."""
         lp = tmp_path / "empty.jsonl"
         lp.write_text("", encoding="utf-8")
         r = nrc.ledger_report(str(lp))
+        assert r["ok"] is False
+        assert r["verdict"] == "RED"
+        assert r["ledger_tip"] == GENESIS_PREV
+        assert "empty-chain-rejected" in r["reason"]
+        assert "no records" in r["reason"]
+
+    def test_nonempty_ledger_still_green(self, tmp_path):
+        """NRC-1 regresyon-koruma: en-az-bir-kayıtlı-tutarlı-zincir hâlâ GREEN
+        (msg=='ok' yolu bozulmadı — fail-closed yalnız-boş-zinciri-vurur)."""
+        lp = _mk_ledger([_charge_fields()], base=tmp_path)
+        r = nrc.ledger_report(str(lp))
         assert r["ok"] is True
         assert r["verdict"] == "GREEN"
-        assert r["ledger_tip"] == GENESIS_PREV
-        assert "no records" in r["reason"]
+        assert r["reason"] == "ok"
 
     def test_missing_file_red(self, tmp_path):
         """io_error → RED (OSError-burada-propage-etmez)."""

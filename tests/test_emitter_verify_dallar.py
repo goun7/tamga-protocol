@@ -409,6 +409,24 @@ class TestScan:
         _write(repo / "tamga.py", '_ledger_append(lp, {"op": "b"})\n')
         assert ev.scan()["ops_total"] == 3  # a, b + fee
 
+    def test_empty_production_corpus_is_problem(self, repo):
+        """DUZELTILDI (EMIT-1): üretim-corpus-BOŞ (hiç-üretim-ledger-yok) artık
+        'temiz' DEĞİL — fail-closed problem. Eskiden boş-repo scan'i problems=[]
+        bırakıp main rc0 veriyordu (vacuous-green false-proof: hiçbir-op
+        doğrulanmadan 'hepsinin-üretim-emitter-ı-kanıtlandı')."""
+        d = ev.scan()  # repo boş: ne-kod ne-üretim-ledger
+        assert any("üretim-corpus-BOŞ" in p for p in d["problems"])
+        assert d["production_corpus_ops"] == []
+
+    def test_empty_repo_fixture_only_evidence_is_problem(self, repo):
+        """EMIT-1 kapsam-koruma: kod-emitter-var-AMA-kanıt-yalnızca-fixture →
+        hem-boş-üretim-problemi-hem-KANIT-YOK (üretim-doğrulaması-zorunlu)."""
+        _write(repo / "tamga_runner.py", '_ledger_append(lp, {"op": "alpha"})\n')
+        _write(repo / "tests" / "f.jsonl", _ledger_line("alpha") + "\n")
+        d = ev.scan()
+        assert any("üretim-corpus-BOŞ" in p for p in d["problems"])
+        assert any("KANIT-YOK" in p and "alpha" in p for p in d["problems"])
+
 
 # == main =========================================================================================
 
@@ -430,6 +448,12 @@ class TestMain:
     def test_main_ignores_argv(self, repo):
         self._clean(repo)
         assert ev.main(["any", "args", "ignored"]) == 0
+
+    def test_main_empty_repo_rc1_fail_closed(self, repo, capsys):
+        """DUZELTILDI (EMIT-1): boş-repo main rc0 (vacuous-green) DEĞİL, rc1
+        (fail-closed) verir — üretim-doğrulaması-zorunlu."""
+        assert ev.main([]) == 1
+        assert "EMITTER-DOĞRULAMA-BAŞARISIZ" in capsys.readouterr().out
 
     def _clean(self, repo):
         _write(repo / "tamga_runner.py",

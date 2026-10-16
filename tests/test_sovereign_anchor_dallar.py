@@ -466,6 +466,57 @@ class TestVerifyKatman1:
         assert "sahte-yeşile-boyama" not in r.get("reason", "")
 
 
+# == verify: SOV-1 boş-kanıt reddi (fail-closed) ==================================================
+
+class TestVerifyKanitsizRedFailClosed:
+    """DUZELTILDI (SOV-1): eskiden hiçbir-ürün-kanıtlamayan-anchor (proved-boş)
+    katman-2-atlandığında ok:True (UNVERIFIED-INDEPENDENTLY / STRUCTURAL-GREEN)
+    dönüyordu — boş-kanıt geçersiz-yeşil-alıyordu (ok-only false-proof). Artık
+    verify proved-boş ise daima RED. Kapsam-azaltılmadı; yeni-pins-eklendi."""
+
+    def test_empty_results_anchor_rejected(self, sv, tmp_path):
+        """results={} (sıfır-ürün) → RED — taklit-boş-kanit artik gecmez."""
+        a = {"type": "sovereign-anchor", "version": "0.1", "results": {},
+             "products_present": [], "products_proved": [], "all_proved": True,
+             "sources": {}}
+        a["anchor_root"] = _recompute(a)
+        r = sovereign_anchor.verify(_write(a, tmp_path))
+        assert r["ok"] is False
+        assert r["verdict"] == "RED"
+        assert "kanıt-yok" in r["reason"]
+
+    def test_all_products_red_rejected(self, sv, tmp_path):
+        """Tüm-ürünler ok:False (proved-boş) → RED — hiçbir-şey-kanıtlanmadı."""
+        a = {"type": "sovereign-anchor", "version": "0.1",
+             "results": {"tamga": {"ok": False, "verdict": "RED"},
+                         "sester": {"ok": False, "verdict": "RED"}},
+             "products_present": ["tamga", "sester"], "products_proved": [],
+             "all_proved": False, "sources": {}}
+        a["anchor_root"] = _recompute(a)
+        r = sovereign_anchor.verify(_write(a, tmp_path))
+        assert r["ok"] is False
+        assert r["verdict"] == "RED"
+        assert "kanıt-yok" in r["reason"]
+
+    def test_empty_proof_with_sources_still_rejected(self, sv, tmp_path):
+        """proved-boş + kaynak-var: katman-2'ye-hiç-girmeden RED (fail-closed-önce)."""
+        a = {"type": "sovereign-anchor", "version": "0.1",
+             "results": {"tamga": {"ok": False, "verdict": "RED"}},
+             "products_present": ["tamga"], "products_proved": [],
+             "all_proved": False, "sources": {"tamga_claim": "c.json"}}
+        a["anchor_root"] = _recompute(a)
+        r = sovereign_anchor.verify(_write(a, tmp_path))
+        assert r["ok"] is False
+        assert "kanıt-yok" in r["reason"]
+
+    def test_valid_proved_anchor_still_green(self, sv, tmp_path):
+        """SOV-1 regresyon-koruma: en-az-bir-proved-ürün → yeşil-yolu-bozulmadı."""
+        p = _write(sovereign_anchor.build("c.json"), tmp_path)
+        r = sovereign_anchor.verify(p)
+        assert r["ok"] is True
+        assert r["verdict"] == "GREEN"
+
+
 # == verify: katman-2 bağımsız-yeniden-hesap =====================================================
 
 class TestVerifyKatman2:

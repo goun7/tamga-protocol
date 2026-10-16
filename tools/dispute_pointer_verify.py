@@ -30,12 +30,22 @@ MIN_BOND_PCT = 0.20          # Pacta §5.3 — dışarıdan gelen oyun-teorik de
 
 
 def _rfc010_ok(charge: dict) -> bool:
-    """Önkoşul: RFC-010 dikişi geçerli mi (burada yeniden koşulmaz, varlığına bakar)."""
+    """Önkoşul: RFC-010 dikişi geçerli mi (burada yeniden koşulmaz, varlığına bakar).
+
+    DUZELTILDI (DISP-1): hex-alanı artık yalnızca UZUNLUKLA değil, karakter
+    kümesiyle de denetlenir (küçük-harf-hex [0-9a-f]) — tamga_runner.py:400
+    ledger-paritesi (delivery_hash_invalid kuralı). Eskiden 'g'*64 gibi
+    uzunluğu-64-ama-hex-olmayan bir değer kapıyı geçiyordu; pointer taklit
+    edilebilirdi. Fail-closed: uymayan her şey (boşluk/büyük-harf/rakam-dışı)
+    False. str-olmayan hex güvenle False döner (eskiden len() TypeError atardı).
+    """
     bind = charge.get("settlement_bind")
     if not isinstance(bind, dict):
         return False
     dh = charge.get("delivery_hash")
-    return isinstance(dh, dict) and set(dh) == {"alg", "hex"} and len(dh["hex"]) == 64
+    return (isinstance(dh, dict) and set(dh) == {"alg", "hex"}
+            and isinstance(dh["hex"], str) and len(dh["hex"]) == 64
+            and all(c in "0123456789abcdef" for c in dh["hex"]))
 
 
 def verify(charge: dict) -> dict:

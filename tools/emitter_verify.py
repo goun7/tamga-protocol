@@ -186,6 +186,17 @@ def scan() -> dict:
     # bildirimi-yapar. Sessiz-geçiş-YASAK — 'kanıtladı'-demek-yalnızca-üretim-
     # kanıtı-sıfırken-yalan-söylüyor.
     production = corpus_ops(production_only=True)
+    # EMIT-1 fail-closed (üretim-doğrulaması-ZORUNLU): üretim-corpus-BOŞ ise
+    # (hiçbir-üretim-ledger'ında-seq+prev+h-kanıtı-yok) hiçbir-emitter-üretimde
+    # doğrulanamaz — boş-körpus "temiz" DEĞİL, "doğrulanamıyor" demektir. Eskiden
+    # code=[] + production=[] (boş-repo) scan'i problems=[] bırakıp main rc0
+    # veriyordu: "hepsinin-üretim-emitter'ı-kanıtlandı" (vacuous-green false-proof,
+    # üçüncü-seçenek-yasak / K0-rule-7). Artık boş-üretim-körpusu-açık-problem.
+    if not production:
+        problems.append(
+            "üretim-corpus-BOŞ: hiçbir-üretim-ledger'ında-seq+prev+h-kanıtı-yok "
+            "— emitter-üretim-doğrulaması-YAPILAMAZ (fail-closed; boş-kanıt "
+            "yeşil-yakamaz). Ya-üretim-körpusu-olsun-ya-da-açık-oluşum-bildirimi.")
     for op in sorted(code):
         if op in production:
             continue

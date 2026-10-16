@@ -93,8 +93,18 @@ def check(charge_path: str, ledger_path: str) -> dict:
 
 def ledger_report(ledger_path: str) -> dict:
     tip, msg = mini_verify(ledger_path)
-    return {"ok": bool(tip), "verdict": "GREEN" if tip else "RED",
-            "reason": msg, "ledger_tip": tip or None}
+    if not tip:
+        return {"ok": False, "verdict": "RED", "reason": msg, "ledger_tip": None}
+    # NRC-1 fail-closed (boş-chain reddi): mini_verify boş-zincirde genesis-tip
+    # '0'*64-döndürür ve msg='empty chain ...' işaretler; tip-truthy olduğu için
+    # ok-öncesi-diagnostik boşa GREEN diyordu (false-proof: hiç-kayıt-yok = kanıt
+    # yok). Yalnız-msg=='ok' (en-az-bir-kayıt-ve-tutarlı) GREEN'dir; boş-zincir
+    # artık RED.
+    if msg != "ok":
+        return {"ok": False, "verdict": "RED",
+                "reason": f"empty-chain-rejected: {msg}",
+                "ledger_tip": tip or None}
+    return {"ok": True, "verdict": "GREEN", "reason": msg, "ledger_tip": tip}
 
 
 def main(argv: list[str]) -> int:

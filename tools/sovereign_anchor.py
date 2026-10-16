@@ -133,6 +133,16 @@ def verify(anchor_path: str) -> dict:
         return {"ok": False, "reason": "products_proved ile results çelişiyor"}
     if a.get("all_proved") != (len(proved) == len(results)):
         return {"ok": False, "reason": "all_proved ile results çelişiyor"}
+    # SOV-1 fail-closed (ok-only false-proof): HIÇBİR-ÜRÜN-kanıtlamayan-anchor
+    # (products_proved boş) artık ok:True DÖNEMEZ. Eskiden results={} (boş-kanıt)
+    # ya-da-tüm-ürünler-ok:False iken bile katman-2-atlandığında
+    # UNVERIFIED-INDEPENDENTLY / STRUCTURAL-GREEN ile ok:True dönüyordu —
+    # sıfır-kanıtlı-taklit-anchor geçersiz-yeşil-alıyordu. Boş-kanıt, kanıt
+    # değildir → çelişki-ne-olursa-olsun RED (sessiz-geçiş-yok).
+    if not proved:
+        return {"ok": False, "verdict": "RED",
+                "reason": "kanıt-yok: products_proved boş — hiçbir-ürün "
+                          "ok:True-değil (fail-closed, boş-kanıt-yeşil-yakamaz)"}
     # ERRATUM-A2 (2026-09-20 — vektör-araştırması-ile-bulundu): proved-yalnızca
     # ok'a-bakıyordu; saldırgan ok:True-verdict:RED-boyayıp-kökü-yeniden-hesapla
     # → UNVERIFIED-INDEPENDENTLY-perdesi-arkasında-kötü-sonucu-gizliyordu.

@@ -98,15 +98,30 @@ class TestRfc010Onkosul:
     def test_delivery_hash_invalid(self, dh):
         assert dpv._rfc010_ok({"settlement_bind": {}, "delivery_hash": dh}) is False
 
-    @pytest.mark.parametrize("hexv", ["g" * 64, "A" * 64, "G" * 32 + "A" * 32,
-                                      " " * 64, "0" * 64])
-    def test_only_length_checked_not_content(self, hexv):
-        """ORTAM-KARAKTERİZASYON: kapı SADECE len(hex)==64-denetler —
-        hex-içeriği-değil. 'g'*64-ve-'A'*64-uzunluk-64-olduğu-için-GEÇER.
-        Karakter-doğrulaması-bu-gate'in-dışında; test-belgeler, düzeltmez."""
+    @pytest.mark.parametrize("hexv,beklenen", [
+        ("g" * 64, False),          # 'g' hex-değil → reddedilir
+        ("A" * 64, False),          # büyük-harf → küçük-harf-hex-değil → reddedilir
+        ("G" * 32 + "A" * 32, False),  # hiçbiri geçersiz-küme → reddedilir
+        (" " * 64, False),          # boşluklar → reddedilir
+        ("0" * 64, True),           # geçerli küçük-harf-hex, len 64 → KABUL
+    ])
+    def test_content_checked_lowercase_hex_fail_closed(self, hexv, beklenen):
+        """DUZELTILDI (DISP-1): kapı artık SADECE len(hex)==64 ile değil,
+        karakter-kümesiyle de denetler (küçük-harf-hex [0-9a-f], case-sensitive).
+        ESKİDEN 'g'*64 / 'A'*64 / 'G'*32+'A'*32 / ' '*64 uzunluk-64 diye GEÇERDİ
+        (false-proof, pointer taklit edilebilirdi); şimdi fail-closed REDDEDİLİR.
+        '0'*64 meşru küçük-harf-hex olduğu için True kalır.
+        Parasyon-sayısı-korundu (5 girdi) — kapsam azalmadı, yön çevrildi."""
         assert dpv._rfc010_ok({"settlement_bind": {},
                                "delivery_hash": {"alg": "sha256",
-                                                 "hex": hexv}}) is True
+                                                 "hex": hexv}}) is beklenen
+
+    def test_non_string_hex_is_false_not_typeerror(self):
+        """DUZELTILDI (DISP-1): str-olmayan hex eskiden len() ile TypeError atardı;
+        artık isinstance(str) kapısı sayesinde güvenle False (fail-closed)."""
+        assert dpv._rfc010_ok({"settlement_bind": {},
+                               "delivery_hash": {"alg": "sha256",
+                                                 "hex": 1234}}) is False
 
     def test_exact_64_lowercase_hex_ok(self):
         assert dpv._rfc010_ok({"settlement_bind": {},

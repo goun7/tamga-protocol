@@ -481,5 +481,8 @@ class TestGercekRepoDuman:
         assert ev.RESERVED == {"fee"}
 
     def test_supported_emitter_modules(self):
+        # AT-080 (2026-10-18): tools/compute_anchor.py eklendi — RFC-011
+        # compute-anchor op'unun-emitter-kaydi-icin. Kok-un-Seçenek-C-evrimi:
+        # compute-work-proof makbuzu tamga ledger'ina-baglanir.
         assert ev.EMITTER_MODULES == ("tamga_runner.py", "tamga_bundle.py",
-                                      "tamga.py")
+                                      "tamga.py", "tools/compute_anchor.py")

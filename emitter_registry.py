@@ -22,7 +22,11 @@ import pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 
 # Statik-olarak-taranan-üretim-modülleri (emitter_verify.py-ile-aynı)
-EMITTER_MODULES = ("tamga_runner.py", "tamga_bundle.py", "tamga.py")
+# tools/compute_anchor.py (2026-10-18, RFC-011 compute-anchor): kok'un
+# compute-work-proof makbuzunu-ledger'a-bağlayan-op-burada-yazılır —
+# emitter-kayıdında-olmazsa-_ledger_append-başarısız (üçlü-kapsam-katman-1).
+EMITTER_MODULES = ("tamga_runner.py", "tamga_bundle.py", "tamga.py",
+                   "tools/compute_anchor.py")
 
 # Kasıtlı-reserve: listeli-ama-yayılmaz (ölü-girdi-taraması-yeşil-geçirir)
 RESERVED = {"fee"}

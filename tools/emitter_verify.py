@@ -27,7 +27,8 @@ REPO = HERE.parent
 sys.path.insert(0, str(REPO))
 
 # Üretim-modülleri — burada-elle-listelenir-AMA-koddan-doğrulanır (aşağıda)
-EMITTER_MODULES = ("tamga_runner.py", "tamga_bundle.py", "tamga.py")
+EMITTER_MODULES = ("tamga_runner.py", "tamga_bundle.py", "tamga.py",
+                   "tools/compute_anchor.py")
 
 # Kasıtlı-reserve (yayılmaz, ölü-girdi-taraması-yeşil)
 RESERVED = {"fee"}

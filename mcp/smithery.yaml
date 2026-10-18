@@ -1,0 +1,20 @@
+# Smithery registry yapılandırması — TAMGA MCP server.
+#
+# Yayınlama (Smithery CLI, Node.js 20+):
+#   smithery auth login   # tarayıcı OAuth — bir kez
+#   smithery mcp publish ./mcp/tamga.mcpb -n <org>/tamga
+#
+# Yerel deneme (registry olmadan):
+#   printf '%s\n' '<initialize-json>' | python3 mcp/server.py
+#
+# Docs: https://smithery.ai/docs  ·  MCP spec: https://modelcontextprotocol.io/specification/2025-06-18
+version: 1
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties: {}
+  command: python
+  args:
+    - mcp/server.py

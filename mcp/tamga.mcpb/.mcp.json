@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "name": "tamga",
+  "display_name": "Tamga — Independent Proof-Chain Verification",
+  "description": "Verify tamga proof chains and delivery attestations independently. verify_ledger checks a ledger.jsonl end-to-end (prev-link + JCS canonical-hash + seq) with no tamga install; ledger_head returns the chain tip; verify_attestation checks a CAPACITY_ATTEST_V1 delivery claim with the three-verdict contract (green/red/indeterminate); verify_charge checks a single charge record's chain membership; verify_bundle checks all seals of a relayer fulfill bundle (fnv1a64 stamp, TSG1 snapshot, JCS payload, keccak-256 delivery). Every tool returns a JSON verdict and never raises.",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/goun7/tamga",
+  "repository": "https://github.com/goun7/tamga",
+  "categories": ["developer-tools", "verification", "autonomous-agents"],
+  "transport": "stdio",
+  "install": {
+    "command": "python",
+    "args": ["mcp/server.py"],
+    "env": {}
+  },
+  "tools": [
+    {
+      "name": "verify_ledger",
+      "description": "Verify a tamga ledger.jsonl proof chain end-to-end, independently."
+    },
+    {
+      "name": "ledger_head",
+      "description": "Return the current chain tip (last h, 64-hex) of a valid ledger."
+    },
+    {
+      "name": "verify_attestation",
+      "description": "Verify an external CAPACITY_ATTEST_V1 delivery attestation (green/red/indeterminate)."
+    },
+    {
+      "name": "verify_charge",
+      "description": "Verify a single charge record's chain membership: h == sha256(prev + jcs(record-h-less))."
+    },
+    {
+      "name": "verify_bundle",
+      "description": "Verify all seals of a relayer fulfill bundle in one call."
+    }
+  ],
+  "privacy": {
+    "keys": "No secrets. The server shells out to tamga's own stdlib CLI verifiers and returns their JSON verdicts.",
+    "network": "None. All verification is local reads of files the caller provides."
+  }
+}

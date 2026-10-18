@@ -52,13 +52,17 @@ assert sw_ed.verify(sw_ed._secret_expand(secret)[0].to_bytes(32,"big") if False 
 print("  Swarmax-ed25519: imza-üretildi (len=%d)" % len(sig))
 
 # --- 2) Swarmax'ın-gerçek-evidence-zinciri-üret (aynı-D5-şekli)
+# DALGA-E düzeltmesi: tablo swarmax/schema/sqlite_v1.sql'deki GERÇEK şemayı
+# taklit-etmeli (ed25519_sig sütunu+UNSIGNED_F0) — yoksa verify_chain()
+# "no such column: ed25519_sig" hatasıyla kontrolo-bozar ( AT-067 FAIL).
 db = sqlite3.connect(":memory:"); db.row_factory = sqlite3.Row
 db.execute("CREATE TABLE evidence_ledger (seq INTEGER PRIMARY KEY, "
-           "event_type TEXT, payload_hash TEXT, prev_hash TEXT)")
+           "event_type TEXT, payload_hash TEXT, prev_hash TEXT, "
+           "ed25519_sig BLOB NOT NULL)")
 payload = {"job":"fleet-001","agent":"swarmax-7","result":"ok"}
-db.execute("INSERT INTO evidence_ledger (seq,event_type,payload_hash,prev_hash) "
-           "VALUES (1,?, ?, ?)",
-           ("task", sw_ev.payload_digest(payload), sw_ev.GENESIS))
+db.execute("INSERT INTO evidence_ledger (seq,event_type,payload_hash,prev_hash,ed25519_sig) "
+           "VALUES (1,?, ?, ?, ?)",
+           ("task", sw_ev.payload_digest(payload), sw_ev.GENESIS, sw_ev.UNSIGNED_F0))
 db.commit()
 ok, n = sw_ev.verify_chain(db)
 assert ok and n == 1, f"Swarmax-zinciri-kırık: {ok},{n}"

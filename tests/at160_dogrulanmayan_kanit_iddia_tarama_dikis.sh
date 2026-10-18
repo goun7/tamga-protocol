@@ -126,24 +126,30 @@ print(f"  B1-TEMİZ: tenderix build_csvo → verify_csvo-True; fiyat-tahrizi →
           f"HASH_MISMATCH ( Ed25519+sha256-yeniden-gerçek)")
 
 # 5) tenderix-dispute verify_chain ( sha256+prev-yeniden-hesap)
+# TEND-DISP-1b-sonrası-iki-sözleşme-bellek-ici-örnekte-açıkça-sağlanmalı:
+#   (a) seq == liste-indexi ( 0-tabanlı — append-sırasında-len(_entries)'tür);
+#   (b) _prev == yürüyüş-sonu ( LEDGER_BROKEN@TAIL-tail-truncation-denetimi).
+# DisputeLedger.__new__-kurucu-atlaması-_prev'i-ilkellemediği-için-ayarlarız.
 dl = DisputeLedger.__new__(DisputeLedger)
 dl._entries = []
 import hashlib
 from tenderix.dispute import _canon, GENESIS
+dl._prev = GENESIS                        # TEND-DISP-1: kurucu-sözleşmesi
 prev = GENESIS
 for i, (oid, act) in enumerate((("o1", "open"), ("o1", "evidence"), ("o1", "resolve"))):
-    e = {"seq": i + 1, "offer_id": oid, "action": act, "prev_hash": prev}
+    e = {"seq": i, "offer_id": oid, "action": act, "prev_hash": prev}
     e["entry_hash"] = "sha256:" + hashlib.sha256(
         prev.encode("ascii") + _canon({k: v for k, v in e.items()
                                        if k != "entry_hash"})).hexdigest()
     dl._entries.append(e); prev = e["entry_hash"]
+dl._prev = prev                           # yürüyüş-sonu = canlı-zincir-başı
 ok3, r3 = dl.verify_chain()
 assert ok3 is True, f"dispute-chain-geçmedi: {r3}"
 dl._entries[1]["action"] = "HACKED"             # sonradan-tahriz
 ok4, r4 = dl.verify_chain()
 assert ok4 is False and "LEDGER_BROKEN" in r4, f"tahriz-yakalanmadı: {r4}"
 print("  B2-TEMİZ: tenderix dispute.verify_chain sha256+prev-yeniden-hesaplar; "
-          "tahriz → LEDGER_BROKEN")
+          "tahriz → LEDGER_BROKEN ( tail-truncation'a-karşı-LEDGER_BROKEN@TAIL)")
 
 # 6) syntropion HMAC — sahte-session-token → ValueError
 #    ( AT-162-düzeltmesi-sonrası-SYNTROPION_SECRET_KEY-ZORUNLU: fail-closed-env-guard)

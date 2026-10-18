@@ -82,11 +82,14 @@ try:
     if os.path.isfile(os.path.join(SW, "evidence.py")):
         sys.path.insert(0, SW)
         import evidence as sw_ev
+        # DALGA-E düzeltmesi: swarmax/schema/sqlite_v1.sql GERÇEK şeması —
+        # ed25519_sig sütunu zorunlu ( verify_chain SQLite hatası veriyordu).
         db = sqlite3.connect(":memory:"); db.row_factory = sqlite3.Row
         db.execute("CREATE TABLE evidence_ledger (seq INTEGER PRIMARY KEY, "
-                   "event_type TEXT, payload_hash TEXT, prev_hash TEXT)")
-        db.execute("INSERT INTO evidence_ledger VALUES (1,'t',?,?)",
-                   (sw_ev.payload_digest({"j":1}), sw_ev.GENESIS)); db.commit()
+                   "event_type TEXT, payload_hash TEXT, prev_hash TEXT, "
+                   "ed25519_sig BLOB NOT NULL)")
+        db.execute("INSERT INTO evidence_ledger VALUES (1,'t',?,?,?)",
+                   (sw_ev.payload_digest({"j":1}), sw_ev.GENESIS, sw_ev.UNSIGNED_F0)); db.commit()
         ok, n = sw_ev.verify_chain(db)
         r7 = SB.verify(base_charge(
             {"chain": "swarmax", "head_hex": sw_ev.payload_digest({"j":1}),

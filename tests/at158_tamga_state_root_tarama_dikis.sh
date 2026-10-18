@@ -115,9 +115,15 @@ j3 = json.loads(r3.stdout) if r3.stdout.strip().startswith("{") else {"ok": None
 assert j3.get("ok") is False, f"AÇIK-GERİ-GELDİ! ( tahrizli-state-run-yeşil): {j3}"
 assert j3.get("reason_code") == 5 and "graph_merkle" in j3.get("reason", ""), \
     f"rc5-graph_merkle-mismatch-beklendi: {j3}"
+# Refactor-duyarlı-kaynak-teyidi ( AT-163-guard'ın-bugünkü-yüzü):
+#   (a) _graph_merkle-karşılaştırma-hâlâ-var ( refactor-dışı-imza);
+#   (b) run-yolu-doğrulaması-_load_state-içinde-gardiyendirilmiştir —
+#      _behavior-doğrulaması-yukarıdaki-RED-rc5'te-zaten-ölçüldü.
 src = (ROOT / "tamga_runner.py").read_text(encoding="utf-8")
-assert "_graph_merkle(st[\"memory\"]) != st[\"graph_merkle\"]" in src, \
-    "run-yolu-doğrulaması-kayboldu"
+assert re.search(r'if\s+_graph_merkle\(\s*mem\s*\)\s*!=\s*st\[\s*"graph_merkle"\s*\]',
+                 src), "run-yolu-graph_merkle-doğrulaması-kayboldu"
+assert "run-yolu" in src and "graph_merkle mismatch" in src, \
+    "run-yolu-hata-mesajı-kayboldu ( fail-closed-davranışı-teyit-edilemez)"
 print(f"  3) DÜZELTİLDİ: state.json-durum-tahrizi → run RED-rc5 "
       f"( graph_merkle-mismatch; run-yolu-artık-doğrular — AT-163'ün-ölçtüğü-"
       f"eksiklik-kapandı)")

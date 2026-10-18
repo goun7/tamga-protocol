@@ -132,7 +132,11 @@ if [ $RC -eq 0 ]; then
 else FAIL=$((FAIL+1)); note "  FAIL 3)"; cat "$LOG"; fi
 
 # 4) BOŞ-SONUÇ-DİZİSİ: results={}-absent-değil-failure-değil
-note "4) results-boş — üçüncü-durum-ayrışıyor"
+# DALGA-E düzeltmesi: SOV-1 ( 6b5c5a6, 2026-10-16) boş-kanıtı RED'e-çevirdi —
+# "boş-kanıt-kanıt-değildir". Bu-kontrol AT-054'ün-ilk-yazılımından-önce-değil
+# SONRA geldiği için artık "boş=UNVERIFIED-ok:True" beklentisi STALE'dir.
+# Doğru-beklenti: boş-results → ok:False + verdict:RED + fail-closed-sebebi.
+note "4) results-boş — üçüncü-durum-ayrışıyor (SOV-1: boş-kanıt-RED)"
 python3 - <<PYEOF >> "$LOG" 2>&1
 import sys, json, tempfile, hashlib
 sys.path.insert(0, "tools")
@@ -144,13 +148,15 @@ a = {"type":"sovereign-anchor","version":"0.1","products_present":[],
 a["anchor_root"] = hashlib.sha256(canon({"results":{},"sources":{}})).hexdigest()
 p = f"{d}/e.json"; json.dump(a, open(p,"w"))
 r = SA.verify(p)
-# boş-durum-da-UNVERIFIED-olmalı (absent-ailesi), RED-değil
-assert r.get("ok") is True, f"boş-durum-RED-verdi: {r}"
-print(f"  boş-results: {r.get('verdict')} — absent-ailesinde-doğru")
+# SOV-1 fail-closed: boş-kanıtYeşile-boyanamaz — ok:False + RED
+assert r.get("ok") is False, f"boş-durum-ok:True-verdi (SOV-1-ihlal): {r}"
+assert r.get("verdict") == "RED", f"boş-durum-RED-değil: {r}"
+assert "products_proved boş" in r.get("reason", ""), f"sebep-SOV-1-değil: {r}"
+print(f"  boş-results: {r.get('verdict')} — SOV-1-fail-closed (absent≠failure korunur)")
 PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then
-  PASS=$((PASS+1)); note "  PASS 4) boş-durum-doğru-aile"
+  PASS=$((PASS+1)); note "  PASS 4) boş-durum-SOV-1-fail-closed"
 else FAIL=$((FAIL+1)); note "  FAIL 4)"; cat "$LOG"; fi
 
 # 5) AT-054(b)-KAPANIŞI: STRUCTURAL-GREEN-artık-iki-tarafta-da-var

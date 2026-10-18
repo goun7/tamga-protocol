@@ -171,9 +171,15 @@ for sahte in ("0x" + "77"*65, os.urandom(65).hex()):
 print("  sahte-imza (65-bayt-sahte + rastgele) → RED rc4")
 
 # --- 7) NEGATİF-2: emanet-zincirine-tahriz → evidenceHash-swap-RED rc7
+# TEND-ESC-1-sonrası: resolve() yalnız-DISPUTED'den-karar-verir (fail-closed);
+# doğrudan-AUTHORIZED'den-çözüm-eski-API'si-kapandı. Bu-yüzden-farklı-ömür-
+# döngüsü-üretmek-için-gerçek-yolu-izleriz: authorize→dispute→resolve(
+# buyer_wins=True) → REFUNDED ( O-1'in-SETTLED-sonucundan-farklı-sonuç-yüzü).
 led3 = DisputeLedger()
 e3 = Escrow(on_transition=hayatar(led3))
-e3.authorize("O-7", "r"); e3.resolve("O-7", buyer_wins=False)  # doğrudan-çözüm (dispute-yok)
+e3.authorize("O-7", "r"); e3.dispute("O-7")
+e3.resolve("O-7", buyer_wins=True)   # alıcı-kazanır → REFUNDED (O-1'den-farklı)
+assert e3.state("O-7") == EscrowState.REFUNDED, "farklı-döngü-REFUNDED-olmalı"
 head3 = led3._prev[len("sha256:"):]
 assert head3 != HEAD_HEX, "farklı-ömür-döngüsü-farklı-head"
 govde2 = {**govde, "evidenceHash": {"alg": "sha256", "hex": head3}}

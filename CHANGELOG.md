@@ -125,6 +125,39 @@ versioning: [SemVer](https://semver.org/spec/v2.0.0.html) — pre-1.0, minor = f
   DEMO-SCRIPT, RFC-004) + migration/RELATED parity; RFC-005/006 EN translation recorded as
   the honest open debt (they were born Turkish; per-document language status now in README).
 
+## [0.2.13] — 2026-10-19
+
+The compute-anchor + independent-verification release. 320 commits since 0.2.12;
+suite 242 PASS / 1 SKIP / 0 FAIL. Full write-up in [RELEASE.md](RELEASE.md).
+
+### Added
+- **`compute-anchor` op (RFC-011, K1)** — external work-proof receipts (KOK
+  mining-proof) bind into the ledger after independent verification;
+  `presentation_only` + `verified` enforced at write AND read (LEDGER-SPEC §9,
+  C-1..C-7); emitter proven in the production corpus (AT-057).
+- **Tamga MCP server** — stdio JSON-RPC, 5 tools, 8 tests; third parties verify
+  receipts without installing Tamga.
+- RFC-010 closures: submitter/payee separation (x402 #2887, AT-226),
+  x402-response-provenance (AT-215), AT-145..AT-167 standardization ladder
+  (zkTLS, consensus/Sybil scans as INDETERMINE rc2, Rekor external anchor,
+  crypto-gateway audit).
+- Operational: `ledger-verify-batch` (AT-208), registry backup/restore (AT-209),
+  relayer-balance watcher, relayer chaos-stitch fail-closed (AT-225,
+  RC_NETWORK-27).
+- BrandStrike TSA code-bond (AT-229): RFC 3161 ↔ Tamga hash-chain, time axis.
+
+### Fixed
+- **False-proof gates fail-closed (DISP-1/SOV-1/EMIT-1/NRC-1)** — a vacuous
+  production corpus can no longer score "all emitters proven"; an op with a
+  code emitter but no production evidence REDs. This gate caught the
+  compute-anchor corpus/spec gap at release-prep (G26).
+- ecrecover user-site dependency (HOME-change breakage); CI #338/#339 honest
+  SKIP + mesh precondition; run_all ct_log.jsonl auto-cleanup.
+
+### Compatibility
+No published fixture, receipt, or finding hash changes; `spec_version` stays
+`0.2.0`; `compute-anchor` is additive to the ledger taxonomy.
+
 ## [0.2.10] — 2026-09-16
 
 ### Added

@@ -42,7 +42,7 @@ def rpc(method: str, params: list, rpc_url: str, timeout: int = 30):
                           "params": params}).encode()
     req = urllib.request.Request(rpc_url, data=payload,
                                  headers={"Content-Type": "application/json",
-                                          "User-Agent": "tamga-p9-verify/0.2.12"})
+                                          "User-Agent": "tamga-p9-verify/0.2.13"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         body = json.load(r)
     if "error" in body:

@@ -52,6 +52,23 @@ RECORDS = [
      "tool": "verifier_epoque + tamga_keccak (dual-impl)",
      "presentation_only": True,
      "reason": "at057-uretim-corpus-kaniti"},
+    # K1-compute-anchor (2026-10-19): dumen-uretim-kanitinin-tamga-ledger'ina
+    # baglanmasi. Kayit-shape'i tools/compute_anchor.py:_compute_anchor_violation
+    # ile-AYNI-sözleşmeyi-payar — yazma-ve-okuma-aynı-kuralı-görür (AT-062).
+    # receipt_version/kok-şekli dumen.receipt.kok_miner'mine() çıktısından;
+    # digest-64-lowercase-hex (kok-un-own-alanı, 0x-on-ekisiz).
+    {"op": "compute-anchor", "pkg": "at057-prodrun", "session": 1,
+     "anchor_version": "TAMGA_COMPUTE_ANCHOR_V1",
+     "receipt_version": 1,
+     "receipt_hash": "0" * 64,
+     "miner_did": "did:key:z" + "a" * 44,
+     "task_program": "dumen/sae-pre-acts-matmul",
+     "ctx": 20261019, "nonce": 7,
+     "tile": [1, 1, 5],
+     "verified": True,
+     "tool": "kok_receipt_verify_en.py (independent copy)",
+     "presentation_only": True,
+     "reason": "at057-uretim-corpus-kaniti"},
 ]
 
 

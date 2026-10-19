@@ -11,8 +11,10 @@
 
 Kayıt-türleri: `charge` (iş-ve-ölçüm-kanıtı), `grant` (finansman),
 `migrate-net` (R1-ağ-geçiş-kanıtı), `anchor` (RFC-009-dış-zincir-çapası —
-pilot-açık, §8'ye-bakın); v0.1-charge/grant/migrate-net'i-yayar,
-`anchor`-pilot-olarak-eklendi (2026-09-20, kurucu-onayı).
+pilot-açık, §8'ye-bakın), `compute-anchor` (K1-iş-kanıtı-çapası —
+dış-kök-receipt'in-ledger'a-bağlanması, §9'ya-bakın); v0.1-charge/grant/
+migrate-net'i-yayar, `anchor`-pilot-olarak-eklendi (2026-09-20, kurucu-onayı),
+`compute-anchor`-eklendi (2026-10-19, K1-kapanış).
 **Harcama-türü `fee` RESERVED'dir** (aşağıda, tek
 listede — çift-liste-makineyi-şaşırtıyor).
 
@@ -26,6 +28,8 @@ Gerçek-ledger-op'ları (sadece-`_ledger_append`-çağrı-aralığında):
   - `charge`-←-tamga_runner.py:784
   - `grant`-←-tamga_runner.py:366
   - `migrate-net`-←-tamga_runner.py:1174
+  - `anchor`-←-tamga_runner.py (RFC-009-§8)
+  - `compute-anchor`-←-tools/compute_anchor.py:214 (K1-§9)
 `fee`-RESERVED. **`run`-bu-listeden-çıkarıldı** (stdout-sözcüğü).
 
 **Sester'ın-sentezi-spec'e-yazıldı (yapısal↔çalışma-zamanı-tamamlama):**
@@ -320,7 +324,43 @@ uymuyorsa-RED'dir — bu-iki-farklı-sözleşme, aynı-tablo-değil.
 **Test:** AT-060-(7/7) — GREEN-yolu + her-R9-sınıfı-taze-pakette-tek-ihlal +
 `cmd_anchor`-regresyonu (refactor-yazma-yolunu-bozmaz).
 
-## 9. Grant-shape-contract — okuma-kapısı (AT-062, 2026-09-21)
+## 9. K1-compute-anchor — `compute-anchor`-op'u (2026-10-19, K1-kapanış)
+
+**K1-çapa'sı-üretim-koduna-girdi** (`tools/compute_anchor.py:cmd_compute_anchor`)
+ve-emitter-registry'ye-çağrı-içi-kayıt-la-bağlandı
+(`register_emitter(COMPUTE_ANCHOR_OP, ...)`-satır-içi).
+
+**§8-anchor'ından-farkı:** `anchor`-dış-zincir-fact'ini-kaydeder (RFC-009);
+`compute-anchor`-dış-bir-iş-kanıtı-receipt'ini (kok-mining-proof) ledger'a
+bağlar. İkisi-aynı-ailedir-AMA-şema-aynı-DEĞİL — compute-anchor-kok'un-own-
+receipt-alanlarını-taşır (receipt_version/receipt_hash/miner_did/
+task_program/ctx/nonce/tile).
+
+**Normatif-kurallar (tools/compute_anchor.py:_compute_anchor_violation):**
+
+- **C-1** `anchor_version`-sabit-`TAMGA_COMPUTE_ANCHOR_V1`-olmalıdır.
+- **C-2** `receipt_version`-tamsayı-ve-`RECEIPT_VERSION`'a-eşit-olmalıdır —
+  bağımsız-doğrulayıcı-köprü-bu-sürümü-okur (kok-receipt-sürümü).
+- **C-3** `receipt_hash`-64-lowercase-hex-olmalıdır (kok'un-own-envelope
+  digest'i — `0x`-ön-ekisiz; RFC-009-R9-3'ün-kanonik-disiplini-aynı,
+  ön-ek-farklı).
+- **C-4** `miner_did`-`did:key:z...`-olmalıdır.
+- **C-5** `task_program`-boş-olmayan-string-olmalıdır (üretici-işin-adı —
+  örn-`dumen/sae-pre-acts-matmul`).
+- **C-6** `presentation_only`-`True`-olmalıdır — kayıt-iş-yapıldığını-sunar,
+  ödeme-yapıldığını-DEĞİL (R9-5-ile-aynı-disiplin, green-giydirme-YOK).
+- **C-7** `verified`-`True`-olmalıdır — RED-bir-makbuzu-bağlamak-yesil-
+  giydirme olur; `verify_kok_receipt_path`-önce-doğrular-sonra-yazar
+  (doğrulama-önce İlkesi).
+
+**Alıcı-tarafı:** `compute-anchor`-kaydı-D5-zincir-hash'ine-girer (§8-aynası).
+
+**Üretim-kanıtı:** `.evidence/PROD-CORPUS/`-üretim-corpus'unda-kanıtlanmıştır
+(AT-057-üçüncü-seçenek-yasağı-uyumlu; üretici: `tests/helpers/
+prod_corpus_make.py`-her-koşuda-sıfırdan-ürettiği-için-kanıt-koşuya-bağlıdır,
+commit'e-değil).
+
+## 10. Grant-shape-contract — okuma-kapısı (AT-062, 2026-09-21)
 
 **AT-060'ın-deseni-diğer-şema-yüzeylerine-yayılır.** `cmd_grant`-yazma-yolunda
 üç-shape-kuralı-doğruluyordu — ama-okuma-yolunda-grant-için-HİÇBİR-kapı-yoktu.

@@ -57,7 +57,8 @@ assert len(lines) >= 2, f"üretim-ledger-boş: {len(lines)}-satır"
 for l in lines:
     r = json.loads(l)
     assert all(k in r for k in ("seq", "prev", "h")), f"üçlü-eksik: {r.keys()}"
-    assert r.get("op") in ("anchor", "charge", "grant", "migrate-net"), \
+    assert r.get("op") in ("anchor", "charge", "compute-anchor", "grant",
+                           "migrate-net"), \
         f"beklenmeyen-op: {r.get('op')}"
 print(f"  {len(lines)}-üretim-satırı-üçlü-tamam")
 PYEOF
@@ -65,7 +66,7 @@ RC=$?
 if [ $RC -eq 0 ]; then PASS=$((PASS+1)); note "  PASS 2) üretim-ledger-üçlü"; else FAIL=$((FAIL+1)); note "  FAIL 2)"; cat "$LOG"; fi
 
 # 3) TÜM-DÖRT-EMITTER-ÜRETİM-KANITLI: anchor/charge/grant/migrate-net
-note "3) dört-emitter'ın-hepsi-üretim-ledger'ında-kanıtlandı (anchor-RFC-009)"
+note "3) beş-emitter'ın-hepsi-üretim-ledger'ında-kanıtlandı (anchor-RFC-009+compute-anchor-K1)"
 python3 - <<PYEOF >> "$LOG" 2>&1
 import sys; sys.path.insert(0, "tools")
 import emitter_verify as EV
@@ -74,9 +75,9 @@ r = EV.scan()
 up = [p for p in r["problems"] if "ÜRETİM" in p and "KANIT-YOK" in p]
 assert not up, f"üretim-kanıtsızlık-kaldı: {up}"
 prod = EV.corpus_ops(production_only=True)
-for op in ("anchor", "charge", "grant", "migrate-net"):
+for op in ("anchor", "charge", "compute-anchor", "grant", "migrate-net"):
     assert op in prod, f"{op}-üretim-corpus'unda-yok"
-print("  dört-emitter-üretim-kanıtlandı:", sorted(prod))
+print("  beş-emitter-üretim-kanıtlandı:", sorted(prod))
 PYEOF
 RC=$?
 if [ $RC -eq 0 ]; then PASS=$((PASS+1)); note "  PASS 3) migrate-net-dürüst-bildirim"; else FAIL=$((FAIL+1)); note "  FAIL 3)"; cat "$LOG"; fi

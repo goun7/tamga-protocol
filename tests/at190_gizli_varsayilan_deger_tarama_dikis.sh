@@ -158,11 +158,17 @@ assert r.stdout.strip() == "", f"timeout=None-bulundu: {r.stdout[:80]}"
 # grep-E \s-yi-yeni-satır-olarak-yorumlar → ^print\(-deseni-daha-güvenli).
 # Ayrıca-kaynak-yolu: 00_TAMGA-MESH/yieldix-eski-kopya-ÇAKIŞIR —
 # 01_unicorn/99-Yieldix-gerçek-upstream-tercih-edilir.
+# YANLIŞ-POZİTİF-2-2026-10-22: gp'siz-tarama src/yieldix.egg-info/PKG-INFO'yu
+# da-tarılıyordu — build-üretilmiş-README-kopyası ( print()/TODO-geçen-prose).
+# Ölçüm: --include=*.py-ile-0-hit, egg-info-haricinde-0-hit. Düzeltme:
+# --include=*.py ( anchored-sadece-kaynak-koda). gizli-skip-kaynaklı-bir-
+# KIRMIZI-pindi-bu-yanlış-pozitif-üretemez-artık.
 import os as _o3
 _yx = "/home/gokun/projects/01_unicorn/99-Yieldix/src"
 if not _o3.path.isdir(_yx):
     _yx = "/home/gokun/projects/00_TAMGA-MESH/yieldix/src"
-r2 = subprocess.run(["grep", "-rnE", "(^|[^_a-zA-Z])print\\(\\s*|breakpoint\\(|TODO|FIXME",
+r2 = subprocess.run(["grep", "-rnE", "--include=*.py",
+                     "(^|[^_a-zA-Z])print\\(\\s*|breakpoint\\(|TODO|FIXME",
                      _yx], capture_output=True, text=True)
 print(f"  7-TEMİZ: yieldix debug/TODO-sayısı: {len(r2.stdout.splitlines())} ( 0-iyi)")
 assert r2.stdout.strip() == "", f"debug-artifacts: {r2.stdout[:80]}"

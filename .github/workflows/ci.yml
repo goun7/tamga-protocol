@@ -39,6 +39,14 @@ jobs:
       - name: Acceptance suite (run_all)
         run: bash tests/run_all.sh
 
+      # G48-2026-10-22: AT-195/AT-196-CI-3.13'te-KIRMIZI-ama-run_all.sh-ciktiyi
+      # /dev/null'a-yutuyor. Bu-adim-hata-ayiklama-icin-ciktiyi-acik-birakir.
+      - name: relayer-AT-195/196-detay (hata-ayiklama; hatada-basarisiz-degil)
+        run: |
+          bash tests/at195_relayer_katman0_kanit_uretim_dikis.sh; echo "at195-rc=$?"
+          bash tests/at196_relayer_evm_uctan_uca_dikis.sh; echo "at196-rc=$?"
+        continue-on-error: true
+
       - name: Negative vectors — node-cosign (AT-003)
         run: bash tests/negative_cosign.sh
 

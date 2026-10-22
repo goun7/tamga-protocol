@@ -6,10 +6,10 @@
 
 [![PyPI](https://img.shields.io/pypi/v/tamga-protocol)](https://pypi.org/project/tamga-protocol/)
 [![CI](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml/badge.svg)](https://github.com/goun7/tamga-protocol/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-242%2F243%20PASS-brightgreen)](#one-command-regression)
+[![Tests](https://img.shields.io/badge/tests-243%2F244%20PASS-brightgreen)](#one-command-regression)
 [![License](https://img.shields.io/badge/license-Apache--2.0-informational)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Phase%202%20--%20pilot-orange)](#roadmap)
-[![Reproduce](https://img.shields.io/badge/docs-reproduce%20it%20yourself-blue)](docs/REPRODUCE.md) — last full suite run: 2026-10-18 (DALGA-E — 242 PASS/1 SKIP/0 FAIL)
+[![Reproduce](https://img.shields.io/badge/docs-reproduce%20it%20yourself-blue)](docs/REPRODUCE.md) — last full suite run: 2026-10-22 (A1c-surum-tek-kaynak — 243 PASS/1 SKIP/0 FAIL)
 
 </div>
 
@@ -260,7 +260,7 @@ git clone https://github.com/goun7/tamga-protocol && cd tamga-protocol
 python3 -m venv .venv && source .venv/bin/activate   # or: pip install --break-system-packages -r requirements.txt
 pip install -r requirements.txt
 bash tests/setup.sh            # one-time: installs pinned wasmtime into tools/bin/
-bash tests/run_all.sh          # 242/243 controls — 1 SKIP, 0 FAIL (230 default / +4 live with TAMGA_LIVE=1)
+bash tests/run_all.sh          # 243/244 controls — 1 SKIP, 0 FAIL (231 default / +4 live with TAMGA_LIVE=1)
 python3 -m pytest tests/ -q    # 3.088 unit tests passed, 0 failed, rc=0 (DALGA-E-ölçümü 2026-10-18, 40 s)
 
 # your first agent (copy the sample vector as the package — see docs/AGENT-GUIDE §3):
@@ -344,7 +344,7 @@ python3 tools/memory_import.py --from export.json --format auto -o converted.jso
 ## One-command regression
 
 ```bash
-bash tests/run_all.sh        # 241/242 controls — families below; 1 SKIP, 0 FAIL (230 default / +4 live with TAMGA_LIVE=1)
+bash tests/run_all.sh        # 243/244 controls — families below; 1 SKIP, 0 FAIL (231 default / +4 live with TAMGA_LIVE=1)
 python3 -m pytest tests/ -q  # 3.088 unit tests passed, 0 failed, rc=0 (DALGA-E-ölçümü 2026-10-18, 40 s)
 ```
 Control families: snapshot lifecycle + adversarial negatives (AT-001), determinism/replay

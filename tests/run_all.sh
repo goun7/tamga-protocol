@@ -997,6 +997,14 @@ PY
   # AT-203/AT-210 ile-aynı-şekilde-SKIP (exit-0).
   bash tests/at230_fulfill_execution_dikis.sh > /dev/null 2>&1
   kontrol $? "AT-230: fulfillExecution davranış-dikişi ( selector+fail-closed+calldata+makbuz+fee 5/5)"
+  # AT-231: SURUM-TEK-KAYNAK ( A1c-2026-10-22) — tamga_bootstrap.py --version
+  # once-importlib.metadata-okuyordu ( kaynak-agacinda-site-packages'taki-ESKI
+  # kurulu-paketi-buluyordu) VE-stale-0.2.0rc2-fallback-basiyordu ( pyproject-
+  # 0.2.13'e-karsi). 5-kontrol: --version==pyproject / stale-yok / tek-satir /
+  # importlib-yalanini-kaynak-gecer / magic-string-yok. Surum-yalnizca-tek
+  # kaynak-tasiyabilir ( pyproject.toml). Para-YOK/ag-YOK/wasm-YOK.
+  bash tests/at231_surum_tek_kaynak_dikis.sh > /dev/null 2>&1
+  kontrol $? "AT-231: surum-tek-kaynak ( pyproject.toml ↔ bootstrap --version 5/5)"
 
   rm -rf "$SB"
   echo ""

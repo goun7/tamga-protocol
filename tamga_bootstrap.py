@@ -42,6 +42,25 @@ def _artifact_name() -> str:
     return ""
 
 
+def _kaynak_surumu():
+    """A1c-2026-10-22: kaynak-agacindaki-pyproject.toml'den-version-okur.
+
+    Bu-deponin-tek-gercegidir; importlib.metadata kaynak-agacinda
+    site-packages'taki-ESKI-kurulu-paketi-bulur ( yalan-soyler).
+    Bulamazsa-None-doner ( cagri-yoneticisi-importlib'ye-duser).
+    """
+    try:
+        pp = pathlib.Path(__file__).resolve().parent / "pyproject.toml"
+        if not pp.exists():
+            return None
+        for ln in pp.read_text(encoding="utf-8").splitlines():
+            if ln.startswith("version ="):
+                return ln.split('"')[1]
+    except Exception:
+        return None
+    return None
+
+
 def _fail(msg_tr: str, msg_en: str) -> "SystemExit":
     print(f"[TAMGA-HATA] {msg_tr}\n[TAMGA-ERROR] {msg_en}", file=sys.stderr)
     return SystemExit(1)
@@ -129,12 +148,22 @@ def main(argv=None) -> int:
         import tamga_bundle as tb
         return int(tb.main(argv[1:]) or 0)
     if argv[0] in ("--version", "version"):
-        # tek-kaynak-sürüm: pyproject'ten-okunmaz-(kurulu-olmayan-klon); importlib-metadata-dene
-        try:
-            from importlib.metadata import version as _v
-            print(f"tamga-protocol {_v('tamga-protocol')}")
-        except Exception:
-            print("tamga-protocol 0.2.0rc2 (source tree; version from pyproject.toml)")
+        # A1c-2026-10-22: surum-TEK-KAYNAKLI ( pyproject.toml). Onceki-tasarim
+        # ( importlib.metadata-only) kaynak-agacinda-YALAN-SOYLEYORDU:
+        # site-packages'taki-ESKI-kurulu-tamga-protocol'u-buluyordu, bu-deponin
+        # pyproject'ini-degil ( olcum: 0.2.0rc2-stale-fallback-vs-0.2.13).
+        # Duzeltme: once-kaynak-pyproject-okunur, YOKSA-importlib'ye-dusulur.
+        surum = _kaynak_surumu()
+        if surum is None:
+            try:
+                from importlib.metadata import version as _v
+                surum = _v("tamga-protocol")
+            except Exception:
+                surum = None
+        if surum is not None:
+            print(f"tamga-protocol {surum}")
+        else:
+            print("tamga-protocol (surum-okunamadi: pyproject-yok ve kurulu-degil)")
         return 0
     if argv[0] == "doctor":                 # kurulum-sağlık: sorun-kendin-sor-komutu (engine-süz)
         ok = True

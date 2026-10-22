@@ -54,7 +54,11 @@ PY="$VENV/bin/python"
 # alir; venv-web3 (pinned web3<7) ise eski camelCase-API bekler →
 # 'SignedTransaction' has no attribute 'rawTransaction' (yenisi raw_transaction).
 # Venv-python kendi pinned-paketlerini öncelikli kullansin: venv-site ilk.
-export PYTHONPATH="$VENV/lib/python3.14/site-packages${PYTHONPATH:+:$PYTHONPATH}"
+# [G48-2026-10-22] onceki-sabit-python3.14-yolu-CI-matrixinde- ( 3.10/3.12/3.13)
+# YOKTU -> venv-site-bulunamadi -> user-site-one-gecti -> 3.13'te-patladi.
+# Cozum: venv-python-kendine-soruyor ( cpython-version-uyumsuzlugu-YOK).
+VSP="$("$PY" -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')"
+export PYTHONPATH="${VSP}${PYTHONPATH:+:$PYTHONPATH}"
 
 SB="$(mktemp -d)"
 trap 'rm -rf "$SB"' EXIT

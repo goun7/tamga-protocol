@@ -6,7 +6,12 @@
 >
 > **FP0:** aşağıdaki her alıntı `web_fetch` ile **HTTP-200 + tam başlık birebir
 > eşleşmesi** ile doğrulanmıştır. Uydurma alıntı yoktur. Kanıt:
-> [`orkestrasyon/docs/fp0_arxiv_manifest_2026-10-07.json`](../../00_TAMGA-MESH/orkestrasyon/docs/fp0_arxiv_manifest_2026-10-07.json).
+> [`orkestrasyon/docs/fp0_arxiv_manifest_2026-10-07.json`](assets/fp0_arxiv_manifest_2026-10-07.json).
+>
+> G48-2026-10-22: link once `../../00_TAMGA-MESH/orkestrasyon/...`-e
+> isaret ediyordu ( mesh-disina) — bu-dosya CI'da-KIRIK-link olarak
+> patliyordu ( orkestrasyon-bu-deponun-parcasi-degil). Kanitin-kendisi
+> `docs/assets/`-altina-KOPYALANDI ( ayni-icerik, 121-satir).
 
 ---
 

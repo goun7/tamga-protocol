@@ -1,0 +1,121 @@
+{
+  "dogrulama_tarihi": "2026-10-07",
+  "yontem": "FP0: her arXiv kimligi https://arxiv.org/abs/<id> uzerinden web_fetch ile HTTP-200 + tam-baslik birebir eslesmesi ile dogrulandi. Negatif kontrol: uydurma kimlikler (2610.99999, 2699.00001, 2401.999999) HTTP 404 dondurdu — yontem gercek olmayan kimlikleri ayirt ediyor.",
+  "pencere": "2026-09-22 .. 2026-10-07 (submittedDate)",
+  "konular": ["agent-memory", "proof-systems", "consensus", "payment-channels", "DID"],
+  "toplam_dogrulandi": 16,
+  "kayitlar": [
+    {
+      "id": "2609.29975", "konu": "payment-channels", "kategori": "cs.CR",
+      "tarih": "2026-09-24",
+      "baslik": "Sluice: Global Invariant, Local Enforcement for Pooled Payment-Channel Liquidity",
+      "yazarlar": ["Yueqi Wu", "Huiping Sun", "Peilu Guo", "Yiming Zhu", "Zhong Chen"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2609.30824", "konu": "DID", "kategori": "cs.CR",
+      "tarih": "2026-09-25",
+      "baslik": "Crypto-bound identity-verified capability tokens for coordinating distributed AI agents: A proposal",
+      "yazarlar": ["Srikumar Subramanian", "Shubhashis Sengupta"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2610.00896", "konu": "consensus", "kategori": "cs.DC",
+      "tarih": "2026-10-01",
+      "baslik": "Seamless Reconfiguration for DAG-BFT",
+      "yazarlar": ["Michael Yiqing Hu", "Leander Jehl", "Paul Franke-Bergmann", "Jialin Li", "Christian Berger"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2609.28361", "konu": "consensus", "kategori": "cs.DC",
+      "tarih": "2026-09-23",
+      "baslik": "Flamingo: On Load Balancing in DAG-based Consensus Protocols",
+      "yazarlar": ["Zhen Ping Khor", "Garvit Gupta", "Mohammad Javad Amiri", "Boon Thau Loo"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2609.33914", "konu": "proof-systems", "kategori": "cs.CR",
+      "tarih": "2026-09-27",
+      "baslik": "A2A-CaseVerify: Merkle-Linked Case-Evidence Verification for Cross-Organization A2A Workflows",
+      "yazarlar": ["Adil Alshammari", "Hayretdin Bahsi"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2609.36170", "konu": "proof-systems", "kategori": "cs.SE",
+      "tarih": "2026-09-28",
+      "baslik": "Assay: Claims That Decay With the Code. Content-Addressed Evidence Graphs for Accountable AI-Assisted Software Delivery",
+      "yazarlar": ["Om Shankar Tiwari", "Tangi Vass", "Gagan Deep Singh"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2610.05335", "konu": "proof-systems", "kategori": "cs.CR",
+      "tarih": "2026-10-04",
+      "baslik": "StateSync-GKR: Machine-Checking the Trust Chain from Sparse-Merkle State Transitions to GKR Verification",
+      "yazarlar": ["Jinwook Kim (for the Oraclizer Core Team)"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2609.25535", "konu": "proof-systems", "kategori": "cs.CR",
+      "tarih": "2026-09-22",
+      "baslik": "FASTAR: FRI Accelerator for Scalable Transparent ARguments of Knowledge",
+      "yazarlar": ["Tengkai Gong", "Xiaolin Xu"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2610.07782", "konu": "agent-memory", "kategori": "cs.AI",
+      "tarih": "2026-10-06",
+      "baslik": "Persistent Memory in Multi-Agent LLM Inference: What It Costs, What It Buys, and When You Can Tell",
+      "yazarlar": ["Hochan Son", "Kyungdoe Han", "Jaehan Koh", "Xiaowu Dai", "Wenlu Xu", "Guang Cheng"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2610.07309", "konu": "agent-memory", "kategori": "cs.AI",
+      "tarih": "2026-10-05",
+      "baslik": "The Right Memory in the Wrong Context: Verifying Retrieval Admissibility in Long-Term Agent Memory",
+      "yazarlar": ["Zi Wang", "Xingqiao Wang", "Emmanuel Addai", "Devika Ambekar", "Xiaowei Xu"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2610.04195", "konu": "agent-memory", "kategori": "cs.AI",
+      "tarih": "2026-10-03",
+      "baslik": "MemLeak: Cross-User Semantic Leakage in Multi-Tenant AI Agent Memory",
+      "yazarlar": ["Priyanka Mudgal", "Kai Zhao", "Guilin Zhang", "Andy Olsen", "Ezekiel Miller", "Xu Chu", "Aletta Johanna Blanken"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2609.36373", "konu": "agent-memory", "kategori": "cs.CR",
+      "tarih": "2026-09-28",
+      "baslik": "Audience-Bound Persistent Memory: Authorization Across the Memory Lifecycle",
+      "yazarlar": ["Sibo Liu"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2609.33013", "konu": "agent-memory", "kategori": "cs.AI",
+      "tarih": "2026-09-26",
+      "baslik": "The Epistemics of Agent Memory: Measuring, and Governing, the Consolidation Decision in Long-Horizon LLM Agents",
+      "yazarlar": ["Sasank Annapureddy", "Anjaneya Prasad Thamatani"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2609.33004", "konu": "DID", "kategori": "cs.CR",
+      "tarih": "2026-09-26",
+      "baslik": "On the Usage of Verifiable Credentials in Privacy-Preserving Federated Analytics",
+      "yazarlar": ["Andreea-Elena Dragoiu", "Ruxandra F. Olimid"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2609.31388", "konu": "consensus", "kategori": "cs.DC",
+      "tarih": "2026-09-25",
+      "baslik": "Adaptive Switching Between Leader-Based and Leaderless BFT Protocols",
+      "yazarlar": ["Sudip Bhujel", "Yue Li", "Ning Zhang", "Y. Thomas Hou", "Wenjing Lou", "Yang Xiao"],
+      "http": 200, "fp0_web_fetch": true
+    },
+    {
+      "id": "2610.01995", "konu": "proof-systems", "kategori": "cs.AI",
+      "tarih": "2026-10-01",
+      "baslik": "Can AI Oversight Be Zero Knowledge?",
+      "yazarlar": ["Alessandro Chiesa", "Ziyi Guan", "Burcu Yildiz"],
+      "http": 200, "fp0_web_fetch": true
+    }
+  ]
+}

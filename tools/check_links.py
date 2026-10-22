@@ -14,8 +14,25 @@ import subprocess
 import sys
 from pathlib import Path
 
+def strip_code_spans(text: str) -> str:
+    """Inline kod bloklarini ( `...`) bosluga cevir.
+
+    G48-2026-10-22: arastirma raporlari README satir-alintilarini backtick
+    icinde tasiyordu ( orn. `[Reproduce](docs/REPRODUCE.md)`-bir-KANIT-
+    ALINTISIDIR, bir-link-DEGIL). LINK_RE bunlari gercek link saniyordu ->
+    3-yanlis-KIRMIZI. Cozum: backtick-icerigini cikar.
+
+    SATIR-BAZLI-yapilmali: dosya-genelinde regex-eslesmesi tek-backtick'li
+    satirlarda pairing'i kaydirir ( onceki-satirin-backtick'i-sonrakinin
+    backtick'i-ile-eslesir, aradaki-her-sey-yutulur, gercek-link-ortada
+    kalir).
+    """
+    return "\n".join(CODE_SPAN_RE.sub(" ", line) for line in text.split("\n"))
+
+
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
 IMG_RE = re.compile(r'<(?:img|source)[^>]+src="([^"]+)"')
+CODE_SPAN_RE = re.compile(r"`[^`]*`")
 
 
 def tracked_files() -> list[str]:
@@ -28,7 +45,7 @@ def main() -> int:
     checked = 0
     for md in tracked_files():
         base = Path(md).parent
-        text = Path(md).read_text(encoding="utf-8")
+        text = strip_code_spans(Path(md).read_text(encoding="utf-8"))
         targets = [m.group(2) for m in LINK_RE.finditer(text)] + \
                   [m.group(1) for m in IMG_RE.finditer(text)]
         for t in targets:
